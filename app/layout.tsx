@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "TCCIA",
+  title: "TCCIA - Client Portal",
   description: "A comprehensive ERP system for TCCIA",
 };
 

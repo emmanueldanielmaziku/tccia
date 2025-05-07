@@ -38,7 +38,7 @@ export default function LoginForm() {
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
-      className="mt-12 md:mt-[50px] flex flex-col space-y-7 w-full md:w-[480px] border p-6 rounded-[15px] shadow-sm bg-gray-50"
+      className="mt-12 md:mt-[50px] flex flex-col space-y-7 w-full md:w-[480px] border p-6 rounded-[12px] shadow-sm bg-gray-50"
     >
       <div className="w-full flex flex-row justify-between items-center space-x-4">
         <Image
