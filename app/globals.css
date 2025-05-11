@@ -96,5 +96,29 @@
     -webkit-appearance: none;
     margin: 0;
   }
+
+
+  /* Scrollbar Styles */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+  max-height: 4px;
+  min-height: 4px;
+
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: transparent;
+  border-radius: 8px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: transparent;
+}
+
 }
 }

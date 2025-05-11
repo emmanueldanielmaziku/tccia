@@ -7,20 +7,20 @@ export default function ProgressTracker() {
       <div className="flex flex-col w-full">
         <ProgressTab
           step={"1"}
-          title={"Factory Verification"}
-          status={"Working on"}
+          title={"CoO Customer Registration"}
+          status={"Completed"}
           last={false}
         />
         <ProgressTab
           step={"2"}
-          title={"CoO Customer Registration"}
-          status={"Required"}
+          title={"Factory Verification"}
+          status={"Pending"}
           last={false}
         />
         <ProgressTab
           step={"3"}
           title={"CoO Application Submission"}
-          status={"Required"}
+          status={"Working on"}
           last={false}
         />
         <ProgressTab

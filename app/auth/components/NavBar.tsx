@@ -1,13 +1,17 @@
 "use client";
 
 import { useState } from "react";
-import { HamburgerMenu } from "iconsax-reactjs";
+import { ArrowDown2, HamburgerMenu } from "iconsax-reactjs";
 import Image from "next/image";
 import { useFormState } from "../services/FormStates";
+import useLangState from "@/app/client/services/LanguageState";
 
 export default function NavBar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { formType, toggleFormType } = useFormState();
+
+  const { language, toggleLanguage } = useLangState();
+  const [langDrop, toggleDropBox] = useState(false);
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -47,19 +51,88 @@ export default function NavBar() {
 
       {/* Desktop Buttons */}
       <div className="hidden md:flex md:flex-row items-center space-x-4">
-     
+        <button
+          className="flex flex-row items-center justify-between h-11.5 w-[100px] px-2 gap-1.5 rounded-[12px] bg-gray-100 hover:bg-gray-200 mr-5 cursor-pointer border-1 border-zinc-300 relative"
+          onMouseOver={() => {
+            toggleDropBox(true);
+          }}
+          onMouseLeave={() => {
+            toggleDropBox(false);
+          }}
+        >
+          <div className=" flex flex-row items-center w-[40px] gap-1.5">
+            {language === "EN" ? (
+              <img
+                src="/icons/square.png"
+                alt="America Flag"
+                className="w-7 h-7"
+              />
+            ) : (
+              <img
+                src="/icons/tanzania.png"
+                alt="America Flag"
+                className="w-7 h-7"
+              />
+            )}
+            <span className="text-sm font-semibold text-gray-500">
+              {language}
+            </span>
+          </div>
+          <ArrowDown2 size="18" color="gray" />
+          {/* Language Menu Drop Down */}
+          {langDrop && (
+            <div className="bg-white shadow-sm w-[100px] p-1 rounded-[10px] flex flex-col absolute top-11.5 border-[0.5px] left-0 z-10">
+              <div
+                className="flex flex-row items-center gap-1.5 hover:bg-blue-100 p-2 rounded-[8px]"
+                onClick={() => {
+                  language === "SW" ? toggleLanguage() : null;
+                }}
+              >
+                <img
+                  src="/icons/square.png"
+                  alt="America Flag"
+                  className="w-6 h-6"
+                />
+                <span className="text-sm font-semibold text-gray-500">EN</span>
+                <span
+                  className={`w-2 max-w-2 max-h-2 h-2 rounded-full ${
+                    language === "EN" ? "bg-blue-500" : "bg-transparent"
+                  }`}
+                ></span>
+              </div>
+              <div
+                className="flex flex-row items-center gap-1.5 hover:bg-blue-100 p-2 rounded-[8px]"
+                onClick={() => {
+                  language === "EN" ? toggleLanguage() : null;
+                }}
+              >
+                <img
+                  src="/icons/tanzania.png"
+                  alt="Tanzania Flag"
+                  className="w-6 h-6"
+                />
+                <span className="text-sm font-semibold text-gray-500">SW</span>
+                <span
+                  className={`w-2 max-w-2 max-h-2 h-2 rounded-full ${
+                    language === "SW" ? "bg-blue-500" : "bg-transparent"
+                  }`}
+                ></span>
+              </div>
+            </div>
+          )}
+        </button>
 
         {formType === "register" ? (
           <button
             onClick={toggleFormType}
-            className="text-blue-600 border-2 border-blue-600 px-6 py-2 rounded-[10px] hover:bg-blue-600 hover:text-white cursor-pointer"
+            className="text-blue-600 border-1 border-blue-600 px-6 py-2 rounded-[10px] hover:bg-blue-600 hover:text-white cursor-pointer"
           >
             Login
           </button>
         ) : (
           <button
             onClick={toggleFormType}
-            className="text-blue-600 border-2 border-blue-600 px-6 py-2 rounded-[10px] hover:bg-blue-600 hover:text-white cursor-pointer font-semibold"
+            className="text-blue-600 border-1 border-blue-600 px-6 py-2 rounded-[10px] hover:bg-blue-600 hover:text-white cursor-pointer font-semibold"
           >
             Create Account
           </button>

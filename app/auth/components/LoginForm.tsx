@@ -41,23 +41,23 @@ export default function LoginForm() {
       className="mt-12 md:mt-[50px] flex flex-col space-y-7 w-full md:w-[480px] border p-6 rounded-[12px] shadow-sm bg-gray-50"
     >
       <div className="w-full flex flex-row justify-between items-center space-x-4">
-        <Image
+        {/* <Image
           src="/icons/LOGO.png"
           className="w-[40px] h-[40px]"
           alt="Logo"
           width={20}
           height={20}
-        />
+        /> */}
         <div className="text-gray-700 font-semibold text-[16px] md:text-2xl">
           Welcome back to TCCIA!
         </div>
-        <Image
+        {/* <Image
           src="/icons/LOGO.png"
           className="w-[40px] h-[40px]"
           alt="Logo"
           width={20}
           height={20}
-        />
+        /> */}
       </div>
 
       <div className="relative w-full">

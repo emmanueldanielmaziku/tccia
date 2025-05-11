@@ -29,7 +29,7 @@ export default function ProgressTab({
             : "border-gray-400"
         } ${
           status == "Working on" ? "text-black" : "text-gray-400"
-        } flex items-center justify-center outline-8 outline-white z-10`}
+        } flex items-center justify-center outline-8 outline-white`}
       >
         {status == "Rejected" ? (
           <InfoCircle
@@ -89,7 +89,7 @@ export default function ProgressTab({
         </span>
       </div>
       <div
-        className={`h-[70px] max-h-[70px] w-[2px] max-w-[2px] left-5 top-10 rounded-md ${
+        className={`h-[25px] max-h-[25px] w-[2px] max-w-[2px] left-5 top-12 rounded-md ${
           status == "Completed" ? "bg-blue-500" : "bg-gray-400"
         } ${last ? "hidden" : "absolute"}`}
       ></div>

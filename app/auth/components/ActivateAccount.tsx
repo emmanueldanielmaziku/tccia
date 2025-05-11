@@ -5,8 +5,7 @@ export default function ActivateAccount() {
     <div className="flex flex-col space-y-5 w-full md:w-[480px] m-2 border p-6 rounded-[15px] shadow-sm bg-gray-50 mt-15 ">
       <div className="w-full flex flex-col justify-between items-center space-y-6">
         <div className="text-gray-700 font-semibold text-[16px] md:text-2xl">
-          Activate your account
-        </div>
+          Account created Successfully      </div>
         <Image
           src="/icons/letter.png"
           alt="Email Icon"
@@ -19,8 +18,8 @@ export default function ActivateAccount() {
       </div>
 
       <div className="text-gray-700 text-sm md:text-base text-center">
-        Please check your email for the activation link. If you haven't received
-        it, click the button below to resend the activation email.
+        Please check your email for login credentials. If you haven't received
+        it, click the button below to resend the credentials email.
       </div>
 
       <div className="flex flex-row justify-between mt-4">
