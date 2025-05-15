@@ -77,17 +77,11 @@ export default function FactoryVerificationForm() {
 
   return (
     <form
-      className="flex flex-col space-y-4 w-full md:w-[960px] mb-24 p-6"
+      className="flex flex-col space-y-4 w-full overflow-hidden overflow-y-auto pb-10 pr-3 h-[100%]"
       onSubmit={handleSubmit}
     >
-      <div className="font-semibold antialiased text-[22px]">
-        Factory Verification
-      </div>
       {/* Applicant Details */}
       <div className="flex flex-col gap-4">
-        <div className="font-semibold antialiased text-[18px] text-zinc-600 w-full border-b-[1px] pb-4">
-          Applicant Information
-        </div>
         <div className="flex flex-row gap-6">
           {/* Firstname Input */}
           <div className="relative w-full">
@@ -399,14 +393,7 @@ export default function FactoryVerificationForm() {
           className="w-full border border-zinc-300 bg-zinc-100 outline-blue-400 rounded-[8px] placeholder:text-zinc-400 text-zinc-500 placeholder:text-[15px] p-6"
         ></textarea>
       </div>
-      <div className="w-full flex items-center justify-end space-y-8">
-        <button
-          type="submit"
-          className="px-6 py-3 bg-blue-500 text-white rounded-md hover:bg-blue-600 w-40 cursor-pointer"
-        >
-          Submit
-        </button>
-      </div>
+
     </form>
   );
 }

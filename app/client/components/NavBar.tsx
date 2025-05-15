@@ -7,21 +7,20 @@ import { useState } from "react";
 
 type NavBarProps = {
   title: string;
-  state: string;
 }
 
-export default function NavBar({ title, state } : NavBarProps) { 
+export default function NavBar({ title } : NavBarProps) { 
 
   const { isMenuOpen, toggleMenu } = useMenuState();
   const { language, toggleLanguage } = useLangState();
   const [langDrop, toggleDropBox] = useState(false);
 
     return (
-      <nav className="bg-gray-50/5 flex flex-row justify-between items-center absolute z-10 h-[65px] left-0 right-0 top-0 border-b-[1px] border-b-gray-200 px-3 w-full backdrop-blur-md">
+      <nav className="bg-gray-50/5 flex flex-row justify-between items-center absolute z-10 h-[65px] left-0 right-0 top-0 border-b-[1px] border-b-gray-200 px-7 w-full backdrop-blur-md">
         <div className="flex items-center flex-row gap-2">
           <button
             onClick={toggleMenu}
-            className="flex items-center justify-center w-10 h-10 rounded-[12px] bg-gray-100 hover:bg-gray-200 mr-5 border-[0.5px] cursor-pointer"
+            className="flex items-center justify-center w-10 h-10 rounded-[12px] bg-gray-50 border-gray-100 hover:bg-blue-100 mr-5 border-[0.5px] cursor-pointer"
           >
             {isMenuOpen ? (
               <SidebarLeft
@@ -40,16 +39,9 @@ export default function NavBar({ title, state } : NavBarProps) {
             )}
           </button>
           <div className="h-[25px] max-h-[25px] bg-zinc-300 w-[1px] max-w-[1px]"></div>
-          <div className="px-6 py-3">
-            {title === "Certificate of Origin" ? (
-              <div className="flex flex-row items-center gap-1.5">
-                <div>Certificate of Origin</div>
-                <ArrowRight2 size="15" color="gray" />
-                <div className="text-gray-500">{state}</div>
-              </div>
-            ) : (
-              <div>{title}</div>
-            )}
+          <div className="px-6 py-3 text-zinc-600">
+             {title}
+            
           </div>
         </div>
 

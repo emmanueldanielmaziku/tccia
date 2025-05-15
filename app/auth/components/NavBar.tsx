@@ -37,6 +37,11 @@ export default function NavBar() {
             </a>
           </li>
           <li>
+            <a href="/auth/login" className="hover:text-blue-500">
+              Membership Application
+            </a>
+          </li>
+          <li>
             <a href="/auth/register" className="hover:text-blue-500">
               About Us
             </a>
