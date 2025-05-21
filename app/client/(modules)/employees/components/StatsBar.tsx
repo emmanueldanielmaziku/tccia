@@ -1,5 +1,6 @@
-import {Chart, Layer, Lifebuoy, Verify } from "iconsax-reactjs";
-import Stat from "./Stats";
+import { Chart, Layer, Lifebuoy, Verify } from "iconsax-reactjs";
+import Stat from "../../employees/components/Stats";
+
 
 
 export default function StatsBar() {
@@ -8,12 +9,12 @@ export default function StatsBar() {
       <div className="w-full flex flex-col gap-7">
         <div className="w-full">
           <div className="font-semibold pb-3 text-gray-600 text-[14px]">
-            Products Statistics
+            Employees Statistics
           </div>
           <div className="grid grid-cols-3 gap-4">
             <Stat value="120" title={"Total"} icon={Chart} />
-            <Stat value="12" title={"Pending"} icon={Layer} />
-            <Stat value="96" title={"Verified"} icon={Verify} />
+            <Stat value="12" title={"Off-duty"} icon={Layer} />
+            <Stat value="96" title={"On-duty"} icon={Verify} />
           </div>
         </div>
 

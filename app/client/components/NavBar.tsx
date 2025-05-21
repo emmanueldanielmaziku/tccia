@@ -1,5 +1,5 @@
 'use client';
-import { ShieldTick, SidebarLeft, SidebarRight, Notification, ArrowRight2, ArrowDown2 } from "iconsax-reactjs";
+import { ShieldTick, SidebarLeft, SidebarRight, Notification, ArrowDown2 } from "iconsax-reactjs";
 import useMenuState from "../services/MenuState";
 import useLangState from "../services/LanguageState";
 import { useState } from "react";
@@ -16,11 +16,11 @@ export default function NavBar({ title } : NavBarProps) {
   const [langDrop, toggleDropBox] = useState(false);
 
     return (
-      <nav className="bg-gray-50/5 flex flex-row justify-between items-center absolute z-10 h-[65px] left-0 right-0 top-0 border-b-[1px] border-b-gray-200 px-7 w-full backdrop-blur-md">
-        <div className="flex items-center flex-row gap-2">
+      <nav className="bg-gray-50/5 flex flex-row justify-between items-center absolute z-20 h-[65px] left-0 right-0 top-0 border-b-[1px] border-b-gray-200 px-4 w-full backdrop-blur-md">
+        <div className="flex items-center flex-row">
           <button
             onClick={toggleMenu}
-            className="flex items-center justify-center w-10 h-10 rounded-[12px] bg-gray-50 border-gray-100 hover:bg-blue-100 mr-5 border-[0.5px] cursor-pointer"
+            className="flex items-center justify-center w-10 h-10 rounded-[12px] bg-gray-50 border-gray-100 hover:bg-blue-100 mr-3 border-[0.5px] cursor-pointer"
           >
             {isMenuOpen ? (
               <SidebarLeft
@@ -39,7 +39,7 @@ export default function NavBar({ title } : NavBarProps) {
             )}
           </button>
           <div className="h-[25px] max-h-[25px] bg-zinc-300 w-[1px] max-w-[1px]"></div>
-          <div className="px-6 py-3 text-zinc-600">
+          <div className="px-4 text-zinc-600">
              {title}
             
           </div>

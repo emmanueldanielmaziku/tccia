@@ -3,29 +3,30 @@ import { useState } from "react";
 import NavBar from "../../components/NavBar";
 import ProgressTracker from "../coo/components/StatsBar";
 import FactoryVerificationForm from "../factory-verification/components/FactoryVerificationForm";
-import { Add,CloseCircle,MoreCircle, SearchNormal1 } from "iconsax-reactjs";
+import { Add, CloseCircle, MoreCircle, SearchNormal1 } from "iconsax-reactjs";
+import AlertBox from "../factory-verification/components/AlertBox";
 
 const productData = [
   {
     sn: 1,
     product: "GILBEYS GIN",
-    eacCode: "MS",
-    sadcCode: "MS",
-    afcftaCode: "SM",
+    eacCode: "-",
+    sadcCode: "-",
+    afcftaCode: "-",
     status: "Pending",
   },
   {
     sn: 2,
     product: "GORDON’S PINK & TONIC",
-    eacCode: "Ms",
-    sadcCode: "SM",
-    afcftaCode: "SM",
+    eacCode: "-",
+    sadcCode: "-",
+    afcftaCode: "-",
     status: "Pending",
   },
   {
     sn: 3,
     product: "GORDON’S GIN & TONIC",
-    eacCode: "Ms",
+    eacCode: "MS",
     sadcCode: "SM",
     afcftaCode: "SM",
     status: "Verified",
@@ -250,6 +251,8 @@ const productData = [
 
 export default function FactoryVerification() {
   const [verificationForm, toggleForm] = useState(false);
+  const [discardBoxState, togglediscardBox] = useState(false);
+ 
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 20;
 
@@ -269,19 +272,29 @@ export default function FactoryVerification() {
 
   return (
     <main className="w-full h-[97vh] rounded-[14px] overflow-hidden bg-white border-[1px] border-gray-200 shadow-sm relative">
+      {discardBoxState && (
+        <AlertBox
+          onConfirm={() => {
+            togglediscardBox(false), toggleForm(false);
+          }}
+          onCancel={() => togglediscardBox(false)}
+        />
+      )}
       <NavBar title={"Factory Verification"} />
+
       {/* Content */}
       <section className="flex flex-row">
         <div className="flex flex-col items-center flex-1 h-[97vh] pt-18 w-full bg-transparent border-transparent border-[1px] rounded-xl">
-          <div className="flex flex-col justify-between items-center mt-2 w-full h-[86vh] rounded-sm relative px-8">
+          <div className="flex flex-col justify-between items-center mt-2 w-full h-[86vh] rounded-sm relative px-16.5">
             {/* Header */}
+
             <div className="flex flex-row w-full justify-between items-center my-1">
               {verificationForm ? (
                 <div className="font-semibold antialiased text-[18px] text-zinc-600">
                   Application Form
                 </div>
               ) : (
-                <label className="flex flex-row justify-center items-center">
+                <label className="flex justify-center items-center">
                   <input
                     type="text"
                     placeholder="Search products..."
@@ -290,7 +303,7 @@ export default function FactoryVerification() {
                   <SearchNormal1
                     size="18"
                     color="gray"
-                    className="absolute left-10"
+                    className="absolute left-19"
                   />
                 </label>
               )}
@@ -298,11 +311,18 @@ export default function FactoryVerification() {
               {/* button */}
               {verificationForm ? (
                 <button
-                  className="flex flex-row gap-3 justify-between items-center bg-red-600 hover:bg-red-500 text-white text-sm rounded-[6px] cursor-pointer px-5 py-2.5"
-                  onClick={() => toggleForm(false)}
+                  className="flex flex-row gap-3 justify-between items-center bg-transparent hover:bg-red-100 text-red-500 text-sm rounded-[6px] border-[1px] border-red-500 cursor-pointer px-5 py-2.5"
+                  onClick={() => {
+                    togglediscardBox(true);
+                    // if (discardBoxState) {
+                    //   toggleForm(false);
+                    // } else {
+                    //   toggleForm(false);
+                    // }
+                  }}
                 >
-                  <CloseCircle size={20} color="white" />
-                  Cancel
+                  <CloseCircle size={20} color="red" />
+                  Close
                 </button>
               ) : (
                 <button
@@ -362,9 +382,9 @@ export default function FactoryVerification() {
                           <span
                             className={`px-3 py-1 rounded-[5px] text-xs border-[0.5px] ${
                               product.status === "Verified"
-                                ? "bg-green-100 text-green-600 border-green-400"
+                                ? "bg-green-50 text-green-500 border-green-300"
                                 : product.status === "Pending"
-                                ? "bg-yellow-100 text-orange-400 border-orange-400"
+                                ? "bg-orange-50 text-orange-400 border-orange-200"
                                 : "bg-red-100 text-red-700"
                             }`}
                           >
@@ -384,16 +404,8 @@ export default function FactoryVerification() {
             )}
 
             {/* Pagination */}
-            {verificationForm ? (
-              <div className="w-full flex items-center justify-end space-y-8">
-                <button
-                  type="submit"
-                  className="px-12 py-2 bg-blue-500 text-white rounded-sm hover:bg-blue-600 cursor-pointer"
-                >
-                  Submit application
-                </button>
-              </div>
-            ) : (
+
+            {verificationForm ? null :  (
               <div className="flex justify-between items-center mt-4 bg-white/35 backdrop-blur-md w-full">
                 <span className="text-gray-600">
                   Page {currentPage} of {totalPages}
@@ -424,7 +436,7 @@ export default function FactoryVerification() {
                   </button>
                 </div>
               </div>
-            )}
+             )}
           </div>
         </div>
         <div className="w-[450px] h-[97vh]">

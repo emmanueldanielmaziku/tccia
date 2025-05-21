@@ -20,10 +20,15 @@ import useLogState from "../services/LogoutState";
 export default function SideBar() {
   const { isMenuOpen } = useMenuState();
   const { alertState, toggleAlert } = useLogState();
-  const [selectedTab, setSelectedTab] = useState("Factory Verification");
+  const [selectedTab, setSelectedTab] = useState("Firm Management");
   const [role, setRole] = useState("CEM");
 
   const menuItems = [
+    {
+      id: "Firm Management",
+      icon: Building,
+      route: "/client/firm-management",
+    },
     {
       id: "Factory Verification",
       icon: Box,
@@ -34,11 +39,7 @@ export default function SideBar() {
       icon: ArchiveBook,
       route: "/client/coo",
     },
-    {
-      id: "Firm Management",
-      icon: Building,
-      route: "/client/coo",
-    },
+
     {
       id: "CFA Officers Management",
       icon: Profile2User,
@@ -47,12 +48,12 @@ export default function SideBar() {
     {
       id: "CFAs Management",
       icon: Profile2User,
-      route: "/client/exporter",
+      route: "/client/cfa-management",
     },
     {
       id: "Employees Management",
       icon: UserTick,
-      route: "/client/cfa",
+      route: "/client/employees",
     },
     {
       id: "Membership",

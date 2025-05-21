@@ -1,5 +1,6 @@
-import {Chart, Layer, Lifebuoy, Verify } from "iconsax-reactjs";
+import { Building, Chart, InfoCircle, Layer, Lifebuoy, Note, Verify } from "iconsax-reactjs";
 import Stat from "./Stats";
+
 
 
 export default function StatsBar() {
