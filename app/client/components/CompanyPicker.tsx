@@ -30,7 +30,7 @@ export default function CompanyPicker() {
           {/* Company Drop Down */}
           <Select>
             <SelectTrigger className="w-full border-[1px] border-gray-300 rounded-[7px] py-6 cursor-pointer hover:bg-gray-100 shadow-sm">
-              <SelectValue placeholder="Select a fruit" />
+              <SelectValue placeholder="Select a company" />
             </SelectTrigger>
             <SelectContent>
               <SelectGroup>

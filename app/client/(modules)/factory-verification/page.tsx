@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import NavBar from "../../components/NavBar";
-import ProgressTracker from "../coo/components/StatsBar";
+import ProgressTracker from "../factory-verification/components/StatsBar";
 import FactoryVerificationForm from "../factory-verification/components/FactoryVerificationForm";
 import { Add, CloseCircle, MoreCircle, SearchNormal1 } from "iconsax-reactjs";
 import AlertBox from "../factory-verification/components/AlertBox";
@@ -252,7 +252,7 @@ const productData = [
 export default function FactoryVerification() {
   const [verificationForm, toggleForm] = useState(false);
   const [discardBoxState, togglediscardBox] = useState(false);
- 
+
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 20;
 
@@ -314,11 +314,6 @@ export default function FactoryVerification() {
                   className="flex flex-row gap-3 justify-between items-center bg-transparent hover:bg-red-100 text-red-500 text-sm rounded-[6px] border-[1px] border-red-500 cursor-pointer px-5 py-2.5"
                   onClick={() => {
                     togglediscardBox(true);
-                    // if (discardBoxState) {
-                    //   toggleForm(false);
-                    // } else {
-                    //   toggleForm(false);
-                    // }
                   }}
                 >
                   <CloseCircle size={20} color="red" />
@@ -338,7 +333,7 @@ export default function FactoryVerification() {
             {verificationForm ? (
               <FactoryVerificationForm />
             ) : (
-              <div className="w-full mt-5 rounded-md border-[0.5px] overflow-hidden overflow-y-auto h-[100%]">
+              <div className="w-full mt-5 rounded-md border-[0.5px] overflow-hidden overflow-y-auto h-[100%] pr-1">
                 <table className="w-full text-sm">
                   <thead className="bg-gray-200">
                     <tr>
@@ -382,9 +377,9 @@ export default function FactoryVerification() {
                           <span
                             className={`px-3 py-1 rounded-[5px] text-xs border-[0.5px] ${
                               product.status === "Verified"
-                                ? "bg-green-50 text-green-500 border-green-300"
+                                ? "bg-green-50 text-green-500 border-green-200"
                                 : product.status === "Pending"
-                                ? "bg-orange-50 text-orange-400 border-orange-200"
+                                ? "bg-orange-50 text-orange-400 border-orange-100"
                                 : "bg-red-100 text-red-700"
                             }`}
                           >
@@ -405,7 +400,7 @@ export default function FactoryVerification() {
 
             {/* Pagination */}
 
-            {verificationForm ? null :  (
+            {verificationForm ? null : (
               <div className="flex justify-between items-center mt-4 bg-white/35 backdrop-blur-md w-full">
                 <span className="text-gray-600">
                   Page {currentPage} of {totalPages}
@@ -436,7 +431,7 @@ export default function FactoryVerification() {
                   </button>
                 </div>
               </div>
-             )}
+            )}
           </div>
         </div>
         <div className="w-[450px] h-[97vh]">

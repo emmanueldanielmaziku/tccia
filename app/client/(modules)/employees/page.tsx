@@ -4,6 +4,7 @@ import NavBar from "../../components/NavBar";
 import ProgressTracker from "../employees/components/StatsBar";
 import { Add, CloseCircle, MoreCircle, SearchNormal1 } from "iconsax-reactjs";
 import AlertBox from "../factory-verification/components/AlertBox";
+import AddOfficerForm from "./components/AddOfficerForm";
 
 // Sample employees data
 const employeesData = [
@@ -301,8 +302,7 @@ export default function EmployeesManagement() {
                         {/* Main */}
                         {addEmployeeForm ? (
                             <div className="w-full flex items-center justify-center h-full">
-                                {/* Placeholder for Add Employee Form */}
-                                <div className="text-gray-400 text-lg">Employee form goes here...</div>
+                                <AddOfficerForm />
                             </div>
                         ) : (
                             <div className="w-full mt-5 rounded-md border-[0.5px] overflow-hidden overflow-y-auto h-[100%]">

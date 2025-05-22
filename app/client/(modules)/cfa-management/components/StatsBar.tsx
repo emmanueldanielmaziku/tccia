@@ -1,5 +1,14 @@
 import { Chart, Layer, Lifebuoy, Verify } from "iconsax-reactjs";
 import Stat from "../../employees/components/Stats";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 
 
@@ -42,9 +51,24 @@ export default function StatsBar() {
                 Dar es Salaam, Tanzania
               </div>
             </div>
-            <button className="text-[14px] border-1 px-3 border-zinc-300 py-3 cursor-pointer w-full rounded-[8px] hover:bg-blue-50 hover:border-blue-500 text-zinc-600 hover:text-blue-600 shadow-sm">
-              Switch to another company
-            </button>
+            <Select>
+              <SelectTrigger className="w-full border-[1px] border-blue-300 rounded-[7px] text-blue-500 py-6 cursor-pointer hover:bg-gray-100 shadow-sm">
+                <SelectValue
+                  placeholder="Switch to another company"
+                  className=""
+                />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  <SelectLabel>Companies</SelectLabel>
+                  <SelectItem value="apple">TCCIA COMPANY</SelectItem>
+                  <SelectItem value="banana">ABC COMPANY</SelectItem>
+                  <SelectItem value="blueberry">AZANIA GROUP</SelectItem>
+                  <SelectItem value="grapes">MO COMPANY</SelectItem>
+                  <SelectItem value="pineapple">SERENGETI COMPANY</SelectItem>
+                </SelectGroup>
+              </SelectContent>
+            </Select>
           </div>
         </div>
 
