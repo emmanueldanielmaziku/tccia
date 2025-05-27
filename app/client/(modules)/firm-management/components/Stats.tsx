@@ -4,42 +4,52 @@ type StatsProps = {
   title: string;
   icon: React.ElementType;
   value: string;
+  minimized?: boolean;
 };
 
-export default function Stat({ title, icon, value }: StatsProps) {
+export default function Stat({
+  title,
+  icon,
+  value,
+  minimized = false,
+}: StatsProps) {
   return (
     <div
-      className={`flex flex-col gap-4 justify-center items-stretch border-[0.5px] rounded-md ${
+      className={`flex flex-col justify-center items-center border-[0.5px] w-full rounded-md ${
         title === "Total"
           ? "bg-zinc-100"
-          : title === "Active Companies"
+          : title === "Active"
           ? "bg-green-50 border-green-300"
           : title === "Unknown"
           ? "bg-orange-50 border-orange-200"
-          : title === "Inactive Companies"
+          : title === "Inactive"
           ? "bg-red-50 border-red-200"
           : "bg-zinc-100 border-zinc-300"
-      }  p-3`}
+      } ${
+        minimized ? "p-1 w-[60px] h-[60px]" : "p-3"
+      } transition-all duration-300`}
     >
-      <div className="flex flex-row items-center justify-between">
-        <div className="text-sm text-gray-600">{title}</div>
-        <div>
-          {React.createElement(icon, {
-            size: 18,
-            color:
-              title === "Rejected Products"
-                ? "red"
-                : title === "Verified Products"
-                ? "green"
-                : title === "Pending Products"
-                ? "orange"
-                : title === "Total Products"
-                ? "gray"
-                : "gray",
-          })}
-        </div>
+      <div className="flex flex-col items-center">
+        {React.createElement(icon, {
+          size: minimized ? 22 : 18,
+          color:
+            title === "Rejected Products"
+              ? "red"
+              : title === "Verified Products"
+              ? "green"
+              : title === "Pending Products"
+              ? "orange"
+              : title === "Total Products"
+              ? "gray"
+              : "gray",
+        })}
+        {!minimized && <div className="text-sm text-gray-600">{title}</div>}
       </div>
-      <div className="font-semibold text-[14]">{value}</div>
+      <div
+        className={`font-semibold ${minimized ? "text-[16px]" : "text-[14px]"}`}
+      >
+        {value}
+      </div>
     </div>
   );
 }

@@ -241,9 +241,9 @@ export default function FirmManagement() {
             )}
           </div>
         </div>
-        <div className="w-[450px] h-[97vh]">
+        
           <ProgressTracker />
-        </div>
+
       </section>
       {/* End of Content */}
     </main>
