@@ -11,7 +11,6 @@ import {
 } from "iconsax-reactjs";
 import AlertBox from "../factory-verification/components/AlertBox";
 import FirmRegForm from "./components/FirmRegForm";
-import CompanyTinInput from "./components/CompanyTinInput";
 import usetinState from "../../services/TinState";
 
 const firmData = [

@@ -34,11 +34,6 @@ export default function SideBar() {
       icon: Box,
       route: "/client/factory-verification",
     },
-    {
-      id: "Certificate of Origin",
-      icon: ArchiveBook,
-      route: "/client/coo",
-    },
 
     {
       id: "CFA Officers Management",
@@ -54,6 +49,11 @@ export default function SideBar() {
       id: "Employees Management",
       icon: UserTick,
       route: "/client/employees",
+    },
+    {
+      id: "Certificate of Origin",
+      icon: ArchiveBook,
+      route: "/client/coo",
     },
     {
       id: "Membership",

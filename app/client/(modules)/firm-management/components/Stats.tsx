@@ -15,19 +15,17 @@ export default function Stat({
 }: StatsProps) {
   return (
     <div
-      className={`flex flex-col justify-center items-center border-[0.5px] w-full rounded-md ${
+      className={`flex flex-col w-full justify-center items-center border-[0.5px] rounded-md transition-all duration-300 ${
         title === "Total"
           ? "bg-zinc-100"
-          : title === "Active"
+          : title === "Verified"
           ? "bg-green-50 border-green-300"
-          : title === "Unknown"
+          : title === "Pending"
           ? "bg-orange-50 border-orange-200"
-          : title === "Inactive"
+          : title === "Rejected"
           ? "bg-red-50 border-red-200"
           : "bg-zinc-100 border-zinc-300"
-      } ${
-        minimized ? "p-1 w-[60px] h-[60px]" : "p-3"
-      } transition-all duration-300`}
+      } ${minimized ? "p-1 w-[60px] h-[60px]" : "p-3 w-full"}`}
     >
       <div className="flex flex-col items-center">
         {React.createElement(icon, {
