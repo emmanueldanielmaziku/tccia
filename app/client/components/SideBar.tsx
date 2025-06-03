@@ -16,7 +16,6 @@ import useMenuState from "../services/MenuState";
 import Link from "next/link";
 import useLogState from "../services/LogoutState";
 
-
 export default function SideBar() {
   const { isMenuOpen } = useMenuState();
   const { alertState, toggleAlert } = useLogState();
@@ -74,7 +73,6 @@ export default function SideBar() {
 
   const handleTabClick = (id: string) => {
     setSelectedTab((prev) => (prev === id ? id : id));
-
   };
 
   return (

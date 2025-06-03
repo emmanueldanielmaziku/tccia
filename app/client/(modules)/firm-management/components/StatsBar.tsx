@@ -27,11 +27,13 @@ export default function StatsBar() {
       className={`transition-all duration-300 h-[97vh] flex ${
         expanded ? "flex-col" : "flex-col-reverse"
       } justify-between items-start bg-gray-50 border-l-[1px] border-gray-200 ${
-        expanded ? "w-[430px] px-10" : "w-[100px] px-2"
+        expanded
+          ? "w-full lg:w-[430px] px-4 md:px-6 lg:px-10"
+          : "w-[100px] px-2"
       } pt-20 pb-6 relative`}
     >
       {/* Dashboard Title and Expand/Minimize Icon */}
-      <div className="w-full flex items-center justify-start mb-4">
+      <div className="w-full flex items-center justify-start">
         <button
           onClick={() => setExpanded((v) => !v)}
           className={`p-1 cursor-pointer rounded transition ml-auto ${
@@ -44,14 +46,14 @@ export default function StatsBar() {
         >
           {expanded ? (
             <SidebarRight
-              size="30"
+              size="26"
               color="gray"
               variant="Outline"
               className="transition-all duration-300"
             />
           ) : (
             <SidebarLeft
-              size="30"
+              size="26"
               color="#2b76f0"
               variant="Outline"
               className="transition-all duration-300"
@@ -59,7 +61,9 @@ export default function StatsBar() {
           )}
         </button>
         {expanded && (
-          <span className="w-full h-7 pl-4 ml-2 flex border-l-[0.5px] items-center font-bold text-lg text-gray-700">Dashboard</span>
+          <span className="w-full h-7 pl-4 ml-2 flex border-l-[0.5px] items-center font-bold text-lg text-gray-700">
+            Dashboard
+          </span>
         )}
       </div>
 
@@ -73,7 +77,9 @@ export default function StatsBar() {
           )}
           <div
             className={`grid ${
-              expanded ? "grid-cols-3 gap-4" : "grid-cols-1 gap-2"
+              expanded
+                ? "grid-cols-1 sm:grid-cols-3 gap-4"
+                : "grid-cols-1 gap-2"
             }`}
           >
             <Stat
@@ -108,33 +114,35 @@ export default function StatsBar() {
           )}
           <div
             className={`w-full flex flex-col items-center gap-7 justify-center border-[0.5px] rounded-xl bg-gray-100 transition-all duration-300 ${
-              expanded ? "px-5 py-5" : "px-2 py-2"
+              expanded ? "px-4 md:px-5 py-4 md:py-5" : "px-2 py-2"
             }`}
           >
             <img
               src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQEtc8KBI_8Yvc-g3152PaRV1XmdPCHYGNFVQ&s"
               alt="logo"
               className={`border-[0.5px] rounded-full bg-white transition-all duration-300 ${
-                expanded ? "w-[150px] h-[150px] p-4" : "w-[40px] h-[40px] p-1"
+                expanded
+                  ? "w-[120px] h-[120px] md:w-[150px] md:h-[150px] p-4"
+                  : "w-[40px] h-[40px] p-1"
               }`}
             />
 
             {expanded && (
-              <div className="w-full flex flex-col justify-center items-center">
-                <div className="font-semibold text-gray-600 text-[16px]">
+              <div className="w-full flex flex-col justify-center items-center text-center">
+                <div className="font-semibold text-gray-600 text-[14px] md:text-[16px]">
                   AZANIA GROUP OF COMPANIES
                 </div>
-                <div className="font-semibold text-blue-800 text-[14px]">
+                <div className="font-semibold text-blue-800 text-[12px] md:text-[14px]">
                   AZG-001-A25Z
                 </div>
-                <div className=" text-gray-600 text-[12px]">
+                <div className="text-gray-600 text-[11px] md:text-[12px]">
                   Dar es Salaam, Tanzania
                 </div>
               </div>
             )}
             {expanded && (
               <Select>
-                <SelectTrigger className="w-full border-[1px] border-blue-300 rounded-[7px] text-blue-500 py-6 cursor-pointer hover:bg-gray-100 shadow-sm">
+                <SelectTrigger className="w-full border-[1px] border-blue-300 rounded-[7px] text-blue-500 py-4 md:py-6 cursor-pointer hover:bg-gray-100 shadow-sm text-sm md:text-base">
                   <SelectValue
                     placeholder="Switch to another company"
                     className=""
@@ -160,22 +168,24 @@ export default function StatsBar() {
       {expanded && (
         <div
           className={`flex flex-col gap-3.5 border-[0.5px] rounded-xl bg-gray-100 w-full transition-all duration-300 ${
-            expanded ? "px-5 py-5" : "px-2 py-2"
+            expanded ? "px-4 md:px-5 py-4 md:py-5" : "px-2 py-2"
           }`}
         >
           <div className="flex flex-row items-center gap-2">
             <Lifebuoy size={expanded ? 20 : 18} color="#364153" />
             {expanded && (
-              <h5 className="text-gray-700 text-[16px]">Having trouble ?</h5>
+              <h5 className="text-gray-700 text-[14px] md:text-[16px]">
+                Having trouble ?
+              </h5>
             )}
           </div>
           {expanded && (
             <>
-              <p className="text-gray-800 text-[15px]">
+              <p className="text-gray-800 text-[13px] md:text-[15px]">
                 Feel free to contact us and we will always help you through the
                 process.
               </p>
-              <button className="border-[1px] rounded-[7px] border-zinc-600 text-zinc-600 px-8 py-2 text-[15px] w-full cursor-pointer hover:bg-zinc-600 hover:text-white">
+              <button className="border-[1px] rounded-[7px] border-zinc-600 text-zinc-600 px-6 md:px-8 py-2 text-[13px] md:text-[15px] w-full cursor-pointer hover:bg-zinc-600 hover:text-white">
                 Contact us
               </button>
             </>

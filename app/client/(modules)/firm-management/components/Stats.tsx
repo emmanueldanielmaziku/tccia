@@ -25,7 +25,7 @@ export default function Stat({
           : title === "Rejected"
           ? "bg-red-50 border-red-200"
           : "bg-zinc-100 border-zinc-300"
-      } ${minimized ? "p-1 w-[60px] h-[60px]" : "p-3 w-full"}`}
+      } ${minimized ? "p-1 w-[60px] h-[60px]" : "p-2 md:p-3 w-full"}`}
     >
       <div className="flex flex-col items-center">
         {React.createElement(icon, {
@@ -41,10 +41,14 @@ export default function Stat({
               ? "gray"
               : "gray",
         })}
-        {!minimized && <div className="text-sm text-gray-600">{title}</div>}
+        {!minimized && (
+          <div className="text-xs md:text-sm text-gray-600">{title}</div>
+        )}
       </div>
       <div
-        className={`font-semibold ${minimized ? "text-[16px]" : "text-[14px]"}`}
+        className={`font-semibold ${
+          minimized ? "text-[16px]" : "text-[13px] md:text-[14px]"
+        }`}
       >
         {value}
       </div>
