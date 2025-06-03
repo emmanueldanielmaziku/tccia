@@ -1,0 +1,23 @@
+{
+  "common": {
+    "welcome": "Welcome back to TCCIA!",
+    "email": "Email address",
+    "password": "Password",
+    "login": "Login",
+    "logout": "Logout",
+    "cancel": "Cancel",
+    "confirmLogout": "Confirm logout!",
+    "logoutMessage": "You are about to exit from the system by logging out, are you sure?",
+    "createAccount": "Create new account",
+    "forgotPassword": "Forgot your password?",
+    "resetPassword": "Reset password"
+  },
+  "nav": {
+    "notifications": "Notifications",
+    "exporterManager": "Exporter Manager",
+    "home": "Home",
+    "membership": "Membership Application",
+    "about": "About Us",
+    "help": "Help"
+  }
+}

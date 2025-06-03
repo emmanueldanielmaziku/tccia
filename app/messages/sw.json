@@ -1,0 +1,23 @@
+{
+  "common": {
+    "welcome": "Karibu tena kwa TCCIA!",
+    "email": "Barua pepe",
+    "password": "Nywila",
+    "login": "Ingia",
+    "logout": "Toka",
+    "cancel": "Ghairi",
+    "confirmLogout": "Thibitisha kutoka!",
+    "logoutMessage": "Unakaribia kutoka kwenye mfumo kwa kutoka, una uhakika?",
+    "createAccount": "Unda akaunti mpya",
+    "forgotPassword": "Umesahau nywila yako?",
+    "resetPassword": "Weka upya nywila"
+  },
+  "nav": {
+    "notifications": "Arifa",
+    "exporterManager": "Meneja wa Wauzaji",
+    "home": "Nyumbani",
+    "membership": "Maombi ya Uanachama",
+    "about": "Kuhusu Sisi",
+    "help": "Usaidizi"
+  }
+}

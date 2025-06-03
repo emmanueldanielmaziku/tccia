@@ -7,8 +7,9 @@ import {
   ArrowDown2,
 } from "iconsax-reactjs";
 import useMenuState from "../services/MenuState";
-import useLangState from "../services/LanguageState";
+import useLangState from "@/app/services/LanguageState";
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 
 type NavBarProps = {
   title: string;
@@ -18,6 +19,7 @@ export default function NavBar({ title }: NavBarProps) {
   const { isMenuOpen, toggleMenu } = useMenuState();
   const { language, toggleLanguage } = useLangState();
   const [langDrop, toggleDropBox] = useState(false);
+  const t = useTranslations("nav");
 
   return (
     <nav className="bg-gray-50/5 flex flex-row justify-between items-center absolute z-20 h-[65px] left-0 right-0 top-0 border-b-[1px] border-b-gray-200 px-4 w-full backdrop-blur-md">
@@ -49,24 +51,20 @@ export default function NavBar({ title }: NavBarProps) {
       <div className="flex flex-row items-center">
         <button
           className="flex flex-row items-center justify-between h-10.5 w-[100px] px-2 gap-1.5 rounded-[12px] bg-gray-100 hover:bg-gray-200 mr-5 cursor-pointer border-1 border-zinc-200 relative"
-          onMouseOver={() => {
-            toggleDropBox(true);
-          }}
-          onMouseLeave={() => {
-            toggleDropBox(false);
-          }}
+          onMouseOver={() => toggleDropBox(true)}
+          onMouseLeave={() => toggleDropBox(false)}
         >
-          <div className=" flex flex-row items-center w-[40px] gap-1.5">
+          <div className="flex flex-row items-center w-[40px] gap-1.5">
             {language === "EN" ? (
               <img
                 src="/icons/square.png"
-                alt="America Flag"
+                alt="English Flag"
                 className="w-6 h-6 transition-all duration-300"
               />
             ) : (
               <img
                 src="/icons/tanzania.png"
-                alt="America Flag"
+                alt="Swahili Flag"
                 className="w-6 h-6 transition-all duration-300"
               />
             )}
@@ -75,18 +73,15 @@ export default function NavBar({ title }: NavBarProps) {
             </span>
           </div>
           <ArrowDown2 size="18" color="gray" />
-          {/* Language Menu Drop Down */}
           {langDrop && (
             <div className="bg-white shadow-sm w-[100px] p-1 rounded-[10px] flex flex-col absolute top-10.5 border-[0.5px] left-0 z-10 transition-all duration-300">
               <div
-                className="flex flex-row items-center gap-1.5 hover:bg-blue-100 p-2 rounded-[8px]"
-                onClick={() => {
-                  language === "SW" ? toggleLanguage() : null;
-                }}
+                className="flex flex-row items-center gap-1.5 hover:bg-blue-100 p-2 rounded-[8px] cursor-pointer"
+                onClick={() => language === "SW" && toggleLanguage()}
               >
                 <img
                   src="/icons/square.png"
-                  alt="America Flag"
+                  alt="English Flag"
                   className="w-6 h-6"
                 />
                 <span className="text-sm font-semibold text-gray-500">EN</span>
@@ -97,14 +92,12 @@ export default function NavBar({ title }: NavBarProps) {
                 ></span>
               </div>
               <div
-                className="flex flex-row items-center gap-1.5 hover:bg-blue-100 p-2 rounded-[8px]"
-                onClick={() => {
-                  language === "EN" ? toggleLanguage() : null;
-                }}
+                className="flex flex-row items-center gap-1.5 hover:bg-blue-100 p-2 rounded-[8px] cursor-pointer"
+                onClick={() => language === "EN" && toggleLanguage()}
               >
                 <img
                   src="/icons/tanzania.png"
-                  alt="Tanzania Flag"
+                  alt="Swahili Flag"
                   className="w-6 h-6"
                 />
                 <span className="text-sm font-semibold text-gray-500">SW</span>
@@ -138,7 +131,7 @@ export default function NavBar({ title }: NavBarProps) {
               Emmanuel Daniel
             </div>
             <div className="md:flex md:flex-row md:items-center md:gap-1 text-gray-500 text-[12px]">
-              <span>Exporter Manager</span>
+              <span>{t("exporterManager")}</span>
               <ShieldTick size="14" color="#FF8A65" variant="Bold" />
             </div>
           </div>

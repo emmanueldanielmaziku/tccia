@@ -4,14 +4,15 @@ import { useState } from "react";
 import { ArrowDown2, HamburgerMenu } from "iconsax-reactjs";
 import Image from "next/image";
 import { useFormState } from "../services/FormStates";
-import useLangState from "@/app/client/services/LanguageState";
+import useLangState from "@/app/services/LanguageState";
+import { useTranslations } from "next-intl";
 
 export default function NavBar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { formType, toggleFormType } = useFormState();
-
   const { language, toggleLanguage } = useLangState();
   const [langDrop, toggleDropBox] = useState(false);
+  const t = useTranslations("nav");
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -33,22 +34,22 @@ export default function NavBar() {
         <ul className="hidden md:flex space-x-12">
           <li>
             <a href="/auth/login" className="hover:text-blue-500">
-              Home
+              {t("home")}
             </a>
           </li>
           <li>
             <a href="/auth/login" className="hover:text-blue-500">
-              Membership Application
+              {t("membership")}
             </a>
           </li>
           <li>
             <a href="/auth/register" className="hover:text-blue-500">
-              About Us
+              {t("about")}
             </a>
           </li>
           <li>
             <a href="/auth/register" className="hover:text-blue-500">
-              Help
+              {t("help")}
             </a>
           </li>
         </ul>
@@ -58,24 +59,20 @@ export default function NavBar() {
       <div className="hidden md:flex md:flex-row items-center space-x-4">
         <button
           className="flex flex-row items-center justify-between h-11.5 w-[100px] px-2 gap-1.5 rounded-[12px] bg-gray-100 hover:bg-gray-200 mr-5 cursor-pointer border-1 border-zinc-300 relative"
-          onMouseOver={() => {
-            toggleDropBox(true);
-          }}
-          onMouseLeave={() => {
-            toggleDropBox(false);
-          }}
+          onMouseOver={() => toggleDropBox(true)}
+          onMouseLeave={() => toggleDropBox(false)}
         >
-          <div className=" flex flex-row items-center w-[40px] gap-1.5">
+          <div className="flex flex-row items-center w-[40px] gap-1.5">
             {language === "EN" ? (
               <img
                 src="/icons/square.png"
-                alt="America Flag"
+                alt="English Flag"
                 className="w-7 h-7"
               />
             ) : (
               <img
                 src="/icons/tanzania.png"
-                alt="America Flag"
+                alt="Swahili Flag"
                 className="w-7 h-7"
               />
             )}
@@ -84,18 +81,15 @@ export default function NavBar() {
             </span>
           </div>
           <ArrowDown2 size="18" color="gray" />
-          {/* Language Menu Drop Down */}
           {langDrop && (
             <div className="bg-white shadow-sm w-[100px] p-1 rounded-[10px] flex flex-col absolute top-11.5 border-[0.5px] left-0 z-10">
               <div
-                className="flex flex-row items-center gap-1.5 hover:bg-blue-100 p-2 rounded-[8px]"
-                onClick={() => {
-                  language === "SW" ? toggleLanguage() : null;
-                }}
+                className="flex flex-row items-center gap-1.5 hover:bg-blue-100 p-2 rounded-[8px] cursor-pointer"
+                onClick={() => language === "SW" && toggleLanguage()}
               >
                 <img
                   src="/icons/square.png"
-                  alt="America Flag"
+                  alt="English Flag"
                   className="w-6 h-6"
                 />
                 <span className="text-sm font-semibold text-gray-500">EN</span>
@@ -106,14 +100,12 @@ export default function NavBar() {
                 ></span>
               </div>
               <div
-                className="flex flex-row items-center gap-1.5 hover:bg-blue-100 p-2 rounded-[8px]"
-                onClick={() => {
-                  language === "EN" ? toggleLanguage() : null;
-                }}
+                className="flex flex-row items-center gap-1.5 hover:bg-blue-100 p-2 rounded-[8px] cursor-pointer"
+                onClick={() => language === "EN" && toggleLanguage()}
               >
                 <img
                   src="/icons/tanzania.png"
-                  alt="Tanzania Flag"
+                  alt="Swahili Flag"
                   className="w-6 h-6"
                 />
                 <span className="text-sm font-semibold text-gray-500">SW</span>
@@ -132,14 +124,14 @@ export default function NavBar() {
             onClick={toggleFormType}
             className="text-blue-600 border-1 border-blue-600 px-6 py-2 rounded-[10px] hover:bg-blue-600 hover:text-white cursor-pointer"
           >
-            Login
+            {t("login")}
           </button>
         ) : (
           <button
             onClick={toggleFormType}
             className="text-blue-600 border-1 border-blue-600 px-6 py-2 rounded-[10px] hover:bg-blue-600 hover:text-white cursor-pointer font-semibold"
           >
-            Create Account
+            {t("createAccount")}
           </button>
         )}
       </div>
@@ -150,7 +142,7 @@ export default function NavBar() {
           onClick={toggleFormType}
           className="text-sm text-blue-600 border-2 border-blue-600 px-6 py-1.5 rounded-[6px] hover:tex-white hover:bg-blue-600 cursor-pointer"
         >
-          {formType === "register" ? "Login" : "Create Account"}
+          {formType === "register" ? t("login") : t("createAccount")}
         </button>
 
         <button onClick={toggleMenu} className="text-2xl">
@@ -167,7 +159,7 @@ export default function NavBar() {
                 href="/auth/login"
                 className="hover:text-blue-500 display-block"
               >
-                Home
+                {t("home")}
               </a>
             </li>
             <li className="border-b border-gray-300 pb-2">
@@ -175,7 +167,7 @@ export default function NavBar() {
                 href="/auth/register"
                 className="hover:text-blue-500 display-block"
               >
-                About Us
+                {t("about")}
               </a>
             </li>
             <li className="border-b border-transparent pb-2">
@@ -183,7 +175,7 @@ export default function NavBar() {
                 href="/auth/register"
                 className="hover:text-blue-500 display-block"
               >
-                Help
+                {t("help")}
               </a>
             </li>
           </ul>
