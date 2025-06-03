@@ -8,7 +8,7 @@ interface FormState {
 
 //Creating Context
 export const useFormState = create<FormState>((set) => ({
-  formType: "register",
+  formType: "login",
   toggleFormType: () =>
     set((state) => ({
       formType: state.formType == "login" ? "register" : "login",

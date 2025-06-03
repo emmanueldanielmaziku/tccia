@@ -3,15 +3,14 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import Image from "next/image";
-import { MdEmail, MdVisibility, MdVisibilityOff } from "react-icons/md";
+import { MdVisibility, MdVisibilityOff } from "react-icons/md";
 import { useFormState, useResetFormState } from "../services/FormStates";
 import { useRouter } from "next/navigation";
 import { Sms } from "iconsax-reactjs";
 
 // Validation schema
 const schema = z.object({
-  email: z.string().email("Invalid email address"),
+  login: z.string().email("Invalid email address"),
   password: z
     .string()
     .min(8, "Password must be at least 8 characters")
@@ -41,7 +40,7 @@ export default function LoginForm() {
     setError(null);
 
     try {
-      const response = await fetch("/api/auth/login", {
+      const response = await fetch("/api/auth/user_token", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -51,12 +50,15 @@ export default function LoginForm() {
 
       const result = await response.json();
 
-      if (!response.ok) {
-        throw new Error(result.message || "Login failed");
+      if (!response.ok || result.result?.error) {
+        throw new Error(result.result?.error || "Login failed");
       }
 
-      // Redirect to dashboard or home page after successful login
-      router.push("/dashboard");
+      if (result.result?.token) {
+        router.push("/client/firm-management");
+      } else {
+        throw new Error("Invalid response from server");
+      }
     } catch (error) {
       console.error("Login error:", error);
       setError(
@@ -75,11 +77,9 @@ export default function LoginForm() {
       className="mt-12 md:mt-[50px] flex flex-col space-y-5 w-full md:w-[480px] border p-6 rounded-[12px] shadow-sm bg-gray-50"
     >
       <div className="w-full flex flex-row justify-between items-center space-x-4">
-  
         <div className="text-gray-700 font-semibold text-[16px] md:text-2xl">
           Welcome back to TCCIA!
         </div>
- 
       </div>
 
       {error && (
@@ -95,13 +95,13 @@ export default function LoginForm() {
         <input
           type="email"
           placeholder="Enter your email"
-          {...register("email")}
+          {...register("login")}
           className="w-full px-6 py-2.5 pr-12 border border-zinc-300 bg-zinc-100 outline-blue-400 rounded-[8px] placeholder:text-zinc-400 placeholder:text-[15px]"
         />
         <Sms size="20" color="#9F9FA9" className="absolute top-9.5 right-5" />
-        {errors.email && (
+        {errors.login && (
           <p className="text-red-500 text-[12px] absolute left-0 top-[58px]">
-            {errors.email.message}
+            {errors.login.message}
           </p>
         )}
       </div>

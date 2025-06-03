@@ -16,7 +16,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        {/* Add the theme color meta tag */}
+        
         <meta name="theme-color" content="#007bff" />
       </head>
       <body

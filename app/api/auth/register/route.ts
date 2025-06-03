@@ -6,10 +6,8 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
 
-    // Log the received data
-    console.log("Registration request received:", body);
 
-    // Format the data for the external API
+  
     const apiData = {
       manager_name: `${body.firstName} ${body.lastName}`,
       phone: body.phone,
@@ -18,7 +16,7 @@ export async function POST(request: Request) {
       role: body.role,
     };
 
-    // Make request to external API
+  
     const response = await fetch(`${API_BASE_URL}/api/manager_registration`, {
       method: "POST",
       headers: {
