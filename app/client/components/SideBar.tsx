@@ -15,57 +15,68 @@ import {
 import useMenuState from "../services/MenuState";
 import Link from "next/link";
 import useLogState from "../services/LogoutState";
+import { useTranslations } from "next-intl";
 
 export default function SideBar() {
   const { isMenuOpen } = useMenuState();
   const { alertState, toggleAlert } = useLogState();
   const [selectedTab, setSelectedTab] = useState("Firm Management");
-  const [role, setRole] = useState("CEM");
+  const [role, setRole] = useState("CEO");
+  const t = useTranslations("sidebar");
+  const ta = useTranslations("alerts");
 
   const menuItems = [
     {
       id: "Firm Management",
+      translationKey: "firmManagement",
       icon: Building,
       route: "/client/firm-management",
     },
     {
       id: "Factory Verification",
+      translationKey: "factoryVerification",
       icon: Box,
       route: "/client/factory-verification",
     },
-
     {
       id: "CFA Officers Management",
+      translationKey: "cfaOfficersManagement",
       icon: Profile2User,
       route: "/client/exporter",
     },
     {
       id: "CFAs Management",
+      translationKey: "cfasManagement",
       icon: Profile2User,
       route: "/client/cfa-management",
     },
     {
       id: "Employees Management",
+      translationKey: "employeesManagement",
       icon: UserTick,
       route: "/client/employees",
     },
     {
       id: "Certificate of Origin",
+      translationKey: "certificateOfOrigin",
       icon: ArchiveBook,
       route: "/client/coo",
     },
     {
       id: "Membership",
+      translationKey: "membership",
       icon: People,
       route: "/client/membership",
     },
     {
       id: "Non-Tariff Barrier",
+      translationKey: "nonTariffBarrier",
       icon: Direct,
       route: "/client/ntb",
     },
     {
       id: "Report a Problem",
+      translationKey: "reportProblem",
       icon: Lifebuoy,
       route: "/client/report",
     },
@@ -90,14 +101,14 @@ export default function SideBar() {
               <h1 className="font-bold text-xl text-gray-700 truncate">
                 TCCIA'S CLIENT
               </h1>
-              <div className="text-gray-500">Dashboard</div>
+              <div className="text-gray-500">{t("dashboard")}</div>
             </div>
           )}
         </div>
 
         {/* Modules */}
         <div className="mt-8">
-          <h2 className="text-sm text-gray-500 mb-4">Modules</h2>
+          <h2 className="text-sm text-gray-500 mb-4">{t("modules")}</h2>
           <div className="flex flex-col gap-2.5">
             {menuItems.map((item) =>
               role === "CEM" &&
@@ -138,7 +149,7 @@ export default function SideBar() {
                       />
                       {isMenuOpen && (
                         <span className="text-gray-700 text-sm truncate">
-                          {item.id}
+                          {t(item.translationKey)}
                         </span>
                       )}
                     </div>
@@ -180,7 +191,7 @@ export default function SideBar() {
                       />
                       {isMenuOpen && (
                         <span className="text-gray-700 text-sm truncate">
-                          {item.id}
+                          {t(item.translationKey)}
                         </span>
                       )}
                     </div>
@@ -220,7 +231,7 @@ export default function SideBar() {
                       />
                       {isMenuOpen && (
                         <span className="text-gray-700 text-sm truncate">
-                          {item.id}
+                          {t(item.translationKey)}
                         </span>
                       )}
                     </div>
@@ -259,7 +270,7 @@ export default function SideBar() {
                       />
                       {isMenuOpen && (
                         <span className="text-gray-700 text-sm truncate">
-                          {item.id}
+                          {t(item.translationKey)}
                         </span>
                       )}
                     </div>
@@ -271,54 +282,38 @@ export default function SideBar() {
         </div>
       </div>
 
-      {/* Footer */}
-      <div className="flex flex-col gap-4">
+      {/* Settings and Logout */}
+      <div className="flex flex-col gap-2.5">
         <Link
           href="/client/settings"
-          onClick={() => setSelectedTab("Settings")}
-          className={`cursor-pointer flex flex-row items-center relative ${
-            isMenuOpen ? "justify-start" : "justify-center"
-          } md:gap-2 py-4 px-4 md:rounded-[10px] border-[0.5px] ${
-            selectedTab === "Settings"
-              ? "bg-blue-100 border-blue-500"
-              : "border-gray-200 hover:bg-blue-50 hover:border-blue-300"
-          }`}
+          className={`cursor-pointer flex flex-row items-center h-[55px] w-full relative ${
+            isMenuOpen ? "justify-between" : "justify-center"
+          } md:gap-2 px-4 md:rounded-[10px] border-[0.5px] border-gray-200 hover:bg-blue-50 hover:border-blue-300`}
         >
-          <div
-            className={`w-1.5 h-6 max-h-6 rounded-tr-md rounded-br-md ${
-              selectedTab === "Settings" ? "bg-blue-500" : "bg-transparent"
-            } absolute left-0`}
-          ></div>
-          <Setting2
-            size="20"
-            color={selectedTab === "Settings" ? "#0561f5" : "#6e6d6d"}
-          />
-          {isMenuOpen && (
-            <span className="text-gray-700 text-sm truncate">Settings</span>
-          )}
+          <div className="flex flex-row items-center gap-2">
+            <Setting2 size="20" color="#364153" />
+            {isMenuOpen && (
+              <span className="text-gray-700 text-sm truncate">
+                {t("settings")}
+              </span>
+            )}
+          </div>
         </Link>
-
-        <Link
-          href="#"
+        <button
           onClick={toggleAlert}
-          className={`cursor-pointer flex flex-row items-center relative ${
-            isMenuOpen ? "justify-start" : "justify-center"
-          } md:gap-2 py-4 px-4 md:rounded-[10px] border-[0.5px] ${
-            alertState
-              ? "bg-red-100 border-red-500"
-              : "border-gray-200 hover:bg-red-50 hover:border-red-300"
-          }`}
+          className={`cursor-pointer flex flex-row items-center h-[55px] w-full relative ${
+            isMenuOpen ? "justify-between" : "justify-center"
+          } md:gap-2 px-4 md:rounded-[10px] border-[0.5px] border-gray-200 hover:bg-blue-50 hover:border-blue-300`}
         >
-          <div
-            className={`w-1.5 h-6 max-h-6 rounded-tr-md rounded-br-md ${
-              alertState ? "bg-red-500" : "bg-transparent"
-            } absolute left-0`}
-          ></div>
-          <LogoutCurve size="20" color="red" />
-          {isMenuOpen && (
-            <span className="text-red-500 text-sm truncate">Logout</span>
-          )}
-        </Link>
+          <div className="flex flex-row items-center gap-2">
+            <LogoutCurve size="20" color="#364153" />
+            {isMenuOpen && (
+              <span className="text-gray-700 text-sm truncate">
+                {ta("logout")}
+              </span>
+            )}
+          </div>
+        </button>
       </div>
     </div>
   );

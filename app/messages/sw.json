@@ -1,13 +1,13 @@
 {
   "common": {
-    "welcome": "Karibu tena kwa TCCIA!",
+    "welcome": "Karibu tena kwenye TCCIA!",
     "email": "Barua pepe",
     "password": "Nywila",
     "login": "Ingia",
     "logout": "Toka",
     "cancel": "Ghairi",
-    "confirmLogout": "Thibitisha kutoka!",
-    "logoutMessage": "Unakaribia kutoka kwenye mfumo kwa kutoka, una uhakika?",
+    "confirmLogout": "Thibitisha Kutoka",
+    "logoutMessage": "Una uhakika unataka kutoka?",
     "createAccount": "Unda akaunti mpya",
     "forgotPassword": "Umesahau nywila yako?",
     "resetPassword": "Weka upya nywila"
@@ -19,5 +19,109 @@
     "membership": "Maombi ya Uanachama",
     "about": "Kuhusu Sisi",
     "help": "Usaidizi"
+  },
+  "sidebar": {
+    "modules": "Moduli",
+    "dashboard": "Dashibodi",
+    "firmManagement": "Usimamizi wa Kampuni",
+    "factoryVerification": "Uthibitishaji wa Kiwanda",
+    "cfaOfficersManagement": "Usimamizi wa Maafisa CFA",
+    "cfasManagement": "Usimamizi wa CFA",
+    "employeesManagement": "Usimamizi wa Wafanyakazi",
+    "certificateOfOrigin": "Cheti cha Asili",
+    "membership": "Uanachama",
+    "nonTariffBarrier": "Kizuizi cha Usiokuwa na Usambazaji",
+    "reportProblem": "Ripoti Tatizo",
+    "settings": "Mipangilio"
+  },
+  "forms": {
+    "labels": {
+      "firstName": "Jina la kwanza",
+      "lastName": "Jina la familia",
+      "phoneNumber": "Namba ya simu",
+      "role": "Tafadhali chagua jukumu lako"
+    },
+    "placeholders": {
+      "firstName": "Jina la kwanza",
+      "lastName": "Jina la familia",
+      "enterEmail": "Weka anwani yako ya barua pepe",
+      "enterPhone": "Weka namba yako ya simu",
+      "selectRole": "Chagua jukumu lako",
+      "enterPassword": "Weka nywila yako"
+    },
+    "buttons": {
+      "register": "Unda Akaunti",
+      "showPassword": "Onyesha nywila",
+      "hidePassword": "Ficha nywila"
+    },
+    "messages": {
+      "noAccount": "Huna akaunti?",
+      "haveAccount": "Una akaunti tayari?",
+      "forgotPassword": "Umesahau nywila yako?",
+      "loginFailed": "Kuingia hakukufaulu. Tafadhali jaribu tena.",
+      "registrationFailed": "Usajili haukufaulu. Tafadhali jaribu tena.",
+      "registrationSuccess": "Usajili umefanikiwa! Inaelekeza kwenye ukurasa wa kuingia...",
+      "checkRequiredFields": "Tafadhali angalia sehemu zote zinazohitajika na jaribu tena.",
+      "invalidResponse": "Jibu batili kutoka kwa seva"
+    },
+    "validation": {
+      "firstNameRequired": "Jina la kwanza linahitajika",
+      "lastNameRequired": "Jina la familia linahitajika",
+      "invalidEmail": "Anwani ya barua pepe si sahihi",
+      "phoneMinLength": "Namba ya simu lazima iwe na tarakimu 10 au zaidi",
+      "phoneDigitsOnly": "Namba ya simu lazima iwe na tarakimu tu",
+      "roleRequired": "Tafadhali chagua jukumu",
+      "passwordMinLength": "Nywila lazima iwe na herufi 8 au zaidi",
+      "passwordLetters": "Nywila lazima iwe na herufi",
+      "passwordNumbers": "Nywila lazima iwe na namba",
+      "passwordComplexity": "Nywila lazima iwe na herufi kubwa, ndogo, namba, na wahusika maalum",
+      "passwordRequired": "Nywila inahitajika"
+    }
+  },
+  "stats": {
+    "dashboard": "Dashibodi",
+    "firmStatistics": "Takwimu za Kampuni",
+    "total": "Jumla",
+    "pending": "Inasubiri",
+    "verified": "Imethibitishwa",
+    "rejected": "Imekataliwa",
+    "companyDetails": "Maelezo ya Kampuni",
+    "switchCompany": "Badilisha kwa kampuni nyingine",
+    "companies": "Kampuni",
+    "help": {
+      "title": "Una shida?",
+      "description": "Jisikie huru kututafuta na tutakusaidia daima katika mchakato.",
+      "contactButton": "Wasiliana nasi"
+    }
+  },
+  "alerts": {
+    "success": "Imefanikiwa",
+    "error": "Hitilafu",
+    "warning": "Onyo",
+    "info": "Maelezo",
+    "close": "Funga",
+    "dismiss": "Acha",
+    "retry": "Jaribu tena",
+    "confirm": "Thibitisha",
+    "cancel": "Ghairi",
+    "logout": "Toka",
+    "confirmLogout": "Thibitisha Kutoka",
+    "messages": {
+      "operationSuccess": "Operesheni imekamilika kwa mafanikio",
+      "operationFailed": "Operesheni imeshindwa. Tafadhali jaribu tena.",
+      "changesSaved": "Mabadiliko yamehifadhiwa kwa mafanikio",
+      "changesDiscarded": "Mabadiliko yameachwa",
+      "deleteConfirm": "Una uhakika unataka kufuta kipengele hiki?",
+      "unsavedChanges": "Una mabadiliko yasiyohifadhiwa. Unataka kuyaacha?",
+      "sessionExpired": "Muda wako umekwisha. Tafadhali ingia tena.",
+      "networkError": "Hitilafu ya mtandao. Tafadhali angalia muunganisho wako.",
+      "serverError": "Hitilafu ya seva. Tafadhali jaribu tena baadae.",
+      "validationError": "Tafadhali angalia fomu kwa hitilafu.",
+      "permissionDenied": "Huna ruhusa ya kufanya kitendo hiki.",
+      "itemNotFound": "Kipengele kilichotafutwa hakipatikani.",
+      "invalidInput": "Tafadhali toa ingizo sahihi.",
+      "timeout": "Ombi limekwisha muda. Tafadhali jaribu tena.",
+      "logoutConfirm": "Uko karibu kutoka kwenye mfumo kwa kutoka, una uhakika?"
+    }
   }
 }

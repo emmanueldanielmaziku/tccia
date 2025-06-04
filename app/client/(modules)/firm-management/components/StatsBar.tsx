@@ -18,9 +18,11 @@ import {
 } from "@/components/ui/select";
 import { useState } from "react";
 import Stat from "./Stats";
+import { useTranslations } from "next-intl";
 
 export default function StatsBar() {
   const [expanded, setExpanded] = useState(true);
+  const t = useTranslations("stats");
 
   return (
     <div
@@ -62,7 +64,7 @@ export default function StatsBar() {
         </button>
         {expanded && (
           <span className="w-full h-7 pl-4 ml-2 flex border-l-[0.5px] items-center font-bold text-lg text-gray-700">
-            Dashboard
+            {t("dashboard")}
           </span>
         )}
       </div>
@@ -72,7 +74,7 @@ export default function StatsBar() {
         <div className="w-full">
           {expanded && (
             <div className="font-semibold pb-3 text-gray-600 text-[14px]">
-              Firm Statistics
+              {t("firmStatistics")}
             </div>
           )}
           <div
@@ -84,19 +86,19 @@ export default function StatsBar() {
           >
             <Stat
               value="120"
-              title={"Total"}
+              title={t("total")}
               icon={Chart}
               minimized={!expanded}
             />
             <Stat
               value="12"
-              title={"Pending"}
+              title={t("pending")}
               icon={Layer}
               minimized={!expanded}
             />
             <Stat
               value="96"
-              title={"Verified"}
+              title={t("verified")}
               icon={Verify}
               minimized={!expanded}
             />
@@ -108,7 +110,7 @@ export default function StatsBar() {
           {expanded && (
             <div className="flex flex-row justify-between items-center pb-2.5">
               <div className="font-semibold text-gray-600 text-[14px]">
-                Company Details
+                {t("companyDetails")}
               </div>
             </div>
           )}
@@ -143,14 +145,11 @@ export default function StatsBar() {
             {expanded && (
               <Select>
                 <SelectTrigger className="w-full border-[1px] border-blue-300 rounded-[7px] text-blue-500 py-4 md:py-6 cursor-pointer hover:bg-gray-100 shadow-sm text-sm md:text-base">
-                  <SelectValue
-                    placeholder="Switch to another company"
-                    className=""
-                  />
+                  <SelectValue placeholder={t("switchCompany")} className="" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectGroup>
-                    <SelectLabel>Companies</SelectLabel>
+                    <SelectLabel>{t("companies")}</SelectLabel>
                     <SelectItem value="apple">TCCIA COMPANY</SelectItem>
                     <SelectItem value="banana">ABC COMPANY</SelectItem>
                     <SelectItem value="blueberry">AZANIA GROUP</SelectItem>
@@ -175,18 +174,17 @@ export default function StatsBar() {
             <Lifebuoy size={expanded ? 20 : 18} color="#364153" />
             {expanded && (
               <h5 className="text-gray-700 text-[14px] md:text-[16px]">
-                Having trouble ?
+                {t("help.title")}
               </h5>
             )}
           </div>
           {expanded && (
             <>
               <p className="text-gray-800 text-[13px] md:text-[15px]">
-                Feel free to contact us and we will always help you through the
-                process.
+                {t("help.description")}
               </p>
               <button className="border-[1px] rounded-[7px] border-zinc-600 text-zinc-600 px-6 md:px-8 py-2 text-[13px] md:text-[15px] w-full cursor-pointer hover:bg-zinc-600 hover:text-white">
-                Contact us
+                {t("help.contactButton")}
               </button>
             </>
           )}

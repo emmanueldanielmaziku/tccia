@@ -7,6 +7,7 @@ import CompanyPicker from "./CompanyPicker";
 import SideBar from "./SideBar";
 import useLogState from "../services/LogoutState";
 import usePickerState from "../services/PickerState";
+import { useTranslations } from "next-intl";
 
 export default function ClientLayoutContent({
   children,
@@ -33,7 +34,7 @@ export default function ClientLayoutContent({
 
   return (
     <>
-      {alertState && <AlertBox />}
+      {alertState && <AlertBox isLogout={true} />}
       {pickerState && <CompanyPicker />}
       <SideBar />
       <section className="flex-1 bg-gray-50 pr-4">{children}</section>

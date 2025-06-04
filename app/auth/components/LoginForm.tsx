@@ -7,6 +7,7 @@ import { MdVisibility, MdVisibilityOff } from "react-icons/md";
 import { useFormState, useResetFormState } from "../services/FormStates";
 import { useRouter } from "next/navigation";
 import { Sms } from "iconsax-reactjs";
+import { useTranslations } from "next-intl";
 
 // Validation schema
 const schema = z.object({
@@ -27,6 +28,9 @@ export default function LoginForm() {
   const [error, setError] = useState<string | null>(null);
   const { toggleFormType } = useFormState();
   const { resetForm } = useResetFormState();
+  const t = useTranslations();
+  const tf = useTranslations("forms");
+
   const {
     register,
     handleSubmit,
@@ -51,20 +55,18 @@ export default function LoginForm() {
       const result = await response.json();
 
       if (!response.ok || result.result?.error) {
-        throw new Error(result.result?.error || "Login failed");
+        throw new Error(result.result?.error || tf("messages.loginFailed"));
       }
 
       if (result.result?.token) {
         router.push("/client/firm-management");
       } else {
-        throw new Error("Invalid response from server");
+        throw new Error(tf("messages.invalidResponse"));
       }
     } catch (error) {
       console.error("Login error:", error);
       setError(
-        error instanceof Error
-          ? error.message
-          : "Login failed. Please try again."
+        error instanceof Error ? error.message : tf("messages.loginFailed")
       );
     } finally {
       setIsSubmitting(false);
@@ -78,7 +80,7 @@ export default function LoginForm() {
     >
       <div className="w-full flex flex-row justify-between items-center space-x-4">
         <div className="text-gray-700 font-semibold text-[16px] md:text-2xl">
-          Welcome back to TCCIA!
+          {t("common.welcome")}
         </div>
       </div>
 
@@ -90,36 +92,40 @@ export default function LoginForm() {
 
       <div className="relative flex flex-col gap-1 w-full">
         <label htmlFor="email" className="text-gray-700 text-sm font-medium">
-          Email address
+          {t("common.email")}
         </label>
         <input
           type="email"
-          placeholder="Enter your email"
+          placeholder={tf("placeholders.enterEmail")}
           {...register("login")}
           className="w-full px-6 py-2.5 pr-12 border border-zinc-300 bg-zinc-100 outline-blue-400 rounded-[8px] placeholder:text-zinc-400 placeholder:text-[15px]"
         />
         <Sms size="20" color="#9F9FA9" className="absolute top-9.5 right-5" />
         {errors.login && (
           <p className="text-red-500 text-[12px] absolute left-0 top-[58px]">
-            {errors.login.message}
+            {tf("validation.invalidEmail")}
           </p>
         )}
       </div>
 
       <div className="relative flex flex-col gap-1 w-full">
         <label htmlFor="email" className="text-gray-700 text-sm font-medium">
-          Password
+          {t("common.password")}
         </label>
         <input
           type={isPasswordVisible ? "text" : "password"}
-          placeholder="Enter your password"
+          placeholder={tf("placeholders.enterPassword")}
           {...register("password")}
           className="w-full px-6 py-2.5 pr-12 border border-zinc-300 bg-zinc-100 outline-blue-400 rounded-[8px] placeholder:text-zinc-400 placeholder:text-[15px]"
         />
         <button
           type="button"
           onClick={() => setIsPasswordVisible(!isPasswordVisible)}
-          aria-label={isPasswordVisible ? "Hide password" : "Show password"}
+          aria-label={
+            isPasswordVisible
+              ? tf("buttons.hidePassword")
+              : tf("buttons.showPassword")
+          }
           className="absolute top-9.5 right-5 text-zinc-400"
         >
           {isPasswordVisible ? (
@@ -130,7 +136,11 @@ export default function LoginForm() {
         </button>
         {errors.password && (
           <p className="text-red-500 text-[12px] absolute left-0 top-[58px]">
-            {errors.password.message}
+            {errors.password.type === "min"
+              ? tf("validation.passwordMinLength")
+              : errors.password.type === "regex"
+              ? tf("validation.passwordLetters")
+              : tf("validation.passwordNumbers")}
           </p>
         )}
       </div>
@@ -145,32 +155,32 @@ export default function LoginForm() {
             <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
           </div>
         ) : (
-          "Login"
+          t("common.login")
         )}
       </button>
 
       <div className="flex items-center space-x-4">
         <span className="text-[14px] text-gray-700 font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-          Don't have an account ?
+          {tf("messages.noAccount")}
         </span>
         <button
           type="button"
           className="text-[14px] text-blue-600 underline cursor-pointer"
           onClick={toggleFormType}
         >
-          Create new account
+          {t("common.createAccount")}
         </button>
       </div>
       <div className="flex items-center space-x-4">
         <span className="text-[14px] text-gray-700 font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-          Forgot your password ?
+          {tf("messages.forgotPassword")}
         </span>
         <button
           type="button"
           className="text-[14px] text-red-600 underline cursor-pointer"
           onClick={resetForm}
         >
-          Reset password
+          {t("common.resetPassword")}
         </button>
       </div>
     </form>

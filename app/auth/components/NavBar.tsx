@@ -12,7 +12,8 @@ export default function NavBar() {
   const { formType, toggleFormType } = useFormState();
   const { language, toggleLanguage } = useLangState();
   const [langDrop, toggleDropBox] = useState(false);
-  const t = useTranslations("nav");
+  const t = useTranslations();
+  const tn = useTranslations("nav");
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -34,22 +35,22 @@ export default function NavBar() {
         <ul className="hidden md:flex space-x-12">
           <li>
             <a href="/auth/login" className="hover:text-blue-500">
-              {t("home")}
+              {tn("home")}
             </a>
           </li>
           <li>
             <a href="/auth/login" className="hover:text-blue-500">
-              {t("membership")}
+              {tn("membership")}
             </a>
           </li>
           <li>
             <a href="/auth/register" className="hover:text-blue-500">
-              {t("about")}
+              {tn("about")}
             </a>
           </li>
           <li>
             <a href="/auth/register" className="hover:text-blue-500">
-              {t("help")}
+              {tn("help")}
             </a>
           </li>
         </ul>
@@ -124,14 +125,14 @@ export default function NavBar() {
             onClick={toggleFormType}
             className="text-blue-600 border-1 border-blue-600 px-6 py-2 rounded-[10px] hover:bg-blue-600 hover:text-white cursor-pointer"
           >
-            {t("login")}
+            {t("common.login")}
           </button>
         ) : (
           <button
             onClick={toggleFormType}
             className="text-blue-600 border-1 border-blue-600 px-6 py-2 rounded-[10px] hover:bg-blue-600 hover:text-white cursor-pointer font-semibold"
           >
-            {t("createAccount")}
+            {t("common.createAccount")}
           </button>
         )}
       </div>
@@ -142,7 +143,9 @@ export default function NavBar() {
           onClick={toggleFormType}
           className="text-sm text-blue-600 border-2 border-blue-600 px-6 py-1.5 rounded-[6px] hover:tex-white hover:bg-blue-600 cursor-pointer"
         >
-          {formType === "register" ? t("login") : t("createAccount")}
+          {formType === "register"
+            ? t("common.login")
+            : t("common.createAccount")}
         </button>
 
         <button onClick={toggleMenu} className="text-2xl">
@@ -159,7 +162,7 @@ export default function NavBar() {
                 href="/auth/login"
                 className="hover:text-blue-500 display-block"
               >
-                {t("home")}
+                {tn("home")}
               </a>
             </li>
             <li className="border-b border-gray-300 pb-2">
@@ -167,7 +170,7 @@ export default function NavBar() {
                 href="/auth/register"
                 className="hover:text-blue-500 display-block"
               >
-                {t("about")}
+                {tn("about")}
               </a>
             </li>
             <li className="border-b border-transparent pb-2">
@@ -175,7 +178,7 @@ export default function NavBar() {
                 href="/auth/register"
                 className="hover:text-blue-500 display-block"
               >
-                {t("help")}
+                {tn("help")}
               </a>
             </li>
           </ul>

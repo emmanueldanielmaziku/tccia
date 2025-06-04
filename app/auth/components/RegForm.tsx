@@ -4,14 +4,14 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useFormState } from "../services/FormStates";
-
+import { useTranslations } from "next-intl";
 import { MdVisibility, MdVisibilityOff } from "react-icons/md";
 import { useRouter } from "next/navigation";
 import { ArrowDown2, Call, Sms, User } from "iconsax-reactjs";
 
 const Roles = {
-  CEM: "CEM",
-  CFAM: "CFAM",
+  CEM: "Company Exporter Manager",
+  CFAM: "CFA Manager",
 } as const;
 type Role = keyof typeof Roles;
 
@@ -47,6 +47,8 @@ const RegForm = () => {
   const [roleBox, setRoleBox] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const roleRef = useRef<HTMLDivElement>(null);
+  const t = useTranslations();
+  const tf = useTranslations("forms");
 
   const { toggleFormType } = useFormState();
 
@@ -116,22 +118,22 @@ const RegForm = () => {
       console.log("API Response:", result);
 
       if (!response.ok) {
-        throw new Error(result.message || "Registration failed");
+        throw new Error(result.message || tf("messages.registrationFailed"));
       }
 
-      setSuccess("Registration successful! Redirecting to login...");
-      reset(); // Reset form after successful submission
+      setSuccess(tf("messages.registrationSuccess"));
+      reset();
 
-      // Redirect to login after 2 seconds
+    
       setTimeout(() => {
-        toggleFormType(); // Switch to login form
+        toggleFormType();
       }, 2000);
     } catch (error) {
       console.error("Registration error:", error);
       setError(
         error instanceof Error
           ? error.message
-          : "Registration failed. Please try again."
+          : tf("messages.registrationFailed")
       );
     } finally {
       setIsSubmitting(false);
@@ -140,7 +142,7 @@ const RegForm = () => {
 
   const onError = (errors: any) => {
     console.log("Form validation errors:", errors);
-    setError("Please check all required fields and try again.");
+    setError(tf("messages.checkRequiredFields"));
   };
 
   return (
@@ -150,7 +152,7 @@ const RegForm = () => {
     >
       <div className="w-full flex flex-row justify-between items-center space-x-4">
         <div className="text-gray-700 font-semibold text-[16px] md:text-2xl">
-          Create a new account
+          {t("common.createAccount")}
         </div>
       </div>
 
@@ -175,12 +177,12 @@ const RegForm = () => {
             htmlFor="firstName"
             className="text-gray-700 text-sm font-medium"
           >
-            First name
+            {tf("labels.firstName")}
           </label>
           <input
             id="firstName"
             type="text"
-            placeholder="First name"
+            placeholder={tf("placeholders.firstName")}
             {...register("firstName")}
             className="w-full px-5 py-2.5 pr-12 border border-zinc-300 bg-zinc-100 outline-blue-400 rounded-[8px] placeholder:text-zinc-400 placeholder:text-[15px]"
             autoComplete="given-name"
@@ -192,7 +194,7 @@ const RegForm = () => {
           />
           {errors.firstName && (
             <p className="text-red-500 text-[11px]">
-              {errors.firstName.message}
+              {tf("validation.firstNameRequired")}
             </p>
           )}
         </div>
@@ -201,12 +203,12 @@ const RegForm = () => {
             htmlFor="lastName"
             className="text-gray-700 text-sm font-medium"
           >
-            Last name
+            {tf("labels.lastName")}
           </label>
           <input
             id="lastName"
             type="text"
-            placeholder="Last name"
+            placeholder={tf("placeholders.lastName")}
             {...register("lastName")}
             className="w-full px-5 py-2.5 pr-12 border border-zinc-300 bg-zinc-100 outline-blue-400 rounded-[8px] placeholder:text-zinc-400 placeholder:text-[15px]"
             autoComplete="family-name"
@@ -218,7 +220,7 @@ const RegForm = () => {
           />
           {errors.lastName && (
             <p className="text-red-500 text-[11px]">
-              {errors.lastName.message}
+              {tf("validation.lastNameRequired")}
             </p>
           )}
         </div>
@@ -226,12 +228,12 @@ const RegForm = () => {
 
       <div className="relative flex flex-col gap-1 w-full">
         <label htmlFor="email" className="text-gray-700 text-sm font-medium">
-          Email address
+          {t("common.email")}
         </label>
         <input
           id="email"
           type="email"
-          placeholder="Enter your email address"
+          placeholder={tf("placeholders.enterEmail")}
           {...register("email")}
           className="w-full px-5 py-2.5 pr-12 border border-zinc-300 bg-zinc-100 outline-blue-400 rounded-[8px] placeholder:text-zinc-400 placeholder:text-[15px]"
           autoComplete="email"
@@ -239,157 +241,143 @@ const RegForm = () => {
         <Sms size="20" color="#9F9FA9" className="absolute top-9.5 right-5" />
 
         {errors.email && (
-          <p className="text-red-500 text-[11px]">{errors.email.message}</p>
+          <p className="text-red-500 text-[11px]">
+            {tf("validation.invalidEmail")}
+          </p>
         )}
       </div>
 
       <div className="relative flex flex-col gap-1 w-full">
         <label htmlFor="phone" className="text-gray-700 text-sm font-medium">
-          Phone number
+          {tf("labels.phoneNumber")}
         </label>
         <input
           id="phone"
           type="tel"
-          placeholder="Enter your phone number"
+          placeholder={tf("placeholders.enterPhone")}
           {...register("phone")}
           className="w-full px-5 py-2.5 pr-12 border border-zinc-300 bg-zinc-100 outline-blue-400 rounded-[8px] placeholder:text-zinc-400 placeholder:text-[15px]"
           autoComplete="tel"
         />
         <Call size="20" color="#9F9FA9" className="absolute top-9.5 right-5" />
         {errors.phone && (
-          <p className="text-red-500 text-[11px]">{errors.phone.message}</p>
+          <p className="text-red-500 text-[11px]">
+            {errors.phone.type === "min"
+              ? tf("validation.phoneMinLength")
+              : tf("validation.phoneDigitsOnly")}
+          </p>
         )}
       </div>
 
-      <div className="relative flex flex-col gap-1 w-full" ref={roleRef}>
+      <div className="relative flex flex-col gap-1 w-full">
         <label htmlFor="role" className="text-gray-700 text-sm font-medium">
-          Please select your role
+          {tf("labels.role")}
         </label>
-        {roleBox && (
-          <div
-            className="text-sm text-gray-600 font-semibold bg-white shadow-sm p-1.5 rounded-[10px] flex flex-col gap-1.5 absolute w-full border-[0.5px] px-1.5 z-10 top-18"
-            role="listbox"
-          >
-            <button
-              type="button"
-              className="border-zinc-200 pb-4 pt-3.5 border-[0.5px] hover:text-blue-500 hover:bg-gray-50 cursor-pointer rounded-[7px] bg-gray-100 px-3.5 text-left"
-              onClick={() => {
-                setRoleBox(false);
-                setValue("role", Roles.CEM);
-              }}
-              role="option"
-            >
-              Register as Exporter manager
-            </button>
-            <button
-              type="button"
-              className="border-zinc-200 pb-4 pt-3.5 border-[0.5px] hover:text-blue-500 hover:bg-gray-50 cursor-pointer rounded-[7px] bg-gray-100 px-3.5 text-left"
-              onClick={() => {
-                setRoleBox(false);
-                setValue("role", Roles.CFAM);
-              }}
-              role="option"
-            >
-              Register as CFA manager
-            </button>
-          </div>
-        )}
-        <button
-          type="button"
+        <div
+          ref={roleRef}
+          className="relative w-full"
           onClick={() => setRoleBox(!roleBox)}
-          className={`w-full px-5 py-3 pr-12 border border-zinc-300 bg-zinc-100 outline-blue-400 rounded-[8px] placeholder:text-zinc-400 cursor-pointer hover:bg-zinc-200 text-sm text-left ${
-            selectedRole ? "text-black text-[15.5px]" : "text-gray-400"
-          }`}
-          aria-expanded={roleBox}
-          aria-haspopup="listbox"
-          aria-labelledby="role-label"
-          id="role"
         >
-          {selectedRole === Roles.CEM
-            ? "Register as Exporter manager"
-            : selectedRole === Roles.CFAM
-            ? "Register as CFA manager"
-            : "Choose your role"}
-        </button>
-        <ArrowDown2
-          size="20"
-          color="#9F9FA9"
-          className="absolute top-9.5 right-5"
-        />
+          <input
+            id="role"
+            type="text"
+            placeholder={tf("placeholders.selectRole")}
+            value={selectedRole}
+            readOnly
+            className="w-full px-5 py-2.5 pr-12 border border-zinc-300 bg-zinc-100 outline-blue-400 rounded-[8px] placeholder:text-zinc-400 placeholder:text-[15px] cursor-pointer"
+          />
+          <ArrowDown2
+            size="20"
+            color="#9F9FA9"
+            className="absolute top-3.5 right-5"
+          />
+          {roleBox && (
+            <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-[8px] shadow-lg">
+              {Object.entries(Roles).map(([key, value]) => (
+                <div
+                  key={key}
+                  className="px-5 py-2.5 hover:bg-gray-100 cursor-pointer"
+                  onClick={() => {
+                    setValue("role", value);
+                    setRoleBox(false);
+                  }}
+                >
+                  {value}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
         {errors.role && (
-          <p className="text-red-500 text-[11px]">{errors.role.message}</p>
+          <p className="text-red-500 text-[11px]">
+            {tf("validation.roleRequired")}
+          </p>
         )}
       </div>
 
       <div className="relative flex flex-col gap-1 w-full">
         <label htmlFor="password" className="text-gray-700 text-sm font-medium">
-          Password
+          {t("common.password")}
         </label>
-        <div className="relative w-full">
-          <input
-            id="password"
-            type={isPasswordVisible ? "text" : "password"}
-            placeholder="Enter your password"
-            {...register("password")}
-            className="w-full px-6 py-2.5 pr-12 border border-zinc-300 bg-zinc-100 outline-blue-400 rounded-[8px] placeholder:text-zinc-400 placeholder:text-[15px]"
-            autoComplete="new-password"
-          />
-          <button
-            type="button"
-            onClick={() => setIsPasswordVisible(!isPasswordVisible)}
-            aria-label={isPasswordVisible ? "Hide password" : "Show password"}
-            className="absolute right-4 top-1/2 transform -translate-y-1/2 text-zinc-400"
-          >
-            {isPasswordVisible ? (
-              <MdVisibilityOff className="w-5 h-5 cursor-pointer" />
-            ) : (
-              <MdVisibility className="w-5 h-5 cursor-pointer" />
-            )}
-          </button>
-          {errors.password && (
-            <p className="text-red-500 text-[11px]">
-              {errors.password.message}
-            </p>
+        <input
+          id="password"
+          type={isPasswordVisible ? "text" : "password"}
+          placeholder={tf("placeholders.enterPassword")}
+          {...register("password")}
+          className="w-full px-5 py-2.5 pr-12 border border-zinc-300 bg-zinc-100 outline-blue-400 rounded-[8px] placeholder:text-zinc-400 placeholder:text-[15px]"
+          autoComplete="new-password"
+        />
+        <button
+          type="button"
+          onClick={() => setIsPasswordVisible(!isPasswordVisible)}
+          aria-label={
+            isPasswordVisible
+              ? tf("buttons.hidePassword")
+              : tf("buttons.showPassword")
+          }
+          className="absolute top-9.5 right-5 text-zinc-400"
+        >
+          {isPasswordVisible ? (
+            <MdVisibilityOff className="w-5 h-5 cursor-pointer" />
+          ) : (
+            <MdVisibility className="w-5 h-5 cursor-pointer" />
           )}
-        </div>
+        </button>
+        {errors.password && (
+          <p className="text-red-500 text-[11px]">
+            {errors.password.type === "min"
+              ? tf("validation.passwordMinLength")
+              : errors.password.type === "regex"
+              ? tf("validation.passwordComplexity")
+              : tf("validation.passwordRequired")}
+          </p>
+        )}
       </div>
 
       <button
         type="submit"
-        disabled={isSubmitting || !selectedRole}
-        onClick={() => {
-          console.log("Submit button clicked");
-          console.log("Current form state:", {
-            errors,
-            isValid,
-            values: watch(),
-          });
-        }}
-        className="bg-blue-500 h-[45px] text-white px-6 rounded-[8px] text-[15px] hover:bg-blue-600 cursor-pointer flex items-center justify-center space-x-2 mt-2 disabled:opacity-50 disabled:cursor-not-allowed"
+        disabled={isSubmitting}
+        className="bg-blue-500 text-white px-6 py-2.5 rounded-[8px] text-[15px] hover:bg-blue-600 cursor-pointer flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
       >
         {isSubmitting ? (
           <div className="flex items-center justify-center">
             <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
           </div>
-        ) : selectedRole === Roles.CEM ? (
-          "Register as Exporter Manager"
-        ) : selectedRole === Roles.CFAM ? (
-          "Register as CFA Manager"
         ) : (
-          "Create Account"
+          tf("buttons.register")
         )}
       </button>
 
       <div className="flex items-center space-x-4">
         <span className="text-[14px] text-gray-700 font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-          Do you have an account already?
+          {tf("messages.haveAccount")}
         </span>
         <button
           type="button"
           className="text-[14px] text-blue-600 underline cursor-pointer"
           onClick={toggleFormType}
         >
-          Login
+          {t("common.login")}
         </button>
       </div>
     </form>

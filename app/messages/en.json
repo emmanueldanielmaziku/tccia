@@ -6,8 +6,8 @@
     "login": "Login",
     "logout": "Logout",
     "cancel": "Cancel",
-    "confirmLogout": "Confirm logout!",
-    "logoutMessage": "You are about to exit from the system by logging out, are you sure?",
+    "confirmLogout": "Confirm Logout",
+    "logoutMessage": "Are you sure you want to logout?",
     "createAccount": "Create new account",
     "forgotPassword": "Forgot your password?",
     "resetPassword": "Reset password"
@@ -19,5 +19,109 @@
     "membership": "Membership Application",
     "about": "About Us",
     "help": "Help"
+  },
+  "sidebar": {
+    "modules": "Modules",
+    "dashboard": "Dashboard",
+    "firmManagement": "Firm Management",
+    "factoryVerification": "Factory Verification",
+    "cfaOfficersManagement": "CFA Officers Management",
+    "cfasManagement": "CFAs Management",
+    "employeesManagement": "Employees Management",
+    "certificateOfOrigin": "Certificate of Origin",
+    "membership": "Membership",
+    "nonTariffBarrier": "Non-Tariff Barrier",
+    "reportProblem": "Report Problem",
+    "settings": "Settings"
+  },
+  "forms": {
+    "labels": {
+      "firstName": "First name",
+      "lastName": "Last name",
+      "phoneNumber": "Phone number",
+      "role": "Please select your role"
+    },
+    "placeholders": {
+      "firstName": "First name",
+      "lastName": "Last name",
+      "enterEmail": "Enter your email address",
+      "enterPhone": "Enter your phone number",
+      "selectRole": "Select your role",
+      "enterPassword": "Enter your password"
+    },
+    "buttons": {
+      "register": "Create Account",
+      "showPassword": "Show password",
+      "hidePassword": "Hide password"
+    },
+    "messages": {
+      "noAccount": "Don't have an account?",
+      "haveAccount": "Already have an account?",
+      "forgotPassword": "Forgot your password?",
+      "loginFailed": "Login failed. Please try again.",
+      "registrationFailed": "Registration failed. Please try again.",
+      "registrationSuccess": "Registration successful! Redirecting to login page...",
+      "checkRequiredFields": "Please check all required fields and try again.",
+      "invalidResponse": "Invalid response from server"
+    },
+    "validation": {
+      "firstNameRequired": "First name is required",
+      "lastNameRequired": "Last name is required",
+      "invalidEmail": "Invalid email address",
+      "phoneMinLength": "Phone number must be at least 10 digits",
+      "phoneDigitsOnly": "Phone number must contain only digits",
+      "roleRequired": "Please select a role",
+      "passwordMinLength": "Password must be at least 8 characters",
+      "passwordLetters": "Password must contain letters",
+      "passwordNumbers": "Password must contain numbers",
+      "passwordComplexity": "Password must contain uppercase, lowercase, numbers, and special characters",
+      "passwordRequired": "Password is required"
+    }
+  },
+  "stats": {
+    "dashboard": "Dashboard",
+    "firmStatistics": "Firm Statistics",
+    "total": "Total",
+    "pending": "Pending",
+    "verified": "Verified",
+    "rejected": "Rejected",
+    "companyDetails": "Company Details",
+    "switchCompany": "Switch to another company",
+    "companies": "Companies",
+    "help": {
+      "title": "Having trouble?",
+      "description": "Feel free to contact us and we will always help you through the process.",
+      "contactButton": "Contact us"
+    }
+  },
+  "alerts": {
+    "success": "Success",
+    "error": "Error",
+    "warning": "Warning",
+    "info": "Information",
+    "close": "Close",
+    "dismiss": "Dismiss",
+    "retry": "Retry",
+    "confirm": "Confirm",
+    "cancel": "Cancel",
+    "logout": "Logout",
+    "confirmLogout": "Confirm Logout",
+    "messages": {
+      "operationSuccess": "Operation completed successfully",
+      "operationFailed": "Operation failed. Please try again.",
+      "changesSaved": "Changes have been saved successfully",
+      "changesDiscarded": "Changes have been discarded",
+      "deleteConfirm": "Are you sure you want to delete this item?",
+      "unsavedChanges": "You have unsaved changes. Do you want to discard them?",
+      "sessionExpired": "Your session has expired. Please login again.",
+      "networkError": "Network error. Please check your connection.",
+      "serverError": "Server error. Please try again later.",
+      "validationError": "Please check the form for errors.",
+      "permissionDenied": "You don't have permission to perform this action.",
+      "itemNotFound": "The requested item could not be found.",
+      "invalidInput": "Please provide valid input.",
+      "timeout": "Request timed out. Please try again.",
+      "logoutConfirm": "You are about to exit from the system by logging out, are you sure?"
+    }
   }
 }
