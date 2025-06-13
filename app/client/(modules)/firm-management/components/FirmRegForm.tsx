@@ -12,20 +12,22 @@ const otpSchema = z.object({
   otp: z.string().length(6, "OTP must be 6 digits"),
 });
 
-// Mock company data type
+// Company data type
 type CompanyData = {
+  id: number;
   company_tin: string;
   company_nationality_code: string;
   company_registration_type_code: string;
   company_name: string;
   company_telephone_number: string;
-  company_fax_number: boolean;
+  company_fax_number: string;
   company_postal_code: string;
   company_postal_base_address: string;
   company_postal_detail_address: string;
   company_physical_address: string;
   company_email: string;
   company_description: string;
+  state: string;
 };
 
 function PreviewWidget({
@@ -37,13 +39,42 @@ function PreviewWidget({
   open: boolean;
   onClose: () => void;
   companyData: CompanyData | null;
-  onConfirm: () => void;
+  onConfirm: (code: string) => void;
 }) {
   const [otp, setOtp] = useState("");
   const [otpError, setOtpError] = useState<string | undefined>(undefined);
+  const [showOtpInput, setShowOtpInput] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleOtpSubmit = (e: React.FormEvent) => {
+  const handleApprove = async () => {
+    setIsLoading(true);
+    try {
+      const response = await fetch("/api/auth/firm-registration/send-code", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          id: companyData?.id,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (result.result?.success) {
+        setShowOtpInput(true);
+      } else {
+        setOtpError(result.result?.error || "Failed to send OTP");
+      }
+    } catch (error) {
+      setOtpError("Failed to send OTP. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleOtpSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const result = otpSchema.safeParse({ otp });
 
@@ -52,13 +83,33 @@ function PreviewWidget({
       return;
     }
 
-    if (otp === "123456") {
-      setShowSuccess(true);
-      setTimeout(() => {
-        onConfirm();
-      }, 2000);
-    } else {
-      setOtpError("Invalid OTP. Please try again.");
+    setIsLoading(true);
+    try {
+      const response = await fetch("/api/auth/firm-registration/verify-code", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          id: companyData?.id,
+          code_input: otp,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (result.result?.success) {
+        setShowSuccess(true);
+        setTimeout(() => {
+          onConfirm(otp);
+        }, 2000);
+      } else {
+        setOtpError(result.result?.error || "Invalid OTP. Please try again.");
+      }
+    } catch (error) {
+      setOtpError("Failed to verify OTP. Please try again.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -130,16 +181,25 @@ function PreviewWidget({
             </div>
           </div>
 
-          {/* OTP Section */}
-          {!showSuccess ? (
+          {/* Action Buttons or OTP Section */}
+          {!showOtpInput && !showSuccess ? (
+            <div className="flex justify-end">
+              <button
+                onClick={handleApprove}
+                disabled={isLoading}
+                className="px-6 py-2 rounded-md bg-blue-600 text-white font-medium hover:bg-blue-800 transition-colors cursor-pointer disabled:opacity-50"
+              >
+                {isLoading ? "Sending OTP..." : "Approve and Continue"}
+              </button>
+            </div>
+          ) : !showSuccess ? (
             <form onSubmit={handleOtpSubmit} className="mb-6">
               <div className="mb-4">
                 <h3 className="text-lg font-semibold text-gray-700 mb-2">
                   OTP Verification
                 </h3>
                 <p className="text-sm text-gray-500 mb-4">
-                  An OTP has been sent to number ending{" "}
-                  {companyData.company_telephone_number.slice(-3)}
+                  An OTP has been sent to {companyData.company_email}
                 </p>
                 <div className="relative">
                   <input
@@ -162,9 +222,10 @@ function PreviewWidget({
               <div className="flex justify-end">
                 <button
                   type="submit"
-                  className="px-6 py-2 rounded-md bg-blue-600 text-white font-medium hover:bg-blue-800 transition-colors cursor-pointer"
+                  disabled={isLoading}
+                  className="px-6 py-2 rounded-md bg-blue-600 text-white font-medium hover:bg-blue-800 transition-colors cursor-pointer disabled:opacity-50"
                 >
-                  Submit OTP
+                  {isLoading ? "Verifying..." : "Confirm OTP"}
                 </button>
               </div>
             </form>
@@ -192,38 +253,38 @@ export default function FirmRegForm() {
   const [companyData, setCompanyData] = useState<CompanyData | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Mock fetch company data
   const fetchCompanyData = async (tin: string) => {
     setIsLoading(true);
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    try {
+      const response = await fetch("/api/auth/firm-registration/submit-tin", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          company_tin: tin,
+        }),
+      });
 
-    // Mock response
-    const mockData: CompanyData = {
-      company_tin: tin,
-      company_nationality_code: "TZ",
-      company_registration_type_code: "IM",
-      company_name: "GEJJ LIMITED",
-      company_telephone_number: "+255222860814",
-      company_fax_number: false,
-      company_postal_code: "110101",
-      company_postal_base_address: "Ubungo, Goba, Dar es Salaam",
-      company_postal_detail_address: "Kinzudi",
-      company_physical_address: "SAMORA AVENUE 1036/1037 BLOCK 102",
-      company_email: "feysalkhan@bakhresa.com",
-      company_description: "General trading and import of goods",
-    };
+      const result = await response.json();
 
-    setCompanyData(mockData);
-    setIsLoading(false);
-    return mockData;
+      if (result.result?.success) {
+        setCompanyData(result.result.data);
+        togglePreview(true);
+      } else {
+        setError(result.result?.error || "Failed to fetch company data");
+      }
+    } catch (error) {
+      console.error("Error fetching company data:", error);
+      setError("Failed to fetch company data. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  // Handle form submission (for preview)
   const handlePreview = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
 
-    // Validate form data using Zod
     const result = companySchema.safeParse({ companyTin });
 
     if (!result.success) {
@@ -233,10 +294,8 @@ export default function FirmRegForm() {
 
     setError(undefined);
     await fetchCompanyData(companyTin);
-    togglePreview(true);
   };
 
-  // Handle input change
   const handleInputChange = (value: string) => {
     setCompanyTin(value);
     setError(undefined);
@@ -250,26 +309,23 @@ export default function FirmRegForm() {
 
   return (
     <div className="flex flex-col w-full h-full">
-      {/* Preview Widget */}
       <PreviewWidget
         open={previewState}
         onClose={() => togglePreview(false)}
         companyData={companyData}
         onConfirm={handleConfirm}
       />
-      {/* End of Preview Widget */}
       <form
         className="flex flex-col w-full pb-10 mt-5"
         onSubmit={handlePreview}
       >
         <div className="flex flex-col gap-4 overflow-hidden overflow-y-auto">
           <div className="flex flex-row gap-6 relative border-t-[0.5px] border-dashed border-gray-400 pt-8">
-            {/* Company TIN Input */}
             <div className="relative w-full">
               <div className="text-sm py-2 w-full">Company TIN</div>
               <input
-                type="number"
-                placeholder="Enter company TIN... (xxx-xxx-xxx)"
+                type="text"
+                placeholder="Enter company TIN... (xxxxx-xxxx)"
                 value={companyTin}
                 onChange={(e) => handleInputChange(e.target.value)}
                 className={`w-full px-6 py-3.5 pr-12 border ${

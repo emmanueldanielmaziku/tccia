@@ -8,7 +8,6 @@ import {
   Box,
   CloseCircle,
   SearchNormal1,
-  ArrowDown2,
 } from "iconsax-reactjs";
 import AlertBox from "../factory-verification/components/AlertBox";
 import FirmRegForm from "./components/FirmRegForm";
@@ -90,7 +89,7 @@ export default function FirmManagement() {
         firm.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
         firm.address.toLowerCase().includes(searchQuery.toLowerCase());
 
-      const matchesStatus =
+        const matchesStatus =
         statusFilter === "all" ||
         firm.status.toLowerCase() === statusFilter.toLowerCase();
 

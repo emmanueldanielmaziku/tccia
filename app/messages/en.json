@@ -80,8 +80,10 @@
   },
   "stats": {
     "dashboard": "Dashboard",
+    "certificateStatistics": "COO Statistics",
     "firmStatistics": "Firm Statistics",
     "total": "Total",
+    "approved": "Approved",
     "pending": "Pending",
     "verified": "Verified",
     "rejected": "Rejected",

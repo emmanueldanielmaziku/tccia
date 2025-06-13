@@ -6,18 +6,15 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
 
-
-  
     const apiData = {
-      manager_name: `${body.firstName} ${body.lastName}`,
+      name: `${body.firstName} ${body.lastName}`,
       phone: body.phone,
       email: body.email,
       password: body.password,
       role: body.role,
     };
 
-  
-    const response = await fetch(`${API_BASE_URL}/api/manager_registration`, {
+    const response = await fetch(`${API_BASE_URL}/api/registration`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -27,24 +24,42 @@ export async function POST(request: Request) {
 
     const result = await response.json();
 
-    if (!response.ok) {
+    if (result.result?.error) {
       return NextResponse.json(
-        { message: result.message || "Registration failed" },
-        { status: response.status }
+        {
+          jsonrpc: "2.0",
+          id: null,
+          result: {
+            error: result.result.error,
+          },
+        },
+        { status: 400 }
       );
     }
 
     return NextResponse.json({
-      message: "Registration successful",
-      user: {
-        email: body.email,
-        role: body.role,
+      jsonrpc: "2.0",
+      id: null,
+      result: {
+        success: true,
+        registration_id: result.result.registration_id,
+        user_id: result.result.user_id,
+        name: result.result.name,
+        role: result.result.role,
+        email: result.result.email,
+        state: result.result.state,
       },
     });
   } catch (error) {
     console.error("Registration error:", error);
     return NextResponse.json(
-      { message: "Registration failed" },
+      {
+        jsonrpc: "2.0",
+        id: null,
+        result: {
+          error: "Internal server error",
+        },
+      },
       { status: 500 }
     );
   }

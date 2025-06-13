@@ -21,7 +21,7 @@ export default function SideBar() {
   const { isMenuOpen } = useMenuState();
   const { alertState, toggleAlert } = useLogState();
   const [selectedTab, setSelectedTab] = useState("Firm Management");
-  const [role, setRole] = useState("CEO");
+  const [role, setRole] = useState("CEM");
   const t = useTranslations("sidebar");
   const ta = useTranslations("alerts");
 
@@ -37,6 +37,12 @@ export default function SideBar() {
       translationKey: "factoryVerification",
       icon: Box,
       route: "/client/factory-verification",
+    },
+    {
+      id: "Certificate of Origin",
+      translationKey: "certificateOfOrigin",
+      icon: ArchiveBook,
+      route: "/client/coo",
     },
     {
       id: "CFA Officers Management",
@@ -56,12 +62,7 @@ export default function SideBar() {
       icon: UserTick,
       route: "/client/employees",
     },
-    {
-      id: "Certificate of Origin",
-      translationKey: "certificateOfOrigin",
-      icon: ArchiveBook,
-      route: "/client/coo",
-    },
+
     {
       id: "Membership",
       translationKey: "membership",
@@ -134,14 +135,17 @@ export default function SideBar() {
                         : "border-gray-200 hover:bg-blue-50 hover:border-blue-300"
                     }`}
                     aria-expanded={selectedTab === item.id}
-                  >
+                    >
+                      
                     <div
                       className={`w-1.5 h-6 max-h-6 rounded-tr-md rounded-br-md ${
                         selectedTab === item.id
                           ? "bg-blue-500"
                           : "bg-transparent"
                       } absolute left-0`}
-                    ></div>
+                      >
+                        
+                    </div>
                     <div className="flex flex-row items-center gap-2">
                       <item.icon
                         size="20"

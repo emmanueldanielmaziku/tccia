@@ -38,7 +38,7 @@ export default function StatsBar() {
       <div className="w-full flex items-center justify-start">
         <button
           onClick={() => setExpanded((v) => !v)}
-          className={`p-1 cursor-pointer rounded transition ml-auto ${
+          className={`p-1.5 cursor-pointer rounded-md transition-all duration-200 hover:bg-gray-100 ml-auto ${
             expanded
               ? "flex items-center justify-start"
               : "w-full flex items-center justify-center"
@@ -48,14 +48,14 @@ export default function StatsBar() {
         >
           {expanded ? (
             <SidebarRight
-              size="26"
-              color="gray"
+              size="24"
+              color="#64748b"
               variant="Outline"
               className="transition-all duration-300"
             />
           ) : (
             <SidebarLeft
-              size="26"
+              size="24"
               color="#2b76f0"
               variant="Outline"
               className="transition-all duration-300"
@@ -63,17 +63,17 @@ export default function StatsBar() {
           )}
         </button>
         {expanded && (
-          <span className="w-full h-7 pl-4 ml-2 flex border-l-[0.5px] items-center font-bold text-lg text-gray-700">
+          <span className="w-full h-7 pl-4 ml-2 flex border-l-[0.5px] items-center font-bold text-[16px] text-gray-700">
             {t("dashboard")}
           </span>
         )}
       </div>
 
-      <div className="w-full flex flex-col gap-7">
+      <div className="w-full flex flex-col gap-8">
         {/* Products Statistics */}
         <div className="w-full">
           {expanded && (
-            <div className="font-semibold pb-3 text-gray-600 text-[14px]">
+            <div className="font-semibold pb-3.5 text-gray-600 text-[14px]">
               {t("firmStatistics")}
             </div>
           )}
@@ -108,15 +108,15 @@ export default function StatsBar() {
         {/* Company Details */}
         <div className="w-full">
           {expanded && (
-            <div className="flex flex-row justify-between items-center pb-2.5">
+            <div className="flex flex-row justify-between items-center pb-3">
               <div className="font-semibold text-gray-600 text-[14px]">
                 {t("companyDetails")}
               </div>
             </div>
           )}
           <div
-            className={`w-full flex flex-col items-center gap-7 justify-center border-[0.5px] rounded-xl bg-gray-100 transition-all duration-300 ${
-              expanded ? "px-4 md:px-5 py-4 md:py-5" : "px-2 py-2"
+            className={`w-full flex flex-col items-center gap-7 justify-center border-[0.5px] rounded-xl bg-gray-100/80 transition-all duration-300 ${
+              expanded ? "px-5 md:px-6 py-5 md:py-6" : "px-2 py-2"
             }`}
           >
             <img
@@ -130,26 +130,28 @@ export default function StatsBar() {
             />
 
             {expanded && (
-              <div className="w-full flex flex-col justify-center items-center text-center">
-                <div className="font-semibold text-gray-600 text-[14px] md:text-[16px]">
+              <div className="w-full flex flex-col justify-center items-center text-center gap-1">
+                <div className="font-semibold text-gray-700 text-[15px] md:text-[16px]">
                   AZANIA GROUP OF COMPANIES
                 </div>
-                <div className="font-semibold text-blue-800 text-[12px] md:text-[14px]">
+                <div className="font-semibold text-blue-700 text-[13px] md:text-[14px]">
                   AZG-001-A25Z
                 </div>
-                <div className="text-gray-600 text-[11px] md:text-[12px]">
+                <div className="text-gray-600 text-[12px] md:text-[13px]">
                   Dar es Salaam, Tanzania
                 </div>
               </div>
             )}
             {expanded && (
               <Select>
-                <SelectTrigger className="w-full border-[1px] border-blue-300 rounded-[7px] text-blue-500 py-4 md:py-6 cursor-pointer hover:bg-gray-100 shadow-sm text-sm md:text-base">
+                <SelectTrigger className="w-full border-[1px] border-blue-300 rounded-[8px] text-blue-600 py-4 md:py-5 cursor-pointer hover:bg-gray-50 shadow-sm text-sm md:text-[14px] transition-colors duration-200">
                   <SelectValue placeholder={t("switchCompany")} className="" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectGroup>
-                    <SelectLabel>{t("companies")}</SelectLabel>
+                    <SelectLabel className="text-gray-600">
+                      {t("companies")}
+                    </SelectLabel>
                     <SelectItem value="apple">TCCIA COMPANY</SelectItem>
                     <SelectItem value="banana">ABC COMPANY</SelectItem>
                     <SelectItem value="blueberry">AZANIA GROUP</SelectItem>
@@ -166,24 +168,24 @@ export default function StatsBar() {
       {/* Help Section */}
       {expanded && (
         <div
-          className={`flex flex-col gap-3.5 border-[0.5px] rounded-xl bg-gray-100 w-full transition-all duration-300 ${
-            expanded ? "px-4 md:px-5 py-4 md:py-5" : "px-2 py-2"
+          className={`flex flex-col gap-4 border-[0.5px] rounded-xl bg-gray-100/80 w-full transition-all duration-300 ${
+            expanded ? "px-5 md:px-6 py-5 md:py-6" : "px-2 py-2"
           }`}
         >
-          <div className="flex flex-row items-center gap-2">
-            <Lifebuoy size={expanded ? 20 : 18} color="#364153" />
+          <div className="flex flex-row items-center gap-2.5">
+            <Lifebuoy size={20} color="#364153" />
             {expanded && (
-              <h5 className="text-gray-700 text-[14px] md:text-[16px]">
+              <h5 className="text-gray-700 text-[15px] md:text-[16px] font-medium">
                 {t("help.title")}
               </h5>
             )}
           </div>
           {expanded && (
             <>
-              <p className="text-gray-800 text-[13px] md:text-[15px]">
+              <p className="text-gray-700 text-[13px] md:text-[14px] leading-relaxed">
                 {t("help.description")}
               </p>
-              <button className="border-[1px] rounded-[7px] border-zinc-600 text-zinc-600 px-6 md:px-8 py-2 text-[13px] md:text-[15px] w-full cursor-pointer hover:bg-zinc-600 hover:text-white">
+              <button className="border-[1px] rounded-[8px] border-zinc-600 text-zinc-600 px-6 md:px-8 py-2.5 text-[13px] md:text-[14px] w-full cursor-pointer hover:bg-zinc-600 hover:text-white transition-colors duration-200">
                 {t("help.contactButton")}
               </button>
             </>

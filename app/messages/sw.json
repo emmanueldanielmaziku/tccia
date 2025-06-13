@@ -81,9 +81,11 @@
   "stats": {
     "dashboard": "Dashibodi",
     "firmStatistics": "Takwimu za Kampuni",
+    "certificateStatistics": "Takwimu za Vyeti cha Asili",
     "total": "Jumla",
     "pending": "Inasubiri",
     "verified": "Imethibitishwa",
+    "approved": "Kupitishwa",
     "rejected": "Imekataliwa",
     "companyDetails": "Maelezo ya Kampuni",
     "switchCompany": "Badilisha kwa kampuni nyingine",

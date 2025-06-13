@@ -22,8 +22,7 @@ interface ResetFormState {
 
 export const useResetFormState = create<ResetFormState>((set) => ({
   formTypo: "login",
-  resetForm: () =>
-    set((state) => ({
+  resetForm: () => set((state) => ({
       formTypo: state.formTypo == "login" ? "reset" : "login",
     })),
 }));

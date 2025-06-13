@@ -10,10 +10,15 @@ import { useRouter } from "next/navigation";
 import { ArrowDown2, Call, Sms, User } from "iconsax-reactjs";
 
 const Roles = {
-  CEM: "Company Exporter Manager",
-  CFAM: "CFA Manager",
+  CEM: {
+    display: "Company Exporter Manager",
+    value: "manager",
+  },
+  CFAM: {
+    display: "CFA Manager",
+    value: "cfa",
+  },
 } as const;
-type Role = keyof typeof Roles;
 
 // Enhanced validation schema
 const schema = z.object({
@@ -97,6 +102,14 @@ const RegForm = () => {
     setSuccess(null);
 
     try {
+      // Find the role key based on the display value
+      const roleKey = Object.entries(Roles).find(
+        ([_, role]) => role.display === data.role
+      )?.[0];
+      const roleValue = roleKey
+        ? Roles[roleKey as keyof typeof Roles].value
+        : data.role;
+
       console.log("Making API request...");
       const response = await fetch("/api/auth/register", {
         method: "POST",
@@ -109,7 +122,7 @@ const RegForm = () => {
           email: data.email,
           phone: data.phone,
           password: data.password,
-          role: data.role,
+          role: roleValue,
         }),
       });
 
@@ -117,17 +130,30 @@ const RegForm = () => {
       const result = await response.json();
       console.log("API Response:", result);
 
-      if (!response.ok) {
-        throw new Error(result.message || tf("messages.registrationFailed"));
+      if (result.result?.error) {
+        throw new Error(result.result.error);
       }
 
-      setSuccess(tf("messages.registrationSuccess"));
-      reset();
+      if (result.result?.success) {
+        // Store registration data in localStorage or state management if needed
+        localStorage.setItem(
+          "registration_id",
+          result.result.registration_id.toString()
+        );
+        localStorage.setItem("user_id", result.result.user_id.toString());
+        localStorage.setItem("user_name", result.result.name);
+        localStorage.setItem("user_role", result.result.role);
+        localStorage.setItem("user_email", result.result.email);
+        localStorage.setItem("registration_state", result.result.state);
 
-    
-      setTimeout(() => {
-        toggleFormType();
-      }, 2000);
+        setSuccess(tf("messages.registrationSuccess"));
+        reset();
+        setTimeout(() => {
+          toggleFormType();
+        }, 2000);
+      } else {
+        throw new Error(tf("messages.registrationFailed"));
+      }
     } catch (error) {
       console.error("Registration error:", error);
       setError(
@@ -293,16 +319,16 @@ const RegForm = () => {
           />
           {roleBox && (
             <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-[8px] shadow-lg">
-              {Object.entries(Roles).map(([key, value]) => (
+              {Object.entries(Roles).map(([key, role]) => (
                 <div
                   key={key}
                   className="px-5 py-2.5 hover:bg-gray-100 cursor-pointer"
                   onClick={() => {
-                    setValue("role", value);
+                    setValue("role", role.display);
                     setRoleBox(false);
                   }}
                 >
-                  {value}
+                  {role.display}
                 </div>
               ))}
             </div>
