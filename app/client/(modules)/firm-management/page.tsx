@@ -232,12 +232,12 @@ export default function FirmManagement() {
                       <div className="font-semibold">{`${firm.sn}. ${firm.firm}`}</div>
                       <div
                         className={`border-[0.5px] text-sm rounded-[30px] px-3 py-1 ${
-                          firm.status == "Active"
+                          "Active" == "Active"
                             ? "bg-green-100 border-green-300 text-green-600"
                             : "bg-red-100 border-red-300 text-red-600"
                         }`}
                       >
-                        {firm.status}
+                        Active
                       </div>
                     </div>
                     {/* header */}

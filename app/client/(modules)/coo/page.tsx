@@ -74,7 +74,6 @@ const certificateData = [
 
 export default function COO() {
   const [verificationForm, toggleForm] = useState(false);
-  const [discardBoxState, togglediscardBox] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [dateSort, setDateSort] = useState("newest");
@@ -147,7 +146,6 @@ export default function COO() {
 
   return (
     <main className="w-full h-[97vh] rounded-[14px] overflow-hidden bg-white border-[1px] border-gray-200 shadow-sm relative">
-
       <NavBar title={"Certificate of Origin"} />
 
       {/* Content */}
@@ -158,7 +156,9 @@ export default function COO() {
             <div className="flex flex-col md:flex-row w-full justify-between items-start md:items-center gap-4 mb-5">
               {verificationForm ? (
                 <div className="font-semibold antialiased text-[18px] text-zinc-600 pl-3">
-                  {selectedCertificate ? "Certificate Preview" : "Certificate of Origin List"}
+                  {selectedCertificate
+                    ? "Certificate Preview"
+                    : "Certificate of Origin List"}
                 </div>
               ) : (
                 <div className="flex flex-col md:flex-row items-start md:items-center gap-4 w-full md:w-auto">
@@ -355,7 +355,7 @@ export default function COO() {
             )}
 
             {/* Pagination */}
-            {!verificationForm && totalPages > 1 && (
+            {(!verificationForm || totalPages > 1) && (
               <div className="flex flex-col md:flex-row justify-between items-center gap-4 mt-4 bg-white/35 backdrop-blur-md w-full p-4">
                 <span className="text-gray-600">
                   Page {currentPage} of {totalPages}
