@@ -3,6 +3,7 @@
 import { Building } from "iconsax-reactjs";
 import usePickerState from "../services/PickerState";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   Select,
   SelectContent,
@@ -12,6 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Loader2 } from "lucide-react";
 
 interface Company {
   id: number;
@@ -30,7 +32,20 @@ interface Company {
   state: string;
 }
 
+interface ApiResponse {
+  jsonrpc: string;
+  id: null;
+  result: {
+    status: string;
+    manager_id: number;
+    total_companies: number;
+    companies: Company[];
+    error?: string;
+  };
+}
+
 export default function CompanyPicker() {
+  const router = useRouter();
   const { togglePicker, hidePicker } = usePickerState();
   const [companies, setCompanies] = useState<Company[]>([]);
   const [selectedCompany, setSelectedCompany] = useState<string>("");
@@ -50,14 +65,33 @@ export default function CompanyPicker() {
           },
         });
 
-        const data = await response.json();
+        const data: ApiResponse = await response.json();
+
+        if (response.status === 401 || response.status === 403) {
+          // Redirect to login if unauthorized
+          router.push("/auth");
+          return;
+        }
 
         if (!response.ok) {
           throw new Error(data.result?.error || "Failed to fetch companies");
         }
 
-        if (data.result?.companies) {
+        if (data.result?.status === "success" && data.result.companies) {
           setCompanies(data.result.companies);
+
+          // If there's a previously selected company, try to select it
+          const storedCompany = localStorage.getItem("selectedCompany");
+          if (storedCompany) {
+            const parsedCompany = JSON.parse(storedCompany);
+            if (
+              data.result.companies.some(
+                (c) => c.company_tin === parsedCompany.company_tin
+              )
+            ) {
+              setSelectedCompany(parsedCompany.company_tin);
+            }
+          }
         } else {
           setCompanies([]);
         }
@@ -72,7 +106,7 @@ export default function CompanyPicker() {
     };
 
     fetchCompanies();
-  }, []);
+  }, [router]);
 
   const handleCompanySelect = (value: string) => {
     setSelectedCompany(value);
@@ -80,29 +114,59 @@ export default function CompanyPicker() {
       (company) => company.company_tin === value
     );
     if (selectedCompanyData) {
-      localStorage.setItem(
-        "selectedCompany",
-        JSON.stringify(selectedCompanyData)
-      );
+      // Store only necessary company data
+      const companySession = {
+        id: selectedCompanyData.id,
+        company_tin: selectedCompanyData.company_tin,
+        company_name: selectedCompanyData.company_name,
+        company_nationality_code: selectedCompanyData.company_nationality_code,
+        company_registration_type_code:
+          selectedCompanyData.company_registration_type_code,
+        company_email: selectedCompanyData.company_email,
+        company_telephone_number: selectedCompanyData.company_telephone_number,
+      };
+      localStorage.setItem("selectedCompany", JSON.stringify(companySession));
     }
   };
 
   const handleContinue = () => {
     if (selectedCompany) {
-      hidePicker();
+      const selectedCompanyData = companies.find(
+        (company) => company.company_tin === selectedCompany
+      );
+
+      if (selectedCompanyData) {
+        // Store company data in localStorage
+        const companySession = {
+          id: selectedCompanyData.id,
+          company_tin: selectedCompanyData.company_tin,
+          company_name: selectedCompanyData.company_name,
+          company_nationality_code:
+            selectedCompanyData.company_nationality_code,
+          company_registration_type_code:
+            selectedCompanyData.company_registration_type_code,
+          company_email: selectedCompanyData.company_email,
+          company_telephone_number:
+            selectedCompanyData.company_telephone_number,
+        };
+        localStorage.setItem("selectedCompany", JSON.stringify(companySession));
+
+        // Close the picker
+        hidePicker();
+      }
     }
   };
 
   return (
     <div className="w-full h-full flex flex-col items-center justify-center bg-black/30 backdrop-blur-[10px] absolute transition-opacity duration-300 top-0 left-0 z-50">
-      <div className="bg-gray-50 rounded-[13px] p-8 flex flex-col gap-5 w-[450px] border-[1px] border-gray-50 shadow-md">
+      <div className="bg-gray-50 rounded-[13px] p-8 flex flex-col gap-5 w-[450px] max-w-[90vw] border-[1px] border-gray-50 shadow-md">
         <div className="flex flex-row justify-start items-center gap-2">
           <Building size="23" color="gray" variant="Outline" />
           <div className="text-xl font-semibold text-gray-600">
             Choose Company
           </div>
         </div>
-        <div>
+        <div className="text-gray-600">
           Please select the company you want to work with. You can change it
           later.
         </div>
@@ -116,11 +180,14 @@ export default function CompanyPicker() {
                 <SelectLabel>Companies</SelectLabel>
                 {isLoading ? (
                   <SelectItem value="loading" disabled>
-                    Loading companies...
+                    <div className="flex items-center gap-2">
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      Loading companies...
+                    </div>
                   </SelectItem>
                 ) : error ? (
                   <SelectItem value="error" disabled>
-                    {error}
+                    <div className="text-red-500">{error}</div>
                   </SelectItem>
                 ) : companies.length === 0 ? (
                   <SelectItem value="none" disabled>
@@ -140,10 +207,17 @@ export default function CompanyPicker() {
         <div className="flex flex-row items-center w-full gap-6 mt-2">
           <button
             onClick={handleContinue}
-            disabled={!selectedCompany}
+            disabled={!selectedCompany || isLoading}
             className="border-[1px] border-blue-600 bg-blue-500 text-white flex-1/2 rounded-[7px] py-3 cursor-pointer hover:bg-blue-600 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Continue
+            {isLoading ? (
+              <div className="flex items-center justify-center gap-2">
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Loading...
+              </div>
+            ) : (
+              "Continue"
+            )}
           </button>
         </div>
       </div>

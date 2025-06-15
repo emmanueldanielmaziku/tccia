@@ -16,10 +16,12 @@ import useMenuState from "../services/MenuState";
 import Link from "next/link";
 import useLogState from "../services/LogoutState";
 import { useTranslations } from "next-intl";
+import useMobileState from "../services/MobileState";
 
 export default function SideBar() {
   const { isMenuOpen } = useMenuState();
   const { alertState, toggleAlert } = useLogState();
+  const { isMobile, toggleMobileView } = useMobileState();
   const [selectedTab, setSelectedTab] = useState("Firm Management");
   const [role, setRole] = useState("CEM");
   const t = useTranslations("sidebar");
@@ -89,7 +91,7 @@ export default function SideBar() {
 
   return (
     <div
-      className={`bg-gray-50 h-full p-6 flex flex-col justify-between transition-all duration-300 ${
+      className={`bg-gray-50 h-full p-6 md:flex md:flex-col hidden justify-between transition-all duration-300 ${
         isMenuOpen ? "w-[340px]" : "w-[120px]"
       }`}
     >

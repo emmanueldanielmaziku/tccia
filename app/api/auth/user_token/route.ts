@@ -1,7 +1,9 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 
-const API_BASE_URL = "https://tccia.kalen.co.tz";
+// const API_BASE_URL = "https://tccia.kalen.co.tz";
+const API_BASE_URL = "http://159.65.191.145:8050";
+
 
 export async function POST(request: Request) {
   try {
@@ -32,7 +34,17 @@ export async function POST(request: Request) {
 
     if (data.result?.token) {
       const cookieStore = await cookies();
+
+      // Store token
       cookieStore.set("token", data.result.token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "strict",
+        path: "/",
+      });
+
+      // Store uid
+      cookieStore.set("uid", data.result.uid.toString(), {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
         sameSite: "strict",

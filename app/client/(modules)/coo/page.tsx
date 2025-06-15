@@ -22,6 +22,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import COOForm from "./components/COOForm";
+import { useRouter } from "next/navigation";
 
 export default function COO() {
   const [verificationForm, toggleForm] = useState(false);
@@ -38,6 +39,7 @@ export default function COO() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const itemsPerPage = 20;
+  const router = useRouter();
 
   useEffect(() => {
     fetchCertificates();
@@ -47,16 +49,33 @@ export default function COO() {
     try {
       setIsLoading(true);
       setError(null);
+
+      // Get the selected company from localStorage
+      const selectedCompany = localStorage.getItem("selectedCompany");
+      if (!selectedCompany) {
+        setError("No company selected. Please select a company first.");
+        setIsLoading(false);
+        return;
+      }
+
+      const { company_tin } = JSON.parse(selectedCompany);
+
       const response = await fetch("/api/certificates", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          party_tin: "12345678",
+          party_tin: company_tin,
         }),
         credentials: "include",
       });
+
+      if (response.status === 401) {
+        // Redirect to auth page on unauthorized
+        router.push("/auth");
+        return;
+      }
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => null);

@@ -161,37 +161,40 @@ export default function FirmManagement() {
                   </label>
 
                   {/* Status Filter */}
-                  <div className="relative w-full md:w-auto">
-                    <Select
-                      value={statusFilter}
-                      onValueChange={setStatusFilter}
-                    >
-                      <SelectTrigger className="w-full md:w-[140px] text-zinc-600">
-                        <SelectValue placeholder="All Status" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectGroup>
-                          <SelectItem value="all">All Status</SelectItem>
-                          <SelectItem value="active">Active</SelectItem>
-                          <SelectItem value="inactive">Inactive</SelectItem>
-                        </SelectGroup>
-                      </SelectContent>
-                    </Select>
-                  </div>
+                  <div className="flex flex-row">
+                    <div className="relative w-full md:w-auto hidden">
+                      <Select
+                        value={statusFilter}
+                        onValueChange={setStatusFilter}
+                        >
+                          
+                        <SelectTrigger className="w-full md:w-[140px] text-zinc-600">
+                          <SelectValue placeholder="All Status" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectGroup>
+                            <SelectItem value="all">All Status</SelectItem>
+                            <SelectItem value="active">Active</SelectItem>
+                            <SelectItem value="inactive">Inactive</SelectItem>
+                          </SelectGroup>
+                        </SelectContent>
+                      </Select>
+                    </div>
 
-                  {/* Date Sort */}
-                  <div className="relative w-full md:w-auto">
-                    <Select value={dateSort} onValueChange={setDateSort}>
-                      <SelectTrigger className="w-full md:w-[140px] text-zinc-600">
-                        <SelectValue placeholder="Sort by date" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectGroup>
-                          <SelectItem value="newest">Newest First</SelectItem>
-                          <SelectItem value="oldest">Oldest First</SelectItem>
-                        </SelectGroup>
-                      </SelectContent>
-                    </Select>
+                    {/* Date Sort */}
+                    <div className="relative w-full md:w-auto">
+                      <Select value={dateSort} onValueChange={setDateSort}>
+                        <SelectTrigger className="w-full md:w-[140px] text-zinc-600">
+                          <SelectValue placeholder="Sort by date" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectGroup>
+                            <SelectItem value="newest">Newest First</SelectItem>
+                            <SelectItem value="oldest">Oldest First</SelectItem>
+                          </SelectGroup>
+                        </SelectContent>
+                      </Select>
+                    </div>
                   </div>
                 </div>
               )}
