@@ -409,7 +409,7 @@ export default function COO() {
                         <div className="flex flex-row justify-between items-center gap-3 md:gap-4">
                           <button
                             onClick={() => handleViewCertificate(certificate)}
-                            className="px-4 md:px-5 py-1.5 text-sm rounded-[8px] flex flex-row justify-center items-center gap-2 bg-blue-500 text-white hover:bg-blue-600 cursor-pointer transition-colors duration-200"
+                            className="px-4 md:px-5 py-1.5 text-sm rounded-[6px] flex flex-row justify-center items-center gap-2 bg-blue-500 text-white hover:bg-blue-600 cursor-pointer transition-colors duration-200"
                           >
                             <Eye size="16" color="white" />
                             View Application
@@ -418,7 +418,7 @@ export default function COO() {
                             disabled={
                               certificate.message_info.status === "Pending"
                             }
-                            className={`px-4 md:px-5 py-1.5 text-sm rounded-[8px] flex flex-row justify-center items-center gap-2 transition-colors duration-200 ${
+                            className={`px-4 md:px-5 py-1.5 text-sm rounded-[6px] flex flex-row justify-center items-center gap-2 transition-colors duration-200 ${
                               certificate.message_info.status === "Pending"
                                 ? "bg-gray-100 text-gray-400 cursor-not-allowed"
                                 : "bg-blue-500 text-white hover:bg-blue-600 cursor-pointer"
