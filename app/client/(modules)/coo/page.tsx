@@ -1,8 +1,10 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import NavBar from "../../components/NavBar";
 import ProgressTracker from "./components/StatsBar";
+import NewCertificateModal from "./components/NewCertificateModal";
 import {
+  Add,
   CloseCircle,
   DocumentText,
   Eye,
@@ -11,8 +13,6 @@ import {
   SearchNormal1,
 } from "iconsax-reactjs";
 
-import FirmRegForm from "./components/COOForm";
-import usetinState from "../../services/TinState";
 import {
   Select,
   SelectContent,
@@ -23,64 +23,140 @@ import {
 } from "@/components/ui/select";
 import COOForm from "./components/COOForm";
 
-const certificateData = [
-  {
-    message_info: {
-      certificate_type_id: "TZDL23000000",
-      electronic_certicate_of_origin_treatment_contents: "234234",
-      exporter_tin: "10016999",
-      exporter_name: "Goodone ceraccc",
-      exporter_address: "90KIGALI",
-      exporter_telephone_number: "788309999",
-      exporter_email_address: "4535345",
-      consignee_tin: "111111111",
-      consignee_name: "Motongori Mogesa",
-      consignee_address: "MOTONGORI MOGESI CHACHA",
-      reference_number: "12354987402",
-      transport_particulars_contents: "CORTININFO",
-      remark: "A Corporate TIN Information Description",
-      applicant_name: "SIRAJ MOXXX",
-      transport_particulars_content: "MW/SADC/2024/WVZEGST2229409999/V9",
-      applicant_address: "TEMEKE",
-      application_place_name: "SCTTZ",
-      issue_country_code: "UG",
-      destination_country_code: "TZ",
-      approver_name: "Caroline Nabudde",
-      approval_date_and_time: "2022-11-25+03:00",
-      status: "Approved",
-      item_info: [
-        {
-          mark_description: "BP",
-          item_number: "1",
-          hs8_code: "33052000",
-          product_description: "HAIR PREPARATIONS",
-          package_number: "1771",
-          package_unit_code: "CT",
-          commercial_description: "HAIR PREPARATIONS",
-          gross_weight: "19703.99",
-          gross_weight_unit_code: "KGM",
-          origin_criteria_id: "C",
-          invoice_number: "INV 9189",
-          invoice_date: "2022-10-26+03:00",
-          item_value: "0",
-          currency_code: "UGX",
-          supplementary_quantity: "19703.99",
-          supplementary_quantity_unit_code: "KGM",
-        },
-      ],
-    },
-  },
-];
-
 export default function COO() {
   const [verificationForm, toggleForm] = useState(false);
+  const [isNewCertificateModalOpen, setIsNewCertificateModalOpen] =
+    useState(false);
+
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [dateSort, setDateSort] = useState("newest");
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedCertificate, setSelectedCertificate] = useState<any>(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [certificateData, setCertificateData] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const itemsPerPage = 20;
+
+  useEffect(() => {
+    fetchCertificates();
+  }, []);
+
+  const fetchCertificates = async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      const response = await fetch("/api/certificates", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          party_tin: "12345678",
+        }),
+        credentials: "include",
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => null);
+        console.error("API Error Response:", {
+          status: response.status,
+          statusText: response.statusText,
+          data: errorData,
+        });
+        throw new Error(
+          `API request failed: ${response.status} ${response.statusText}`
+        );
+      }
+
+      const result = await response.json();
+      console.log("API Response:", result);
+
+      if (result.result?.status === "success") {
+        // Transform the API data to match the expected format
+        const transformedData = result.result.data.map((cert: any) => ({
+          message_info: {
+            certificate_type_id: cert.application_number,
+            electronic_certicate_of_origin_treatment_contents: "",
+            exporter_tin: cert.party[0]?.party_tin || "",
+            exporter_name: cert.party[0]?.party_name || "",
+            exporter_address: cert.party[0]?.party_physical_address || "",
+            exporter_telephone_number:
+              cert.party[0]?.party_contact_officer_telephone_number || "",
+            exporter_email_address:
+              cert.party[0]?.party_contact_officer_email || "",
+            consignee_tin: "",
+            consignee_name: cert.party[0]?.party_name || "",
+            consignee_address: cert.party[0]?.party_physical_address || "",
+            reference_number: cert.header[0]?.reference_number || "",
+            transport_particulars_contents: "",
+            remark: "",
+            applicant_name: cert.party[0]?.party_contact_officer_name || "",
+            transport_particulars_content: "",
+            applicant_address: cert.party[0]?.party_physical_address || "",
+            application_place_name: "",
+            issue_country_code: cert.party[0]?.party_country_code || "",
+            destination_country_code: "",
+            approver_name: "",
+            approval_date_and_time: cert.header[0]?.send_date_and_time || "",
+            status:
+              cert.application_state_code === "AP" ? "Approved" : "Pending",
+            item_info: cert.item || [],
+
+            application_uuid: cert.application_uuid,
+            organization_code: cert.organization_code,
+            application_degree: cert.application_degree,
+            application_type_code: cert.application_type_code,
+            application_classification_code:
+              cert.application_classification_code,
+            application_state_code: cert.application_state_code,
+
+            header: cert.header[0] || {},
+
+            party: cert.party[0] || {},
+
+            transport: cert.transport || [],
+            invoice: cert.invoice || [],
+            attachment: cert.attachment || [],
+
+            interface_id: cert.header[0]?.interface_id,
+            sender_id: cert.header[0]?.sender_id,
+            receiver_id: cert.header[0]?.receiver_id,
+            ucr_number: cert.header[0]?.ucr_number,
+
+            party_uuid: cert.party[0]?.party_uuid,
+            party_type_code: cert.party[0]?.party_type_code,
+            party_country_code: cert.party[0]?.party_country_code,
+            party_contact_officer_name:
+              cert.party[0]?.party_contact_officer_name,
+            party_contact_officer_telephone_number:
+              cert.party[0]?.party_contact_officer_telephone_number,
+            party_contact_officer_email:
+              cert.party[0]?.party_contact_officer_email,
+          },
+        }));
+        setCertificateData(transformedData);
+      } else {
+        console.error("API Error:", result);
+        setError(result.result?.error || "Failed to fetch certificates");
+      }
+    } catch (err) {
+      console.error("Error fetching certificates:", err);
+      if (err instanceof TypeError && err.message === "Failed to fetch") {
+        setError(
+          "Network error: Unable to connect to the server. Please check your internet connection."
+        );
+      } else {
+        setError(
+          err instanceof Error ? err.message : "Error fetching certificates"
+        );
+      }
+    } finally {
+      setIsLoading(false);
+      setIsRefreshing(false);
+    }
+  };
 
   // Filter and sort the data
   const filteredData = certificateData
@@ -138,10 +214,7 @@ export default function COO() {
 
   const handleRefresh = () => {
     setIsRefreshing(true);
-    // Simulate refresh delay
-    setTimeout(() => {
-      setIsRefreshing(false);
-    }, 2000);
+    fetchCertificates();
   };
 
   return (
@@ -189,8 +262,8 @@ export default function COO() {
                       <SelectContent>
                         <SelectGroup>
                           <SelectItem value="all">All Status</SelectItem>
-                          <SelectItem value="active">Approved</SelectItem>
-                          <SelectItem value="inactive">Verified</SelectItem>
+                          <SelectItem value="approved">Approved</SelectItem>
+                          <SelectItem value="pending">Pending</SelectItem>
                         </SelectGroup>
                       </SelectContent>
                     </Select>
@@ -225,20 +298,29 @@ export default function COO() {
                   Close
                 </button>
               ) : (
-                <button
-                  className="flex flex-row gap-3 justify-between items-center border-[0.5px] border-blue-600 hover:bg-blue-100 text-blue-600 text-sm rounded-[7px] cursor-pointer px-5 py-1.5 w-full md:w-auto disabled:opacity-50 disabled:cursor-not-allowed"
-                  onClick={handleRefresh}
-                  disabled={isRefreshing}
-                >
-                  <Refresh
-                    size={18}
-                    color="#1376e8"
-                    className={`transition-transform duration-1000 ${
-                      isRefreshing ? "animate-spin" : ""
-                    }`}
-                  />
-                  {isRefreshing ? "Refreshing..." : "Refresh"}
-                </button>
+                <div className="flex flex-row gap-4">
+                  <button
+                    className="flex flex-row gap-3 justify-between items-center border-[0.5px] border-blue-600 hover:bg-blue-100 text-blue-600 text-sm rounded-[7px] cursor-pointer px-5 py-1.5 w-full md:w-auto disabled:opacity-50 disabled:cursor-not-allowed"
+                    onClick={handleRefresh}
+                    disabled={isRefreshing}
+                  >
+                    <Refresh
+                      size={18}
+                      color="#1376e8"
+                      className={`transition-transform duration-1000 ${
+                        isRefreshing ? "animate-spin" : ""
+                      }`}
+                    />
+                    {isRefreshing ? "Refreshing..." : "Refresh"}
+                  </button>
+                  <button
+                    className="flex flex-row gap-3 justify-between items-center border-[0.5px] border-blue-600 hover:bg-blue-100 text-blue-600 text-sm rounded-[7px] cursor-pointer px-3 py-1.5 w-full md:w-auto disabled:opacity-50 disabled:cursor-not-allowed"
+                    onClick={() => setIsNewCertificateModalOpen(true)}
+                  >
+                    <Add size={20} color="#1376e8" />
+                    New Certificate
+                  </button>
+                </div>
               )}
             </div>
 
@@ -247,110 +329,128 @@ export default function COO() {
               <COOForm certificateData={selectedCertificate} />
             ) : (
               <div className="w-full grid grid-cols-1 pr-0 gap-4 mt-5 rounded-md overflow-hidden overflow-y-auto">
-                {paginatedData.map((certificate, index) => (
-                  <div
-                    key={index}
-                    className={`hover:bg-white bg-gray-50 flex flex-col transition-all duration-200 border-[0.5px] rounded-[10px] text-gray-700 border-zinc-200 shadow-sm hover:shadow-md`}
-                  >
-                    <div className="flex flex-col md:flex-row justify-between items-start md:items-center border-b-[0.5px] border-zinc-200 px-6 py-3 gap-2">
-                      <div className="font-semibold text-[15px]">{`${
-                        index + 1
-                      }. ${certificate.message_info.consignee_name}`}</div>
-                      <div
-                        className={`border-[0.5px] text-sm rounded-[30px] px-4 py-1 ${
-                          certificate.message_info.status == "Approved"
-                            ? "bg-green-50 border-green-200 text-green-600"
-                            : certificate.message_info.status == "Verified"
-                            ? "bg-orange-50 border-orange-200 text-orange-600"
-                            : "bg-red-50 border-red-200 text-red-600"
-                        }`}
-                      >
-                        {certificate.message_info.status}
-                      </div>
-                    </div>
-                    {/* header */}
-                    <div className="flex flex-col md:flex-row items-start md:items-center p-4 gap-4 bg-gray-50">
-                      <div className="border-[0.5px] bg-blue-50 border-blue-200 rounded-[12px] p-2">
-                        <DocumentText
-                          variant="Bulk"
-                          size={36}
-                          color="#138abd"
-                        />
-                      </div>
-
-                      <div className="w-full flex flex-col gap-1 justify-start">
-                        <div className="font-semibold text-[15px]">
-                          {certificate.message_info.exporter_name}
-                        </div>
-                        <div className="text-sm text-gray-600">
-                          {certificate.message_info.exporter_address}
-                        </div>
-                        <div className="text-blue-600 text-[12px] font-medium">
-                          {certificate.message_info.exporter_tin}
-                        </div>
-                      </div>
-
-                      <div className="flex flex-row justify-between items-center gap-3 md:gap-4">
-                        <button
-                          onClick={() => handleViewCertificate(certificate)}
-                          className="px-4 md:px-5 py-1.5 text-sm rounded-[8px] flex flex-row gap-2 bg-blue-500 text-white hover:bg-blue-600 cursor-pointer transition-colors duration-200"
-                        >
-                          <Eye size="18" color="white" />
-                          View
-                        </button>
-                        <button
-                          disabled={
-                            certificate.message_info.status === "Verified"
-                          }
-                          className={`px-4 md:px-5 py-1.5 text-sm rounded-[8px] flex flex-row gap-2 transition-colors duration-200 ${
-                            certificate.message_info.status === "Verified"
-                              ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                              : "bg-blue-500 text-white hover:bg-blue-600 cursor-pointer"
+                {isLoading ? (
+                  <div className="flex justify-center items-center h-40">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+                  </div>
+                ) : error ? (
+                  <div className="flex justify-center items-center h-40 text-red-500">
+                    {error}
+                  </div>
+                ) : paginatedData.length === 0 ? (
+                  <div className="flex justify-center items-center h-40 text-gray-500">
+                    No certificates found
+                  </div>
+                ) : (
+                  paginatedData.map((certificate, index) => (
+                    <div
+                      key={index}
+                      className={`hover:bg-white bg-gray-50 flex flex-col transition-all duration-200 border-[0.5px] rounded-[10px] text-gray-700 border-zinc-200 shadow-sm hover:shadow-md`}
+                    >
+                      <div className="flex flex-col md:flex-row justify-between items-start md:items-center border-b-[0.5px] border-zinc-200 px-6 py-3 gap-2">
+                        <div className="font-semibold text-[15px]">{`${
+                          index + 1
+                        }. ${certificate.message_info.consignee_name}`}</div>
+                        <div
+                          className={`border-[0.5px] text-sm rounded-[30px] px-4 py-1 ${
+                            certificate.message_info.status === "Approved"
+                              ? "bg-green-50 border-green-200 text-green-600"
+                              : "bg-orange-50 border-orange-200 text-orange-600"
                           }`}
                         >
-                          <Printer size="18" color="white" />
-                          Print
-                        </button>
+                          {certificate.message_info.status}
+                        </div>
                       </div>
-                    </div>
+                      {/* header */}
+                      <div className="flex flex-col md:flex-row justify-between items-start md:items-center p-4 gap-4 bg-gray-50">
+                        <div className="flex flex-row gap-3">
+                          <div className="border-[0.5px] bg-blue-50 border-blue-200 rounded-[12px] px-4 flex items-center">
+                            <DocumentText
+                              variant="Bulk"
+                              size={36}
+                              color="#138abd"
+                            />
+                          </div>
 
-                    <div>
-                      <div className="flex flex-col gap-3 px-6 pb-6 bg-gray-50 rounded-b-md">
-                        <div className="flex flex-col md:flex-row w-full justify-between items-start md:items-center gap-2">
-                          <div className="flex flex-row justify-start items-center gap-1">
-                            <span className="text-[14px] text-gray-600">
-                              Issued Country
-                            </span>
-                          </div>
-                          <div className="hidden md:block flex-1 mx-4 border-t-1 border-dashed border-zinc-300 h-0" />
-                          <div className="flex flex-row gap-2 text-sm items-center">
-                            ({certificate.message_info.issue_country_code})
-                            <img
-                              src={`https://flagsapi.com/${certificate.message_info.issue_country_code}/flat/24.png`}
-                              className="rounded-sm"
-                            />
+                          <div className="w-full flex flex-col gap-1 justify-start">
+                            <div className="font-semibold text-[15px]">
+                              {certificate.message_info.exporter_name}
+                            </div>
+                            <div className="text-sm text-gray-600">
+                              {certificate.message_info.exporter_address}
+                            </div>
+                            <div className="text-blue-600 text-[12px] font-medium">
+                              {certificate.message_info.exporter_tin}
+                            </div>
                           </div>
                         </div>
-                        <div className="flex flex-col md:flex-row w-full justify-between items-start md:items-center gap-2">
-                          <div className="flex flex-row justify-start items-center gap-1">
-                            <span className="text-[14px] text-gray-600">
-                              Destination Country
-                            </span>
+
+                        <div className="flex flex-row justify-between items-center gap-3 md:gap-4">
+                          <button
+                            onClick={() => handleViewCertificate(certificate)}
+                            className="px-4 md:px-5 py-1.5 text-sm rounded-[8px] flex flex-row justify-center items-center gap-2 bg-blue-500 text-white hover:bg-blue-600 cursor-pointer transition-colors duration-200"
+                          >
+                            <Eye size="16" color="white" />
+                            View Application
+                          </button>
+                          <button
+                            disabled={
+                              certificate.message_info.status === "Pending"
+                            }
+                            className={`px-4 md:px-5 py-1.5 text-sm rounded-[8px] flex flex-row justify-center items-center gap-2 transition-colors duration-200 ${
+                              certificate.message_info.status === "Pending"
+                                ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                                : "bg-blue-500 text-white hover:bg-blue-600 cursor-pointer"
+                            }`}
+                          >
+                            <Printer size="16" color="white" />
+                            Print Certificate
+                          </button>
+                        </div>
+                      </div>
+
+                      <div>
+                        <div className="flex flex-col gap-3 px-6 pb-6 bg-gray-50 rounded-b-md">
+                          <div className="flex flex-col md:flex-row w-full justify-between items-start md:items-center gap-2">
+                            <div className="flex flex-row justify-start items-center gap-1">
+                              <span className="text-[14px] text-gray-600">
+                                Issued Country
+                              </span>
+                            </div>
+                            <div className="hidden md:block flex-1 mx-4 border-t-1 border-dashed border-zinc-300 h-0" />
+                            <div className="flex flex-row gap-2 text-sm items-center">
+                              ({certificate.message_info.issue_country_code})
+                              <img
+                                src={`https://flagsapi.com/${certificate.message_info.issue_country_code}/flat/24.png`}
+                                className="rounded-sm"
+                              />
+                            </div>
                           </div>
-                          <div className="hidden md:block flex-1 mx-4 border-t-1 border-dashed border-zinc-300 h-0" />
-                          <div className="flex flex-row gap-2 text-sm items-center">
-                            ({certificate.message_info.destination_country_code}
-                            )
-                            <img
-                              src={`https://flagsapi.com/${certificate.message_info.destination_country_code}/flat/24.png`}
-                              className="rounded-sm"
-                            />
+                          <div className="flex flex-col md:flex-row w-full justify-between items-start md:items-center gap-2">
+                            <div className="flex flex-row justify-start items-center gap-1">
+                              <span className="text-[14px] text-gray-600">
+                                Destination Country
+                              </span>
+                            </div>
+                            <div className="hidden md:block flex-1 mx-4 border-t-1 border-dashed border-zinc-300 h-0" />
+                            <div className="flex flex-row gap-2 text-sm items-center">
+                              (
+                              {
+                                certificate.message_info
+                                  .destination_country_code
+                              }
+                              )
+                              <img
+                                src={`https://flagsapi.com/${certificate.message_info.destination_country_code}/flat/24.png`}
+                                className="rounded-sm"
+                              />
+                            </div>
                           </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  ))
+                )}
               </div>
             )}
 
@@ -392,6 +492,10 @@ export default function COO() {
 
         <ProgressTracker />
       </section>
+      <NewCertificateModal
+        isOpen={isNewCertificateModalOpen}
+        onClose={() => setIsNewCertificateModalOpen(false)}
+      />
     </main>
   );
 }

@@ -6,8 +6,11 @@ import LoginForm from "./components/LoginForm";
 import NavBar from "./components/NavBar";
 import RegForm from "./components/RegForm";
 import ResetPassword from "./components/ResetPassword";
-import { useActivateAccountState, useFormState, useResetFormState } from "./services/FormStates";
-
+import {
+  useActivateAccountState,
+  useFormState,
+  useResetFormState,
+} from "./services/FormStates";
 
 export default function AuthLayout() {
   const words = `"Private Sector, the Engine of Growth"`;

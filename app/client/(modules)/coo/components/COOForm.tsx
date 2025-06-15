@@ -17,19 +17,132 @@ export default function COOForm({ certificateData }: COOFormProps) {
         autoComplete="off"
       >
         <div className="flex flex-col gap-6 overflow-y-auto h-full px-4">
-          {/* Certificate Information */}
+          {/* Application Information */}
           <div className="flex flex-col gap-4 border-t-[0.5px] border-dashed border-gray-400 pt-8">
             <h3 className="text-[15px] font-semibold text-gray-700">
-              Certificate Information
+              Application Information
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="flex flex-col gap-1">
                 <label className="text-sm text-gray-600">
-                  Certificate Type ID
+                  Application UUID
+                </label>
+                <input
+                  type="text"
+                  value={certificateData.message_info.application_uuid}
+                  disabled
+                  className="w-full px-4 py-2.5 border border-zinc-200 bg-gray-50 rounded-[8px] text-gray-600"
+                />
+              </div>
+              <div className="flex flex-col gap-1">
+                <label className="text-sm text-gray-600">
+                  Organization Code
+                </label>
+                <input
+                  type="text"
+                  value={certificateData.message_info.organization_code}
+                  disabled
+                  className="w-full px-4 py-2.5 border border-zinc-200 bg-gray-50 rounded-[8px] text-gray-600"
+                />
+              </div>
+              <div className="flex flex-col gap-1">
+                <label className="text-sm text-gray-600">
+                  Application Number
                 </label>
                 <input
                   type="text"
                   value={certificateData.message_info.certificate_type_id}
+                  disabled
+                  className="w-full px-4 py-2.5 border border-zinc-200 bg-gray-50 rounded-[8px] text-gray-600"
+                />
+              </div>
+              <div className="flex flex-col gap-1">
+                <label className="text-sm text-gray-600">
+                  Application Degree
+                </label>
+                <input
+                  type="text"
+                  value={certificateData.message_info.application_degree}
+                  disabled
+                  className="w-full px-4 py-2.5 border border-zinc-200 bg-gray-50 rounded-[8px] text-gray-600"
+                />
+              </div>
+              <div className="flex flex-col gap-1">
+                <label className="text-sm text-gray-600">
+                  Application Type
+                </label>
+                <input
+                  type="text"
+                  value={certificateData.message_info.application_type_code}
+                  disabled
+                  className="w-full px-4 py-2.5 border border-zinc-200 bg-gray-50 rounded-[8px] text-gray-600"
+                />
+              </div>
+              <div className="flex flex-col gap-1">
+                <label className="text-sm text-gray-600">
+                  Classification Code
+                </label>
+                <input
+                  type="text"
+                  value={
+                    certificateData.message_info.application_classification_code
+                  }
+                  disabled
+                  className="w-full px-4 py-2.5 border border-zinc-200 bg-gray-50 rounded-[8px] text-gray-600"
+                />
+              </div>
+              <div className="flex flex-col gap-1">
+                <label className="text-sm text-gray-600">State Code</label>
+                <input
+                  type="text"
+                  value={certificateData.message_info.application_state_code}
+                  disabled
+                  className="w-full px-4 py-2.5 border border-zinc-200 bg-gray-50 rounded-[8px] text-gray-600"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Header Information */}
+          <div className="flex flex-col gap-4 border-t-[0.5px] border-dashed border-gray-400 pt-8">
+            <h3 className="text-[15px] font-semibold text-gray-700">
+              Header Information
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="flex flex-col gap-1">
+                <label className="text-sm text-gray-600">Interface ID</label>
+                <input
+                  type="text"
+                  value={certificateData.message_info.interface_id}
+                  disabled
+                  className="w-full px-4 py-2.5 border border-zinc-200 bg-gray-50 rounded-[8px] text-gray-600"
+                />
+              </div>
+              <div className="flex flex-col gap-1">
+                <label className="text-sm text-gray-600">
+                  Send Date and Time
+                </label>
+                <input
+                  type="text"
+                  value={certificateData.message_info.send_date_and_time}
+                  disabled
+                  className="w-full px-4 py-2.5 border border-zinc-200 bg-gray-50 rounded-[8px] text-gray-600"
+                />
+              </div>
+              <div className="flex flex-col gap-1">
+                <label className="text-sm text-gray-600">Sender ID</label>
+                <input
+                  type="text"
+                  value={certificateData.message_info.sender_id}
+                  disabled
+                  className="w-full px-4 py-2.5 border border-zinc-200 bg-gray-50 rounded-[8px] text-gray-600"
+                />
+              </div>
+              <div className="flex flex-col gap-1">
+                <label className="text-sm text-gray-600">Receiver ID</label>
+                <input
+                  type="text"
+                  value={certificateData.message_info.receiver_id}
                   disabled
                   className="w-full px-4 py-2.5 border border-zinc-200 bg-gray-50 rounded-[8px] text-gray-600"
                 />
@@ -46,21 +159,10 @@ export default function COOForm({ certificateData }: COOFormProps) {
                 />
               </div>
               <div className="flex flex-col gap-1">
-                <label className="text-sm text-gray-600">Status</label>
+                <label className="text-sm text-gray-600">UCR Number</label>
                 <input
                   type="text"
-                  value={certificateData.message_info.status}
-                  disabled
-                  className="w-full px-4 py-2.5 border border-zinc-200 bg-gray-50 rounded-[8px] text-gray-600"
-                />
-              </div>
-              <div className="flex flex-col gap-1">
-                <label className="text-sm text-gray-600">Approval Date</label>
-                <input
-                  type="text"
-                  value={new Date(
-                    certificateData.message_info.approval_date_and_time
-                  ).toLocaleString()}
+                  value={certificateData.message_info.ucr_number}
                   disabled
                   className="w-full px-4 py-2.5 border border-zinc-200 bg-gray-50 rounded-[8px] text-gray-600"
                 />
@@ -68,156 +170,76 @@ export default function COOForm({ certificateData }: COOFormProps) {
             </div>
           </div>
 
-          {/* Exporter Information */}
+          {/* Party Information */}
           <div className="flex flex-col gap-4 border-t-[0.5px] border-dashed border-gray-400 pt-8">
             <h3 className="text-[15px] font-semibold text-gray-700">
-              Exporter Information
+              Party Information
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="flex flex-col gap-1">
-                <label className="text-sm text-gray-600">Exporter TIN</label>
+                <label className="text-sm text-gray-600">Party UUID</label>
                 <input
                   type="text"
-                  value={certificateData.message_info.exporter_tin}
+                  value={certificateData.message_info.party_uuid}
                   disabled
                   className="w-full px-4 py-2.5 border border-zinc-200 bg-gray-50 rounded-[8px] text-gray-600"
                 />
               </div>
               <div className="flex flex-col gap-1">
-                <label className="text-sm text-gray-600">Exporter Name</label>
+                <label className="text-sm text-gray-600">Party Name</label>
                 <input
                   type="text"
-                  value={certificateData.message_info.exporter_name}
+                  value={certificateData.message_info.party_name}
+                  disabled
+                  className="w-full px-4 py-2.5 border border-zinc-200 bg-gray-50 rounded-[8px] text-gray-600"
+                />
+              </div>
+              <div className="flex flex-col gap-1">
+                <label className="text-sm text-gray-600">Party Type</label>
+                <input
+                  type="text"
+                  value={certificateData.message_info.party_type_code}
+                  disabled
+                  className="w-full px-4 py-2.5 border border-zinc-200 bg-gray-50 rounded-[8px] text-gray-600"
+                />
+              </div>
+              <div className="flex flex-col gap-1">
+                <label className="text-sm text-gray-600">Party TIN</label>
+                <input
+                  type="text"
+                  value={certificateData.message_info.party_tin}
+                  disabled
+                  className="w-full px-4 py-2.5 border border-zinc-200 bg-gray-50 rounded-[8px] text-gray-600"
+                />
+              </div>
+              <div className="flex flex-col gap-1">
+                <label className="text-sm text-gray-600">Country Code</label>
+                <input
+                  type="text"
+                  value={certificateData.message_info.party_country_code}
                   disabled
                   className="w-full px-4 py-2.5 border border-zinc-200 bg-gray-50 rounded-[8px] text-gray-600"
                 />
               </div>
               <div className="flex flex-col gap-1">
                 <label className="text-sm text-gray-600">
-                  Exporter Address
+                  Physical Address
                 </label>
                 <input
                   type="text"
-                  value={certificateData.message_info.exporter_address}
-                  disabled
-                  className="w-full px-4 py-2.5 border border-zinc-200 bg-gray-50 rounded-[8px] text-gray-600"
-                />
-              </div>
-              <div className="flex flex-col gap-1">
-                <label className="text-sm text-gray-600">Exporter Email</label>
-                <input
-                  type="email"
-                  value={certificateData.message_info.exporter_email_address}
+                  value={certificateData.message_info.party_physical_address}
                   disabled
                   className="w-full px-4 py-2.5 border border-zinc-200 bg-gray-50 rounded-[8px] text-gray-600"
                 />
               </div>
               <div className="flex flex-col gap-1">
                 <label className="text-sm text-gray-600">
-                  Exporter Telephone
-                </label>
-                <input
-                  type="text"
-                  value={certificateData.message_info.exporter_telephone_number}
-                  disabled
-                  className="w-full px-4 py-2.5 border border-zinc-200 bg-gray-50 rounded-[8px] text-gray-600"
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Consignee Information */}
-          <div className="flex flex-col gap-4 border-t-[0.5px] border-dashed border-gray-400 pt-8">
-            <h3 className="text-[15px] font-semibold text-gray-700">
-              Consignee Information
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="flex flex-col gap-1">
-                <label className="text-sm text-gray-600">Consignee TIN</label>
-                <input
-                  type="text"
-                  value={certificateData.message_info.consignee_tin}
-                  disabled
-                  className="w-full px-4 py-2.5 border border-zinc-200 bg-gray-50 rounded-[8px] text-gray-600"
-                />
-              </div>
-              <div className="flex flex-col gap-1">
-                <label className="text-sm text-gray-600">Consignee Name</label>
-                <input
-                  type="text"
-                  value={certificateData.message_info.consignee_name}
-                  disabled
-                  className="w-full px-4 py-2.5 border border-zinc-200 bg-gray-50 rounded-[8px] text-gray-600"
-                />
-              </div>
-              <div className="flex flex-col gap-1">
-                <label className="text-sm text-gray-600">
-                  Consignee Address
-                </label>
-                <input
-                  type="text"
-                  value={certificateData.message_info.consignee_address}
-                  disabled
-                  className="w-full px-4 py-2.5 border border-zinc-200 bg-gray-50 rounded-[8px] text-gray-600"
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Applicant Information */}
-          <div className="flex flex-col gap-4 border-t-[0.5px] border-dashed border-gray-400 pt-8">
-            <h3 className="text-[15px] font-semibold text-gray-700">
-              Applicant Information
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="flex flex-col gap-1">
-                <label className="text-sm text-gray-600">Applicant Name</label>
-                <input
-                  type="text"
-                  value={certificateData.message_info.applicant_name}
-                  disabled
-                  className="w-full px-4 py-2.5 border border-zinc-200 bg-gray-50 rounded-[8px] text-gray-600"
-                />
-              </div>
-              <div className="flex flex-col gap-1">
-                <label className="text-sm text-gray-600">
-                  Applicant Address
-                </label>
-                <input
-                  type="text"
-                  value={certificateData.message_info.applicant_address}
-                  disabled
-                  className="w-full px-4 py-2.5 border border-zinc-200 bg-gray-50 rounded-[8px] text-gray-600"
-                />
-              </div>
-              <div className="flex flex-col gap-1">
-                <label className="text-sm text-gray-600">
-                  Application Place
-                </label>
-                <input
-                  type="text"
-                  value={certificateData.message_info.application_place_name}
-                  disabled
-                  className="w-full px-4 py-2.5 border border-zinc-200 bg-gray-50 rounded-[8px] text-gray-600"
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Transport Information */}
-          <div className="flex flex-col gap-4 border-t-[0.5px] border-dashed border-gray-400 pt-8">
-            <h3 className="text-[15px] font-semibold text-gray-700">
-              Transport Information
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="flex flex-col gap-1">
-                <label className="text-sm text-gray-600">
-                  Transport Particulars
+                  Contact Officer Name
                 </label>
                 <input
                   type="text"
                   value={
-                    certificateData.message_info.transport_particulars_contents
+                    certificateData.message_info.party_contact_officer_name
                   }
                   disabled
                   className="w-full px-4 py-2.5 border border-zinc-200 bg-gray-50 rounded-[8px] text-gray-600"
@@ -225,12 +247,26 @@ export default function COOForm({ certificateData }: COOFormProps) {
               </div>
               <div className="flex flex-col gap-1">
                 <label className="text-sm text-gray-600">
-                  Transport Content
+                  Contact Officer Phone
                 </label>
                 <input
                   type="text"
                   value={
-                    certificateData.message_info.transport_particulars_content
+                    certificateData.message_info
+                      .party_contact_officer_telephone_number
+                  }
+                  disabled
+                  className="w-full px-4 py-2.5 border border-zinc-200 bg-gray-50 rounded-[8px] text-gray-600"
+                />
+              </div>
+              <div className="flex flex-col gap-1">
+                <label className="text-sm text-gray-600">
+                  Contact Officer Email
+                </label>
+                <input
+                  type="text"
+                  value={
+                    certificateData.message_info.party_contact_officer_email
                   }
                   disabled
                   className="w-full px-4 py-2.5 border border-zinc-200 bg-gray-50 rounded-[8px] text-gray-600"
@@ -239,188 +275,61 @@ export default function COOForm({ certificateData }: COOFormProps) {
             </div>
           </div>
 
-          {/* Country Information */}
+          {/* Additional Information */}
           <div className="flex flex-col gap-4 border-t-[0.5px] border-dashed border-gray-400 pt-8">
             <h3 className="text-[15px] font-semibold text-gray-700">
-              Country Information
+              Additional Information
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="flex flex-col gap-1">
-                <label className="text-sm text-gray-600">
-                  Issue Country Code
-                </label>
-                <input
-                  type="text"
-                  value={certificateData.message_info.issue_country_code}
+                <label className="text-sm text-gray-600">Transport</label>
+                <textarea
+                  value={JSON.stringify(
+                    certificateData.message_info.transport,
+                    null,
+                    2
+                  )}
                   disabled
-                  className="w-full px-4 py-2.5 border border-zinc-200 bg-gray-50 rounded-[8px] text-gray-600"
+                  className="w-full px-4 py-2.5 border border-zinc-200 bg-gray-50 rounded-[8px] text-gray-600 h-24"
                 />
               </div>
               <div className="flex flex-col gap-1">
-                <label className="text-sm text-gray-600">
-                  Destination Country Code
-                </label>
-                <input
-                  type="text"
-                  value={certificateData.message_info.destination_country_code}
+                <label className="text-sm text-gray-600">Invoice</label>
+                <textarea
+                  value={JSON.stringify(
+                    certificateData.message_info.invoice,
+                    null,
+                    2
+                  )}
                   disabled
-                  className="w-full px-4 py-2.5 border border-zinc-200 bg-gray-50 rounded-[8px] text-gray-600"
+                  className="w-full px-4 py-2.5 border border-zinc-200 bg-gray-50 rounded-[8px] text-gray-600 h-24"
+                />
+              </div>
+              <div className="flex flex-col gap-1">
+                <label className="text-sm text-gray-600">Items</label>
+                <textarea
+                  value={JSON.stringify(
+                    certificateData.message_info.item_info,
+                    null,
+                    2
+                  )}
+                  disabled
+                  className="w-full px-4 py-2.5 border border-zinc-200 bg-gray-50 rounded-[8px] text-gray-600 h-24"
+                />
+              </div>
+              <div className="flex flex-col gap-1">
+                <label className="text-sm text-gray-600">Attachments</label>
+                <textarea
+                  value={JSON.stringify(
+                    certificateData.message_info.attachment,
+                    null,
+                    2
+                  )}
+                  disabled
+                  className="w-full px-4 py-2.5 border border-zinc-200 bg-gray-50 rounded-[8px] text-gray-600 h-24"
                 />
               </div>
             </div>
-          </div>
-
-          {/* Item Information */}
-          <div className="flex flex-col gap-4 border-t-[0.5px] border-dashed border-gray-400 pt-8">
-            <h3 className="text-[15px] font-semibold text-gray-700">
-              Item Information
-            </h3>
-            {certificateData.message_info.item_info.map(
-              (item: any, index: number) => (
-                <div
-                  key={index}
-                  className="grid grid-cols-1 md:grid-cols-2 gap-4"
-                >
-                  <div className="flex flex-col gap-1">
-                    <label className="text-sm text-gray-600">
-                      Mark Description
-                    </label>
-                    <input
-                      type="text"
-                      value={item.mark_description}
-                      disabled
-                      className="w-full px-4 py-2.5 border border-zinc-200 bg-gray-50 rounded-[8px] text-gray-600"
-                    />
-                  </div>
-                  <div className="flex flex-col gap-1">
-                    <label className="text-sm text-gray-600">Item Number</label>
-                    <input
-                      type="text"
-                      value={item.item_number}
-                      disabled
-                      className="w-full px-4 py-2.5 border border-zinc-200 bg-gray-50 rounded-[8px] text-gray-600"
-                    />
-                  </div>
-                  <div className="flex flex-col gap-1">
-                    <label className="text-sm text-gray-600">HS8 Code</label>
-                    <input
-                      type="text"
-                      value={item.hs8_code}
-                      disabled
-                      className="w-full px-4 py-2.5 border border-zinc-200 bg-gray-50 rounded-[8px] text-gray-600"
-                    />
-                  </div>
-                  <div className="flex flex-col gap-1">
-                    <label className="text-sm text-gray-600">
-                      Product Description
-                    </label>
-                    <input
-                      type="text"
-                      value={item.product_description}
-                      disabled
-                      className="w-full px-4 py-2.5 border border-zinc-200 bg-gray-50 rounded-[8px] text-gray-600"
-                    />
-                  </div>
-                  <div className="flex flex-col gap-1">
-                    <label className="text-sm text-gray-600">
-                      Package Number
-                    </label>
-                    <input
-                      type="text"
-                      value={item.package_number}
-                      disabled
-                      className="w-full px-4 py-2.5 border border-zinc-200 bg-gray-50 rounded-[8px] text-gray-600"
-                    />
-                  </div>
-                  <div className="flex flex-col gap-1">
-                    <label className="text-sm text-gray-600">
-                      Package Unit Code
-                    </label>
-                    <input
-                      type="text"
-                      value={item.package_unit_code}
-                      disabled
-                      className="w-full px-4 py-2.5 border border-zinc-200 bg-gray-50 rounded-[8px] text-gray-600"
-                    />
-                  </div>
-                  <div className="flex flex-col gap-1">
-                    <label className="text-sm text-gray-600">
-                      Commercial Description
-                    </label>
-                    <input
-                      type="text"
-                      value={item.commercial_description}
-                      disabled
-                      className="w-full px-4 py-2.5 border border-zinc-200 bg-gray-50 rounded-[8px] text-gray-600"
-                    />
-                  </div>
-                  <div className="flex flex-col gap-1">
-                    <label className="text-sm text-gray-600">
-                      Gross Weight
-                    </label>
-                    <input
-                      type="text"
-                      value={`${item.gross_weight} ${item.gross_weight_unit_code}`}
-                      disabled
-                      className="w-full px-4 py-2.5 border border-zinc-200 bg-gray-50 rounded-[8px] text-gray-600"
-                    />
-                  </div>
-                  <div className="flex flex-col gap-1">
-                    <label className="text-sm text-gray-600">
-                      Origin Criteria ID
-                    </label>
-                    <input
-                      type="text"
-                      value={item.origin_criteria_id}
-                      disabled
-                      className="w-full px-4 py-2.5 border border-zinc-200 bg-gray-50 rounded-[8px] text-gray-600"
-                    />
-                  </div>
-                  <div className="flex flex-col gap-1">
-                    <label className="text-sm text-gray-600">
-                      Invoice Number
-                    </label>
-                    <input
-                      type="text"
-                      value={item.invoice_number}
-                      disabled
-                      className="w-full px-4 py-2.5 border border-zinc-200 bg-gray-50 rounded-[8px] text-gray-600"
-                    />
-                  </div>
-                  <div className="flex flex-col gap-1">
-                    <label className="text-sm text-gray-600">
-                      Invoice Date
-                    </label>
-                    <input
-                      type="text"
-                      value={new Date(item.invoice_date).toLocaleDateString()}
-                      disabled
-                      className="w-full px-4 py-2.5 border border-zinc-200 bg-gray-50 rounded-[8px] text-gray-600"
-                    />
-                  </div>
-                  <div className="flex flex-col gap-1">
-                    <label className="text-sm text-gray-600">Item Value</label>
-                    <input
-                      type="text"
-                      value={`${item.item_value} ${item.currency_code}`}
-                      disabled
-                      className="w-full px-4 py-2.5 border border-zinc-200 bg-gray-50 rounded-[8px] text-gray-600"
-                    />
-                  </div>
-                  <div className="flex flex-col gap-1">
-                    <label className="text-sm text-gray-600">
-                      Supplementary Quantity
-                    </label>
-                    <input
-                      type="text"
-                      value={`${item.supplementary_quantity} ${item.supplementary_quantity_unit_code}`}
-                      disabled
-                      className="w-full px-4 py-2.5 border border-zinc-200 bg-gray-50 rounded-[8px] text-gray-600"
-                    />
-                  </div>
-                </div>
-              )
-            )}
           </div>
         </div>
       </form>

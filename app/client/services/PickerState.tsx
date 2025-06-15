@@ -6,7 +6,7 @@ interface PickerState {
 }
 
 const usePickerState = create<PickerState>((set) => ({
-  pickerState: true,
+  pickerState: false,
   togglePicker: () => set((state) => ({ pickerState: !state.pickerState }))
 }));
 

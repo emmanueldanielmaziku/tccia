@@ -9,7 +9,7 @@ import { useRouter } from "next/navigation";
 import { Sms } from "iconsax-reactjs";
 import { useTranslations } from "next-intl";
 
-// Validation schema
+
 const schema = z.object({
   login: z.string().email("Invalid email address"),
   password: z
