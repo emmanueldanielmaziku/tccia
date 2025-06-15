@@ -7,30 +7,19 @@ import CompanyPicker from "./CompanyPicker";
 import SideBar from "./SideBar";
 import useLogState from "../services/LogoutState";
 import usePickerState from "../services/PickerState";
-import { useTranslations } from "next-intl";
 
 export default function ClientLayoutContent({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const router = useRouter();
   const { alertState } = useLogState();
-  const { pickerState } = usePickerState();
+  const { pickerState, forceShowPicker } = usePickerState();
 
   useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const response = await fetch("/api/auth/check");
-        if (!response.ok) {
-          router.push("/auth");
-        }
-      } catch (error) {
-        router.push("/auth");
-      }
-    };
-    checkAuth();
-  }, [router]);
+    // Force show the picker after successful login
+    forceShowPicker();
+  }, [forceShowPicker]);
 
   return (
     <>

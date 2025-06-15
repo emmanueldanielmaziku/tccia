@@ -41,6 +41,9 @@ export default function AlertBox({
   if (!isVisible) return null;
 
   const handleLogout = async () => {
+    // Clear all local storage items
+    localStorage.clear();
+
     toggleAlert();
     await logout();
   };

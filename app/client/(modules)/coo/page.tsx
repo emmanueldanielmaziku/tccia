@@ -77,33 +77,8 @@ export default function COO() {
         // Transform the API data to match the expected format
         const transformedData = result.result.data.map((cert: any) => ({
           message_info: {
+            // Certificate Details
             certificate_type_id: cert.application_number,
-            electronic_certicate_of_origin_treatment_contents: "",
-            exporter_tin: cert.party[0]?.party_tin || "",
-            exporter_name: cert.party[0]?.party_name || "",
-            exporter_address: cert.party[0]?.party_physical_address || "",
-            exporter_telephone_number:
-              cert.party[0]?.party_contact_officer_telephone_number || "",
-            exporter_email_address:
-              cert.party[0]?.party_contact_officer_email || "",
-            consignee_tin: "",
-            consignee_name: cert.party[0]?.party_name || "",
-            consignee_address: cert.party[0]?.party_physical_address || "",
-            reference_number: cert.header[0]?.reference_number || "",
-            transport_particulars_contents: "",
-            remark: "",
-            applicant_name: cert.party[0]?.party_contact_officer_name || "",
-            transport_particulars_content: "",
-            applicant_address: cert.party[0]?.party_physical_address || "",
-            application_place_name: "",
-            issue_country_code: cert.party[0]?.party_country_code || "",
-            destination_country_code: "",
-            approver_name: "",
-            approval_date_and_time: cert.header[0]?.send_date_and_time || "",
-            status:
-              cert.application_state_code === "AP" ? "Approved" : "Pending",
-            item_info: cert.item || [],
-
             application_uuid: cert.application_uuid,
             organization_code: cert.organization_code,
             application_degree: cert.application_degree,
@@ -111,29 +86,56 @@ export default function COO() {
             application_classification_code:
               cert.application_classification_code,
             application_state_code: cert.application_state_code,
+            status: cert.status.charAt(0).toUpperCase() + cert.status.slice(1),
 
-            header: cert.header[0] || {},
+            // Header Information
+            interface_id: cert.header[0]?.interface_id || "",
+            sender_id: cert.header[0]?.sender_id || "",
+            receiver_id: cert.header[0]?.receiver_id || "",
+            reference_number: cert.header[0]?.reference_number || "",
+            ucr_number: cert.header[0]?.ucr_number || "",
+            approval_date_and_time: cert.header[0]?.send_date_and_time || "",
 
-            party: cert.party[0] || {},
+            // Party Information
+            party_uuid: cert.party[0]?.party_uuid || "",
+            party_type_code: cert.party[0]?.party_type_code || "",
+            party_country_code: cert.party[0]?.party_country_code || "",
 
+            // Exporter Information
+            exporter_tin: cert.party[0]?.party_tin || "",
+            exporter_name: cert.party[0]?.party_name || "",
+            exporter_address: cert.party[0]?.party_physical_address || "",
+            exporter_telephone_number:
+              cert.party[0]?.party_contact_officer_telephone_number || "",
+            exporter_email_address:
+              cert.party[0]?.party_contact_officer_email || "",
+
+            // Consignee Information (using same as exporter for now)
+            consignee_tin: cert.party[0]?.party_tin || "",
+            consignee_name: cert.party[0]?.party_name || "",
+            consignee_address: cert.party[0]?.party_physical_address || "",
+
+            // Applicant Information
+            applicant_name: cert.party[0]?.party_contact_officer_name || "",
+            applicant_address: cert.party[0]?.party_physical_address || "",
+
+            // Additional Information
+            issue_country_code: cert.party[0]?.party_country_code || "",
+            destination_country_code: "",
+            application_place_name: "",
+            approver_name: "",
+
+            // Transport and Other Details
+            transport_particulars_contents: "",
+            transport_particulars_content: "",
+            remark: "",
+            electronic_certicate_of_origin_treatment_contents: "",
+
+            // Additional Arrays
+            item_info: cert.item || [],
             transport: cert.transport || [],
             invoice: cert.invoice || [],
             attachment: cert.attachment || [],
-
-            interface_id: cert.header[0]?.interface_id,
-            sender_id: cert.header[0]?.sender_id,
-            receiver_id: cert.header[0]?.receiver_id,
-            ucr_number: cert.header[0]?.ucr_number,
-
-            party_uuid: cert.party[0]?.party_uuid,
-            party_type_code: cert.party[0]?.party_type_code,
-            party_country_code: cert.party[0]?.party_country_code,
-            party_contact_officer_name:
-              cert.party[0]?.party_contact_officer_name,
-            party_contact_officer_telephone_number:
-              cert.party[0]?.party_contact_officer_telephone_number,
-            party_contact_officer_email:
-              cert.party[0]?.party_contact_officer_email,
           },
         }));
         setCertificateData(transformedData);

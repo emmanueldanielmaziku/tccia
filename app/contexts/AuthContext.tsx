@@ -1,12 +1,6 @@
 "use client";
 
-import {
-  createContext,
-  useContext,
-  useState,
-  useEffect,
-  ReactNode,
-} from "react";
+import { createContext, useContext, useState, ReactNode } from "react";
 
 interface AuthContextType {
   isAuthenticated: boolean;
@@ -20,24 +14,6 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState<any | null>(null);
-
-  useEffect(() => {
-    // Check if user is already logged in (e.g., check for token in cookies)
-    const checkAuth = async () => {
-      try {
-        const response = await fetch("/api/auth/check");
-        if (response.ok) {
-          const userData = await response.json();
-          setUser(userData);
-          setIsAuthenticated(true);
-        }
-      } catch (error) {
-        console.error("Auth check failed:", error);
-      }
-    };
-
-    checkAuth();
-  }, []);
 
   const login = (userData: any) => {
     setUser(userData);

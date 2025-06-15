@@ -20,6 +20,10 @@ export async function isAuthenticated() {
 }
 
 export async function logout() {
+  // Clear all local storage items
+  if (typeof window !== "undefined") {
+    localStorage.clear();
+  }
 
   const cookieStore = await cookies();
   cookieStore.delete("token");

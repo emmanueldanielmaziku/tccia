@@ -31,35 +31,41 @@ interface Company {
 }
 
 export default function CompanyPicker() {
-  const { togglePicker } = usePickerState();
+  const { togglePicker, hidePicker } = usePickerState();
   const [companies, setCompanies] = useState<Company[]>([]);
   const [selectedCompany, setSelectedCompany] = useState<string>("");
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchCompanies = async () => {
       try {
-        const response = await fetch(
-          "https://tccia.kalen.co.tz/api/companies/list",
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              client_id: "UQzFuqCobZOLV22ZWTB4YSXLOd0a",
-              client_secrete: "9GxdBjN72Cppbr2FnVJ88WtfKx_MiBD0Mb7fEMB27fka",
-              client_type: "client_credentials",
-            }),
-          }
-        );
+        setIsLoading(true);
+        setError(null);
+
+        const response = await fetch("/api/companies/list", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+
         const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.result?.error || "Failed to fetch companies");
+        }
 
         if (data.result?.companies) {
           setCompanies(data.result.companies);
+        } else {
+          setCompanies([]);
         }
       } catch (error) {
         console.error("Error fetching companies:", error);
+        setError(
+          error instanceof Error ? error.message : "Failed to fetch companies"
+        );
       } finally {
         setIsLoading(false);
       }
@@ -78,6 +84,12 @@ export default function CompanyPicker() {
         "selectedCompany",
         JSON.stringify(selectedCompanyData)
       );
+    }
+  };
+
+  const handleContinue = () => {
+    if (selectedCompany) {
+      hidePicker();
     }
   };
 
@@ -106,6 +118,10 @@ export default function CompanyPicker() {
                   <SelectItem value="loading" disabled>
                     Loading companies...
                   </SelectItem>
+                ) : error ? (
+                  <SelectItem value="error" disabled>
+                    {error}
+                  </SelectItem>
                 ) : companies.length === 0 ? (
                   <SelectItem value="none" disabled>
                     No companies found
@@ -123,7 +139,7 @@ export default function CompanyPicker() {
         </div>
         <div className="flex flex-row items-center w-full gap-6 mt-2">
           <button
-            onClick={togglePicker}
+            onClick={handleContinue}
             disabled={!selectedCompany}
             className="border-[1px] border-blue-600 bg-blue-500 text-white flex-1/2 rounded-[7px] py-3 cursor-pointer hover:bg-blue-600 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
           >
