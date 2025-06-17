@@ -6,12 +6,14 @@ import {
   Add,
   ArchiveBook,
   Box,
+  Building,
   CloseCircle,
   SearchNormal1,
 } from "iconsax-reactjs";
+
 import AlertBox from "../factory-verification/components/AlertBox";
 import FirmRegForm from "./components/FirmRegForm";
-import usetinState from "../../services/TinState";
+
 import {
   Select,
   SelectContent,
@@ -20,6 +22,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import usetinFormState from "../../services/companytinformState";
 
 const firmData = [
   {
@@ -72,16 +75,17 @@ const firmData = [
 ];
 
 export default function FirmManagement() {
-  const [verificationForm, toggleForm] = useState(false);
+
+  const { tinformState , toggleCompanyTinForm } = usetinFormState();
   const [discardBoxState, togglediscardBox] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [dateSort, setDateSort] = useState("newest");
   const [currentPage, setCurrentPage] = useState(1);
-  const { tinState, toggleCompanyTin } = usetinState();
   const itemsPerPage = 20;
 
-  // Filter and sort the data
+  
+
   const filteredData = firmData
     .filter((firm) => {
       const matchesSearch =
@@ -126,7 +130,7 @@ export default function FirmManagement() {
       {discardBoxState && (
         <AlertBox
           onConfirm={() => {
-            togglediscardBox(false), toggleForm(false);
+            togglediscardBox(false), toggleCompanyTinForm();
           }}
           onCancel={() => togglediscardBox(false)}
         />
@@ -139,7 +143,7 @@ export default function FirmManagement() {
           <div className="flex flex-col justify-start items-start mt-2 w-full h-[86vh] rounded-sm relative px-4 md:px-8 lg:px-16.5">
             {/* Header */}
             <div className="flex flex-col md:flex-row w-full justify-between items-start md:items-center gap-4 my-1">
-              {verificationForm ? (
+              {tinformState ? (
                 <div className="font-semibold antialiased text-[18px] text-zinc-600">
                   Add New Firm
                 </div>
@@ -166,8 +170,7 @@ export default function FirmManagement() {
                       <Select
                         value={statusFilter}
                         onValueChange={setStatusFilter}
-                        >
-                          
+                      >
                         <SelectTrigger className="w-full md:w-[140px] text-zinc-600">
                           <SelectValue placeholder="All Status" />
                         </SelectTrigger>
@@ -200,7 +203,7 @@ export default function FirmManagement() {
               )}
 
               {/* button */}
-              {verificationForm ? (
+              {tinformState ? (
                 <button
                   className="flex flex-row gap-3 justify-between items-center bg-transparent hover:bg-red-100 text-red-500 text-sm rounded-[6px] border-[1px] border-red-500 cursor-pointer px-5 py-2 w-full md:w-auto"
                   onClick={() => {
@@ -213,7 +216,7 @@ export default function FirmManagement() {
               ) : (
                 <button
                   className="flex flex-row gap-3 justify-between items-center bg-blue-600 hover:bg-blue-500 text-white text-sm rounded-[6px] cursor-pointer px-5 py-2 w-full md:w-auto"
-                  onClick={() => toggleForm(true)}
+                  onClick={() => toggleCompanyTinForm()}
                 >
                   <Add size={20} color="white" />
                   New Firm
@@ -222,7 +225,7 @@ export default function FirmManagement() {
             </div>
 
             {/* Main */}
-            {verificationForm ? (
+            {tinformState ? (
               <FirmRegForm />
             ) : (
               <div className="w-full grid grid-cols-1 pr-3 gap-5 mt-5 rounded-md overflow-hidden overflow-y-auto">
@@ -245,11 +248,9 @@ export default function FirmManagement() {
                     </div>
                     {/* header */}
                     <div className="flex flex-col md:flex-row items-start md:items-center p-5 gap-3 bg-gray-50">
-                      <img
-                        src={firm.logo}
-                        alt="Logo"
-                        className="w-18 h-18 object-cover rounded-md bg-white p-1 border-[0.5px] border-zinc-200"
-                      />
+                      <div className="border-[0.5px] bg-blue-50 border-blue-200 py-4 rounded-[12px] px-4 flex items-center">
+                        <Building variant="Bulk" size={36} color="#138abd" />
+                      </div>
 
                       <div className="w-full flex flex-col gap-1 justify-start">
                         <div className="font-semibold">{firm.firm}</div>
@@ -286,7 +287,7 @@ export default function FirmManagement() {
             )}
 
             {/* Pagination */}
-            {verificationForm ? null : (
+            {tinformState ? null : (
               <div className="flex flex-col md:flex-row justify-between items-center gap-4 mt-4 bg-white/35 backdrop-blur-md w-full p-4">
                 <span className="text-gray-600">
                   Page {currentPage} of {totalPages}

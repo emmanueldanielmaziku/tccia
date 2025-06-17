@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import NavBar from "../../components/NavBar";
 import ProgressTracker from "./components/StatsBar";
 import NewCertificateModal from "./components/NewCertificateModal";
@@ -23,6 +23,9 @@ import {
 } from "@/components/ui/select";
 import COOForm from "./components/COOForm";
 import { useRouter } from "next/navigation";
+import { COMPANY_CHANGE_EVENT } from "./components/StatsBar";
+
+import usePickerState from "../../services/PickerState";
 
 export default function COO() {
   const [verificationForm, toggleForm] = useState(false);
@@ -38,6 +41,7 @@ export default function COO() {
   const [certificateData, setCertificateData] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { togglePicker, hidePicker } = usePickerState();
   const itemsPerPage = 20;
   const router = useRouter();
 
@@ -45,16 +49,26 @@ export default function COO() {
     fetchCertificates();
   }, []);
 
+  useEffect(() => {
+    const handleCompanyChange = () => {
+      handleRefresh();
+    };
+
+    window.addEventListener(COMPANY_CHANGE_EVENT, handleCompanyChange);
+    return () =>
+      window.removeEventListener(COMPANY_CHANGE_EVENT, handleCompanyChange);
+  }, []);
+
   const fetchCertificates = async () => {
     try {
       setIsLoading(true);
       setError(null);
 
-      // Get the selected company from localStorage
       const selectedCompany = localStorage.getItem("selectedCompany");
       if (!selectedCompany) {
         setError("No company selected. Please select a company first.");
         setIsLoading(false);
+        hidePicker();
         return;
       }
 
@@ -72,7 +86,7 @@ export default function COO() {
       });
 
       if (response.status === 401) {
-        // Redirect to auth page on unauthorized
+        
         router.push("/auth");
         return;
       }
@@ -129,7 +143,7 @@ export default function COO() {
             exporter_email_address:
               cert.party[0]?.party_contact_officer_email || "",
 
-            // Consignee Information (using same as exporter for now)
+            // Consignee Information
             consignee_tin: cert.party[0]?.party_tin || "",
             consignee_name: cert.party[0]?.party_name || "",
             consignee_address: cert.party[0]?.party_physical_address || "",
@@ -231,6 +245,11 @@ export default function COO() {
   const handleViewCertificate = (certificate: any) => {
     setSelectedCertificate(certificate);
     toggleForm(true);
+  };
+
+  const handlePrintCertificate = (aid: string) => {
+    const certificateUrl = `http://159.65.191.145:8050/certificate_of_origin/static/certificate/EAC/index.html?id=${aid}`;
+    window.open(certificateUrl, "_blank");
   };
 
   const handleRefresh = () => {
@@ -415,14 +434,13 @@ export default function COO() {
                             View Application
                           </button>
                           <button
-                            disabled={
-                              certificate.message_info.status === "Pending"
+                            // disabled={true}
+                            onClick={() =>
+                              handlePrintCertificate(
+                                certificate.message_info.application_uuid
+                              )
                             }
-                            className={`px-4 md:px-5 py-1.5 text-sm rounded-[6px] flex flex-row justify-center items-center gap-2 transition-colors duration-200 ${
-                              certificate.message_info.status === "Pending"
-                                ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                                : "bg-blue-500 text-white hover:bg-blue-600 cursor-pointer"
-                            }`}
+                            className="px-4 md:px-5 py-1.5 text-sm rounded-[6px] flex flex-row justify-center items-center gap-2 bg-blue-500 text-white cursor-pointer"
                           >
                             <Printer size="16" color="white" />
                             Print Certificate
@@ -455,14 +473,18 @@ export default function COO() {
                             </div>
                             <div className="hidden md:block flex-1 mx-4 border-t-1 border-dashed border-zinc-300 h-0" />
                             <div className="flex flex-row gap-2 text-sm items-center">
-                              (
-                              {
+                              (UG
+                              {/* {
                                 certificate.message_info
                                   .destination_country_code
-                              }
+                              } */}
                               )
-                              <img
+                              {/* <img
                                 src={`https://flagsapi.com/${certificate.message_info.destination_country_code}/flat/24.png`}
+                                className="rounded-sm"
+                              /> */}
+                              <img
+                                src={`https://flagsapi.com/UG/flat/24.png`}
                                 className="rounded-sm"
                               />
                             </div>

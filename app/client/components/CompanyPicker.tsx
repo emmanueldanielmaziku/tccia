@@ -14,6 +14,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Loader2 } from "lucide-react";
+import usetinFormState from "../services/companytinformState";
 
 interface Company {
   id: number;
@@ -47,6 +48,7 @@ interface ApiResponse {
 export default function CompanyPicker() {
   const router = useRouter();
   const { togglePicker, hidePicker } = usePickerState();
+  const { tinformState, toggleCompanyTinForm } = usetinFormState();
   const [companies, setCompanies] = useState<Company[]>([]);
   const [selectedCompany, setSelectedCompany] = useState<string>("");
   const [isLoading, setIsLoading] = useState(true);
@@ -80,7 +82,7 @@ export default function CompanyPicker() {
         if (data.result?.status === "success" && data.result.companies) {
           setCompanies(data.result.companies);
 
-          // If there's a previously selected company, try to select it
+      
           const storedCompany = localStorage.getItem("selectedCompany");
           if (storedCompany) {
             const parsedCompany = JSON.parse(storedCompany);
@@ -114,7 +116,7 @@ export default function CompanyPicker() {
       (company) => company.company_tin === value
     );
     if (selectedCompanyData) {
-      // Store only necessary company data
+  
       const companySession = {
         id: selectedCompanyData.id,
         company_tin: selectedCompanyData.company_tin,
@@ -136,7 +138,7 @@ export default function CompanyPicker() {
       );
 
       if (selectedCompanyData) {
-        // Store company data in localStorage
+       
         const companySession = {
           id: selectedCompanyData.id,
           company_tin: selectedCompanyData.company_tin,
@@ -151,11 +153,16 @@ export default function CompanyPicker() {
         };
         localStorage.setItem("selectedCompany", JSON.stringify(companySession));
 
-        // Close the picker
         hidePicker();
       }
     }
   };
+
+  const handleAddCompany = () => {
+    toggleCompanyTinForm();
+    router.push("/client/firm-management");
+     hidePicker();
+  }
 
   return (
     <div className="w-full h-full flex flex-col items-center justify-center bg-black/30 backdrop-blur-[10px] absolute transition-opacity duration-300 top-0 left-0 z-50">
@@ -219,6 +226,15 @@ export default function CompanyPicker() {
               "Continue"
             )}
           </button>
+          {!selectedCompany && (
+            <button
+              onClick={handleAddCompany}
+              disabled={isLoading}
+              className="border-[1px] border-blue-600 bg-blue-500 text-white flex-1/2 rounded-[7px] py-3 cursor-pointer hover:bg-blue-600 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Register Company
+            </button>
+          )}
         </div>
       </div>
     </div>

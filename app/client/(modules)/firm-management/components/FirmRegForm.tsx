@@ -61,6 +61,7 @@ function PreviewWidget({
       });
 
       const result = await response.json();
+      
 
       if (result.result?.success) {
         setShowOtpInput(true);

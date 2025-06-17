@@ -5,6 +5,7 @@ import {
   Verify,
   SidebarLeft,
   SidebarRight,
+  Building,
 } from "iconsax-reactjs";
 
 import {
@@ -16,13 +17,141 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Stat from "./Stats";
 import { useTranslations } from "next-intl";
+import { useRouter } from "next/navigation";
+import { Loader2 } from "lucide-react";
+
+interface CompanyData {
+  id: number;
+  company_tin: string;
+  company_name: string;
+  company_nationality_code: string;
+  company_registration_type_code: string;
+  company_email: string;
+  company_telephone_number: string;
+}
+
+interface ApiResponse {
+  jsonrpc: string;
+  id: null;
+  result: {
+    status: string;
+    manager_id: number;
+    total_companies: number;
+    companies: CompanyData[];
+    error?: string;
+  };
+}
+
+// Custom event for company change
+export const COMPANY_CHANGE_EVENT = "companyChange";
 
 export default function StatsBar() {
   const [expanded, setExpanded] = useState(true);
+  const [selectedCompany, setSelectedCompany] = useState<CompanyData | null>(
+    null
+  );
+  const [companies, setCompanies] = useState<CompanyData[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
   const t = useTranslations("stats");
+
+  // Function to update selected company from localStorage
+  const updateSelectedCompany = () => {
+    const storedCompany = localStorage.getItem("selectedCompany");
+    if (storedCompany) {
+      setSelectedCompany(JSON.parse(storedCompany));
+    }
+  };
+
+  // Listen for localStorage changes
+  useEffect(() => {
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === "selectedCompany") {
+        updateSelectedCompany();
+      }
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+    return () => window.removeEventListener("storage", handleStorageChange);
+  }, []);
+
+  useEffect(() => {
+    const fetchCompanies = async () => {
+      try {
+        setIsLoading(true);
+        setError(null);
+
+        const response = await fetch("/api/companies/list", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+
+        const data: ApiResponse = await response.json();
+
+        if (response.status === 401 || response.status === 403) {
+          router.push("/auth");
+          return;
+        }
+
+        if (!response.ok) {
+          throw new Error(data.result?.error || "Failed to fetch companies");
+        }
+
+        if (data.result?.status === "success" && data.result.companies) {
+          setCompanies(data.result.companies);
+        } else {
+          setCompanies([]);
+        }
+      } catch (error) {
+        console.error("Error fetching companies:", error);
+        setError(
+          error instanceof Error ? error.message : "Failed to fetch companies"
+        );
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchCompanies();
+  }, [router]);
+
+  // Initial load of selected company
+  useEffect(() => {
+    updateSelectedCompany();
+  }, []);
+
+  const handleCompanySelect = (value: string) => {
+    const selectedCompanyData = companies.find(
+      (company) => company.company_tin === value
+    );
+    if (selectedCompanyData) {
+      // Store only necessary company data
+      const companySession = {
+        id: selectedCompanyData.id,
+        company_tin: selectedCompanyData.company_tin,
+        company_name: selectedCompanyData.company_name,
+        company_nationality_code: selectedCompanyData.company_nationality_code,
+        company_registration_type_code:
+          selectedCompanyData.company_registration_type_code,
+        company_email: selectedCompanyData.company_email,
+        company_telephone_number: selectedCompanyData.company_telephone_number,
+      };
+      localStorage.setItem("selectedCompany", JSON.stringify(companySession));
+      setSelectedCompany(companySession);
+
+      // Dispatch custom event to trigger page refresh
+      const event = new CustomEvent(COMPANY_CHANGE_EVENT, {
+        detail: { company: companySession },
+      });
+      window.dispatchEvent(event);
+    }
+  };
 
   return (
     <div
@@ -119,31 +248,35 @@ export default function StatsBar() {
               expanded ? "px-5 md:px-6 py-5 md:py-6" : "px-2 py-2"
             }`}
           >
-            <img
-              src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQEtc8KBI_8Yvc-g3152PaRV1XmdPCHYGNFVQ&s"
-              alt="logo"
-              className={`border-[0.5px] rounded-full bg-white transition-all duration-300 ${
+            <div
+              className={`border-[0.5px] bg-blue-50 border-blue-200 py-4 rounded-full px-4 flex items-center justify-center transition-all duration-300 ${
                 expanded
                   ? "w-[120px] h-[120px] md:w-[150px] md:h-[150px] p-4"
                   : "w-[40px] h-[40px] p-1"
               }`}
-            />
-
-            {expanded && (
+            >
+              <Building variant="Bulk" size={70} color="#138abd" />
+            </div>
+        
+        
+            {expanded && selectedCompany && (
               <div className="w-full flex flex-col justify-center items-center text-center gap-1">
                 <div className="font-semibold text-gray-700 text-[15px] md:text-[16px]">
-                  AZANIA GROUP OF COMPANIES
+                  {selectedCompany.company_name}
                 </div>
                 <div className="font-semibold text-blue-700 text-[13px] md:text-[14px]">
-                  AZG-001-A25Z
+                  {selectedCompany.company_tin}
                 </div>
                 <div className="text-gray-600 text-[12px] md:text-[13px]">
-                  Dar es Salaam, Tanzania
+                  {selectedCompany.company_nationality_code}
                 </div>
               </div>
             )}
             {expanded && (
-              <Select>
+              <Select
+                onValueChange={handleCompanySelect}
+                value={selectedCompany?.company_tin}
+              >
                 <SelectTrigger className="w-full border-[1px] border-blue-300 rounded-[8px] text-blue-600 py-4 md:py-5 cursor-pointer hover:bg-gray-50 shadow-sm text-sm md:text-[14px] transition-colors duration-200">
                   <SelectValue placeholder={t("switchCompany")} className="" />
                 </SelectTrigger>
@@ -152,11 +285,31 @@ export default function StatsBar() {
                     <SelectLabel className="text-gray-600">
                       {t("companies")}
                     </SelectLabel>
-                    <SelectItem value="apple">TCCIA COMPANY</SelectItem>
-                    <SelectItem value="banana">ABC COMPANY</SelectItem>
-                    <SelectItem value="blueberry">AZANIA GROUP</SelectItem>
-                    <SelectItem value="grapes">MO COMPANY</SelectItem>
-                    <SelectItem value="pineapple">SERENGETI COMPANY</SelectItem>
+                    {isLoading ? (
+                      <SelectItem value="loading" disabled>
+                        <div className="flex items-center gap-2">
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                          Loading companies...
+                        </div>
+                      </SelectItem>
+                    ) : error ? (
+                      <SelectItem value="error" disabled>
+                        <div className="text-red-500">{error}</div>
+                      </SelectItem>
+                    ) : companies.length === 0 ? (
+                      <SelectItem value="none" disabled>
+                        No companies found
+                      </SelectItem>
+                    ) : (
+                      companies.map((company) => (
+                        <SelectItem
+                          key={company.id}
+                          value={company.company_tin}
+                        >
+                          {company.company_name}
+                        </SelectItem>
+                      ))
+                    )}
                   </SelectGroup>
                 </SelectContent>
               </Select>

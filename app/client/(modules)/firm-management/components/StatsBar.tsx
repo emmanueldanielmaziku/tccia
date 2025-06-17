@@ -5,6 +5,7 @@ import {
   Verify,
   SidebarLeft,
   SidebarRight,
+  Building,
 } from "iconsax-reactjs";
 
 import {
@@ -16,13 +17,33 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Stat from "./Stats";
 import { useTranslations } from "next-intl";
 
+interface CompanyData {
+  id: number;
+  company_tin: string;
+  company_name: string;
+  company_nationality_code: string;
+  company_registration_type_code: string;
+  company_email: string;
+  company_telephone_number: string;
+}
+
 export default function StatsBar() {
   const [expanded, setExpanded] = useState(true);
+  const [selectedCompany, setSelectedCompany] = useState<CompanyData | null>(
+    null
+  );
   const t = useTranslations("stats");
+
+  useEffect(() => {
+    const storedCompany = localStorage.getItem("selectedCompany");
+    if (storedCompany) {
+      setSelectedCompany(JSON.parse(storedCompany));
+    }
+  }, []);
 
   return (
     <div
@@ -119,26 +140,27 @@ export default function StatsBar() {
               expanded ? "px-5 md:px-6 py-5 md:py-6" : "px-2 py-2"
             }`}
           >
-            <img
-              src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQEtc8KBI_8Yvc-g3152PaRV1XmdPCHYGNFVQ&s"
-              alt="logo"
-              className={`border-[0.5px] rounded-full bg-white transition-all duration-300 ${
+
+            <div
+              className={`border-[0.5px] bg-blue-50 border-blue-200 py-4 rounded-full px-4 flex items-center justify-center transition-all duration-300 ${
                 expanded
                   ? "w-[120px] h-[120px] md:w-[150px] md:h-[150px] p-4"
                   : "w-[40px] h-[40px] p-1"
               }`}
-            />
+            >
+              <Building variant="Bulk" size={70} color="#138abd" />
+            </div>
 
-            {expanded && (
+            {expanded && selectedCompany && (
               <div className="w-full flex flex-col justify-center items-center text-center gap-1">
                 <div className="font-semibold text-gray-700 text-[15px] md:text-[16px]">
-                  AZANIA GROUP OF COMPANIES
+                  {selectedCompany.company_name}
                 </div>
                 <div className="font-semibold text-blue-700 text-[13px] md:text-[14px]">
-                  AZG-001-A25Z
+                  {selectedCompany.company_tin}
                 </div>
                 <div className="text-gray-600 text-[12px] md:text-[13px]">
-                  Dar es Salaam, Tanzania
+                  {selectedCompany.company_nationality_code}
                 </div>
               </div>
             )}

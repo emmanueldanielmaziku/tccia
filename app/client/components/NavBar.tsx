@@ -142,7 +142,7 @@ export default function NavBar({ title }: NavBarProps) {
           </button>
 
           {/* Desktop Profile */}
-          <div className="hidden md:flex flex-row items-center justify-center gap-2 cursor-default px-6">
+          <div className="flex flex-row items-center justify-center gap-2 cursor-default px-6">
             <img
               src="https://avatar.iran.liara.run/public"
               alt="User Profile"
