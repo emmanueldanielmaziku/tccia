@@ -73,7 +73,7 @@ export default function StatsBar() {
     if (company) {
       setSelectedCompany(company);
       localStorage.setItem("selectedCompany", JSON.stringify(company));
-      fetchCertificates(company.company_tin); // Fetch certificates on company change
+      fetchCertificates(company.company_tin);
     }
   };
 
