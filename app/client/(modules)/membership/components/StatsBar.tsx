@@ -36,46 +36,14 @@ export default function StatsBar() {
   const [selectedCompany, setSelectedCompany] = useState<CompanyData | null>(
     null
   );
-  const [companies, setCompanies] = useState<CompanyData[]>([]);
   const t = useTranslations("stats");
-
-  // Placeholder: Replace with your actual certificate fetching logic
-  const fetchCertificates = async (companyTin: string) => {};
 
   useEffect(() => {
     const storedCompany = localStorage.getItem("selectedCompany");
     if (storedCompany) {
-      const company = JSON.parse(storedCompany);
-      setSelectedCompany(company);
-      fetchCertificates(company.company_tin);
+      setSelectedCompany(JSON.parse(storedCompany));
     }
-
-    const fetchCompanies = async () => {
-      try {
-        const response = await fetch("/api/companies/list", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        });
-        const data = await response.json();
-
-        if (data.status === "success" && data.data?.companies) {
-          setCompanies(data.data.companies);
-        }
-      } catch (err) {}
-    };
-    fetchCompanies();
   }, []);
-
-  const handleCompanyChange = (value: string) => {
-    const company = companies.find((c) => c.company_tin === value);
-    if (company) {
-      setSelectedCompany(company);
-      localStorage.setItem("selectedCompany", JSON.stringify(company));
-      fetchCertificates(company.company_tin); // Fetch certificates on company change
-    }
-  };
 
   return (
     <div
@@ -87,6 +55,7 @@ export default function StatsBar() {
           : "w-[100px] px-2"
       } pt-20 pb-6 relative`}
     >
+      {/* Dashboard Title and Expand/Minimize Icon */}
       <div className="w-full flex items-center justify-start">
         <button
           onClick={() => setExpanded((v) => !v)}
@@ -126,7 +95,7 @@ export default function StatsBar() {
         <div className="w-full">
           {expanded && (
             <div className="font-semibold pb-3.5 text-gray-600 text-[14px]">
-              {t("certificateStatistics")}
+              {t("firmStatistics")}
             </div>
           )}
           <div
@@ -144,13 +113,13 @@ export default function StatsBar() {
             />
             <Stat
               value="12"
-              title={t("verified")}
+              title={t("pending")}
               icon={Layer}
               minimized={!expanded}
             />
             <Stat
               value="96"
-              title={t("approved")}
+              title={t("verified")}
               icon={Verify}
               minimized={!expanded}
             />
@@ -171,6 +140,7 @@ export default function StatsBar() {
               expanded ? "px-5 md:px-6 py-5 md:py-6" : "px-2 py-2"
             }`}
           >
+
             <div
               className={`border-[0.5px] bg-blue-50 border-blue-200 py-4 rounded-full px-4 flex items-center justify-center transition-all duration-300 ${
                 expanded
@@ -195,10 +165,7 @@ export default function StatsBar() {
               </div>
             )}
             {expanded && (
-              <Select
-                onValueChange={handleCompanyChange}
-                value={selectedCompany?.company_tin || ""}
-              >
+              <Select>
                 <SelectTrigger className="w-full border-[1px] border-blue-300 rounded-[8px] text-blue-600 py-4 md:py-5 cursor-pointer hover:bg-gray-50 shadow-sm text-sm md:text-[14px] transition-colors duration-200">
                   <SelectValue placeholder={t("switchCompany")} className="" />
                 </SelectTrigger>
@@ -207,14 +174,11 @@ export default function StatsBar() {
                     <SelectLabel className="text-gray-600">
                       {t("companies")}
                     </SelectLabel>
-                    {companies.map((company) => (
-                      <SelectItem
-                        key={company.company_tin}
-                        value={company.company_tin}
-                      >
-                        {company.company_name}
-                      </SelectItem>
-                    ))}
+                    <SelectItem value="apple">TCCIA COMPANY</SelectItem>
+                    <SelectItem value="banana">ABC COMPANY</SelectItem>
+                    <SelectItem value="blueberry">AZANIA GROUP</SelectItem>
+                    <SelectItem value="grapes">MO COMPANY</SelectItem>
+                    <SelectItem value="pineapple">SERENGETI COMPANY</SelectItem>
                   </SelectGroup>
                 </SelectContent>
               </Select>
@@ -232,16 +196,22 @@ export default function StatsBar() {
         >
           <div className="flex flex-row items-center gap-2.5">
             <Lifebuoy size={20} color="#364153" />
-            <h5 className="text-gray-700 text-[15px] md:text-[16px] font-medium">
-              {t("help.title")}
-            </h5>
+            {expanded && (
+              <h5 className="text-gray-700 text-[15px] md:text-[16px] font-medium">
+                {t("help.title")}
+              </h5>
+            )}
           </div>
-          <p className="text-gray-700 text-[13px] md:text-[14px] leading-relaxed">
-            {t("help.description")}
-          </p>
-          <button className="border-[1px] rounded-[8px] border-zinc-600 text-zinc-600 px-6 md:px-8 py-2.5 text-[13px] md:text-[14px] w-full cursor-pointer hover:bg-zinc-600 hover:text-white transition-colors duration-200">
-            {t("help.contactButton")}
-          </button>
+          {expanded && (
+            <>
+              <p className="text-gray-700 text-[13px] md:text-[14px] leading-relaxed">
+                {t("help.description")}
+              </p>
+              <button className="border-[1px] rounded-[8px] border-zinc-600 text-zinc-600 px-6 md:px-8 py-2.5 text-[13px] md:text-[14px] w-full cursor-pointer hover:bg-zinc-600 hover:text-white transition-colors duration-200">
+                {t("help.contactButton")}
+              </button>
+            </>
+          )}
         </div>
       )}
     </div>

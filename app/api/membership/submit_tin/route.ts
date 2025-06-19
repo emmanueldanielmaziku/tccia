@@ -22,45 +22,26 @@ export async function POST(request: Request) {
       );
     }
 
-    const response = await fetch(
-      `${API_BASE_URL}/api/company_registration/fetch_tin`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          company_tin: body.company_tin,
-        }),
-      }
-    );
+    const response = await fetch(`${API_BASE_URL}/api/membership/submit_tin`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        company_tin: body.tin,
+      }),
+    });
 
-    const data = await response.json();
+      const data = await response.json();
+      console.log(data);
 
-   
-    if (data.result?.status === "error" && data.result?.error) {
+    if (data.result?.error) {
       return NextResponse.json(
         {
           jsonrpc: "2.0",
           id: null,
           result: {
-            status: "error",
-            error: data.result.error,
-          },
-        },
-        { status: 400 }
-      );
-    }
-
- 
-    if (data.result?.error && !data.result?.status) {
-      return NextResponse.json(
-        {
-          jsonrpc: "2.0",
-          id: null,
-          result: {
-            status: "error",
             error: data.result.error,
           },
         },

@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect } from "react";
-import { useRouter } from "next/navigation";
 import AlertBox from "./AlertBox";
 import CompanyPicker from "./CompanyPicker";
 import SideBar from "./SideBar";
@@ -17,7 +16,7 @@ export default function ClientLayoutContent({
   const { pickerState, forceShowPicker } = usePickerState();
 
   useEffect(() => {
-    // Force show the picker after successful login
+   
     forceShowPicker();
   }, [forceShowPicker]);
 

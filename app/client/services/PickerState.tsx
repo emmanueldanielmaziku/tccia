@@ -15,7 +15,10 @@ const usePickerState = create<PickerState>((set) => ({
     const selectedCompany = localStorage.getItem("selectedCompany");
     set({ pickerState: !selectedCompany });
   },
-  forceShowPicker: () => set({ pickerState: true }),
+  forceShowPicker: () => {
+    const selectedCompany = localStorage.getItem("selectedCompany");
+    set({ pickerState: !selectedCompany });
+  },
   hidePicker: () => set({ pickerState: false }),
 }));
 

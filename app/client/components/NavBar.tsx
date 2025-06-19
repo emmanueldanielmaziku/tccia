@@ -3,20 +3,22 @@ import {
   ShieldTick,
   SidebarLeft,
   SidebarRight,
-  Notification,
   ArrowDown2,
   HamburgerMenu,
+
 } from "iconsax-reactjs";
 import useMenuState from "../services/MenuState";
 import useLangState from "@/app/services/LanguageState";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
+
 
 type NavBarProps = {
   title: string;
 };
 
 export default function NavBar({ title }: NavBarProps) {
+
   const { isMenuOpen, toggleMenu } = useMenuState();
   const { language, toggleLanguage } = useLangState();
   const [langDrop, toggleDropBox] = useState(false);
@@ -24,10 +26,11 @@ export default function NavBar({ title }: NavBarProps) {
   const t = useTranslations();
   const tn = useTranslations("nav");
 
+
   return (
     <nav className="bg-gray-50/5 flex flex-row justify-between items-center absolute z-20 h-[65px] left-0 right-0 top-0 border-b-[1px] border-b-gray-200 px-4 w-full backdrop-blur-md">
       <div className="flex items-center flex-row">
-        {/* Mobile Menu Button */}
+       
         <button
           onClick={toggleMenu}
           className="flex items-center justify-center w-10 h-10 rounded-[12px] bg-gray-50 border-gray-100 hover:bg-blue-100 mr-3 border-[0.5px] cursor-pointer md:hidden"
@@ -35,7 +38,7 @@ export default function NavBar({ title }: NavBarProps) {
           <HamburgerMenu size="24" color="black" />
         </button>
 
-        {/* Desktop Menu Button */}
+     
         <button
           onClick={toggleMenu}
           className="hidden md:flex items-center justify-center w-10 h-10 rounded-[12px] bg-gray-50 border-gray-100 hover:bg-blue-100 mr-3 border-[0.5px] cursor-pointer"
@@ -82,15 +85,16 @@ export default function NavBar({ title }: NavBarProps) {
                 className="w-6 h-6 transition-all duration-300"
               />
             )}
+            
             <span className="text-sm font-semibold text-gray-500 md:flex hidden">
               {language}
             </span>
+            
           </div>
           <ArrowDown2 size="18" color="gray" className="md:flex hidden" />
           {langDrop && (
             <div className="bg-white shadow-sm w-[100px] p-1 rounded-[10px] flex flex-col absolute top-10.5 border-[0.5px] left-0 z-10 transition-all duration-300">
-              <div
-                className="flex flex-row items-center gap-1.5 hover:bg-blue-100 p-2 rounded-[8px] cursor-pointer"
+              <div className="flex flex-row items-center gap-1.5 hover:bg-blue-100 p-2 rounded-[8px] cursor-pointer"
                 onClick={() => language === "SW" && toggleLanguage()}
               >
                 <img
@@ -127,9 +131,8 @@ export default function NavBar({ title }: NavBarProps) {
 
         <div className="h-[25px] max-h-[25px] bg-zinc-300 w-[1px] max-w-[1px]"></div>
 
-        {/* User Profile */}
         <div className="relative">
-          {/* Mobile Profile Avatar */}
+     
           <button
             onClick={() => setProfileOpen(!profileOpen)}
             className="md:hidden flex items-center justify-center"
@@ -148,10 +151,12 @@ export default function NavBar({ title }: NavBarProps) {
               alt="User Profile"
               className="w-9 h-9 rounded-full"
             />
+
             <div className="flex flex-col items-left justify-center">
               <div className="font-semibold text-[15px] text-gray-700">
                 Emmanuel Daniel
               </div>
+
               <div className="flex flex-row items-center gap-1 text-gray-500 text-[12px]">
                 <span>{tn("exporterManager")}</span>
                 <ShieldTick size="14" color="#FF8A65" variant="Bold" />
@@ -159,7 +164,8 @@ export default function NavBar({ title }: NavBarProps) {
             </div>
           </div>
 
-          {/* Mobile Profile Popover */}
+              
+          
           {profileOpen && (
             <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 z-50 border border-gray-200 md:hidden">
               <div className="px-4 py-2 border-b border-gray-200">
