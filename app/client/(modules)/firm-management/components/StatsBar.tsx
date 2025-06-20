@@ -30,8 +30,13 @@ interface CompanyData {
   company_email: string;
   company_telephone_number: string;
 }
+export interface StatsData {
+  total: number;
+  submitted: number;
+  approved: number;
+}
 
-export default function StatsBar() {
+export default function StatsBar({ stats } : { stats: StatsData}) {
   const [expanded, setExpanded] = useState(true);
   const [selectedCompany, setSelectedCompany] = useState<CompanyData | null>(
     null
@@ -45,7 +50,7 @@ export default function StatsBar() {
     if (storedCompany) {
       setSelectedCompany(JSON.parse(storedCompany));
     }
-    // Fetch companies from API
+
     const fetchCompanies = async () => {
       try {
         const response = await fetch("/api/companies/list", {
@@ -59,13 +64,13 @@ export default function StatsBar() {
           setCompanies(data.data.companies);
         }
       } catch (err) {
-        // Optionally handle error
+        
       }
     };
     fetchCompanies();
   }, []);
 
-  // Handle company selection
+  
   const handleCompanyChange = (value: string) => {
     const company = companies.find((c) => c.company_tin === value);
     if (company) {
@@ -134,20 +139,20 @@ export default function StatsBar() {
             }`}
           >
             <Stat
-              value="120"
+              value={stats.total.toString()}
               title={t("total")}
               icon={Chart}
               minimized={!expanded}
             />
             <Stat
-              value="12"
+              value={stats.submitted.toString()}
               title={t("pending")}
               icon={Layer}
               minimized={!expanded}
             />
             <Stat
-              value="96"
-              title={t("verified")}
+              value={stats.approved.toString()}
+              title={t("approved")}
               icon={Verify}
               minimized={!expanded}
             />

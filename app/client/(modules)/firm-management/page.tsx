@@ -114,6 +114,15 @@ export default function FirmManagement() {
     currentPage * itemsPerPage
   );
 
+  const submittedCount = companies.filter(
+    (company) => company.state === "Submitted"
+  ).length;
+
+  const approvedCount = companies.filter(
+    (company) => company.state === "approved"
+  ).length;
+
+
   const handleNextPage = () => {
     if (currentPage < totalPages) setCurrentPage(currentPage + 1);
   };
@@ -123,7 +132,7 @@ export default function FirmManagement() {
   };
 
   return (
-    <main className="w-full h-[97vh] rounded-[14px] overflow-hidden bg-white border-[1px] border-gray-200 shadow-sm relative">
+    <main className="w-full h-[97vh] rounded-[14px] overflow-hidden bg-white border-[1px] border-gray-200 ml-2 shadow-sm relative">
       {discardBoxState && (
         <AlertBox
           onConfirm={() => {
@@ -132,7 +141,7 @@ export default function FirmManagement() {
           onCancel={() => togglediscardBox(false)}
         />
       )}
-      
+
       <NavBar title={"Firm Management"} />
 
       {/* Content */}
@@ -223,7 +232,43 @@ export default function FirmManagement() {
             </div>
 
             {/* Main */}
-            {loading && <div>Loading companies...</div>}
+            {loading && (
+              <div className="w-full grid grid-cols-1 pr-3 gap-5 mt-5 rounded-md overflow-hidden overflow-y-auto">
+                {Array.from({ length: 5 }).map((_, idx) => (
+                  <div
+                    key={idx}
+                    className="animate-pulse bg-gray-100 flex flex-col border-[0.5px] rounded-[7px] border-zinc-300 shadow-sm"
+                  >
+                    <div className="flex flex-col md:flex-row justify-between items-start md:items-center border-b-[0.5] border-zinc-200 p-5 gap-2">
+                      <div className="h-5 w-32 bg-gray-300 rounded mb-2" />
+                      <div className="h-6 w-20 bg-gray-300 rounded" />
+                    </div>
+                    <div className="flex flex-col md:flex-row items-start md:items-center p-5 gap-3 bg-gray-50">
+                      <div className="border-[0.5px] bg-blue-50 border-blue-200 py-4 rounded-[12px] px-4 flex items-center">
+                        <div className="h-9 w-9 bg-gray-300 rounded-full" />
+                      </div>
+                      <div className="w-full flex flex-col gap-1 justify-start">
+                        <div className="h-4 w-40 bg-gray-300 rounded" />
+                        <div className="h-3 w-32 bg-gray-200 rounded" />
+                        <div className="h-3 w-24 bg-gray-200 rounded" />
+                      </div>
+                    </div>
+                    <div>
+                      <div className="flex flex-col gap-3 px-5 pb-5 bg-gray-50 rounded-b-md">
+                        <div className="flex flex-col md:flex-row w-full justify-between items-start md:items-center gap-2">
+                          <div className="h-4 w-32 bg-gray-200 rounded" />
+                          <div className="h-4 w-10 bg-gray-200 rounded" />
+                        </div>
+                        <div className="flex flex-col md:flex-row w-full justify-between items-start md:items-center gap-2">
+                          <div className="h-4 w-48 bg-gray-200 rounded" />
+                          <div className="h-4 w-10 bg-gray-200 rounded" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
             {error && <div className="text-red-500">{error}</div>}
             {tinformState ? (
               <FirmRegForm />
@@ -240,12 +285,12 @@ export default function FirmManagement() {
                       }`}</div>
                       <div
                         className={`border-[0.5px] text-sm rounded-[30px] px-3 py-1 ${
-                          "Active" == "Active"
+                          firm.state == "approved"
                             ? "bg-green-100 border-green-300 text-green-600"
                             : "bg-red-100 border-red-300 text-red-600"
                         }`}
                       >
-                        Active
+                        {firm.state.charAt(0).toUpperCase() + firm.state.slice(1)}
                       </div>
                     </div>
                     {/* header */}
@@ -328,7 +373,13 @@ export default function FirmManagement() {
           </div>
         </div>
 
-        <ProgressTracker />
+        <ProgressTracker
+                 stats={{
+                   total: companies.length,
+                   submitted: submittedCount,
+                   approved: approvedCount,
+                 }}
+               />
       </section>
     </main>
   );

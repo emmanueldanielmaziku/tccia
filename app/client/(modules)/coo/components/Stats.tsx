@@ -23,7 +23,7 @@ export default function Stat({
           ? "bg-zinc-100"
           : title === t("approved")
           ? "bg-green-50 border-green-300"
-          : title === t("verified")
+          : title === t("submitted")
           ? "bg-orange-50 border-orange-200"
           : title === t("rejected")
           ? "bg-red-50 border-red-200"

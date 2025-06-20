@@ -18,7 +18,7 @@ import useLogState from "../services/LogoutState";
 import { useTranslations } from "next-intl";
 import useMobileState from "../services/MobileState";
 
-export default function SideBar() {
+export default function SideBarMobile() {
   // Fetch certificates on company change
   const { isMenuOpen } = useMenuState();
   const { alertState, toggleAlert } = useLogState();
@@ -94,8 +94,7 @@ export default function SideBar() {
 
   return (
     <div
-      className={`bg-gray-50 h-full z-50 p-6 flex-col justify-between transition-all duration-300
-        md:flex hidden
+      className={`bg-gray-50 h-full z-50 p-6 flex flex-col justify-between transition-all duration-300
         ${isMenuOpen ? "w-[340px]" : "w-[120px]"}
         md:w-[340px]`}
     >

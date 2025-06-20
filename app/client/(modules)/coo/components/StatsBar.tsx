@@ -21,6 +21,8 @@ import { useState, useEffect } from "react";
 import Stat from "./Stats";
 import { useTranslations } from "next-intl";
 
+export const COMPANY_CHANGE_EVENT = "companyChange";
+
 interface CompanyData {
   id: number;
   company_tin: string;
@@ -31,7 +33,19 @@ interface CompanyData {
   company_telephone_number: string;
 }
 
-export default function StatsBar() {
+export interface StatsData {
+  total: number;
+  submitted: number;
+  approved: number;
+}
+
+export default function StatsBar({
+  onCompanyChange,
+  stats,
+}: {
+  onCompanyChange?: () => void;
+  stats: StatsData;
+}) {
   const [expanded, setExpanded] = useState(true);
   const [selectedCompany, setSelectedCompany] = useState<CompanyData | null>(
     null
@@ -39,15 +53,11 @@ export default function StatsBar() {
   const [companies, setCompanies] = useState<CompanyData[]>([]);
   const t = useTranslations("stats");
 
-  // Placeholder: Replace with your actual certificate fetching logic
-  const fetchCertificates = async (companyTin: string) => {};
-
   useEffect(() => {
     const storedCompany = localStorage.getItem("selectedCompany");
     if (storedCompany) {
       const company = JSON.parse(storedCompany);
       setSelectedCompany(company);
-      fetchCertificates(company.company_tin);
     }
 
     const fetchCompanies = async () => {
@@ -73,7 +83,8 @@ export default function StatsBar() {
     if (company) {
       setSelectedCompany(company);
       localStorage.setItem("selectedCompany", JSON.stringify(company));
-      fetchCertificates(company.company_tin);
+      window.dispatchEvent(new Event(COMPANY_CHANGE_EVENT));
+      if (onCompanyChange) onCompanyChange();
     }
   };
 
@@ -137,19 +148,19 @@ export default function StatsBar() {
             }`}
           >
             <Stat
-              value="120"
+              value={stats.total.toString()}
               title={t("total")}
               icon={Chart}
               minimized={!expanded}
             />
             <Stat
-              value="12"
-              title={t("verified")}
+              value={stats.submitted.toString()}
+              title={t("submitted")}
               icon={Layer}
               minimized={!expanded}
             />
             <Stat
-              value="96"
+              value={stats.approved.toString()}
               title={t("approved")}
               icon={Verify}
               minimized={!expanded}

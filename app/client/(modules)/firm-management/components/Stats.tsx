@@ -21,7 +21,7 @@ export default function Stat({
       className={`flex flex-col w-full justify-center items-center border-[0.5px] rounded-md transition-all duration-300 ${
         title === t("total")
           ? "bg-zinc-100"
-          : title === t("verified")
+          : title === t("approved")
           ? "bg-green-50 border-green-300"
           : title === t("pending")
           ? "bg-orange-50 border-orange-200"

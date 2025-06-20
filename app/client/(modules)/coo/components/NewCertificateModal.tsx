@@ -41,7 +41,7 @@ export default function NewCertificateModal({
                   <span className="text-blue-600 text-sm font-medium">1</span>
                 </div>
                 <p className="text-gray-600">
-                  Visit the TANSIC website and complete the application form
+                  Visit the TANCIS website and complete the application form
                   with all required details.
                 </p>
               </div>
