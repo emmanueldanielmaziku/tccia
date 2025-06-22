@@ -64,7 +64,6 @@ export async function POST(request: Request) {
       );
     }
 
-    
     return NextResponse.json(
       {
         jsonrpc: "2.0",

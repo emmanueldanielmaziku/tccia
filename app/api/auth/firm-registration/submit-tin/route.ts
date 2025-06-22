@@ -38,7 +38,6 @@ export async function POST(request: Request) {
 
     const data = await response.json();
 
-   
     if (data.result?.status === "error" && data.result?.error) {
       return NextResponse.json(
         {
@@ -53,7 +52,6 @@ export async function POST(request: Request) {
       );
     }
 
- 
     if (data.result?.error && !data.result?.status) {
       return NextResponse.json(
         {

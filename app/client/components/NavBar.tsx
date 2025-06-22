@@ -9,6 +9,7 @@ import {
 } from "iconsax-reactjs";
 import useMenuState from "../services/MenuState";
 import useLangState from "@/app/services/LanguageState";
+import { useUserProfile } from "@/app/hooks/useUserProfile";
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
@@ -28,6 +29,7 @@ type NavBarProps = {
 export default function NavBar({ title }: NavBarProps) {
   const { isMenuOpen, toggleMenu } = useMenuState();
   const { language, toggleLanguage } = useLangState();
+  const { userProfile, loading, refreshUserProfile } = useUserProfile();
   const [langDrop, toggleDropBox] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [sheetOpen, setSheetOpen] = useState(false);
@@ -45,7 +47,6 @@ export default function NavBar({ title }: NavBarProps) {
   return (
     <nav className="bg-gray-50/5 flex flex-row justify-between items-center absolute z-20 h-[65px] left-0 right-0 top-0 border-b-[1px] border-b-gray-200 px-4 w-full backdrop-blur-md">
       <div className="flex items-center flex-row">
-        {/* Hamburger for mobile */}
         <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
           <SheetTrigger asChild>
             <Button
@@ -62,7 +63,6 @@ export default function NavBar({ title }: NavBarProps) {
           </SheetContent>
         </Sheet>
 
-        {/* Desktop Sidebar Toggle */}
         <button
           onClick={toggleMenu}
           className="hidden md:flex items-center justify-center w-10 h-10 rounded-[12px] bg-gray-50 border-gray-100 hover:bg-blue-100 mr-3 border-[0.5px] cursor-pointer"
@@ -89,7 +89,6 @@ export default function NavBar({ title }: NavBarProps) {
       </div>
 
       <div className="flex flex-row items-center">
-     
         <DropdownMenu open={langDrop} onOpenChange={toggleDropBox}>
           <DropdownMenuTrigger asChild>
             <Button
@@ -155,7 +154,6 @@ export default function NavBar({ title }: NavBarProps) {
 
         <div className="h-[25px] max-h-[25px] bg-zinc-300 w-[1px] max-w-[1px]"></div>
 
-        {/* Profile Dropdown (mobile & desktop) */}
         <DropdownMenu open={profileOpen} onOpenChange={setProfileOpen}>
           <DropdownMenuTrigger asChild>
             <Button
@@ -167,12 +165,22 @@ export default function NavBar({ title }: NavBarProps) {
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-48">
             <div className="px-4 py-2 border-b border-gray-200">
-              <div className="font-semibold text-gray-700">Emmanuel Daniel</div>
+              <div className="font-semibold text-gray-700">
+                {loading ? "Loading..." : userProfile?.name || "User"}
+              </div>
               <div className="flex items-center gap-1 text-gray-500 text-sm">
-                <span>{tn("exporterManager")}</span>
+                <span>{userProfile?.role || tn("exporterManager")}</span>
                 <ShieldTick size="14" color="#FF8A65" variant="Bold" />
               </div>
+              {userProfile?.company && (
+                <div className="text-gray-500 text-xs mt-1">
+                  {userProfile.company}
+                </div>
+              )}
             </div>
+            <DropdownMenuItem onClick={() => refreshUserProfile()}>
+              Refresh Profile
+            </DropdownMenuItem>
             <DropdownMenuItem>Profile Settings</DropdownMenuItem>
             <DropdownMenuItem>Notifications</DropdownMenuItem>
             <DropdownMenuItem className="text-red-600">
