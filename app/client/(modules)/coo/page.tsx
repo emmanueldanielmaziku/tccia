@@ -6,6 +6,7 @@ import NewCertificateModal from "./components/NewCertificateModal";
 import {
   Add,
   CloseCircle,
+  Copy,
   DocumentText,
   Eye,
   Printer,
@@ -254,6 +255,16 @@ export default function COO() {
     fetchCertificates();
   };
 
+  const copyToClipboard = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      // You could add a toast notification here
+      console.log("Control number copied to clipboard");
+    } catch (err) {
+      console.error("Failed to copy text: ", err);
+    }
+  };
+
   const submittedCount = certificateData.filter(
     (certificate) => certificate.message_info.status === "Submitted"
   ).length;
@@ -486,9 +497,39 @@ export default function COO() {
                               {certificate.message_info.exporter_tin}
                             </div>
 
-                            <div>
+                            {/* Control Number with Copy Functionality */}
+                            <div className="flex flex-row items-center gap-2 mt-1">
                               <span className="text-[13px] text-gray-600">
-                                Control number: 3451726382932
+                                Control number:
+                              </span>
+                              <span className="text-[13px] font-medium text-gray-800">
+                                {certificate.message_info.application_uuid ||
+                                  "3451726382932"}
+                              </span>
+                              <button
+                                onClick={() =>
+                                  copyToClipboard(
+                                    certificate.message_info.application_uuid ||
+                                      "3451726382932"
+                                  )
+                                }
+                                className="p-1 hover:bg-gray-100 rounded cursor-pointer transition-colors duration-200"
+                                title="Copy control number"
+                              >
+                                <Copy size={14} color="#6B7280" />
+                              </button>
+                            </div>
+
+                            {/* Amount to be Paid */}
+                            <div className="flex flex-row items-center gap-2 mt-1">
+                              <span className="text-[13px] text-gray-600">
+                                Amount:
+                              </span>
+                              <span className="text-[13px] font-semibold text-green-600">
+                                TZS 50,000
+                              </span>
+                              <span className="text-[11px] text-gray-500">
+                                (Processing fee)
                               </span>
                             </div>
                           </div>
