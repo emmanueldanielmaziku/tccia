@@ -62,28 +62,26 @@ export default function StatsBar() {
         )}
       </div>
 
-      <div className="w-full flex flex-col gap-8">
+      <div className="w-full flex flex-col gap-6">
         {/* NTB Instructions */}
         <div className="w-full">
-     
           <div
             className={`w-full flex flex-col items-center gap-7 justify-center border-[0.5px] rounded-xl bg-gray-100/80 transition-all duration-300 ${
-              expanded ? "px-5 md:px-6 py-5 md:py-6" : "px-2 py-2"
+              expanded ? "px-5 md:px-3 py-5 md:py-3" : "px-2 py-2"
             }`}
           >
             <div
               className={`border-[0.5px] bg-blue-50 border-blue-200 py-4 rounded-full px-4 flex items-center justify-center transition-all duration-300 ${
                 expanded
-                  ? "w-[90px] h-[90px] md:w-[110px] md:h-[110px] p-4"
+                  ? "w-[70px] h-[70px] md:w-[70px] md:h-[70px] p-4"
                   : "w-[40px] h-[40px] p-1"
               }`}
             >
-              <Warning2 variant="Bulk" size={70} color="#138abd" />
+              <Warning2 variant="Bulk" size={40} color="#138abd" />
             </div>
 
             {expanded && (
               <div className="w-full flex flex-col justify-center items-center text-center gap-1">
-             
                 {/* Submit NTB Section */}
                 <div className="w-full bg-white rounded-lg p-4 border-[0.5px] border-gray-200 mb-4">
                   <div className="flex items-center gap-1 mb-1">
@@ -92,12 +90,12 @@ export default function StatsBar() {
                       Submit NTB Report
                     </h4>
                   </div>
-                  <p className="text-gray-600 text-[10px] md:text-[12px] leading-relaxed mb-3 text-left">
-                    Report any non-tariff barrier you encounter. Fill out the form with detailed information
-                    about the issue.
+                  <p className="text-gray-600 text-[10px] md:text-[13px] leading-relaxed mb-3 text-left">
+                    Report any non-tariff barrier you encounter. Fill out the
+                    form with detailed information about the issue.
                   </p>
                   <div className="bg-yellow-50 border-[0.5px] border-yellow-200 rounded-lg p-3">
-                    <p className="text-yellow-800 text-[10px] md:text-[11px] text-left font-medium leading-relaxed">
+                    <p className="text-yellow-800 text-[10px] md:text-[12px] text-left font-medium leading-relaxed">
                       ⚠️ Important: Save the tracking code provided after
                       submission to track your report later.
                     </p>
@@ -112,12 +110,12 @@ export default function StatsBar() {
                       Track NTB Status
                     </h4>
                   </div>
-                  <p className="text-gray-600 text-[10px] md:text-[12px] leading-relaxed mb-3 text-left">
+                  <p className="text-gray-600 text-[10px] md:text-[13px] leading-relaxed mb-3 text-left">
                     Enter the tracking code you received when you submitted your
                     NTB report to check the current status and feedback.
                   </p>
                   <div className="bg-green-50 border-[0.5px] border-green-200 rounded-lg p-3">
-                    <p className="text-green-800 text-[10px] md:text-[11px] text-left font-medium leading-relaxed">
+                    <p className="text-green-800 text-[10px] md:text-[12px] text-left font-medium leading-relaxed">
                       💡 Tip: Use the tracking code from your submission
                       confirmation to monitor progress.
                     </p>

@@ -312,124 +312,230 @@ function PreviewWidget({
       aria-modal="true"
       role="dialog"
     >
-      <div className="relative w-4xl h-[90vh] flex flex-col bg-white rounded-xl shadow-2xl p-8 animate-fadeIn">
-        {/* Close Button */}
-        <div>
-          <div className="flex flex-row justify-between items-center border-b border-gray-300 pb-4 mb-4">
-            {/* Header */}
-            <div>
-              <h2 className="text-2xl font-bold text-gray-700 mb-1">
-                Product Verification Request Preview
+      <div className="relative w-full max-w-7xl h-[90vh] flex flex-col bg-white rounded-xl shadow-2xl animate-fadeIn">
+        {/* Header */}
+        <div className="flex-shrink-0 border-b border-gray-200 p-6">
+          <div className="flex justify-between items-center">
+            <div className="flex-1 min-w-0">
+              <h2 className="text-2xl font-bold text-gray-800">
+                Factory Verification Application
               </h2>
+              <p className="text-gray-600 mt-1">
+                Review your application before submission
+              </p>
             </div>
             <button
               onClick={onClose}
               disabled={isSubmitting}
-              className="cursor-pointer hover:bg-blue-600 flex flex-row justify-center items-center gap-2 text-sm text-blue-600 font-semibold hover:text-white border-2 px-3 py-2 rounded-[8px]  border-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex items-center gap-2 px-4 py-2 text-blue-600 font-medium hover:bg-blue-50 rounded-lg transition-colors disabled:opacity-50 flex-shrink-0"
               aria-label="Close preview"
             >
+              <CloseCircle size={20} />
               Edit Application
             </button>
           </div>
-
-          {/* Request Info */}
-          <div className="mb-6 flex flex-col gap-1 text-sm text-gray-700">
-            <div className="flex items-center gap-2 text-gray-600">
-              <span className="font-medium text-gray-700">Company name:</span>{" "}
-              ABC Corp
-            </div>
-            <div className="flex items-center gap-2 text-gray-600">
-              <span className="font-medium text-gray-700">Issued by:</span>{" "}
-              Emmanuel Daniel
-            </div>
-            <div className="flex items-center gap-2 text-gray-600">
-              <span className="font-medium text-gray-700">
-                Submission Date:
-              </span>
-              {new Date().toLocaleDateString()}
-            </div>
-            <div className="flex items-center gap-2 text-gray-600">
-              <span className="font-medium text-gray-700">
-                Expected Inspection Date:
-              </span>
-              {formData.expected_inspection_date
-                ? new Date(
-                    formData.expected_inspection_date
-                  ).toLocaleDateString()
-                : "Not specified"}
-            </div>
-            <div className="flex items-center gap-2 text-gray-600">
-              <h2 className="text-lg font-semibold text-gray-800">Products</h2>
-            </div>
-          </div>
         </div>
 
-        {/* Products Preview */}
-        <div className="mb-4 overflow-y-auto h-[600px] pr-3">
-          <div className="flex flex-col gap-4">
-            {formData.products.map((product, idx) => (
-              <div
-                key={idx}
-                className="rounded-lg border border-gray-200 bg-gray-50 p-4 hover:bg-gray-100 transition-colors"
-              >
-                <div className="flex items-center gap-2 mb-2">
-                  <span className="inline-block bg-blue-100 text-blue-700 rounded-full px-2 py-0.5 text-xs font-semibold">
-                    #{idx + 1}
-                  </span>
-                  <span className="font-medium text-gray-700">
-                    {product.name}
-                  </span>
-                </div>
-                <div className="grid grid-cols-2 gap-4 text-sm text-gray-600 mb-2">
-                  <div>
-                    <span className="font-medium">HS Code:</span>{" "}
-                    {product.hs_code}
+        {/* Content */}
+        <div className="flex-1 overflow-hidden flex">
+          {/* Left Panel - Application Details */}
+          <div className="w-1/3 border-r border-gray-200 p-6 overflow-y-auto min-w-0">
+            <div className="space-y-6">
+              {/* Company Information */}
+              <div className="bg-blue-50 rounded-lg p-4">
+                <h3 className="text-lg font-semibold text-blue-800 mb-3 flex items-center gap-2">
+                  <div className="w-2 h-2 bg-blue-500 rounded-full flex-shrink-0"></div>
+                  Company Information
+                </h3>
+                <div className="space-y-3 text-sm">
+                  <div className="flex flex-col">
+                    <span className="text-gray-600 mb-1">Company Name:</span>
+                    <span className="font-medium text-gray-800 break-words">
+                      ABC Corporation Limited International Trading Company
+                    </span>
                   </div>
-                  <div>
-                    <span className="font-medium">Category:</span>{" "}
-                    {product.product_category}
+                  <div className="flex flex-col">
+                    <span className="text-gray-600 mb-1">TIN Number:</span>
+                    <span className="font-medium text-gray-800 font-mono">
+                      123456789012345
+                    </span>
                   </div>
-                  <div>
-                    <span className="font-medium">Unity:</span>{" "}
-                    {product.unity_of_measure}
-                  </div>
-                  <div>
-                    <span className="font-medium">Company ID:</span>{" "}
-                    {product.company_id}
-                  </div>
-                </div>
-                <div className="text-gray-600 text-sm whitespace-pre-line">
-                  <span className="font-medium">Description:</span>{" "}
-                  {product.description}
                 </div>
               </div>
-            ))}
+
+              {/* Application Details */}
+              <div className="bg-gray-100 rounded-lg p-4">
+                <h3 className="text-lg font-semibold text-gray-800 mb-3 flex items-center gap-2">
+                  <div className="w-2 h-2 bg-gray-500 rounded-full flex-shrink-0"></div>
+                  Application Details
+                </h3>
+                <div className="space-y-3 text-sm">
+                  <div className="flex flex-row justify-between items-center">
+                    <span className="text-gray-600 mb-1">Submission Date:</span>
+                    <span className="font-medium text-gray-800">
+                      {new Date().toLocaleDateString()}
+                    </span>
+                  </div>
+                  <div className="flex flex-row justify-between items-center">
+                    <span className="text-gray-600 mb-1">
+                      Expected Inspection:
+                    </span>
+                    <span className="font-medium text-gray-800">
+                      {formData.expected_inspection_date
+                        ? new Date(
+                            formData.expected_inspection_date
+                          ).toLocaleDateString()
+                        : "Not specified"}
+                    </span>
+                  </div>
+                  <div className="flex flex-row justify-between items-center">
+                    <span className="text-gray-600 mb-1">Total Products:</span>
+                    <span className="font-medium text-blue-600">
+                      {formData.products.length}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Right Panel - Product List */}
+          <div className="flex-1 overflow-y-auto min-w-0">
+            <div className="h-full flex flex-col">
+              {/* Header */}
+              <div className="flex-shrink-0 p-4 border-b border-gray-200 bg-gray-50">
+                <div className="flex justify-between items-center">
+                  <div className="min-w-0 flex-1">
+                    <h3 className="text-lg font-semibold text-gray-800">
+                      Products for Verification
+                    </h3>
+                    <p className="text-gray-600 text-xs mt-1">
+                      Review all products included in this application
+                    </p>
+                  </div>
+                  <div className="flex-shrink-0">
+                    <div className="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs font-medium">
+                      <div className="w-1.5 h-1.5 bg-blue-500 rounded-full"></div>
+                      {formData.products.length} Products
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Product Table */}
+              <div className="flex-1 overflow-y-auto">
+                <div className="min-h-full">
+                  {/* Table Header */}
+                  <div className="sticky top-0 bg-white border-b border-gray-200 px-4 py-2">
+                    <div className="grid grid-cols-12 gap-2 text-xs font-medium text-gray-600 uppercase tracking-wide">
+                      <div className="col-span-1">#</div>
+                      <div className="col-span-4">Product Name</div>
+                      <div className="col-span-2">HS Code</div>
+                      <div className="col-span-2">Category</div>
+                      <div className="col-span-2">Description</div>
+                      <div className="col-span-1">Status</div>
+                    </div>
+                  </div>
+
+                  {/* Table Rows */}
+                  <div className="divide-y divide-gray-100">
+                    {formData.products.map((product, index) => (
+                      <div
+                        key={index}
+                        className="px-4 py-2 hover:bg-gray-50 transition-colors"
+                      >
+                        <div className="grid grid-cols-12 gap-2 items-center">
+                          {/* Number */}
+                          <div className="col-span-1">
+                            <div className="w-5 h-5 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-xs font-semibold">
+                              {index + 1}
+                            </div>
+                          </div>
+
+                          {/* Product Name */}
+                          <div className="col-span-4 min-w-0">
+                            <div className="text-sm font-medium text-gray-900 truncate">
+                              {product.name}
+                            </div>
+                          </div>
+
+                          {/* HS Code */}
+                          <div className="col-span-2 min-w-0">
+                            <div className="text-xs text-gray-600 font-mono truncate">
+                              {product.hs_code}
+                            </div>
+                          </div>
+
+                          {/* Category */}
+                          <div className="col-span-2 min-w-0">
+                            <div className="text-xs text-gray-600 truncate">
+                              {product.product_category}
+                            </div>
+                          </div>
+
+                          {/* Description */}
+                          <div className="col-span-2 min-w-0">
+                            <div className="text-xs text-gray-500 truncate">
+                              {product.description || "No description"}
+                            </div>
+                          </div>
+
+                          {/* Status */}
+                          <div className="col-span-1">
+                            <div className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-green-50 text-green-700 rounded text-xs font-medium">
+                              <div className="w-1 h-1 bg-green-500 rounded-full"></div>
+                              Ready
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
-        {/* Error Message */}
-        {submitError && (
-          <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md">
-            <p className="text-red-600 text-sm">{submitError}</p>
-          </div>
-        )}
+        {/* Footer */}
+        <div className="flex-shrink-0 border-t border-gray-200 p-6 bg-gray-50">
+          <div className="flex justify-between items-center">
+            <div className="text-sm text-gray-600">
+              Total Products:{" "}
+              <span className="font-semibold text-gray-800">
+                {formData.products.length}
+              </span>
+            </div>
 
-        {/* Action */}
-        <div className="flex justify-end">
-          <button
-            onClick={handleSubmit}
-            disabled={isSubmitting}
-            className="px-6 py-2 rounded-md bg-blue-600 text-white font-medium hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-          >
-            {isSubmitting ? (
-              <>
-                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                Submitting...
-              </>
-            ) : (
-              "Submit Application"
-            )}
-          </button>
+            <div className="flex items-center gap-4">
+              {/* Error Message */}
+              {submitError && (
+                <div className="flex items-center gap-2 px-3 py-2 bg-red-50 border border-red-200 rounded-lg">
+                  <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+                  <span className="text-red-600 text-sm">{submitError}</span>
+                </div>
+              )}
+
+              {/* Submit Button */}
+              <button
+                onClick={handleSubmit}
+                disabled={isSubmitting}
+                className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isSubmitting ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    Submitting...
+                  </>
+                ) : (
+                  <>
+                    <div className="w-4 h-4 bg-white rounded-full"></div>
+                    Submit Application
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -468,7 +574,6 @@ export default function FactoryVerificationForm() {
 
   const [previewState, togglePreview] = useState(false);
 
-  // Helper function to validate individual product
   const validateProduct = (product: FormProduct, index: number) => {
     const productErrors: any = {};
 
@@ -500,7 +605,6 @@ export default function FactoryVerificationForm() {
   const handlePreview = (e?: React.FormEvent) => {
     if (e) e.preventDefault();
 
- 
     const newErrors: {
       products: {
         name?: string;
@@ -517,13 +621,11 @@ export default function FactoryVerificationForm() {
       expected_inspection_date: undefined,
     };
 
-  
     if (!formData.expected_inspection_date.trim()) {
       newErrors.expected_inspection_date =
         "Expected inspection date is required";
     }
 
- 
     const hasErrors =
       newErrors.expected_inspection_date ||
       newErrors.products.some(
@@ -535,13 +637,11 @@ export default function FactoryVerificationForm() {
       return;
     }
 
- 
     setErrors({
       products: formData.products.map(() => ({})),
       expected_inspection_date: undefined,
     });
 
- 
     getFormSummary();
 
     togglePreview(true);
@@ -560,7 +660,6 @@ export default function FactoryVerificationForm() {
     }
     setFormData(updatedFormData);
 
-   
     const updatedErrors = { ...errors };
     if (updatedErrors.products[idx] && field in updatedErrors.products[idx]) {
       (updatedErrors.products[idx] as any)[field] = undefined;
@@ -587,7 +686,6 @@ export default function FactoryVerificationForm() {
     };
     setFormData(updatedFormData);
 
-    // Clear errors for the fields that were auto-filled
     const updatedErrors = { ...errors };
     if (updatedErrors.products[idx]) {
       updatedErrors.products[idx].name = undefined;

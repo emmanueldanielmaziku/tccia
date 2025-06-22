@@ -54,12 +54,12 @@ export default function SideBar() {
       route: "/client/exporter",
     },
 
-    // {
-    //   id: "CFAs Management",
-    //   translationKey: "cfasManagement",
-    //   icon: Profile2User,
-    //   route: "/client/cfa-management",
-    // }
+    {
+      id: "CFAs Management",
+      translationKey: "cfasManagement",
+      icon: Profile2User,
+      route: "/client/cfa-management",
+    },
 
     {
       id: "Employees Management",
@@ -80,12 +80,12 @@ export default function SideBar() {
       icon: Direct,
       route: "/client/ntb",
     },
-    {
-      id: "Report a Problem",
-      translationKey: "reportProblem",
-      icon: Lifebuoy,
-      route: "/client/report",
-    },
+    // {
+    //   id: "Report a Problem",
+    //   translationKey: "reportProblem",
+    //   icon: Lifebuoy,
+    //   route: "/client/report",
+    // },
   ];
 
   const handleTabClick = (id: string) => {
