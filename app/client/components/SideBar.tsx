@@ -94,11 +94,11 @@ export default function SideBar() {
 
   return (
     <div
-      className={`bg-gray-50 h-full z-50 p-6 flex-col justify-between transition-all duration-300
+      className={`bg-gray-50 h-full p-6 flex-col justify-between transition-all duration-300
         md:flex hidden
-        ${isMenuOpen ? "w-[340px]" : "w-[120px]"}
-        md:w-[340px]`}
+        ${isMenuOpen ? "md:w-[340px]" : "md:w-[120px]"}`}
     >
+
       <div className="flex flex-col">
         {/* Logo */}
         <div className="flex flex-row justify-start items-center gap-4">

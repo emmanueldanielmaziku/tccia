@@ -46,7 +46,8 @@ export default function FirmManagement() {
   const [discardBoxState, togglediscardBox] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
-  const [dateSort, setDateSort] = useState("newest");
+  const [sortField, setSortField] = useState<"name" | "tin" | "state">("name");
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 20;
   const [companies, setCompanies] = useState<Company[]>([]);
@@ -97,14 +98,18 @@ export default function FirmManagement() {
       return matchesSearch && matchesStatus;
     })
     .sort((a, b) => {
-      if (dateSort === "newest") {
-        return (
-          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-        );
+      if (sortField === "name") {
+        return sortDirection === "asc"
+          ? a.company_name.localeCompare(b.company_name)
+          : b.company_name.localeCompare(a.company_name);
+      } else if (sortField === "tin") {
+        return sortDirection === "asc"
+          ? a.company_tin.localeCompare(b.company_tin)
+          : b.company_tin.localeCompare(a.company_tin);
       } else {
-        return (
-          new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
-        );
+        return sortDirection === "asc"
+          ? a.state.localeCompare(b.state)
+          : b.state.localeCompare(a.state);
       }
     });
 
@@ -121,7 +126,6 @@ export default function FirmManagement() {
   const approvedCount = companies.filter(
     (company) => company.state === "approved"
   ).length;
-
 
   const handleNextPage = () => {
     if (currentPage < totalPages) setCurrentPage(currentPage + 1);
@@ -148,14 +152,13 @@ export default function FirmManagement() {
       <section className="flex lg:flex-row">
         <div className="flex flex-col items-start flex-1 h-[97vh] pt-18 w-full bg-transparent border-transparent border-[1px] rounded-xl">
           <div className="flex flex-col justify-start items-start mt-2 w-full h-[86vh] rounded-sm relative px-4 md:px-8 lg:px-16.5">
-            {/* Header */}
             <div className="flex flex-col md:flex-row w-full justify-between items-start md:items-center gap-4 my-1">
               {tinformState ? (
                 <div className="font-semibold antialiased text-[18px] text-zinc-600">
                   Add New Firm
                 </div>
               ) : (
-                <div className="flex flex-col md:flex-row items-start md:items-center gap-4 w-full md:w-auto">
+                <div className="flex flex-row items-start md:items-center gap-4 w-full md:w-auto">
                   <label className="flex justify-center items-center w-full md:w-auto">
                     <input
                       type="text"
@@ -191,19 +194,44 @@ export default function FirmManagement() {
                       </Select>
                     </div>
 
-                    {/* Date Sort */}
-                    <div className="relative w-full md:w-auto">
-                      <Select value={dateSort} onValueChange={setDateSort}>
-                        <SelectTrigger className="w-full md:w-[140px] text-zinc-600">
-                          <SelectValue placeholder="Sort by date" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectGroup>
-                            <SelectItem value="newest">Newest First</SelectItem>
-                            <SelectItem value="oldest">Oldest First</SelectItem>
-                          </SelectGroup>
-                        </SelectContent>
-                      </Select>
+                    {/* Sort */}
+                    <div className="flex items-center gap-2">
+                      <div className="relative w-full md:w-auto">
+                        <Select
+                          value={sortField}
+                          onValueChange={(value: "name" | "tin" | "state") => {
+                            setSortField(value);
+                            setCurrentPage(1); // Reset to first page when sorting
+                          }}
+                        >
+                          <SelectTrigger className="w-full md:w-[140px] text-zinc-600">
+                            <SelectValue placeholder="Sort by" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectGroup>
+                              <SelectItem value="name">Name</SelectItem>
+                              <SelectItem value="tin">TIN</SelectItem>
+                              <SelectItem value="state">State</SelectItem>
+                            </SelectGroup>
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      {/* Sort Direction Toggle */}
+                      <button
+                        onClick={() => {
+                          setSortDirection(
+                            sortDirection === "asc" ? "desc" : "asc"
+                          );
+                          setCurrentPage(1); // Reset to first page when sorting
+                        }}
+                        className="px-3 py-2 text-sm border border-zinc-300 rounded-[9px] hover:bg-gray-50 transition-colors"
+                        title={`Sort ${
+                          sortDirection === "asc" ? "Descending" : "Ascending"
+                        }`}
+                      >
+                        {sortDirection === "asc" ? "↑" : "↓"}
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -277,58 +305,61 @@ export default function FirmManagement() {
                 {paginatedData.map((firm, index) => (
                   <div
                     key={index}
-                    className={`hover:bg-white bg-gray-100 flex flex-col transition-colors border-[0.5px] rounded-[7px] text-gray-700 border-zinc-300 shadow-sm`}
+                    className="hover:bg-white bg-gray-100 flex flex-col transition-colors border-[0.5px] rounded-[7px] text-gray-700 border-zinc-300 shadow-sm"
                   >
-                    <div className="flex flex-col md:flex-row justify-between items-start md:items-center border-b-[0.5] border-zinc-200 p-5 gap-2">
-                      <div className="font-semibold">{`${index + 1}. ${
-                        firm.company_name
-                      }`}</div>
+                    {/* Header */}
+                    <div className="flex flex-row justify-between items-center border-b-[0.5px] border-zinc-200 p-4 gap-2">
+                      <div className="font-semibold text-base sm:text-lg">{`${
+                        index + 1
+                      }. ${firm.company_name}`}</div>
                       <div
-                        className={`border-[0.5px] text-sm rounded-[30px] px-3 py-1 ${
+                        className={`border-[0.5px] text-xs sm:text-sm rounded-[30px] px-3 py-1 mt-2 sm:mt-0 ${
                           firm.state == "approved"
                             ? "bg-green-100 border-green-300 text-green-600"
                             : "bg-red-100 border-red-300 text-red-600"
                         }`}
                       >
-                        {firm.state.charAt(0).toUpperCase() + firm.state.slice(1)}
+                        {firm.state.charAt(0).toUpperCase() +
+                          firm.state.slice(1)}
                       </div>
                     </div>
-                    {/* header */}
-                    <div className="flex flex-col md:flex-row items-start md:items-center p-5 gap-3 bg-gray-50">
-                      <div className="border-[0.5px] bg-blue-50 border-blue-200 py-4 rounded-[12px] px-4 flex items-center">
-                        <Building variant="Bulk" size={36} color="#138abd" />
+                    {/* Company Info */}
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center p-4 gap-3 bg-gray-50">
+                      <div className="border-[0.5px] bg-blue-50 border-blue-200 py-3 sm:py-4 rounded-[12px] px-3 sm:px-4 flex items-center self-start">
+                        <Building variant="Bulk" size={32} color="#138abd" />
                       </div>
-
                       <div className="w-full flex flex-col gap-1 justify-start">
-                        <div className="font-semibold">{firm.company_name}</div>
-                        <div className="text-sm">
+                        <div className="font-semibold text-base">
+                          {firm.company_name}
+                        </div>
+                        <div className="text-sm break-words">
                           {firm.company_physical_address}
                         </div>
-                        <div className="text-blue-600 text-sm">
+                        <div className="text-blue-600 text-sm break-all">
                           {firm.company_tin}
                         </div>
                       </div>
                     </div>
-
+                    {/* Stats */}
                     <div>
-                      <div className="flex flex-col gap-3 px-5 pb-5 bg-gray-50 rounded-b-md">
-                        <div className="flex flex-col md:flex-row w-full justify-between items-start md:items-center gap-2">
+                      <div className="flex flex-col gap-3 px-4 pb-4 bg-gray-50 rounded-b-md">
+                        <div className="flex flex-row w-full justify-between items-center gap-2">
                           <div className="flex flex-row justify-start items-center gap-1">
                             <Box size={18} color="#36568a" />
-                            <span className="text-[15px]">Total Products</span>
+                            <span className="text-[14px]">Total Products</span>
                           </div>
-                          <div className="hidden md:block flex-1 mx-4 border-t-1 border-dashed border-zinc-400 h-0" />
-                          <div>352</div>
+                          <div className="hidden sm:block flex-1 mx-4 border-t border-dashed border-zinc-400 h-0" />
+                          <div className="text-sm">352</div>
                         </div>
-                        <div className="flex flex-col md:flex-row w-full justify-between items-start md:items-center gap-2">
+                        <div className="flex flex-row w-full justify-between items-center gap-2">
                           <div className="flex flex-row justify-start items-center gap-1">
                             <ArchiveBook size={18} color="#36568a" />
-                            <span className="text-[15px]">
+                            <span className="text-[14px]">
                               Total Certificates of Origin
                             </span>
                           </div>
-                          <div className="hidden md:block flex-1 mx-4 border-t-1 border-dashed border-zinc-400 h-0" />
-                          <div>76</div>
+                          <div className="hidden sm:block flex-1 mx-4 border-t border-dashed border-zinc-400 h-0" />
+                          <div className="text-sm">76</div>
                         </div>
                       </div>
                     </div>
@@ -374,12 +405,12 @@ export default function FirmManagement() {
         </div>
 
         <ProgressTracker
-                 stats={{
-                   total: companies.length,
-                   submitted: submittedCount,
-                   approved: approvedCount,
-                 }}
-               />
+          stats={{
+            total: companies.length,
+            submitted: submittedCount,
+            approved: approvedCount,
+          }}
+        />
       </section>
     </main>
   );

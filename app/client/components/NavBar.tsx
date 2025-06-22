@@ -34,7 +34,6 @@ export default function NavBar({ title }: NavBarProps) {
   const t = useTranslations();
   const tn = useTranslations("nav");
 
-  // Responsive: close drawer on desktop resize
   useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth >= 768) setSheetOpen(false);
@@ -86,29 +85,29 @@ export default function NavBar({ title }: NavBarProps) {
         </button>
 
         <div className="h-[25px] max-h-[25px] bg-zinc-300 w-[1px] max-w-[1px]"></div>
-        <div className="px-4 text-zinc-600">{title}</div>
+        <div className="px-4 text-zinc-600 text-[13px]">{title}</div>
       </div>
 
       <div className="flex flex-row items-center">
-        {/* Language Selector */}
+     
         <DropdownMenu open={langDrop} onOpenChange={toggleDropBox}>
           <DropdownMenuTrigger asChild>
             <Button
               variant="ghost"
-              className="flex flex-row items-center justify-between h-10.5 md:w-[100px] w-[60px] px-2 gap-1.5 rounded-[12px] bg-gray-100 hover:bg-gray-200 mr-5 cursor-pointer border-1 border-zinc-200 relative"
+              className="flex flex-row items-center justify-between h-9.5 md:w-[100px] w-[45px] px-2 gap-1.5 rounded-[8px] bg-gray-100 hover:bg-gray-200 mr-5 cursor-pointer border-1 border-zinc-200 relative"
             >
               <div className="flex flex-row items-center md:w-[40px] gap-1.5">
                 {language === "EN" ? (
                   <img
                     src="/icons/square.png"
                     alt="English Flag"
-                    className="w-6 h-6 transition-all duration-300"
+                    className="w-4 h-4 transition-all duration-300"
                   />
                 ) : (
                   <img
                     src="/icons/tanzania.png"
                     alt="Swahili Flag"
-                    className="w-6 h-6 transition-all duration-300"
+                    className="w-4 h-4 transition-all duration-300"
                   />
                 )}
                 <span className="text-sm font-semibold text-gray-500 md:flex hidden">
@@ -160,8 +159,8 @@ export default function NavBar({ title }: NavBarProps) {
         <DropdownMenu open={profileOpen} onOpenChange={setProfileOpen}>
           <DropdownMenuTrigger asChild>
             <Button
-              variant="ghost"
-              className="flex items-center justify-center p-0"
+              variant="outline"
+              className="flex items-center justify-center ml-2 md:ml-5 p-2"
             >
               <ProfileCircle variant="Bulk" size={30} color="#138abd" />
             </Button>

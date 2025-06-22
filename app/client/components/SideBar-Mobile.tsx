@@ -94,9 +94,7 @@ export default function SideBarMobile() {
 
   return (
     <div
-      className={`bg-gray-50 h-full z-50 p-6 flex flex-col justify-between transition-all duration-300
-        ${isMenuOpen ? "w-[340px]" : "w-[120px]"}
-        md:w-[340px]`}
+      className="bg-gray-50 h-full z-50 p-6 flex flex-col justify-between transition-all duration-300 w-[340px]"
     >
       <div className="flex flex-col">
         {/* Logo */}

@@ -41,34 +41,32 @@ export default function AlertBox({
   if (!isVisible) return null;
 
   const handleLogout = async () => {
-    // Clear all local storage items
     localStorage.clear();
-
     toggleAlert();
     await logout();
   };
 
   if (isLogout) {
     return (
-      <div className="w-full h-full flex flex-col items-center justify-center bg-black/30 backdrop-blur-[3px] absolute transition-opacity duration-300 top-0 left-0 z-50">
-        <div className="bg-gray-50 rounded-[13px] p-8 flex flex-col gap-5 w-[450px] border-[1px] border-gray-50 shadow-md">
+      <div className="w-full h-full flex flex-col items-center justify-center bg-black/30 backdrop-blur-[3px] fixed transition-opacity duration-300 top-0 left-0 z-50">
+        <div className="bg-gray-50 rounded-[13px] p-4 sm:p-8 flex flex-col gap-5 w-[95vw] max-w-[450px] border-[1px] border-gray-50 shadow-md">
           <div className="flex flex-row justify-start items-center gap-2">
             <InfoCircle size="23" color="red" variant="Outline" />
-            <div className="text-xl font-semibold text-gray-600">
+            <div className="text-lg sm:text-xl font-semibold text-gray-600">
               {t("confirmLogout")}
             </div>
           </div>
-          <div>{t("messages.logoutConfirm")}</div>
-          <div className="flex flex-row items-center w-full gap-6">
+          <div className="text-sm sm:text-base">{t("messages.logoutConfirm")}</div>
+          <div className="flex flex-row sm:flex-row items-center w-full gap-3 sm:gap-6">
             <button
               onClick={toggleAlert}
-              className="border-[1px] border-blue-600 bg-blue-500 text-white flex-1/2 rounded-[7px] py-2.5 cursor-pointer hover:bg-blue-600 shadow-sm"
+              className="border-[1px] border-blue-600 bg-blue-500 text-white w-full sm:flex-1 rounded-[7px] py-2.5 cursor-pointer hover:bg-blue-600 shadow-sm"
             >
               {t("cancel")}
             </button>
             <button
               onClick={handleLogout}
-              className="border-[1px] border-red-600 bg-red-500 text-white flex-1/2 rounded-[7px] py-2.5 cursor-pointer hover:bg-red-700 shadow-sm"
+              className="border-[1px] border-red-600 bg-red-500 text-white w-full sm:flex-1 rounded-[7px] py-2.5 cursor-pointer hover:bg-red-700 shadow-sm"
             >
               {t("logout")}
             </button>
@@ -94,12 +92,16 @@ export default function AlertBox({
 
   return (
     <div
-      className={`fixed top-4 right-4 z-50 flex items-center p-4 mb-4 rounded-lg border ${alertStyles[type]} shadow-lg`}
+      className={`
+        fixed z-50 flex items-center p-3 sm:p-4 mb-4 rounded-lg border ${alertStyles[type]} shadow-lg
+        top-2 right-2 sm:top-4 sm:right-4
+        w-[95vw] max-w-xs sm:max-w-sm
+      `}
       role="alert"
     >
       <div className="flex items-center">
         {icons[type]}
-        <div className="ml-3 text-sm font-normal">{message}</div>
+        <div className="ml-2 sm:ml-3 text-xs sm:text-sm font-normal">{message}</div>
       </div>
       <button
         type="button"

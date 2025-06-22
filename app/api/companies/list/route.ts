@@ -26,7 +26,7 @@ export async function POST() {
     console.log("API URL being called:", apiUrl);
     console.log("Token being sent:", token.value);
     console.log("User ID:", uid.value);
-
+ 
     const response = await fetch(apiUrl, {
       method: "GET",
       headers: {

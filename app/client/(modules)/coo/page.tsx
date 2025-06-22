@@ -279,54 +279,56 @@ export default function COO() {
                     : "Certificate of Origin List"}
                 </div>
               ) : (
-                <div className="flex flex-col md:flex-row items-start md:items-center gap-4 w-full md:w-auto">
+                <div className="flex flex-col md:flex-row items-start md:items-center gap-2 md:gap-4 w-full md:w-auto">
                   <label className="flex justify-center items-center w-full md:w-auto">
                     <input
                       type="text"
                       placeholder="Search Certificates..."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      className="w-full md:w-auto border-[0.5px] border-zinc-300 focus:outline-2 focus:outline-blue-400 rounded-[9px] pl-8 pr-2.5 py-2 text-sm placeholder:text-sm"
+                      className="w-full md:w-auto border-[0.5px] border-zinc-300 focus:outline-2 focus:outline-blue-400 rounded-[9px] pl-8 pr-2.5 py-2 text-sm placeholder:text-[13px]"
                     />
                     <SearchNormal1
                       size="18"
                       color="gray"
-                      className="absolute left-3 md:left-19"
+                      className="absolute left-6 md:left-19"
                     />
                   </label>
 
-                  {/* Status Filter */}
-                  <div className="relative w-full md:w-auto">
-                    <Select
-                      value={statusFilter}
-                      onValueChange={setStatusFilter}
-                    >
-                      <SelectTrigger className="w-full md:w-[140px] text-zinc-600">
-                        <SelectValue placeholder="All Status" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectGroup>
-                          <SelectItem value="all">All Status</SelectItem>
-                          <SelectItem value="approved">Approved</SelectItem>
-                          <SelectItem value="pending">Pending</SelectItem>
-                        </SelectGroup>
-                      </SelectContent>
-                    </Select>
-                  </div>
+                  <div className="flex flex-row gap-5 justify-between items-center w-full">
+                    {/* Status Filter */}
+                    <div className="relative w-full md:w-auto">
+                      <Select
+                        value={statusFilter}
+                        onValueChange={setStatusFilter}
+                      >
+                        <SelectTrigger className="w-full md:w-[140px] text-zinc-600">
+                          <SelectValue placeholder="All Status" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectGroup>
+                            <SelectItem value="all">All Status</SelectItem>
+                            <SelectItem value="approved">Approved</SelectItem>
+                            <SelectItem value="pending">Pending</SelectItem>
+                          </SelectGroup>
+                        </SelectContent>
+                      </Select>
+                    </div>
 
-                  {/* Date Sort */}
-                  <div className="relative w-full md:w-auto">
-                    <Select value={dateSort} onValueChange={setDateSort}>
-                      <SelectTrigger className="w-full md:w-[140px] text-zinc-600">
-                        <SelectValue placeholder="Sort by date" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectGroup>
-                          <SelectItem value="newest">Newest First</SelectItem>
-                          <SelectItem value="oldest">Oldest First</SelectItem>
-                        </SelectGroup>
-                      </SelectContent>
-                    </Select>
+                    {/* Date Sort */}
+                    <div className="relative w-full md:w-auto">
+                      <Select value={dateSort} onValueChange={setDateSort}>
+                        <SelectTrigger className="w-full md:w-[140px] text-zinc-600">
+                          <SelectValue placeholder="Sort by date" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectGroup>
+                            <SelectItem value="newest">Newest First</SelectItem>
+                            <SelectItem value="oldest">Oldest First</SelectItem>
+                          </SelectGroup>
+                        </SelectContent>
+                      </Select>
+                    </div>
                   </div>
                 </div>
               )}
@@ -343,15 +345,15 @@ export default function COO() {
                   Close
                 </button>
               ) : (
-                <div className="flex flex-row gap-4">
+                <div className="flex flex-row gap-4 w-full md:w-auto">
                   <button
-                    className="flex flex-row gap-3 justify-between items-center border-[0.5px] border-blue-600 hover:bg-blue-100 text-blue-600 text-sm rounded-[7px] cursor-pointer px-5 py-1.5 w-full md:w-auto disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="flex flex-row gap-3 justify-between items-center border-[0.5px] border-gray-400 hover:bg-blue-100 text-gray-500 text-sm rounded-[7px] cursor-pointer px-5 py-1.5 w-full md:w-auto disabled:opacity-50 disabled:cursor-not-allowed"
                     onClick={handleRefresh}
                     disabled={isRefreshing}
                   >
                     <Refresh
                       size={18}
-                      color="#1376e8"
+                      color={isRefreshing ? "#9CA3AF" : "#4B5563"}
                       className={`transition-transform duration-1000 ${
                         isRefreshing ? "animate-spin" : ""
                       }`}
@@ -448,7 +450,7 @@ export default function COO() {
                       key={index}
                       className={`hover:bg-white bg-gray-50 flex flex-col transition-all duration-200 border-[0.5px] rounded-[10px] text-gray-700 border-zinc-200 shadow-sm hover:shadow-md`}
                     >
-                      <div className="flex flex-col md:flex-row justify-between items-start md:items-center border-b-[0.5px] border-zinc-200 px-6 py-3 gap-2">
+                      <div className="flex flex-row justify-between items-center border-b-[0.5px] border-zinc-200 px-6 py-3 gap-2">
                         <div className="font-semibold text-[15px]">{`${
                           index + 1
                         }. ${certificate.message_info.consignee_name}`}</div>
@@ -464,8 +466,8 @@ export default function COO() {
                       </div>
                       {/* header */}
                       <div className="flex flex-col md:flex-row justify-between items-start md:items-center p-4 gap-4 bg-gray-50">
-                        <div className="flex flex-row gap-3">
-                          <div className="border-[0.5px] bg-blue-50 border-blue-200 rounded-[12px] px-4 flex items-center">
+                        <div className="flex flex-col md:flex-row gap-3">
+                          <div className="border-[0.5px] bg-blue-50 border-blue-200 py-3 sm:py-4 rounded-[12px] px-3 sm:px-4 flex items-center self-start">
                             <DocumentText
                               variant="Bulk"
                               size={36}
@@ -488,8 +490,6 @@ export default function COO() {
                               <span className="text-[13px] text-gray-600">
                                 Control number: 3451726382932
                               </span>
-
-                              
                             </div>
                           </div>
                         </div>
@@ -500,7 +500,7 @@ export default function COO() {
                             className="px-4 md:px-5 py-1.5 text-sm rounded-[6px] flex flex-row justify-center items-center gap-2 bg-blue-500 text-white hover:bg-blue-600 cursor-pointer transition-colors duration-200"
                           >
                             <Eye size="16" color="white" />
-                            View Application
+                            Application
                           </button>
                           <button
                             // disabled={true}
@@ -512,14 +512,14 @@ export default function COO() {
                             className="px-4 md:px-5 py-1.5 text-sm rounded-[6px] flex flex-row justify-center items-center gap-2 bg-blue-500 text-white cursor-pointer"
                           >
                             <Printer size="16" color="white" />
-                            Print Certificate
+                            Print
                           </button>
                         </div>
                       </div>
 
                       <div>
                         <div className="flex flex-col gap-3 px-6 pb-6 bg-gray-50 rounded-b-md">
-                          <div className="flex flex-col md:flex-row w-full justify-between items-start md:items-center gap-2">
+                          <div className="flex flex-row w-full justify-between items-start md:items-center gap-2">
                             <div className="flex flex-row justify-start items-center gap-1">
                               <span className="text-[14px] text-gray-600">
                                 Issued Country
@@ -534,7 +534,7 @@ export default function COO() {
                               />
                             </div>
                           </div>
-                          <div className="flex flex-col md:flex-row w-full justify-between items-start md:items-center gap-2">
+                          <div className="flex flex-row w-full justify-between items-start md:items-center gap-2">
                             <div className="flex flex-row justify-start items-center gap-1">
                               <span className="text-[14px] text-gray-600">
                                 Destination Country
@@ -568,7 +568,7 @@ export default function COO() {
 
             {/* Pagination */}
             {(!verificationForm || totalPages > 1) && (
-              <div className="flex flex-col md:flex-row justify-between items-center gap-4 mt-4 bg-white/35 backdrop-blur-md w-full p-4">
+              <div className="flex flex-row justify-between items-center gap-4 mt-4 bg-white/35 backdrop-blur-md w-full p-4">
                 <span className="text-gray-600">
                   Page {currentPage} of {totalPages}
                 </span>
