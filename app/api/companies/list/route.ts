@@ -2,7 +2,6 @@ import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 
 const API_BASE_URL = "https://tccia.kalen.co.tz";
-// const API_BASE_URL = "http://159.65.191.145:8050";
 
 export async function POST() {
   try {
@@ -23,72 +22,57 @@ export async function POST() {
       );
     }
 
-    const apiUrl = `${API_BASE_URL}/api/companies/${uid.value}`;
+    const apiUrl = `${API_BASE_URL}/api/companies`;
     console.log("API URL being called:", apiUrl);
     console.log("Token being sent:", token.value);
     console.log("User ID:", uid.value);
 
     const response = await fetch(apiUrl, {
-      method: "POST",
+      method: "GET",
       headers: {
-        "Content-Type": "application/json",
         Authorization: `Bearer ${token.value.trim()}`,
       },
-      body: JSON.stringify({}),
     });
-
-    console.log("Response status:", response.status);
-    console.log(
-      "Response headers:",
-      Object.fromEntries(response.headers.entries())
-    );
-
-    if (response.status === 403) {
-      return NextResponse.json(
-        {
-          jsonrpc: "2.0",
-          id: null,
-          result: {
-            error: "Access denied - Invalid or expired token",
-          },
-        },
-        { status: 403 }
-      );
-    }
 
     const contentType = response.headers.get("content-type");
     if (!contentType || !contentType.includes("application/json")) {
-      console.error("Invalid response type:", contentType);
+      const rawText = await response.text();
+      console.error("Non-JSON response from upstream:", rawText);
       return NextResponse.json(
         {
-          jsonrpc: "2.0",
-          id: null,
-          result: {
-            error: "Invalid response from server",
+          status: "error",
+          error: {
+            code: "INVALID_RESPONSE",
+            message: "Upstream server did not return JSON",
+            error_details: rawText,
           },
+          message: "Invalid response from server",
         },
         { status: 500 }
       );
     }
 
     const data = await response.json();
-    console.log("API Response:", data);
-    console.log(uid);
 
     if (!response.ok) {
       return NextResponse.json(
         {
-          jsonrpc: "2.0",
-          id: null,
-          result: {
-            error: data.result?.error || "Failed to fetch companies",
+          status: "error",
+          error: data.error || {
+            code: "API_ERROR",
+            message: data.message || "Failed to fetch companies",
           },
+          message: data.message || "Failed to fetch companies",
         },
         { status: response.status }
       );
     }
 
-    return NextResponse.json(data);
+    return NextResponse.json({
+      status: data.status || "success",
+      data: data.data,
+      message: data.message,
+    });
   } catch (error) {
     console.error("Company list fetch error:", error);
     return NextResponse.json(

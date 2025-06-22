@@ -4,9 +4,20 @@ import type { NextRequest } from "next/server";
 // Add paths that require authentication
 const protectedPaths = ["/client"];
 
+// Add paths that should be publicly accessible even under /client
+const publicPaths = ["/client/ntb"];
+
 export function middleware(request: NextRequest) {
   const token = request.cookies.get("token");
   const { pathname } = request.nextUrl;
+
+  // Check if the path is a public path (no auth required)
+  const isPublicPath = publicPaths.some((path) => pathname.startsWith(path));
+
+  // If it's a public path, allow access without authentication
+  if (isPublicPath) {
+    return NextResponse.next();
+  }
 
   // Check if the path requires authentication
   const isProtectedPath = protectedPaths.some((path) =>

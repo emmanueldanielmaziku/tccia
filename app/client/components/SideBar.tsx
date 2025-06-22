@@ -19,6 +19,7 @@ import { useTranslations } from "next-intl";
 import useMobileState from "../services/MobileState";
 
 export default function SideBar() {
+  // Fetch certificates on company change
   const { isMenuOpen } = useMenuState();
   const { alertState, toggleAlert } = useLogState();
   const { isMobile, toggleMobileView } = useMobileState();
@@ -52,12 +53,14 @@ export default function SideBar() {
       icon: Profile2User,
       route: "/client/exporter",
     },
+
     {
       id: "CFAs Management",
       translationKey: "cfasManagement",
       icon: Profile2User,
       route: "/client/cfa-management",
     },
+
     {
       id: "Employees Management",
       translationKey: "employeesManagement",
@@ -77,12 +80,12 @@ export default function SideBar() {
       icon: Direct,
       route: "/client/ntb",
     },
-    {
-      id: "Report a Problem",
-      translationKey: "reportProblem",
-      icon: Lifebuoy,
-      route: "/client/report",
-    },
+    // {
+    //   id: "Report a Problem",
+    //   translationKey: "reportProblem",
+    //   icon: Lifebuoy,
+    //   route: "/client/report",
+    // },
   ];
 
   const handleTabClick = (id: string) => {
@@ -91,10 +94,11 @@ export default function SideBar() {
 
   return (
     <div
-      className={`bg-gray-50 h-full p-6 md:flex md:flex-col hidden justify-between transition-all duration-300 ${
-        isMenuOpen ? "w-[340px]" : "w-[120px]"
-      }`}
+      className={`bg-gray-50 h-full p-6 flex-col justify-between transition-all duration-300
+        md:flex hidden
+        ${isMenuOpen ? "md:w-[340px]" : "md:w-[120px]"}`}
     >
+
       <div className="flex flex-col">
         {/* Logo */}
         <div className="flex flex-row justify-start items-center gap-4">

@@ -3,7 +3,6 @@ import { useState } from "react";
 import { z } from "zod";
 import { TextBlock, TickCircle } from "iconsax-reactjs";
 
-// Zod schema for validation
 const companySchema = z.object({
   companyTin: z.string().min(6, "Company TIN is Invalid"),
 });
@@ -12,22 +11,19 @@ const otpSchema = z.object({
   otp: z.string().length(6, "OTP must be 6 digits"),
 });
 
-// Company data type
 type CompanyData = {
-  id: number;
   company_tin: string;
-  company_nationality_code: string;
-  company_registration_type_code: string;
   company_name: string;
-  company_telephone_number: string;
-  company_fax_number: string;
-  company_postal_code: string;
-  company_postal_base_address: string;
-  company_postal_detail_address: string;
-  company_physical_address: string;
   company_email: string;
-  company_description: string;
-  state: string;
+  company_phone: string;
+  nationality_code: string;
+  registration_type_code: string;
+  fax_number: string;
+  postal_code: string;
+  postal_address: string;
+  postal_detail: string;
+  physical_address: string;
+  description: string;
 };
 
 function PreviewWidget({
@@ -46,6 +42,7 @@ function PreviewWidget({
   const [showOtpInput, setShowOtpInput] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [otpMessage, setOtpMessage] = useState<string | undefined>(undefined);
 
   const handleApprove = async () => {
     setIsLoading(true);
@@ -56,20 +53,25 @@ function PreviewWidget({
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          id: companyData?.id,
+          company_tin: companyData?.company_tin,
         }),
       });
 
       const result = await response.json();
-      
 
-      if (result.result?.success) {
+      if (result.result?.status === "success") {
         setShowOtpInput(true);
+        setOtpError(undefined);
+        setOtpMessage(result.result?.message);
       } else {
-        setOtpError(result.result?.error || "Failed to send OTP");
+        setOtpError(
+          result.result?.error || result.result?.message || "Failed to send OTP"
+        );
+        setOtpMessage(undefined);
       }
     } catch (error) {
       setOtpError("Failed to send OTP. Please try again.");
+      setOtpMessage(undefined);
     } finally {
       setIsLoading(false);
     }
@@ -92,20 +94,30 @@ function PreviewWidget({
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          id: companyData?.id,
+          company_tin: companyData?.company_tin,
           code_input: otp,
         }),
       });
 
       const result = await response.json();
+      const apiResult = result.result;
 
-      if (result.result?.success) {
+      if (apiResult.status === "success") {
         setShowSuccess(true);
+        setOtpError(undefined);
         setTimeout(() => {
           onConfirm(otp);
         }, 2000);
+      } else if (apiResult.status === "error") {
+        if (apiResult.error?.message) {
+          setOtpError(apiResult.error.message);
+        } else if (typeof apiResult.error === "string") {
+          setOtpError(apiResult.error);
+        } else {
+          setOtpError("Invalid OTP. Please try again.");
+        }
       } else {
-        setOtpError(result.result?.error || "Invalid OTP. Please try again.");
+        setOtpError("Unexpected response. Please try again.");
       }
     } catch (error) {
       setOtpError("Failed to verify OTP. Please try again.");
@@ -162,23 +174,53 @@ function PreviewWidget({
             </div>
             <div className="flex flex-col gap-1">
               <span className="font-medium text-gray-700">Phone:</span>
-              <span className="text-gray-600">
-                {companyData.company_telephone_number}
-              </span>
+              <span className="text-gray-600">{companyData.company_phone}</span>
             </div>
             <div className="flex flex-col gap-1">
               <span className="font-medium text-gray-700">
                 Physical Address:
               </span>
               <span className="text-gray-600">
-                {companyData.company_physical_address}
+                {companyData.physical_address}
               </span>
             </div>
             <div className="flex flex-col gap-1">
               <span className="font-medium text-gray-700">Description:</span>
-              <span className="text-gray-600">
-                {companyData.company_description}
+              <span className="text-gray-600">{companyData.description}</span>
+            </div>
+            <div className="flex flex-col gap-1">
+              <span className="font-medium text-gray-700">
+                Nationality Code:
               </span>
+              <span className="text-gray-600">
+                {companyData.nationality_code}
+              </span>
+            </div>
+            <div className="flex flex-col gap-1">
+              <span className="font-medium text-gray-700">
+                Registration Type Code:
+              </span>
+              <span className="text-gray-600">
+                {companyData.registration_type_code}
+              </span>
+            </div>
+            <div className="flex flex-col gap-1">
+              <span className="font-medium text-gray-700">Fax Number:</span>
+              <span className="text-gray-600">{companyData.fax_number}</span>
+            </div>
+            <div className="flex flex-col gap-1">
+              <span className="font-medium text-gray-700">Postal Code:</span>
+              <span className="text-gray-600">{companyData.postal_code}</span>
+            </div>
+            <div className="flex flex-col gap-1">
+              <span className="font-medium text-gray-700">Postal Address:</span>
+              <span className="text-gray-600">
+                {companyData.postal_address}
+              </span>
+            </div>
+            <div className="flex flex-col gap-1">
+              <span className="font-medium text-gray-700">Postal Detail:</span>
+              <span className="text-gray-600">{companyData.postal_detail}</span>
             </div>
           </div>
 
@@ -199,9 +241,13 @@ function PreviewWidget({
                 <h3 className="text-lg font-semibold text-gray-700 mb-2">
                   OTP Verification
                 </h3>
-                <p className="text-sm text-gray-500 mb-4">
-                  An OTP has been sent to {companyData.company_email}
-                </p>
+                {otpMessage ? (
+                  <p className="text-sm text-blue-600 mb-4">{otpMessage}</p>
+                ) : (
+                  <p className="text-sm text-gray-500 mb-4">
+                    An OTP has been sent to {companyData.company_email}
+                  </p>
+                )}
                 <div className="relative">
                   <input
                     type="text"
@@ -264,16 +310,27 @@ export default function FirmRegForm() {
         },
         body: JSON.stringify({
           company_tin: tin,
+          
         }),
       });
 
       const result = await response.json();
+      console.log(result);
 
-      if (result.result?.success) {
+      if (result.result?.status === "success") {
         setCompanyData(result.result.data);
         togglePreview(true);
+      } else if (result.result?.status === "error") {
+       
+        if (result.result.error?.message) {
+          setError(result.result.error.message);
+        } else if (typeof result.result.error === "string") {
+          setError(result.result.error);
+        } else {
+          setError("Failed to fetch company data");
+        }
       } else {
-        setError(result.result?.error || "Failed to fetch company data");
+        setError("Failed to fetch company data");
       }
     } catch (error) {
       console.error("Error fetching company data:", error);

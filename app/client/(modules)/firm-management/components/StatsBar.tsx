@@ -30,24 +30,58 @@ interface CompanyData {
   company_email: string;
   company_telephone_number: string;
 }
+export interface StatsData {
+  total: number;
+  submitted: number;
+  approved: number;
+}
 
-export default function StatsBar() {
+export default function StatsBar({ stats } : { stats: StatsData}) {
   const [expanded, setExpanded] = useState(true);
   const [selectedCompany, setSelectedCompany] = useState<CompanyData | null>(
     null
   );
+  const [companies, setCompanies] = useState<CompanyData[]>([]);
   const t = useTranslations("stats");
 
   useEffect(() => {
+    // Load selected company from localStorage
     const storedCompany = localStorage.getItem("selectedCompany");
     if (storedCompany) {
       setSelectedCompany(JSON.parse(storedCompany));
     }
+
+    const fetchCompanies = async () => {
+      try {
+        const response = await fetch("/api/companies/list", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+        const data = await response.json();
+        if (data.status === "success" && data.data?.companies) {
+          setCompanies(data.data.companies);
+        }
+      } catch (err) {
+        
+      }
+    };
+    fetchCompanies();
   }, []);
+
+  
+  const handleCompanyChange = (value: string) => {
+    const company = companies.find((c) => c.company_tin === value);
+    if (company) {
+      setSelectedCompany(company);
+      localStorage.setItem("selectedCompany", JSON.stringify(company));
+    }
+  };
 
   return (
     <div
-      className={`transition-all duration-300 h-[97vh] flex ${
+      className={`transition-all duration-300 h-[97vh] md:flex hidden ${
         expanded ? "flex-col" : "flex-col-reverse"
       } justify-between items-start bg-gray-50 border-l-[1px] border-gray-200 ${
         expanded
@@ -55,7 +89,6 @@ export default function StatsBar() {
           : "w-[100px] px-2"
       } pt-20 pb-6 relative`}
     >
-      {/* Dashboard Title and Expand/Minimize Icon */}
       <div className="w-full flex items-center justify-start">
         <button
           onClick={() => setExpanded((v) => !v)}
@@ -106,20 +139,20 @@ export default function StatsBar() {
             }`}
           >
             <Stat
-              value="120"
+              value={stats.total.toString()}
               title={t("total")}
               icon={Chart}
               minimized={!expanded}
             />
             <Stat
-              value="12"
+              value={stats.submitted.toString()}
               title={t("pending")}
               icon={Layer}
               minimized={!expanded}
             />
             <Stat
-              value="96"
-              title={t("verified")}
+              value={stats.approved.toString()}
+              title={t("approved")}
               icon={Verify}
               minimized={!expanded}
             />
@@ -140,7 +173,6 @@ export default function StatsBar() {
               expanded ? "px-5 md:px-6 py-5 md:py-6" : "px-2 py-2"
             }`}
           >
-
             <div
               className={`border-[0.5px] bg-blue-50 border-blue-200 py-4 rounded-full px-4 flex items-center justify-center transition-all duration-300 ${
                 expanded
@@ -165,7 +197,10 @@ export default function StatsBar() {
               </div>
             )}
             {expanded && (
-              <Select>
+              <Select
+                onValueChange={handleCompanyChange}
+                value={selectedCompany?.company_tin || ""}
+              >
                 <SelectTrigger className="w-full border-[1px] border-blue-300 rounded-[8px] text-blue-600 py-4 md:py-5 cursor-pointer hover:bg-gray-50 shadow-sm text-sm md:text-[14px] transition-colors duration-200">
                   <SelectValue placeholder={t("switchCompany")} className="" />
                 </SelectTrigger>
@@ -174,11 +209,14 @@ export default function StatsBar() {
                     <SelectLabel className="text-gray-600">
                       {t("companies")}
                     </SelectLabel>
-                    <SelectItem value="apple">TCCIA COMPANY</SelectItem>
-                    <SelectItem value="banana">ABC COMPANY</SelectItem>
-                    <SelectItem value="blueberry">AZANIA GROUP</SelectItem>
-                    <SelectItem value="grapes">MO COMPANY</SelectItem>
-                    <SelectItem value="pineapple">SERENGETI COMPANY</SelectItem>
+                    {companies.map((company) => (
+                      <SelectItem
+                        key={company.company_tin}
+                        value={company.company_tin}
+                      >
+                        {company.company_name}
+                      </SelectItem>
+                    ))}
                   </SelectGroup>
                 </SelectContent>
               </Select>
@@ -202,6 +240,7 @@ export default function StatsBar() {
               </h5>
             )}
           </div>
+
           {expanded && (
             <>
               <p className="text-gray-700 text-[13px] md:text-[14px] leading-relaxed">

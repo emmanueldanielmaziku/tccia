@@ -31,7 +31,7 @@ export async function POST(request: Request) {
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
-          id: body.id,
+          company_tin: body.company_tin,
           code_input: body.code_input,
         }),
       }

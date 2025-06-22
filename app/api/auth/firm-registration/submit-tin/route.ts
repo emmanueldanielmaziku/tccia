@@ -23,7 +23,7 @@ export async function POST(request: Request) {
     }
 
     const response = await fetch(
-      `${API_BASE_URL}/api/company_registration/submit_tin`,
+      `${API_BASE_URL}/api/company_registration/fetch_tin`,
       {
         method: "POST",
         headers: {
@@ -38,12 +38,27 @@ export async function POST(request: Request) {
 
     const data = await response.json();
 
-    if (data.result?.error) {
+    if (data.result?.status === "error" && data.result?.error) {
       return NextResponse.json(
         {
           jsonrpc: "2.0",
           id: null,
           result: {
+            status: "error",
+            error: data.result.error,
+          },
+        },
+        { status: 400 }
+      );
+    }
+
+    if (data.result?.error && !data.result?.status) {
+      return NextResponse.json(
+        {
+          jsonrpc: "2.0",
+          id: null,
+          result: {
+            status: "error",
             error: data.result.error,
           },
         },

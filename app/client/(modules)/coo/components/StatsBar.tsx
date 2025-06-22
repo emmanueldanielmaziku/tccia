@@ -20,8 +20,8 @@ import {
 import { useState, useEffect } from "react";
 import Stat from "./Stats";
 import { useTranslations } from "next-intl";
-import { useRouter } from "next/navigation";
-import { Loader2 } from "lucide-react";
+
+export const COMPANY_CHANGE_EVENT = "companyChange";
 
 interface CompanyData {
   id: number;
@@ -33,123 +33,58 @@ interface CompanyData {
   company_telephone_number: string;
 }
 
-interface ApiResponse {
-  jsonrpc: string;
-  id: null;
-  result: {
-    status: string;
-    manager_id: number;
-    total_companies: number;
-    companies: CompanyData[];
-    error?: string;
-  };
+export interface StatsData {
+  total: number;
+  submitted: number;
+  approved: number;
 }
 
-// Custom event for company change
-export const COMPANY_CHANGE_EVENT = "companyChange";
-
-export default function StatsBar() {
+export default function StatsBar({
+  onCompanyChange,
+  stats,
+}: {
+  onCompanyChange?: () => void;
+  stats: StatsData;
+}) {
   const [expanded, setExpanded] = useState(true);
   const [selectedCompany, setSelectedCompany] = useState<CompanyData | null>(
     null
   );
   const [companies, setCompanies] = useState<CompanyData[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const router = useRouter();
   const t = useTranslations("stats");
 
-  // Function to update selected company from localStorage
-  const updateSelectedCompany = () => {
+  useEffect(() => {
     const storedCompany = localStorage.getItem("selectedCompany");
     if (storedCompany) {
-      setSelectedCompany(JSON.parse(storedCompany));
+      const company = JSON.parse(storedCompany);
+      setSelectedCompany(company);
     }
-  };
 
-  // Listen for localStorage changes
-  useEffect(() => {
-    const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === "selectedCompany") {
-        updateSelectedCompany();
-      }
-    };
-
-    window.addEventListener("storage", handleStorageChange);
-    return () => window.removeEventListener("storage", handleStorageChange);
-  }, []);
-
-  useEffect(() => {
     const fetchCompanies = async () => {
       try {
-        setIsLoading(true);
-        setError(null);
-
         const response = await fetch("/api/companies/list", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
         });
+        const data = await response.json();
 
-        const data: ApiResponse = await response.json();
-
-        if (response.status === 401 || response.status === 403) {
-          router.push("/auth");
-          return;
+        if (data.status === "success" && data.data?.companies) {
+          setCompanies(data.data.companies);
         }
-
-        if (!response.ok) {
-          throw new Error(data.result?.error || "Failed to fetch companies");
-        }
-
-        if (data.result?.status === "success" && data.result.companies) {
-          setCompanies(data.result.companies);
-        } else {
-          setCompanies([]);
-        }
-      } catch (error) {
-        console.error("Error fetching companies:", error);
-        setError(
-          error instanceof Error ? error.message : "Failed to fetch companies"
-        );
-      } finally {
-        setIsLoading(false);
-      }
+      } catch (err) {}
     };
-
     fetchCompanies();
-  }, [router]);
-
-  // Initial load of selected company
-  useEffect(() => {
-    updateSelectedCompany();
   }, []);
 
-  const handleCompanySelect = (value: string) => {
-    const selectedCompanyData = companies.find(
-      (company) => company.company_tin === value
-    );
-    if (selectedCompanyData) {
-      // Store only necessary company data
-      const companySession = {
-        id: selectedCompanyData.id,
-        company_tin: selectedCompanyData.company_tin,
-        company_name: selectedCompanyData.company_name,
-        company_nationality_code: selectedCompanyData.company_nationality_code,
-        company_registration_type_code:
-          selectedCompanyData.company_registration_type_code,
-        company_email: selectedCompanyData.company_email,
-        company_telephone_number: selectedCompanyData.company_telephone_number,
-      };
-      localStorage.setItem("selectedCompany", JSON.stringify(companySession));
-      setSelectedCompany(companySession);
-
-      // Dispatch custom event to trigger page refresh
-      const event = new CustomEvent(COMPANY_CHANGE_EVENT, {
-        detail: { company: companySession },
-      });
-      window.dispatchEvent(event);
+  const handleCompanyChange = (value: string) => {
+    const company = companies.find((c) => c.company_tin === value);
+    if (company) {
+      setSelectedCompany(company);
+      localStorage.setItem("selectedCompany", JSON.stringify(company));
+      window.dispatchEvent(new Event(COMPANY_CHANGE_EVENT));
+      if (onCompanyChange) onCompanyChange();
     }
   };
 
@@ -163,7 +98,6 @@ export default function StatsBar() {
           : "w-[100px] px-2"
       } pt-20 pb-6 relative`}
     >
-      {/* Dashboard Title and Expand/Minimize Icon */}
       <div className="w-full flex items-center justify-start">
         <button
           onClick={() => setExpanded((v) => !v)}
@@ -214,19 +148,19 @@ export default function StatsBar() {
             }`}
           >
             <Stat
-              value="120"
+              value={stats.total.toString()}
               title={t("total")}
               icon={Chart}
               minimized={!expanded}
             />
             <Stat
-              value="12"
-              title={t("verified")}
+              value={stats.submitted.toString()}
+              title={t("submitted")}
               icon={Layer}
               minimized={!expanded}
             />
             <Stat
-              value="96"
+              value={stats.approved.toString()}
               title={t("approved")}
               icon={Verify}
               minimized={!expanded}
@@ -257,8 +191,7 @@ export default function StatsBar() {
             >
               <Building variant="Bulk" size={70} color="#138abd" />
             </div>
-        
-        
+
             {expanded && selectedCompany && (
               <div className="w-full flex flex-col justify-center items-center text-center gap-1">
                 <div className="font-semibold text-gray-700 text-[15px] md:text-[16px]">
@@ -274,8 +207,8 @@ export default function StatsBar() {
             )}
             {expanded && (
               <Select
-                onValueChange={handleCompanySelect}
-                value={selectedCompany?.company_tin}
+                onValueChange={handleCompanyChange}
+                value={selectedCompany?.company_tin || ""}
               >
                 <SelectTrigger className="w-full border-[1px] border-blue-300 rounded-[8px] text-blue-600 py-4 md:py-5 cursor-pointer hover:bg-gray-50 shadow-sm text-sm md:text-[14px] transition-colors duration-200">
                   <SelectValue placeholder={t("switchCompany")} className="" />
@@ -285,31 +218,14 @@ export default function StatsBar() {
                     <SelectLabel className="text-gray-600">
                       {t("companies")}
                     </SelectLabel>
-                    {isLoading ? (
-                      <SelectItem value="loading" disabled>
-                        <div className="flex items-center gap-2">
-                          <Loader2 className="h-4 w-4 animate-spin" />
-                          Loading companies...
-                        </div>
+                    {companies.map((company) => (
+                      <SelectItem
+                        key={company.company_tin}
+                        value={company.company_tin}
+                      >
+                        {company.company_name}
                       </SelectItem>
-                    ) : error ? (
-                      <SelectItem value="error" disabled>
-                        <div className="text-red-500">{error}</div>
-                      </SelectItem>
-                    ) : companies.length === 0 ? (
-                      <SelectItem value="none" disabled>
-                        No companies found
-                      </SelectItem>
-                    ) : (
-                      companies.map((company) => (
-                        <SelectItem
-                          key={company.id}
-                          value={company.company_tin}
-                        >
-                          {company.company_name}
-                        </SelectItem>
-                      ))
-                    )}
+                    ))}
                   </SelectGroup>
                 </SelectContent>
               </Select>
@@ -327,22 +243,16 @@ export default function StatsBar() {
         >
           <div className="flex flex-row items-center gap-2.5">
             <Lifebuoy size={20} color="#364153" />
-            {expanded && (
-              <h5 className="text-gray-700 text-[15px] md:text-[16px] font-medium">
-                {t("help.title")}
-              </h5>
-            )}
+            <h5 className="text-gray-700 text-[15px] md:text-[16px] font-medium">
+              {t("help.title")}
+            </h5>
           </div>
-          {expanded && (
-            <>
-              <p className="text-gray-700 text-[13px] md:text-[14px] leading-relaxed">
-                {t("help.description")}
-              </p>
-              <button className="border-[1px] rounded-[8px] border-zinc-600 text-zinc-600 px-6 md:px-8 py-2.5 text-[13px] md:text-[14px] w-full cursor-pointer hover:bg-zinc-600 hover:text-white transition-colors duration-200">
-                {t("help.contactButton")}
-              </button>
-            </>
-          )}
+          <p className="text-gray-700 text-[13px] md:text-[14px] leading-relaxed">
+            {t("help.description")}
+          </p>
+          <button className="border-[1px] rounded-[8px] border-zinc-600 text-zinc-600 px-6 md:px-8 py-2.5 text-[13px] md:text-[14px] w-full cursor-pointer hover:bg-zinc-600 hover:text-white transition-colors duration-200">
+            {t("help.contactButton")}
+          </button>
         </div>
       )}
     </div>

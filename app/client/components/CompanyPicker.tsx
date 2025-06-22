@@ -34,15 +34,19 @@ interface Company {
 }
 
 interface ApiResponse {
-  jsonrpc: string;
-  id: null;
-  result: {
-    status: string;
+  status: string;
+  data?: {
     manager_id: number;
     total_companies: number;
     companies: Company[];
-    error?: string;
+    pagination?: any;
   };
+  error?: {
+    code: string;
+    message: string;
+    error_details?: string;
+  };
+  message?: string;
 }
 
 export default function CompanyPicker() {
@@ -70,24 +74,24 @@ export default function CompanyPicker() {
         const data: ApiResponse = await response.json();
 
         if (response.status === 401 || response.status === 403) {
-          // Redirect to login if unauthorized
           router.push("/auth");
           return;
         }
 
         if (!response.ok) {
-          throw new Error(data.result?.error || "Failed to fetch companies");
+          throw new Error(
+            data.error?.message || data.message || "Failed to fetch companies"
+          );
         }
 
-        if (data.result?.status === "success" && data.result.companies) {
-          setCompanies(data.result.companies);
+        if (data.status === "success" && data.data?.companies) {
+          setCompanies(data.data.companies);
 
-      
           const storedCompany = localStorage.getItem("selectedCompany");
           if (storedCompany) {
             const parsedCompany = JSON.parse(storedCompany);
             if (
-              data.result.companies.some(
+              data.data.companies.some(
                 (c) => c.company_tin === parsedCompany.company_tin
               )
             ) {
@@ -96,6 +100,7 @@ export default function CompanyPicker() {
           }
         } else {
           setCompanies([]);
+          setError(data.error?.message || data.message || "No companies found");
         }
       } catch (error) {
         console.error("Error fetching companies:", error);
@@ -110,13 +115,25 @@ export default function CompanyPicker() {
     fetchCompanies();
   }, [router]);
 
+  useEffect(() => {
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === "selectedCompany") {
+        const storedCompany = localStorage.getItem("selectedCompany");
+        if (storedCompany) {
+          setSelectedCompany(JSON.parse(storedCompany));
+        }
+      }
+    };
+    window.addEventListener("storage", onStorage);
+    return () => window.removeEventListener("storage", onStorage);
+  }, []);
+
   const handleCompanySelect = (value: string) => {
     setSelectedCompany(value);
     const selectedCompanyData = companies.find(
       (company) => company.company_tin === value
     );
     if (selectedCompanyData) {
-  
       const companySession = {
         id: selectedCompanyData.id,
         company_tin: selectedCompanyData.company_tin,
@@ -138,7 +155,6 @@ export default function CompanyPicker() {
       );
 
       if (selectedCompanyData) {
-       
         const companySession = {
           id: selectedCompanyData.id,
           company_tin: selectedCompanyData.company_tin,
@@ -161,8 +177,8 @@ export default function CompanyPicker() {
   const handleAddCompany = () => {
     toggleCompanyTinForm();
     router.push("/client/firm-management");
-     hidePicker();
-  }
+    hidePicker();
+  };
 
   return (
     <div className="w-full h-full flex flex-col items-center justify-center bg-black/30 backdrop-blur-[10px] absolute transition-opacity duration-300 top-0 left-0 z-50">
@@ -232,7 +248,7 @@ export default function CompanyPicker() {
               disabled={isLoading}
               className="border-[1px] border-blue-600 bg-blue-500 text-white flex-1/2 rounded-[7px] py-3 cursor-pointer hover:bg-blue-600 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Register Company
+              Register
             </button>
           )}
         </div>

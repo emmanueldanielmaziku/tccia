@@ -6,6 +6,7 @@ import NewCertificateModal from "./components/NewCertificateModal";
 import {
   Add,
   CloseCircle,
+  Copy,
   DocumentText,
   Eye,
   Printer,
@@ -23,7 +24,6 @@ import {
 } from "@/components/ui/select";
 import COOForm from "./components/COOForm";
 import { useRouter } from "next/navigation";
-import { COMPANY_CHANGE_EVENT } from "./components/StatsBar";
 
 import usePickerState from "../../services/PickerState";
 
@@ -54,9 +54,9 @@ export default function COO() {
       handleRefresh();
     };
 
-    window.addEventListener(COMPANY_CHANGE_EVENT, handleCompanyChange);
+    window.addEventListener("COMPANY_CHANGE_EVENT", handleCompanyChange);
     return () =>
-      window.removeEventListener(COMPANY_CHANGE_EVENT, handleCompanyChange);
+      window.removeEventListener("COMPANY_CHANGE_EVENT", handleCompanyChange);
   }, []);
 
   const fetchCertificates = async () => {
@@ -86,7 +86,6 @@ export default function COO() {
       });
 
       if (response.status === 401) {
-        
         router.push("/auth");
         return;
       }
@@ -107,7 +106,6 @@ export default function COO() {
       console.log("API Response:", result);
 
       if (result.result?.status === "success") {
-        // Transform the API data to match the expected format
         const transformedData = result.result.data.map((cert: any) => ({
           message_info: {
             // Certificate Details
@@ -174,7 +172,7 @@ export default function COO() {
         setCertificateData(transformedData);
       } else {
         console.error("API Error:", result);
-        setError(result.result?.error || "Failed to fetch certificates");
+        setError(result.result?.message || "Failed to fetch certificates");
       }
     } catch (err) {
       console.error("Error fetching certificates:", err);
@@ -257,6 +255,24 @@ export default function COO() {
     fetchCertificates();
   };
 
+  const copyToClipboard = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      // You could add a toast notification here
+      console.log("Control number copied to clipboard");
+    } catch (err) {
+      console.error("Failed to copy text: ", err);
+    }
+  };
+
+  const submittedCount = certificateData.filter(
+    (certificate) => certificate.message_info.status === "Submitted"
+  ).length;
+
+  const approvedCount = certificateData.filter(
+    (certificate) => certificate.message_info.status === "Approved"
+  ).length;
+
   return (
     <main className="w-full h-[97vh] rounded-[14px] overflow-hidden bg-white border-[1px] border-gray-200 shadow-sm relative">
       <NavBar title={"Certificate of Origin"} />
@@ -274,54 +290,56 @@ export default function COO() {
                     : "Certificate of Origin List"}
                 </div>
               ) : (
-                <div className="flex flex-col md:flex-row items-start md:items-center gap-4 w-full md:w-auto">
+                <div className="flex flex-col md:flex-row items-start md:items-center gap-2 md:gap-4 w-full md:w-auto">
                   <label className="flex justify-center items-center w-full md:w-auto">
                     <input
                       type="text"
                       placeholder="Search Certificates..."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      className="w-full md:w-auto border-[0.5px] border-zinc-300 focus:outline-2 focus:outline-blue-400 rounded-[9px] pl-8 pr-2.5 py-2 text-sm placeholder:text-sm"
+                      className="w-full md:w-auto border-[0.5px] border-zinc-300 focus:outline-2 focus:outline-blue-400 rounded-[9px] pl-8 pr-2.5 py-2 text-sm placeholder:text-[13px]"
                     />
                     <SearchNormal1
                       size="18"
                       color="gray"
-                      className="absolute left-3 md:left-19"
+                      className="absolute left-6 md:left-19"
                     />
                   </label>
 
-                  {/* Status Filter */}
-                  <div className="relative w-full md:w-auto">
-                    <Select
-                      value={statusFilter}
-                      onValueChange={setStatusFilter}
-                    >
-                      <SelectTrigger className="w-full md:w-[140px] text-zinc-600">
-                        <SelectValue placeholder="All Status" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectGroup>
-                          <SelectItem value="all">All Status</SelectItem>
-                          <SelectItem value="approved">Approved</SelectItem>
-                          <SelectItem value="pending">Pending</SelectItem>
-                        </SelectGroup>
-                      </SelectContent>
-                    </Select>
-                  </div>
+                  <div className="flex flex-row gap-5 justify-between items-center w-full">
+                    {/* Status Filter */}
+                    <div className="relative w-full md:w-auto">
+                      <Select
+                        value={statusFilter}
+                        onValueChange={setStatusFilter}
+                      >
+                        <SelectTrigger className="w-full md:w-[140px] text-zinc-600">
+                          <SelectValue placeholder="All Status" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectGroup>
+                            <SelectItem value="all">All Status</SelectItem>
+                            <SelectItem value="approved">Approved</SelectItem>
+                            <SelectItem value="pending">Pending</SelectItem>
+                          </SelectGroup>
+                        </SelectContent>
+                      </Select>
+                    </div>
 
-                  {/* Date Sort */}
-                  <div className="relative w-full md:w-auto">
-                    <Select value={dateSort} onValueChange={setDateSort}>
-                      <SelectTrigger className="w-full md:w-[140px] text-zinc-600">
-                        <SelectValue placeholder="Sort by date" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectGroup>
-                          <SelectItem value="newest">Newest First</SelectItem>
-                          <SelectItem value="oldest">Oldest First</SelectItem>
-                        </SelectGroup>
-                      </SelectContent>
-                    </Select>
+                    {/* Date Sort */}
+                    <div className="relative w-full md:w-auto">
+                      <Select value={dateSort} onValueChange={setDateSort}>
+                        <SelectTrigger className="w-full md:w-[140px] text-zinc-600">
+                          <SelectValue placeholder="Sort by date" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectGroup>
+                            <SelectItem value="newest">Newest First</SelectItem>
+                            <SelectItem value="oldest">Oldest First</SelectItem>
+                          </SelectGroup>
+                        </SelectContent>
+                      </Select>
+                    </div>
                   </div>
                 </div>
               )}
@@ -338,15 +356,15 @@ export default function COO() {
                   Close
                 </button>
               ) : (
-                <div className="flex flex-row gap-4">
+                <div className="flex flex-row gap-4 w-full md:w-auto">
                   <button
-                    className="flex flex-row gap-3 justify-between items-center border-[0.5px] border-blue-600 hover:bg-blue-100 text-blue-600 text-sm rounded-[7px] cursor-pointer px-5 py-1.5 w-full md:w-auto disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="flex flex-row gap-3 justify-between items-center border-[0.5px] border-gray-400 hover:bg-blue-100 text-gray-500 text-sm rounded-[7px] cursor-pointer px-5 py-1.5 w-full md:w-auto disabled:opacity-50 disabled:cursor-not-allowed"
                     onClick={handleRefresh}
                     disabled={isRefreshing}
                   >
                     <Refresh
                       size={18}
-                      color="#1376e8"
+                      color={isRefreshing ? "#9CA3AF" : "#4B5563"}
                       className={`transition-transform duration-1000 ${
                         isRefreshing ? "animate-spin" : ""
                       }`}
@@ -370,16 +388,72 @@ export default function COO() {
             ) : (
               <div className="w-full grid grid-cols-1 pr-0 gap-4 mt-5 rounded-md overflow-hidden overflow-y-auto">
                 {isLoading ? (
-                  <div className="flex justify-center items-center h-40">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+                  <div className="flex flex-col gap-4">
+                    {[...Array(5)].map((_, i) => (
+                      <div
+                        key={i}
+                        className="animate-pulse bg-gray-100 rounded-[10px] border border-zinc-200 shadow-sm p-6 flex flex-col gap-4"
+                      >
+                        <div className="flex flex-row items-center gap-4">
+                          <div className="bg-blue-200 rounded-xl h-10 w-10" />
+                          <div className="flex-1">
+                            <div className="h-4 bg-gray-300 rounded w-1/3 mb-2" />
+                            <div className="h-3 bg-gray-200 rounded w-1/2" />
+                          </div>
+                          <div className="h-6 w-20 bg-gray-200 rounded-full" />
+                        </div>
+                        <div className="flex flex-row gap-4">
+                          <div className="h-8 w-32 bg-gray-200 rounded" />
+                          <div className="h-8 w-32 bg-gray-200 rounded" />
+                        </div>
+                        <div className="flex flex-row justify-between items-center">
+                          <div className="h-4 w-24 bg-gray-200 rounded" />
+                          <div className="h-4 w-24 bg-gray-200 rounded" />
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 ) : error ? (
-                  <div className="flex justify-center items-center h-40 text-red-500">
-                    {error}
+                  <div className="flex flex-col justify-center items-center mt-20 mb-32 text-gray-500">
+                    <img
+                      src="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/72x72/1f4c4.png"
+                      alt="No Certificates"
+                      className="w-16 h-16 mb-4 opacity-70"
+                    />
+                    <div className="text-lg font-semibold mb-1">
+                      No Certificates Found
+                    </div>
+                    <div className="text-sm text-gray-400 mb-3 text-center">
+                      You have not created or received any certificates yet.
+                    </div>
+                    <button
+                      className="flex flex-row gap-2 items-center bg-blue-500 hover:bg-blue-600 text-white px-5 py-2 rounded-md shadow transition"
+                      onClick={() => setIsNewCertificateModalOpen(true)}
+                    >
+                      <Add size={18} color="white" />
+                      Create New Certificate
+                    </button>
                   </div>
                 ) : paginatedData.length === 0 ? (
-                  <div className="flex justify-center items-center h-40 text-gray-500">
-                    No certificates found
+                  <div className="flex flex-col justify-center items-center mt-20 mb-32 text-gray-500">
+                    <img
+                      src="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/72x72/1f4c4.png"
+                      alt="No Certificates"
+                      className="w-16 h-16 mb-4 opacity-70"
+                    />
+                    <div className="text-lg font-semibold mb-1">
+                      No Certificates Found
+                    </div>
+                    <div className="text-sm text-gray-400 mb-3 text-center">
+                      You have not created or received any certificates yet.
+                    </div>
+                    <button
+                      className="flex flex-row gap-2 items-center bg-blue-500 hover:bg-blue-600 text-white px-5 py-2 rounded-md shadow transition"
+                      onClick={() => setIsNewCertificateModalOpen(true)}
+                    >
+                      <Add size={18} color="white" />
+                      Create New Certificate
+                    </button>
                   </div>
                 ) : (
                   paginatedData.map((certificate, index) => (
@@ -387,7 +461,7 @@ export default function COO() {
                       key={index}
                       className={`hover:bg-white bg-gray-50 flex flex-col transition-all duration-200 border-[0.5px] rounded-[10px] text-gray-700 border-zinc-200 shadow-sm hover:shadow-md`}
                     >
-                      <div className="flex flex-col md:flex-row justify-between items-start md:items-center border-b-[0.5px] border-zinc-200 px-6 py-3 gap-2">
+                      <div className="flex flex-row justify-between items-center border-b-[0.5px] border-zinc-200 px-6 py-3 gap-2">
                         <div className="font-semibold text-[15px]">{`${
                           index + 1
                         }. ${certificate.message_info.consignee_name}`}</div>
@@ -403,8 +477,8 @@ export default function COO() {
                       </div>
                       {/* header */}
                       <div className="flex flex-col md:flex-row justify-between items-start md:items-center p-4 gap-4 bg-gray-50">
-                        <div className="flex flex-row gap-3">
-                          <div className="border-[0.5px] bg-blue-50 border-blue-200 rounded-[12px] px-4 flex items-center">
+                        <div className="flex flex-col md:flex-row gap-3">
+                          <div className="border-[0.5px] bg-blue-50 border-blue-200 py-3 sm:py-4 rounded-[12px] px-3 sm:px-4 flex items-center self-start">
                             <DocumentText
                               variant="Bulk"
                               size={36}
@@ -422,6 +496,42 @@ export default function COO() {
                             <div className="text-blue-600 text-[12px] font-medium">
                               {certificate.message_info.exporter_tin}
                             </div>
+
+                            {/* Control Number with Copy Functionality */}
+                            <div className="flex flex-row items-center gap-2 mt-1">
+                              <span className="text-[13px] text-gray-600">
+                                Control number:
+                              </span>
+                              <span className="text-[13px] font-medium text-gray-800">
+                                {certificate.message_info.application_uuid ||
+                                  "3451726382932"}
+                              </span>
+                              <button
+                                onClick={() =>
+                                  copyToClipboard(
+                                    certificate.message_info.application_uuid ||
+                                      "3451726382932"
+                                  )
+                                }
+                                className="p-1 hover:bg-gray-100 rounded cursor-pointer transition-colors duration-200"
+                                title="Copy control number"
+                              >
+                                <Copy size={14} color="#6B7280" />
+                              </button>
+                            </div>
+
+                            {/* Amount to be Paid */}
+                            <div className="flex flex-row items-center gap-2 mt-1">
+                              <span className="text-[13px] text-gray-600">
+                                Amount:
+                              </span>
+                              <span className="text-[13px] font-semibold text-green-600">
+                                TZS 50,000
+                              </span>
+                              <span className="text-[11px] text-gray-500">
+                                (Processing fee)
+                              </span>
+                            </div>
                           </div>
                         </div>
 
@@ -431,7 +541,7 @@ export default function COO() {
                             className="px-4 md:px-5 py-1.5 text-sm rounded-[6px] flex flex-row justify-center items-center gap-2 bg-blue-500 text-white hover:bg-blue-600 cursor-pointer transition-colors duration-200"
                           >
                             <Eye size="16" color="white" />
-                            View Application
+                            Application
                           </button>
                           <button
                             // disabled={true}
@@ -443,14 +553,14 @@ export default function COO() {
                             className="px-4 md:px-5 py-1.5 text-sm rounded-[6px] flex flex-row justify-center items-center gap-2 bg-blue-500 text-white cursor-pointer"
                           >
                             <Printer size="16" color="white" />
-                            Print Certificate
+                            Print
                           </button>
                         </div>
                       </div>
 
                       <div>
                         <div className="flex flex-col gap-3 px-6 pb-6 bg-gray-50 rounded-b-md">
-                          <div className="flex flex-col md:flex-row w-full justify-between items-start md:items-center gap-2">
+                          <div className="flex flex-row w-full justify-between items-start md:items-center gap-2">
                             <div className="flex flex-row justify-start items-center gap-1">
                               <span className="text-[14px] text-gray-600">
                                 Issued Country
@@ -465,7 +575,7 @@ export default function COO() {
                               />
                             </div>
                           </div>
-                          <div className="flex flex-col md:flex-row w-full justify-between items-start md:items-center gap-2">
+                          <div className="flex flex-row w-full justify-between items-start md:items-center gap-2">
                             <div className="flex flex-row justify-start items-center gap-1">
                               <span className="text-[14px] text-gray-600">
                                 Destination Country
@@ -499,7 +609,7 @@ export default function COO() {
 
             {/* Pagination */}
             {(!verificationForm || totalPages > 1) && (
-              <div className="flex flex-col md:flex-row justify-between items-center gap-4 mt-4 bg-white/35 backdrop-blur-md w-full p-4">
+              <div className="flex flex-row justify-between items-center gap-4 mt-4 bg-white/35 backdrop-blur-md w-full p-4">
                 <span className="text-gray-600">
                   Page {currentPage} of {totalPages}
                 </span>
@@ -533,7 +643,14 @@ export default function COO() {
           </div>
         </div>
 
-        <ProgressTracker />
+        <ProgressTracker
+          stats={{
+            total: certificateData.length,
+            submitted: submittedCount,
+            approved: approvedCount,
+          }}
+          onCompanyChange={handleRefresh}
+        />
       </section>
       <NewCertificateModal
         isOpen={isNewCertificateModalOpen}
