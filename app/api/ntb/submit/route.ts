@@ -4,7 +4,7 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
 
-    // Validate required fields
+
     const { reporter_name, reporter_contact, subject, description, location } =
       body;
 
@@ -21,7 +21,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Prepare the payload for the external API
+   
     const payload = {
       reporter_name,
       reporter_contact,
@@ -30,7 +30,8 @@ export async function POST(request: NextRequest) {
       location,
     };
 
-    // Make request to external API
+    console.log("NTB Submit Payload:", JSON.stringify(payload, null, 2));
+
     const response = await fetch(
       "https://tccia.kalen.co.tz/api/ntb/report/web",
       {
@@ -53,15 +54,23 @@ export async function POST(request: NextRequest) {
 
     const result = await response.json();
 
+    // Log the response from external API
+    console.log("NTB External API Response:", JSON.stringify(result, null, 2));
+
     // Handle JSON-RPC response structure
     if (result.jsonrpc && result.result) {
       if (result.result.status === "success") {
+        console.log(
+          "NTB Success - Tracking Code:",
+          result.result.data?.tracking_code
+        );
         return NextResponse.json({
           success: true,
           data: result.result.data,
           message: result.result.message,
         });
       } else {
+        console.log("NTB Error:", result.result.message);
         return NextResponse.json(
           { error: result.result.message || "Failed to submit report" },
           { status: 400 }

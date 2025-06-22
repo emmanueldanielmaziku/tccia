@@ -245,7 +245,7 @@ export default function COO() {
   };
 
   const handlePrintCertificate = (aid: string) => {
-    const certificateUrl = `https://tccia.kalen.co.tz/certificate_of_origin/static/certificate/EAC/index.html?id=${aid}`;
+    const certificateUrl = `http://159.65.191.145:8050/certificate_of_origin/static/certificate/EAC/index.html?id=${aid}`;
     window.open(certificateUrl, "_blank");
   };
 

@@ -35,6 +35,6 @@ interface ActivateAccountState {
 }
 
 export const useActivateAccountState = create<ActivateAccountState>((set) => ({
-  isActivated: true,
+  isActivated: false,
   setIsActivated: () => set((state) => ({ isActivated: !state.isActivated })),
 }));

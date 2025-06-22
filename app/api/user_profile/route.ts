@@ -39,7 +39,7 @@ export async function GET(request: NextRequest) {
     }
 
     const result = await response.json();
-    console.log(result);
+    // console.log(result);
 
     // Handle JSON-RPC response structure
     if (result.jsonrpc && result.result) {

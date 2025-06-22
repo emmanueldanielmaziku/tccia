@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import SideBarMobile from "./SideBar-Mobile";
+import Link from "next/link";
 
 type NavBarProps = {
   title: string;
@@ -89,6 +90,14 @@ export default function NavBar({ title }: NavBarProps) {
       </div>
 
       <div className="flex flex-row items-center">
+        {/* Report NTB Link */}
+        <Link
+          href="/client/ntb"
+          className="hidden md:flex items-center px-4 py-2 text-sm font-medium text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-colors duration-200 mr-4"
+        >
+          Report NTB
+        </Link>
+
         <DropdownMenu open={langDrop} onOpenChange={toggleDropBox}>
           <DropdownMenuTrigger asChild>
             <Button

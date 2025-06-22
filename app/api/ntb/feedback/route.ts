@@ -1,11 +1,15 @@
+import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const tracking_code = searchParams.get("tracking_code");
+    const cookieStore = await cookies();
+    const token = cookieStore.get("token");
 
     if (!tracking_code) {
+      console.log("Tracking code is required");
       return NextResponse.json(
         { error: "Tracking code is required" },
         { status: 400 }
@@ -13,13 +17,11 @@ export async function GET(request: NextRequest) {
     }
 
     const response = await fetch(
-      `https://tccia.kalen.co.tz/api/ntb/report/web/feedback?tracking_code=${encodeURIComponent(
-        tracking_code
-      )}`,
+      `https://tccia.kalen.co.tz/api/ntb/report/web/feedback?tracking_code=${tracking_code}`,
       {
         method: "GET",
         headers: {
-          "Content-Type": "application/json",
+          Authorization: `Bearer ${token?.value?.trim() ?? ""}`,
         },
       }
     );

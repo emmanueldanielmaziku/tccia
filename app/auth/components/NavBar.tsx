@@ -6,17 +6,23 @@ import Image from "next/image";
 import { useFormState } from "../services/FormStates";
 import useLangState from "@/app/services/LanguageState";
 import { useTranslations } from "next-intl";
+import { useAuthLayoutState } from "../services/AuthLayoutState";
 
 export default function NavBar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { formType, toggleFormType } = useFormState();
   const { language, toggleLanguage } = useLangState();
   const [langDrop, toggleDropBox] = useState(false);
+  const { setShowNTB } = useAuthLayoutState();
   const t = useTranslations();
   const tn = useTranslations("nav");
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
+  };
+
+  const handleNTBClick = () => {
+    setShowNTB(true);
   };
 
   return (
@@ -47,6 +53,11 @@ export default function NavBar() {
             <a href="/auth/register" className="hover:text-blue-500">
               {tn("about")}
             </a>
+          </li>
+          <li>
+            <button onClick={handleNTBClick} className="hover:text-blue-500">
+              Report NTB
+            </button>
           </li>
           <li>
             <a href="/auth/register" className="hover:text-blue-500">
@@ -172,6 +183,14 @@ export default function NavBar() {
               >
                 {tn("about")}
               </a>
+            </li>
+            <li className="border-b border-gray-300 pb-2">
+              <button
+                onClick={handleNTBClick}
+                className="hover:text-blue-500 display-block text-left w-full"
+              >
+                Report NTB
+              </button>
             </li>
             <li className="border-b border-transparent pb-2">
               <a
