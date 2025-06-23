@@ -118,56 +118,36 @@ export default function COO() {
               cert.application_classification_code,
             application_state_code: cert.application_state_code,
             status: cert.status.charAt(0).toUpperCase() + cert.status.slice(1),
+            control_number: cert.control_number || "-",
+            certificate_cost: cert.certificate_cost || 0,
 
             // Header Information
-            interface_id: cert.header[0]?.interface_id || "",
-            sender_id: cert.header[0]?.sender_id || "",
-            receiver_id: cert.header[0]?.receiver_id || "",
-            reference_number: cert.header[0]?.reference_number || "",
-            ucr_number: cert.header[0]?.ucr_number || "",
-            approval_date_and_time: cert.header[0]?.send_date_and_time || "",
+            interface_id: cert.header?.[0]?.interface_id || "",
+            sender_id: cert.header?.[0]?.sender_id || "",
+            receiver_id: cert.header?.[0]?.receiver_id || "",
+            reference_number: cert.header?.[0]?.reference_number || "",
+            ucr_number: cert.header?.[0]?.ucr_number || "",
+            approval_date_and_time: cert.header?.[0]?.send_date_and_time || "",
 
             // Party Information
-            party_uuid: cert.party[0]?.party_uuid || "",
-            party_type_code: cert.party[0]?.party_type_code || "",
-            party_country_code: cert.party[0]?.party_country_code || "",
-
-            // Exporter Information
-            exporter_tin: cert.party[0]?.party_tin || "",
-            exporter_name: cert.party[0]?.party_name || "",
-            exporter_address: cert.party[0]?.party_physical_address || "",
-            exporter_telephone_number:
-              cert.party[0]?.party_contact_officer_telephone_number || "",
-            exporter_email_address:
-              cert.party[0]?.party_contact_officer_email || "",
-
-            // Consignee Information
-            consignee_tin: cert.party[0]?.party_tin || "",
-            consignee_name: cert.party[0]?.party_name || "",
-            consignee_address: cert.party[0]?.party_physical_address || "",
-
-            // Applicant Information
-            applicant_name: cert.party[0]?.party_contact_officer_name || "",
-            applicant_address: cert.party[0]?.party_physical_address || "",
-
-            // Additional Information
-            issue_country_code: cert.party[0]?.party_country_code || "",
-            destination_country_code: "",
-            application_place_name: "",
-            approver_name: "",
-
-            // Transport and Other Details
-            transport_particulars_contents: "",
-            transport_particulars_content: "",
-            remark: "",
-            electronic_certicate_of_origin_treatment_contents: "",
-
-            // Additional Arrays
-            item_info: cert.item || [],
-            transport: cert.transport || [],
-            invoice: cert.invoice || [],
-            attachment: cert.attachment || [],
+            party_uuid: cert.party?.[0]?.party_uuid || "",
+            party_type_code: cert.party?.[0]?.party_type_code || "",
+            party_country_code: cert.party?.[0]?.party_country_code || "",
+            party_name: cert.party?.[0]?.party_name || "",
+            party_tin: cert.party?.[0]?.party_tin || "",
+            party_physical_address:
+              cert.party?.[0]?.party_physical_address || "",
+            party_contact_officer_name:
+              cert.party?.[0]?.party_contact_officer_name || "",
+            party_contact_officer_telephone_number:
+              cert.party?.[0]?.party_contact_officer_telephone_number || "",
+            party_contact_officer_email:
+              cert.party?.[0]?.party_contact_officer_email || "",
           },
+          transport: cert.transport || [],
+          invoice: cert.invoice || [],
+          item: cert.item || [],
+          attachment: cert.attachment || [],
         }));
         setCertificateData(transformedData);
       } else {
@@ -195,10 +175,10 @@ export default function COO() {
   const filteredData = certificateData
     .filter((certificate) => {
       const matchesSearch =
-        certificate.message_info.consignee_name
+        certificate.message_info.party_name
           .toLowerCase()
           .includes(searchQuery.toLowerCase()) ||
-        certificate.message_info.exporter_name
+        certificate.message_info.party_tin
           .toLowerCase()
           .includes(searchQuery.toLowerCase()) ||
         certificate.message_info.certificate_type_id
@@ -464,7 +444,7 @@ export default function COO() {
                       <div className="flex flex-row justify-between items-center border-b-[0.5px] border-zinc-200 px-6 py-3 gap-2">
                         <div className="font-semibold text-[15px]">{`${
                           index + 1
-                        }. ${certificate.message_info.consignee_name}`}</div>
+                        }. ${certificate.message_info.party_name}`}</div>
                         <div
                           className={`border-[0.5px] text-sm rounded-[30px] px-4 py-1 ${
                             certificate.message_info.status === "Approved"
@@ -488,13 +468,13 @@ export default function COO() {
 
                           <div className="w-full flex flex-col gap-1 justify-start">
                             <div className="font-semibold text-[15px]">
-                              {certificate.message_info.exporter_name}
+                              {certificate.message_info.party_name}
                             </div>
                             <div className="text-sm text-gray-600">
-                              {certificate.message_info.exporter_address}
+                              {certificate.message_info.party_physical_address}
                             </div>
                             <div className="text-blue-600 text-[12px] font-medium">
-                              {certificate.message_info.exporter_tin}
+                              {certificate.message_info.party_tin}
                             </div>
 
                             {/* Control Number with Copy Functionality */}
@@ -503,14 +483,12 @@ export default function COO() {
                                 Control number:
                               </span>
                               <span className="text-[13px] font-medium text-gray-800">
-                                {certificate.message_info.application_uuid ||
-                                  "3451726382932"}
+                                {certificate.message_info.control_number}
                               </span>
                               <button
                                 onClick={() =>
                                   copyToClipboard(
-                                    certificate.message_info.application_uuid ||
-                                      "3451726382932"
+                                    certificate.message_info.control_number
                                   )
                                 }
                                 className="p-1 hover:bg-gray-100 rounded cursor-pointer transition-colors duration-200"
@@ -526,7 +504,8 @@ export default function COO() {
                                 Amount:
                               </span>
                               <span className="text-[13px] font-semibold text-green-600">
-                                TZS 50,000
+                                TZS{" "}
+                                {certificate.message_info.certificate_cost.toLocaleString()}
                               </span>
                               <span className="text-[11px] text-gray-500">
                                 (Processing fee)
@@ -544,13 +523,15 @@ export default function COO() {
                             Application
                           </button>
                           <button
-                            // disabled={true}
+                            disabled={
+                              certificate.message_info.status != "Approved"
+                            }
                             onClick={() =>
                               handlePrintCertificate(
                                 certificate.message_info.application_uuid
                               )
                             }
-                            className="px-4 md:px-5 py-1.5 text-sm rounded-[6px] flex flex-row justify-center items-center gap-2 bg-blue-500 text-white cursor-pointer"
+                            className="px-4 md:px-5 py-1.5 text-sm rounded-[6px] flex flex-row justify-center items-center gap-2 bg-blue-500 text-white disabled:bg-gray-400 disabled:cursor-not-allowed cursor-pointer"
                           >
                             <Printer size="16" color="white" />
                             Print
@@ -568,9 +549,9 @@ export default function COO() {
                             </div>
                             <div className="hidden md:block flex-1 mx-4 border-t-1 border-dashed border-zinc-300 h-0" />
                             <div className="flex flex-row gap-2 text-sm items-center">
-                              ({certificate.message_info.issue_country_code})
+                              ({certificate.message_info.party_country_code})
                               <img
-                                src={`https://flagsapi.com/${certificate.message_info.issue_country_code}/flat/24.png`}
+                                src={`https://flagsapi.com/${certificate.message_info.party_country_code}/flat/24.png`}
                                 className="rounded-sm"
                               />
                             </div>

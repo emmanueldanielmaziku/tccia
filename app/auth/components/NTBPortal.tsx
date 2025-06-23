@@ -200,9 +200,9 @@ export default function NTBPortal({ onBack }: { onBack: () => void }) {
 
   const handleTrackButtonClick = () => {
     setMode("track");
-    // Add a small delay to show the transition effect
+  
     setTimeout(() => {
-      // Focus on the tracking input field
+     
       const trackInput = document.getElementById("tracking_code");
       if (trackInput) {
         trackInput.focus();
@@ -301,10 +301,10 @@ export default function NTBPortal({ onBack }: { onBack: () => void }) {
                   <FileText className="w-6 h-6 text-blue-600" />
                 </div>
                 <div>
-                  <CardTitle className="text-2xl text-gray-900">
+                  <CardTitle className="text-xl text-gray-900">
                     Report NTB Issue
                   </CardTitle>
-                  <CardDescription className="text-base">
+                  <CardDescription className="text-[14px]">
                     Fill in the form below to report your NTB issue. You will
                     receive a tracking code after submission.
                   </CardDescription>
@@ -359,7 +359,7 @@ export default function NTBPortal({ onBack }: { onBack: () => void }) {
                   </div>
                 </div>
               ) : (
-                <form onSubmit={handleReportSubmit} className="space-y-8">
+                <form onSubmit={handleReportSubmit} className="space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-3">
                       <Label
@@ -375,7 +375,7 @@ export default function NTBPortal({ onBack }: { onBack: () => void }) {
                         placeholder="Enter your full name"
                         value={form.reporter_name}
                         onChange={handleInputChange}
-                        className="h-12 rounded-xl border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+                        className="h-12 rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500"
                         required
                       />
                     </div>
@@ -393,7 +393,7 @@ export default function NTBPortal({ onBack }: { onBack: () => void }) {
                         placeholder="+255..."
                         value={form.reporter_contact}
                         onChange={handleInputChange}
-                        className="h-12 rounded-xl border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+                        className="h-12 rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500"
                         required
                       />
                     </div>
@@ -412,7 +412,7 @@ export default function NTBPortal({ onBack }: { onBack: () => void }) {
                       placeholder="e.g., Delay in clearing cargo at port"
                       value={form.subject}
                       onChange={handleInputChange}
-                      className="h-12 rounded-xl border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+                      className="h-12 rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500"
                       required
                     />
                   </div>
@@ -430,7 +430,7 @@ export default function NTBPortal({ onBack }: { onBack: () => void }) {
                       placeholder="Provide detailed information about the NTB issue..."
                       value={form.description}
                       onChange={handleInputChange}
-                      className="min-h-[140px] rounded-xl border-gray-200 focus:border-blue-500 focus:ring-blue-500 resize-none"
+                      className="min-h-[140px] rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500 resize-none"
                       required
                     />
                   </div>
@@ -450,7 +450,7 @@ export default function NTBPortal({ onBack }: { onBack: () => void }) {
                       }
                       required
                     >
-                      <SelectTrigger className="h-12 rounded-xl border-gray-200 focus:border-blue-500 focus:ring-blue-500">
+                      <SelectTrigger className="h-12 rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500">
                         <SelectValue placeholder="Select region" />
                       </SelectTrigger>
                       <SelectContent>
@@ -468,7 +468,7 @@ export default function NTBPortal({ onBack }: { onBack: () => void }) {
                   <div className="flex gap-4">
                     <Button
                       type="submit"
-                      className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 rounded-xl h-12"
+                      className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 rounded-[9px] h-12"
                       disabled={isSubmitting}
                     >
                       {isSubmitting ? (
@@ -483,7 +483,7 @@ export default function NTBPortal({ onBack }: { onBack: () => void }) {
                     <Button
                       type="button"
                       variant="outline"
-                      className="flex-1 border-gray-200 text-gray-700 hover:bg-gray-50 py-3 rounded-xl h-12"
+                      className="flex-1 border-gray-200 text-gray-700 hover:bg-gray-50 py-3 rounded-[9px] h-12"
                       onClick={() => setMode("none")}
                       disabled={isSubmitting}
                     >
@@ -503,7 +503,7 @@ export default function NTBPortal({ onBack }: { onBack: () => void }) {
           <Card className="border-[0.5px] shadow-sm bg-white/90 backdrop-blur-sm">
             <CardHeader className="pb-6">
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
+                <div className="w-12 h-12 bg-green-100 rounded-[9px] flex items-center justify-center">
                   <Search className="w-6 h-6 text-green-600" />
                 </div>
                 <div>
@@ -532,7 +532,7 @@ export default function NTBPortal({ onBack }: { onBack: () => void }) {
                     placeholder="e.g., NTB-0001"
                     value={trackId}
                     onChange={(e) => setTrackId(e.target.value)}
-                    className="h-12 rounded-xl border-gray-200 focus:border-green-500 focus:ring-green-500"
+                    className="h-12 rounded-[9px] border-gray-200 focus:border-green-500 focus:ring-green-500"
                     required
                   />
                 </div>
@@ -540,7 +540,7 @@ export default function NTBPortal({ onBack }: { onBack: () => void }) {
                 <div className="flex gap-4">
                   <Button
                     type="submit"
-                    className="flex-1 bg-green-600 hover:bg-green-700 text-white font-medium py-3 rounded-xl h-12"
+                    className="flex-1 bg-green-600 hover:bg-green-700 text-white font-medium py-3 rounded-[9px] h-12"
                     disabled={isTracking}
                   >
                     {isTracking ? (
@@ -558,7 +558,7 @@ export default function NTBPortal({ onBack }: { onBack: () => void }) {
                   <Button
                     type="button"
                     variant="outline"
-                    className="flex-1 border-gray-200 text-gray-700 hover:bg-gray-50 py-3 rounded-xl h-12"
+                    className="flex-1 border-gray-200 text-gray-700 hover:bg-gray-50 py-3 rounded-[9px] h-12"
                     onClick={() => setMode("none")}
                   >
                     Cancel
@@ -566,7 +566,7 @@ export default function NTBPortal({ onBack }: { onBack: () => void }) {
                 </div>
 
                 {trackError && (
-                  <div className="flex items-center gap-3 p-4 bg-red-50 border border-red-200 rounded-xl">
+                  <div className="flex items-center gap-3 p-4 bg-red-50 border border-red-200 rounded-[9px]">
                     <AlertCircle className="w-5 h-5 text-red-500" />
                     <span className="text-sm text-red-700">{trackError}</span>
                   </div>

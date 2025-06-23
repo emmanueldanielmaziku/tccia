@@ -283,10 +283,10 @@ export default function NTB() {
                         <FileText className="w-6 h-6 text-blue-600" />
                       </div>
                       <div>
-                        <CardTitle className="text-2xl text-gray-900">
+                        <CardTitle className="text-xl text-gray-900">
                           Report NTB Issue
                         </CardTitle>
-                        <CardDescription className="text-base">
+                        <CardDescription className="text-[14px]">
                           Fill in the form below to report your NTB issue. You
                           will receive a tracking code after submission.
                         </CardDescription>
@@ -322,7 +322,7 @@ export default function NTB() {
                         <div className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
                           <Button
                             variant="outline"
-                            className="flex-1 py-3 rounded-xl"
+                            className="flex-1 py-3 rounded-[9px]"
                             onClick={() => {
                               navigator.clipboard.writeText(
                                 successData.tracking_code
@@ -342,8 +342,8 @@ export default function NTB() {
                         </div>
                       </div>
                     ) : (
-                      <form onSubmit={handleReportSubmit} className="space-y-8">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <form onSubmit={handleReportSubmit} className="space-y-5">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <div className="space-y-3">
                             <Label
                               htmlFor="reporter_name"
@@ -359,7 +359,7 @@ export default function NTB() {
                               onChange={(e) =>
                                 handleChange("reporter_name", e.target.value)
                               }
-                              className="h-12 rounded-xl border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+                              className="h-12 rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500"
                               required
                             />
                           </div>
@@ -378,7 +378,7 @@ export default function NTB() {
                               onChange={(e) =>
                                 handleChange("reporter_contact", e.target.value)
                               }
-                              className="h-12 rounded-xl border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+                              className="h-12 rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500"
                               required
                             />
                           </div>
@@ -398,7 +398,7 @@ export default function NTB() {
                             onChange={(e) =>
                               handleChange("subject", e.target.value)
                             }
-                            className="h-12 rounded-xl border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+                            className="h-12 rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500"
                             required
                           />
                         </div>
@@ -419,7 +419,7 @@ export default function NTB() {
                                 onClick={() =>
                                   editor?.chain().focus().toggleBold().run()
                                 }
-                                className={`h-8 w-8 p-0 rounded-lg ${
+                                className={`h-8 w-8 p-0 rounded-[9px] ${
                                   editor?.isActive("bold")
                                     ? "bg-blue-100 text-blue-700"
                                     : "hover:bg-gray-100"
@@ -484,7 +484,7 @@ export default function NTB() {
                             }
                             required
                           >
-                            <SelectTrigger className="h-12 rounded-xl border-gray-200 focus:border-blue-500 focus:ring-blue-500">
+                            <SelectTrigger className="h-12 py-6 cursor-pointer w-full rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500">
                               <SelectValue placeholder="Select region" />
                             </SelectTrigger>
                             <SelectContent>
@@ -502,7 +502,7 @@ export default function NTB() {
                         <div className="flex gap-4">
                           <Button
                             type="submit"
-                            className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 rounded-xl h-12"
+                            className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 rounded-[9px] cursor-pointer h-12"
                             disabled={isSubmitting}
                           >
                             {isSubmitting ? (
@@ -517,7 +517,7 @@ export default function NTB() {
                           <Button
                             type="button"
                             variant="outline"
-                            className="flex-1 border-gray-200 text-gray-700 hover:bg-gray-50 py-3 rounded-xl h-12"
+                            className="flex-1 border-gray-200 text-gray-700 hover:bg-gray-50 py-3 rounded-[9px] cursor-pointer h-12"
                             onClick={() => setMode("none")}
                             disabled={isSubmitting}
                           >
@@ -566,7 +566,7 @@ export default function NTB() {
                           placeholder="e.g., NTB-0001"
                           value={trackId}
                           onChange={(e) => setTrackId(e.target.value)}
-                          className="h-12 rounded-xl border-gray-200 focus:border-green-500 focus:ring-green-500"
+                          className="h-12 rounded-[9px] border-gray-200 focus:border-green-500 focus:ring-green-500"
                           required
                         />
                       </div>
@@ -574,7 +574,7 @@ export default function NTB() {
                       <div className="flex gap-4">
                         <Button
                           type="submit"
-                          className="flex-1 bg-green-600 hover:bg-green-700 text-white font-medium py-3 rounded-xl h-12"
+                          className="flex-1 bg-green-600 hover:bg-green-700 text-white font-medium cursor-pointer py-3 rounded-[9px] h-12"
                           disabled={isTracking}
                         >
                           {isTracking ? (
@@ -592,7 +592,7 @@ export default function NTB() {
                         <Button
                           type="button"
                           variant="outline"
-                          className="flex-1 border-gray-200 text-gray-700 hover:bg-gray-50 py-3 rounded-xl h-12"
+                          className="flex-1 border-gray-200 text-gray-700 cursor-pointer hover:bg-gray-50 py-3 rounded-[9px] h-12"
                           onClick={() => setMode("none")}
                         >
                           Cancel
