@@ -670,7 +670,7 @@ export default function NTBPortal({ onBack }: { onBack: () => void }) {
                       </div>
                     )}
                   </div>
-                ))}
+                ),)}
 
                 {/* Handle single report response */}
                 {trackResult.data && !trackResult.data.reports && (

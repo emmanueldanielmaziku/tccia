@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 
 // const API_BASE_URL = "https://tccia.kalen.co.tz";
-const API_BASE_URL = "http://159.65.191.145:8050";
+const API_BASE_URL = "https://tccia.kalen.co.tz";
 
 export async function POST(request: Request) {
   try {
