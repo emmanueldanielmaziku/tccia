@@ -735,7 +735,7 @@ export default function FactoryVerificationForm() {
     });
   };
 
-  // Ensure form data is always valid before submission
+  
   const getValidFormData = (): FormData => {
     return {
       products: formData.products.map((product) => ({

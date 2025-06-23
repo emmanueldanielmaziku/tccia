@@ -90,9 +90,9 @@ export async function GET(request: Request) {
     const transformedProducts = data.result.products.map((product: any) => ({
       id: product.id,
       name: product.name,
-      hs_code: product.hse,
+      hs_code: typeof product.hse === "string" ? product.hse : "",
       product_category: product.product_category,
-      unity_of_measure: product.uom,
+      unity_of_measure: typeof product.uom === "string" ? product.uom : "",
     }));
 
     return NextResponse.json({

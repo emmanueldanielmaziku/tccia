@@ -9,6 +9,7 @@ import {
   Building,
   CloseCircle,
   SearchNormal1,
+  Refresh,
 } from "iconsax-reactjs";
 
 import AlertBox from "../factory-verification/components/AlertBox";
@@ -53,32 +54,74 @@ export default function FirmManagement() {
   const [companies, setCompanies] = useState<Company[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [productCounts, setProductCounts] = useState<{ [tin: string]: number }>(
+    {}
+  );
+  const [certificateCounts, setCertificateCounts] = useState<{
+    [tin: string]: number;
+  }>({});
+  const [refreshing, setRefreshing] = useState(false);
+
+  const fetchCompanies = async () => {
+    setLoading(true);
+    setRefreshing(true);
+    setError(null);
+    try {
+      const response = await fetch("/api/companies/list", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+      });
+      const data = await response.json();
+      if (data.status === "success" && data.data?.companies) {
+        setCompanies(data.data.companies);
+      } else {
+        setError(data.message || "Failed to fetch companies");
+      }
+    } catch (err) {
+      setError("Failed to fetch companies");
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchCompanies = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const response = await fetch("/api/companies/list", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        });
-        const data = await response.json();
-        if (data.status === "success" && data.data?.companies) {
-          setCompanies(data.data.companies);
-        } else {
-          setError(data.message || "Failed to fetch companies");
-        }
-      } catch (err) {
-        setError("Failed to fetch companies");
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchCompanies();
   }, []);
+
+  useEffect(() => {
+    if (companies.length === 0) return;
+
+    companies.forEach((company) => {
+    
+      fetch("/api/factory/products", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ company_tin: company.company_tin }),
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          setProductCounts((prev) => ({
+            ...prev,
+            [company.company_tin]: data.data?.products?.length || 0,
+          }));
+        });
+
+  
+      fetch("/api/certificates", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ party_tin: company.company_tin }),
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          setCertificateCounts((prev) => ({
+            ...prev,
+            [company.company_tin]: data.result?.data?.length || 0,
+          }));
+        });
+    });
+  }, [companies]);
 
   const filteredData = companies
     .filter((company) => {
@@ -201,7 +244,7 @@ export default function FirmManagement() {
                           value={sortField}
                           onValueChange={(value: "name" | "tin" | "state") => {
                             setSortField(value);
-                            setCurrentPage(1); // Reset to first page when sorting
+                            setCurrentPage(1);
                           }}
                         >
                           <SelectTrigger className="w-full md:w-[140px] text-zinc-600">
@@ -223,7 +266,7 @@ export default function FirmManagement() {
                           setSortDirection(
                             sortDirection === "asc" ? "desc" : "asc"
                           );
-                          setCurrentPage(1); // Reset to first page when sorting
+                          setCurrentPage(1);
                         }}
                         className="px-3 py-2 text-sm border border-zinc-300 rounded-[9px] hover:bg-gray-50 transition-colors"
                         title={`Sort ${
@@ -249,13 +292,30 @@ export default function FirmManagement() {
                   Close
                 </button>
               ) : (
-                <button
-                  className="flex flex-row gap-3 justify-between items-center bg-blue-600 hover:bg-blue-500 text-white text-sm rounded-[6px] cursor-pointer px-5 py-2 w-full md:w-auto"
-                  onClick={() => toggleCompanyTinForm()}
-                >
-                  <Add size={20} color="white" />
-                  New Firm
-                </button>
+                <div className="flex flex-row gap-2">
+                  <button
+                    className={`flex flex-row gap-2 items-center bg-gray-200 hover:bg-gray-300 text-gray-700 text-sm rounded-[6px] cursor-pointer px-4 py-2 w-full md:w-auto border border-gray-300 ${
+                      refreshing ? "opacity-60 cursor-not-allowed" : ""
+                    }`}
+                    onClick={fetchCompanies}
+                    disabled={refreshing}
+                    title="Refresh companies list"
+                  >
+                    <Refresh
+                      size={18}
+                      color="#36568a"
+                      className={refreshing ? "animate-spin" : ""}
+                    />
+                    {refreshing ? "Refreshing..." : "Refresh"}
+                  </button>
+                  <button
+                    className="flex flex-row gap-3 justify-between items-center bg-blue-600 hover:bg-blue-500 text-white text-sm rounded-[6px] cursor-pointer px-5 py-2 w-full md:w-auto"
+                    onClick={() => toggleCompanyTinForm()}
+                  >
+                    <Add size={20} color="white" />
+                    New Firm
+                  </button>
+                </div>
               )}
             </div>
 
@@ -349,7 +409,13 @@ export default function FirmManagement() {
                             <span className="text-[14px]">Total Products</span>
                           </div>
                           <div className="hidden sm:block flex-1 mx-4 border-t border-dashed border-zinc-400 h-0" />
-                          <div className="text-sm">352</div>
+                          <div className="text-sm">
+                            {productCounts[firm.company_tin] !== undefined ? (
+                              productCounts[firm.company_tin]
+                            ) : (
+                              <span className="text-gray-400">...</span>
+                            )}
+                          </div>
                         </div>
                         <div className="flex flex-row w-full justify-between items-center gap-2">
                           <div className="flex flex-row justify-start items-center gap-1">
@@ -359,7 +425,14 @@ export default function FirmManagement() {
                             </span>
                           </div>
                           <div className="hidden sm:block flex-1 mx-4 border-t border-dashed border-zinc-400 h-0" />
-                          <div className="text-sm">76</div>
+                          <div className="text-sm">
+                            {certificateCounts[firm.company_tin] !==
+                            undefined ? (
+                              certificateCounts[firm.company_tin]
+                            ) : (
+                              <span className="text-gray-400">...</span>
+                            )}
+                          </div>
                         </div>
                       </div>
                     </div>

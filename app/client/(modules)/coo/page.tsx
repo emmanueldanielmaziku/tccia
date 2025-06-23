@@ -238,7 +238,7 @@ export default function COO() {
   const copyToClipboard = async (text: string) => {
     try {
       await navigator.clipboard.writeText(text);
-      // You could add a toast notification here
+    
       console.log("Control number copied to clipboard");
     } catch (err) {
       console.error("Failed to copy text: ", err);
