@@ -53,6 +53,7 @@ export async function POST() {
     }
 
     const data = await response.json();
+    console.log("Data received:", data);
 
     if (!response.ok) {
       return NextResponse.json(

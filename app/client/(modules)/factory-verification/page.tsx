@@ -25,19 +25,26 @@ import {
 interface Product {
   sn: number;
   id: number;
-  product: string;
+  product_name: string;
   hs_code: string;
-  description: string;
-  eacCode: string;
-  sadcCode: string;
-  afcftaCode: string;
-  gsp: string;
-  india_china: string;
-  agoa: string;
-  international: string;
   state: string;
-  status: string;
+  community_name: string | null;
+  community_short_code: string | null;
 }
+
+const stateLabels = {
+  draft: "Draft",
+  submitted: "Submitted",
+  under_review: "Under Review",
+  awaiting_director: "Awaiting Director",
+  approved: "Approved",
+  rejected: "Rejected",
+  inspection_scheduled: "Inspection Scheduled",
+  inspection_done: "Inspection Done",
+  report_disputed: "Report Disputed",
+  report_accepted: "Report Accepted",
+  finalized: "Finalized",
+};
 
 export default function FactoryVerification() {
   const [verificationForm, toggleForm] = useState(false);
@@ -83,9 +90,21 @@ export default function FactoryVerification() {
       const result = await response.json();
 
       if (result.status === "success") {
-        setProducts(result.data.products);
+        // Map to new structure
+        const mappedProducts = (result.result.products || []).map(
+          (product: any, index: number) => ({
+            sn: index + 1,
+            id: product.id,
+            product_name: product.product_name,
+            hs_code: product.hs_code,
+            state: product.state,
+            community_name: product.community_name,
+            community_short_code: product.community_short_code,
+          })
+        );
+        setProducts(mappedProducts);
         setError(null);
-        setIsEmpty(result.empty || result.data.products.length === 0);
+        setIsEmpty(mappedProducts.length === 0);
       } else {
         setError(result.error || "Failed to fetch products");
         setIsEmpty(false);
@@ -117,14 +136,15 @@ export default function FactoryVerification() {
   const sortedProducts = [...products]
     .filter((product) => {
       const matchesSearch =
-        product.product.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        product.hs_code.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        product.description.toLowerCase().includes(searchQuery.toLowerCase());
-
+        (product.product_name || "")
+          .toLowerCase()
+          .includes(searchQuery.toLowerCase()) ||
+        (product.hs_code || "")
+          .toLowerCase()
+          .includes(searchQuery.toLowerCase());
       const matchesStatus =
         statusFilter === "all" ||
-        product.status.toLowerCase() === statusFilter.toLowerCase();
-
+        product.state.toLowerCase() === statusFilter.toLowerCase();
       return matchesSearch && matchesStatus;
     })
     .sort((a, b) => {
@@ -137,12 +157,12 @@ export default function FactoryVerification() {
           bValue = b.sn;
           break;
         case "product":
-          aValue = a.product.toLowerCase();
-          bValue = b.product.toLowerCase();
+          aValue = a.product_name.toLowerCase();
+          bValue = b.product_name.toLowerCase();
           break;
         case "status":
-          aValue = a.status.toLowerCase();
-          bValue = b.status.toLowerCase();
+          aValue = a.state.toLowerCase();
+          bValue = b.state.toLowerCase();
           break;
         default:
           aValue = a.sn;
@@ -170,6 +190,10 @@ export default function FactoryVerification() {
     if (currentPage > 1) setCurrentPage(currentPage - 1);
   };
 
+  // Add debug logs before rendering
+  console.log("products:", products);
+  console.log("loading:", loading);
+
   return (
     <main className="w-full h-[97vh] rounded-[14px] overflow-hidden bg-white border-[1px] border-gray-200 shadow-sm relative">
       {discardBoxState && (
@@ -181,7 +205,6 @@ export default function FactoryVerification() {
         />
       )}
 
-      {/* Product Detail Modal */}
       {showDetailModal && selectedProduct && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
           <div className="bg-white rounded-xl shadow-2xl p-8 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
@@ -208,19 +231,13 @@ export default function FactoryVerification() {
                     <span className="font-medium text-gray-600">
                       Product Name:
                     </span>
-                    <p className="text-gray-800">{selectedProduct.product}</p>
+                    <p className="text-gray-800">
+                      {selectedProduct.product_name}
+                    </p>
                   </div>
                   <div>
                     <span className="font-medium text-gray-600">HS Code:</span>
                     <p className="text-gray-800">{selectedProduct.hs_code}</p>
-                  </div>
-                  <div className="col-span-2">
-                    <span className="font-medium text-gray-600">
-                      Description:
-                    </span>
-                    <p className="text-gray-800">
-                      {selectedProduct.description}
-                    </p>
                   </div>
                 </div>
               </div>
@@ -233,14 +250,14 @@ export default function FactoryVerification() {
                 <div className="flex items-center gap-2">
                   <span
                     className={`px-3 py-1 rounded-full text-xs font-medium ${
-                      selectedProduct.status === "Verified"
+                      selectedProduct.state === "approved"
                         ? "bg-green-100 text-green-700"
-                        : selectedProduct.status === "Pending"
+                        : selectedProduct.state === "Pending"
                         ? "bg-orange-100 text-orange-700"
                         : "bg-red-100 text-red-700"
                     }`}
                   >
-                    {selectedProduct.status}
+                    {selectedProduct.state}
                   </span>
                   <span className="text-sm text-gray-500">
                     ({selectedProduct.state})
@@ -258,95 +275,24 @@ export default function FactoryVerification() {
                     <span className="font-medium text-gray-600">EAC:</span>
                     <span
                       className={
-                        selectedProduct.eacCode !== "-"
+                        selectedProduct.community_name !== "-"
                           ? "text-green-600"
                           : "text-gray-400"
                       }
                     >
-                      {selectedProduct.eacCode}
+                      {selectedProduct.community_name}
                     </span>
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="font-medium text-gray-600">SADC:</span>
                     <span
                       className={
-                        selectedProduct.sadcCode !== "-"
+                        selectedProduct.community_short_code !== "-"
                           ? "text-green-600"
                           : "text-gray-400"
                       }
                     >
-                      {selectedProduct.sadcCode}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="font-medium text-gray-600">AfCFTA:</span>
-                    <span
-                      className={
-                        selectedProduct.afcftaCode !== "-"
-                          ? "text-green-600"
-                          : "text-gray-400"
-                      }
-                    >
-                      {selectedProduct.afcftaCode}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Additional Agreements */}
-              <div className="bg-gray-50 rounded-lg p-4">
-                <h3 className="text-lg font-semibold text-gray-700 mb-3">
-                  Additional Agreements
-                </h3>
-                <div className="grid grid-cols-2 gap-4 text-sm">
-                  <div className="flex items-center gap-2">
-                    <span className="font-medium text-gray-600">GSP:</span>
-                    <span
-                      className={
-                        selectedProduct.gsp ? "text-green-600" : "text-gray-400"
-                      }
-                    >
-                      {selectedProduct.gsp ? "Yes" : "No"}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="font-medium text-gray-600">
-                      India-China:
-                    </span>
-                    <span
-                      className={
-                        selectedProduct.india_china
-                          ? "text-green-600"
-                          : "text-gray-400"
-                      }
-                    >
-                      {selectedProduct.india_china ? "Yes" : "No"}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="font-medium text-gray-600">AGOA:</span>
-                    <span
-                      className={
-                        selectedProduct.agoa
-                          ? "text-green-600"
-                          : "text-gray-400"
-                      }
-                    >
-                      {selectedProduct.agoa ? "Yes" : "No"}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="font-medium text-gray-600">
-                      International:
-                    </span>
-                    <span
-                      className={
-                        selectedProduct.international
-                          ? "text-green-600"
-                          : "text-gray-400"
-                      }
-                    >
-                      {selectedProduct.international ? "Yes" : "No"}
+                      {selectedProduct.community_short_code}
                     </span>
                   </div>
                 </div>
@@ -488,19 +434,17 @@ export default function FactoryVerification() {
                             Product
                           </th>
                           <th className="px-4 py-5 text-left text-gray-700">
-                            EAC OCC
+                            HS Code
+                          </th>
+
+                          <th className="px-4 py-5 text-left text-gray-700">
+                            Community Name
                           </th>
                           <th className="px-4 py-5 text-left text-gray-700">
-                            SADC OCC
+                            Community Short Code
                           </th>
                           <th className="px-4 py-5 text-left text-gray-700">
-                            AfCFTA OCC
-                          </th>
-                          <th className="px-4 py-5 text-left text-gray-700">
-                            Status
-                          </th>
-                          <th className="px-4 py-5 text-left text-gray-700">
-                            Actions
+                            State
                           </th>
                         </tr>
                       </thead>
@@ -527,10 +471,7 @@ export default function FactoryVerification() {
                               <div className="h-4 w-12 bg-gray-200 rounded animate-pulse"></div>
                             </td>
                             <td className="px-4 py-4">
-                              <div className="h-6 w-16 bg-gray-200 rounded animate-pulse"></div>
-                            </td>
-                            <td className="px-4 py-4">
-                              <div className="h-6 w-6 bg-gray-200 rounded animate-pulse"></div>
+                              <div className="h-4 w-12 bg-gray-200 rounded animate-pulse"></div>
                             </td>
                           </tr>
                         ))}
@@ -566,57 +507,29 @@ export default function FactoryVerification() {
                   <table className="w-full text-sm">
                     <thead className="bg-gray-200">
                       <tr>
-                        <th className="px-4 py-5 text-left text-gray-700"></th>
                         <th
                           className="px-4 py-5 text-left text-gray-700 cursor-pointer hover:bg-gray-300 transition-colors"
                           onClick={() => handleSort("sn")}
                         >
-                          <div className="flex items-center gap-1">
-                            S/N
-                            {sortField === "sn" && (
-                              <span className="text-xs">
-                                {sortDirection === "asc" ? "↑" : "↓"}
-                              </span>
-                            )}
-                          </div>
+                          S/N
                         </th>
                         <th
                           className="px-4 py-5 text-left text-gray-700 cursor-pointer hover:bg-gray-300 transition-colors"
                           onClick={() => handleSort("product")}
                         >
-                          <div className="flex items-center gap-1">
-                            Product
-                            {sortField === "product" && (
-                              <span className="text-xs">
-                                {sortDirection === "asc" ? "↑" : "↓"}
-                              </span>
-                            )}
-                          </div>
+                          Product Name
                         </th>
                         <th className="px-4 py-5 text-left text-gray-700">
-                          EAC OCC
+                          HS Code
                         </th>
                         <th className="px-4 py-5 text-left text-gray-700">
-                          SADC OCC
+                          Community Name
                         </th>
                         <th className="px-4 py-5 text-left text-gray-700">
-                          AfCFTA OCC
-                        </th>
-                        <th
-                          className="px-4 py-5 text-left text-gray-700 cursor-pointer hover:bg-gray-300 transition-colors"
-                          onClick={() => handleSort("status")}
-                        >
-                          <div className="flex items-center gap-1">
-                            Status
-                            {sortField === "status" && (
-                              <span className="text-xs">
-                                {sortDirection === "asc" ? "↑" : "↓"}
-                              </span>
-                            )}
-                          </div>
+                          Short Code
                         </th>
                         <th className="px-4 py-5 text-left text-gray-700">
-                          Actions
+                          State
                         </th>
                       </tr>
                     </thead>
@@ -628,32 +541,19 @@ export default function FactoryVerification() {
                             index % 2 === 0 ? "bg-white" : "bg-gray-white"
                           }`}
                         >
-                          <td className="px-4 py-4"></td>
                           <td className="px-4 py-4">{product.sn}</td>
-                          <td className="px-4 py-4">{product.product}</td>
-                          <td className="px-4 py-4">{product.eacCode}</td>
-                          <td className="px-4 py-4">{product.sadcCode}</td>
-                          <td className="px-4 py-4">{product.afcftaCode}</td>
+                          <td className="px-4 py-4">{product.product_name}</td>
+                          <td className="px-4 py-4">{product.hs_code}</td>
                           <td className="px-4 py-4">
-                            <span
-                              className={`px-3 py-1 rounded-[5px] text-xs border-[0.5px] ${
-                                product.status === "Verified"
-                                  ? "bg-green-50 text-green-500 border-green-200"
-                                  : product.status === "Pending"
-                                  ? "bg-orange-50 text-orange-400 border-orange-100"
-                                  : "bg-red-100 text-red-700"
-                              }`}
-                            >
-                              {product.status}
-                            </span>
+                            {product.community_name || "-"}
                           </td>
                           <td className="px-4 py-4">
-                            <button
-                              className="w-full flex items-center justify-center cursor-pointer hover:bg-gray-200 rounded p-1"
-                              onClick={() => handleViewDetails(product)}
-                            >
-                              <Eye color="gray" />
-                            </button>
+                            {product.community_short_code || "-"}
+                          </td>
+                          <td className="px-4 py-4">
+                            {stateLabels[
+                              product.state as keyof typeof stateLabels
+                            ] || product.state}
                           </td>
                         </tr>
                       ))}
@@ -703,8 +603,8 @@ export default function FactoryVerification() {
         <ProgressTracker
           stats={{
             total: products.length,
-            submitted: products.filter((p) => p.status === "Pending").length,
-            approved: products.filter((p) => p.status === "Verified").length,
+            submitted: products.filter((p) => p.state === "Pending").length,
+            approved: products.filter((p) => p.state === "Verified").length,
           }}
           onCompanyChange={fetchProducts}
         />

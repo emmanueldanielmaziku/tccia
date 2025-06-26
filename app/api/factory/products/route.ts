@@ -90,7 +90,7 @@ export async function POST(request: Request) {
     ) {
       return NextResponse.json({
         status: "success",
-        data: {
+        result: {
           products: [],
         },
         message: "No products found for this company",
@@ -113,29 +113,17 @@ export async function POST(request: Request) {
       (product: any, index: number) => ({
         sn: index + 1,
         id: product.id,
-        product: product.product_name,
+        product_name: product.product_name,
         hs_code: product.hs_code,
-        description: product.description,
-        eacCode: product.eca ? "MS" : "-",
-        sadcCode: product.sadc ? "SM" : "-",
-        afcftaCode: product.acfta ? "SM" : "-",
-        gsp: product.gsp,
-        india_china: product.india_china,
-        agoa: product.agoa,
-        international: product.international,
         state: product.state,
-        status:
-          product.state === "draft"
-            ? "Pending"
-            : product.state === "approved"
-            ? "Verified"
-            : "Rejected",
+        community_name: product.community_name,
+        community_short_code: product.community_short_code,
       })
     );
 
     return NextResponse.json({
       status: "success",
-      data: {
+      result: {
         products: transformedProducts,
       },
       message: "Factory products fetched successfully",

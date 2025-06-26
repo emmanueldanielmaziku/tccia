@@ -45,6 +45,22 @@ export default function COO() {
   const itemsPerPage = 20;
   const router = useRouter();
 
+  const certificateTypeMap: Record<string, string> = {
+    OGAM0003CAC0008: "International",
+    OGAM0003SW0011: "India",
+    OGAM0003CAC0009: "SADC",
+    OGAM0003CAC0006: "GSP",
+    OGAM0003CAC0004: "EAC",
+    OGAM0003CAC0002: "CHINA",
+    OGAM0003SW0012: "AfcFTA",
+    OGAM0003CAC0001: "AGOA",
+  };
+
+  const getCertificateType = (application_code_number: string) => {
+    // Default to EAC if not found
+    return certificateTypeMap[application_code_number] || "EAC";
+  };
+
   useEffect(() => {
     fetchCertificates();
   }, []);
@@ -117,12 +133,16 @@ export default function COO() {
             application_classification_code:
               cert.application_classification_code,
             application_state_code: cert.application_state_code,
-            status: cert.status.charAt(0).toUpperCase() + cert.status.slice(1),
+            application_code_number: cert.application_code_number,
+            status: cert.status
+              ? cert.status.charAt(0).toUpperCase() + cert.status.slice(1)
+              : "",
             control_number: cert.control_number || "-",
             certificate_cost: cert.certificate_cost || 0,
 
             // Header Information
             interface_id: cert.header?.[0]?.interface_id || "",
+            send_date_and_time: cert.header?.[0]?.send_date_and_time || "",
             sender_id: cert.header?.[0]?.sender_id || "",
             receiver_id: cert.header?.[0]?.receiver_id || "",
             reference_number: cert.header?.[0]?.reference_number || "",
@@ -144,7 +164,15 @@ export default function COO() {
             party_contact_officer_email:
               cert.party?.[0]?.party_contact_officer_email || "",
           },
-          transport: cert.transport || [],
+          transport: (cert.transport || []).map((t: any) => ({
+            ...t,
+            container_number:
+              t.container_number === false ? "" : t.container_number,
+            container_size_code:
+              t.container_size_code === false ? "" : t.container_size_code,
+            container_count:
+              t.container_count === false ? "" : t.container_count,
+          })),
           invoice: cert.invoice || [],
           item: cert.item || [],
           attachment: cert.attachment || [],
@@ -225,8 +253,12 @@ export default function COO() {
     toggleForm(true);
   };
 
-  const handlePrintCertificate = (aid: string) => {
-    const certificateUrl = `https://tccia.kalen.co.tz/certificate_of_origin/static/certificate/EAC/index.html?id=${aid}`;
+  const handlePrintCertificate = (
+    aid: string,
+    application_code_number?: string
+  ) => {
+    const certType = getCertificateType(application_code_number || "");
+    const certificateUrl = `https://tccia.kalen.co.tz/certificate_of_origin/static/certificate/${certType}/index.html?id=${aid}`;
     window.open(certificateUrl, "_blank");
   };
 
@@ -238,7 +270,7 @@ export default function COO() {
   const copyToClipboard = async (text: string) => {
     try {
       await navigator.clipboard.writeText(text);
-    
+
       console.log("Control number copied to clipboard");
     } catch (err) {
       console.error("Failed to copy text: ", err);
@@ -528,7 +560,8 @@ export default function COO() {
                             }
                             onClick={() =>
                               handlePrintCertificate(
-                                certificate.message_info.application_uuid
+                                certificate.message_info.application_uuid,
+                                certificate.message_info.application_code_number
                               )
                             }
                             className="px-4 md:px-5 py-1.5 text-sm rounded-[6px] flex flex-row justify-center items-center gap-2 bg-blue-500 text-white disabled:bg-gray-400 disabled:cursor-not-allowed cursor-pointer"
@@ -539,48 +572,10 @@ export default function COO() {
                         </div>
                       </div>
 
-                      <div>
-                        <div className="flex flex-col gap-3 px-6 pb-6 bg-gray-50 rounded-b-md">
-                          <div className="flex flex-row w-full justify-between items-start md:items-center gap-2">
-                            <div className="flex flex-row justify-start items-center gap-1">
-                              <span className="text-[14px] text-gray-600">
-                                Issued Country
-                              </span>
-                            </div>
-                            <div className="hidden md:block flex-1 mx-4 border-t-1 border-dashed border-zinc-300 h-0" />
-                            <div className="flex flex-row gap-2 text-sm items-center">
-                              ({certificate.message_info.party_country_code})
-                              <img
-                                src={`https://flagsapi.com/${certificate.message_info.party_country_code}/flat/24.png`}
-                                className="rounded-sm"
-                              />
-                            </div>
-                          </div>
-                          <div className="flex flex-row w-full justify-between items-start md:items-center gap-2">
-                            <div className="flex flex-row justify-start items-center gap-1">
-                              <span className="text-[14px] text-gray-600">
-                                Destination Country
-                              </span>
-                            </div>
-                            <div className="hidden md:block flex-1 mx-4 border-t-1 border-dashed border-zinc-300 h-0" />
-                            <div className="flex flex-row gap-2 text-sm items-center">
-                              (UG
-                              {/* {
-                                certificate.message_info
-                                  .destination_country_code
-                              } */}
-                              )
-                              {/* <img
-                                src={`https://flagsapi.com/${certificate.message_info.destination_country_code}/flat/24.png`}
-                                className="rounded-sm"
-                              /> */}
-                              <img
-                                src={`https://flagsapi.com/UG/flat/24.png`}
-                                className="rounded-sm"
-                              />
-                            </div>
-                          </div>
-                        </div>
+                      <div className="flex items-center justify-center px-3 py-1.5 text-xs font-medium text-blue-800 bg-blue-50 border border-blue-100 shadow-sm rounded-md">
+                        {getCertificateType(
+                          certificate.message_info.application_code_number
+                        )}
                       </div>
                     </div>
                   ))
