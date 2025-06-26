@@ -439,7 +439,7 @@ export default function COO() {
                   paginatedData.map((certificate, index) => (
                     <div
                       key={index}
-                      className={`hover:bg-white bg-gray-50 flex flex-col transition-all duration-200 border-[0.5px] rounded-[10px] text-gray-700 border-zinc-200 shadow-sm hover:shadow-md`}
+                      className={`hover:bg-white bg-gray-50 flex flex-col transition-all duration-200 border-[0.5px] rounded-[10px] text-gray-700 border-zinc-200 shadow-sm hover:shadow-md mr-3`}
                     >
                       <div className="flex flex-row justify-between items-center border-b-[0.5px] border-zinc-200 px-6 py-3 gap-2">
                         <div className="font-semibold text-[15px]">{`${

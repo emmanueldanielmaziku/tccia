@@ -66,6 +66,8 @@ export default function FirmManagement() {
     setLoading(true);
     setRefreshing(true);
     setError(null);
+    setProductCounts({});
+    setCertificateCounts({});
     try {
       const response = await fetch("/api/companies/list", {
         method: "POST",
@@ -93,7 +95,6 @@ export default function FirmManagement() {
     if (companies.length === 0) return;
 
     companies.forEach((company) => {
-    
       fetch("/api/factory/products", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -107,7 +108,6 @@ export default function FirmManagement() {
           }));
         });
 
-  
       fetch("/api/certificates", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -320,7 +320,7 @@ export default function FirmManagement() {
             </div>
 
             {/* Main */}
-            {loading && (
+            {loading || refreshing ? (
               <div className="w-full grid grid-cols-1 pr-3 gap-5 mt-5 rounded-md overflow-hidden overflow-y-auto">
                 {Array.from({ length: 5 }).map((_, idx) => (
                   <div
@@ -356,9 +356,9 @@ export default function FirmManagement() {
                   </div>
                 ))}
               </div>
-            )}
-            {error && <div className="text-red-500">{error}</div>}
-            {tinformState ? (
+            ) : error ? (
+              <div className="text-red-500">{error}</div>
+            ) : tinformState ? (
               <FirmRegForm />
             ) : (
               <div className="w-full grid grid-cols-1 pr-3 gap-5 mt-5 rounded-md overflow-hidden overflow-y-auto">

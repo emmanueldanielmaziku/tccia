@@ -81,7 +81,7 @@ export async function POST(request: Request) {
     }
 
     const data = await response.json();
-    console.log("API response:", data);
+    console.log("API response:", data.result.products);
 
     if (
       data.result &&

@@ -31,10 +31,10 @@ interface Product {
   eacCode: string;
   sadcCode: string;
   afcftaCode: string;
-  gsp: boolean;
-  india_china: boolean;
-  agoa: boolean;
-  international: boolean;
+  gsp: string;
+  india_china: string;
+  agoa: string;
+  international: string;
   state: string;
   status: string;
 }
@@ -49,7 +49,7 @@ export default function FactoryVerification() {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [sortField, setSortField] = useState<"sn" | "product" | "status">("sn");
-  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
 
