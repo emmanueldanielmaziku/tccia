@@ -33,7 +33,13 @@ export default function AuthLayout() {
         {showNTB ? (
           <NTBPortal onBack={handleBackToAuth} />
         ) : (
-          <div className="w-full max-w-md">
+          <div className="w-full flex flex-col justify-center items-center">
+            <div className="flex flex-col items-center justify-center gap-4 mt-[120px] mb-4 max-w-[900px]">
+              <h1 className="text-2xl md:text-5xl font-bold text-center bg-gradient-to-r from-blue-600 via-blue-500 to-blue-400 bg-clip-text text-transparent">
+                TANZANIA CHAMBER OF COMMERCE INDUSTRY AND AGRICULTURE
+              </h1>
+              <TextGenerateEffect words={words} className="text-lg md:text-[20px] text-gray-700 text-center italic" />
+            </div>
             {isActivated ? (
               <ActivateAccount />
             ) : formTypo === "reset" ? (
