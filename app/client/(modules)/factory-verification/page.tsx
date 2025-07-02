@@ -541,6 +541,7 @@ export default function FactoryVerification() {
                             index % 2 === 0 ? "bg-white" : "bg-gray-white"
                           }`}
                         >
+                          
                           <td className="px-4 py-4">{product.sn}</td>
                           <td className="px-4 py-4">{product.product_name}</td>
                           <td className="px-4 py-4">{product.hs_code}</td>

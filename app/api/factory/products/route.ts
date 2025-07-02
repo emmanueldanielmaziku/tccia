@@ -47,6 +47,7 @@ export async function POST(request: Request) {
     });
 
     console.log("Response status:", response.status);
+    console.log("Response body:", response.body);
 
     if (!response.ok) {
       const errorText = await response.text();

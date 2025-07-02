@@ -44,11 +44,11 @@ export default function NavBar() {
               {tn("home")}
             </a>
           </li>
-          <li>
+          {/* <li>
             <a href="/auth/login" className="hover:text-blue-500">
               {tn("membership")}
             </a>
-          </li>
+          </li> */}
           <li>
             <a href="/auth/register" className="hover:text-blue-500">
               {tn("about")}

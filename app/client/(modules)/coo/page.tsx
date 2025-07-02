@@ -398,9 +398,9 @@ export default function COO() {
             {verificationForm ? (
               <COOForm certificateData={selectedCertificate} />
             ) : (
-              <div className="w-full grid grid-cols-1 pr-0 gap-4 mt-5 rounded-md overflow-hidden overflow-y-auto">
+              <div className="w-full grid grid-cols-1 gap-4 mt-5 rounded-md overflow-hidden overflow-y-auto">
                 {isLoading ? (
-                  <div className="flex flex-col gap-4">
+                  <div className="flex flex-col gap-4 pr-3">
                     {[...Array(5)].map((_, i) => (
                       <div
                         key={i}
@@ -536,7 +536,7 @@ export default function COO() {
                                 Amount:
                               </span>
                               <span className="text-[13px] font-semibold text-green-600">
-                                TZS{" "}
+                                TZS
                                 {certificate.message_info.certificate_cost.toLocaleString()}
                               </span>
                               <span className="text-[11px] text-gray-500">
@@ -572,7 +572,7 @@ export default function COO() {
                         </div>
                       </div>
 
-                      <div className="flex items-center justify-center px-3 py-1.5 text-xs font-medium text-blue-800 bg-blue-50 border border-blue-100 shadow-sm rounded-md">
+                      <div className="flex items-center justify-center px-3 py-1.5 text-xs font-medium text-blue-800 bg-blue-50 border border-blue-100 shadow-sm rounded-bl-md rounded-br-md">
                         {getCertificateType(
                           certificate.message_info.application_code_number
                         )}
