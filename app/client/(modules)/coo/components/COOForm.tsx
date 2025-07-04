@@ -1,5 +1,14 @@
 "use client";
 import { useState } from "react";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface COOFormProps {
   certificateData?: any;
@@ -21,6 +30,9 @@ export default function COOForm({ certificateData }: COOFormProps) {
     item = [],
     attachment = [],
   } = certificateData;
+
+  const [selectedManufacturer, setSelectedManufacturer] = useState("");
+  const manufacturers = ["Manufacturer A", "Manufacturer B", "Manufacturer C"];
 
   return (
     <div className="flex flex-col w-full h-full overflow-hidden">
@@ -100,6 +112,30 @@ export default function COOForm({ certificateData }: COOFormProps) {
                   className="w-full px-4 py-2.5 border border-zinc-200 bg-gray-50 rounded-[8px] text-gray-600"
                 />
               </div>
+              {/* Select Manufacturer Dropdown */}
+              <div className="flex flex-col gap-1">
+                <label className="text-sm text-gray-600">
+                  Select Manufacturer
+                </label>
+                <Select
+                  value={selectedManufacturer}
+                  onValueChange={setSelectedManufacturer}
+                >
+                  <SelectTrigger className="w-full border border-zinc-200 bg-white rounded-[8px] px-4 py-2.5 text-gray-600">
+                    <SelectValue placeholder="Select a manufacturer" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      <SelectLabel>Manufacturers</SelectLabel>
+                      {manufacturers.map((manufacturer) => (
+                        <SelectItem key={manufacturer} value={manufacturer}>
+                          {manufacturer}
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+              </div>
               <div className="flex flex-col gap-1">
                 <label className="text-sm text-gray-600">
                   Classification Code
@@ -123,7 +159,7 @@ export default function COOForm({ certificateData }: COOFormProps) {
                 />
               </div>
               <div className="flex flex-col gap-1">
-                <label className="text-sm text-gray-600">Control Number</label>
+                <label className="text-sm text-gray-600">Invoice number</label>
                 <input
                   type="text"
                   value={safeValue(message_info.control_number)}

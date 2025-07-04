@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import NavBar from "../../components/NavBar";
 import ProgressTracker from "./components/StatsBar";
 import NewCertificateModal from "./components/NewCertificateModal";
@@ -45,6 +45,11 @@ export default function COO() {
   const itemsPerPage = 20;
   const router = useRouter();
 
+  const [cooTypeFilter, setCooTypeFilter] = useState("__all__");
+
+  // Add state for order direction
+  const [orderByDate, setOrderByDate] = useState<"asc" | "desc">("desc");
+
   const certificateTypeMap: Record<string, string> = {
     OGAM0003CAC0008: "International",
     OGAM0003SW0011: "India",
@@ -52,12 +57,12 @@ export default function COO() {
     OGAM0003CAC0006: "GSP",
     OGAM0003CAC0004: "EAC",
     OGAM0003CAC0002: "CHINA",
-    OGAM0003SW0012: "AfcFTA",
+    OGAM0003SW0012: "AfCFTA",
     OGAM0003CAC0001: "AGOA",
   };
 
   const getCertificateType = (application_code_number: string) => {
-    // Default to EAC if not found
+  
     return certificateTypeMap[application_code_number] || "EAC";
   };
 
@@ -134,6 +139,7 @@ export default function COO() {
               cert.application_classification_code,
             application_state_code: cert.application_state_code,
             application_code_number: cert.application_code_number,
+            submitted_date: cert.submitted_date,
             status: cert.status
               ? cert.status.charAt(0).toUpperCase() + cert.status.slice(1)
               : "",
@@ -199,6 +205,20 @@ export default function COO() {
     }
   };
 
+  // Unique COO types for filter
+  const cooTypeOptions = useMemo(
+    () => [
+      ...new Set(
+        certificateData
+          .map((cert) =>
+            getCertificateType(cert.message_info.application_code_number)
+          )
+          .filter((v) => !!v && v !== "")
+      ),
+    ],
+    [certificateData]
+  );
+
   // Filter and sort the data
   const filteredData = certificateData
     .filter((certificate) => {
@@ -218,19 +238,20 @@ export default function COO() {
         certificate.message_info.status.toLowerCase() ===
           statusFilter.toLowerCase();
 
-      return matchesSearch && matchesStatus;
+      const matchesCooType =
+        cooTypeFilter === "__all__" ||
+        getCertificateType(certificate.message_info.application_code_number) ===
+          cooTypeFilter;
+
+      return matchesSearch && matchesStatus && matchesCooType;
     })
     .sort((a, b) => {
-      if (dateSort === "newest") {
-        return (
-          new Date(b.message_info.approval_date_and_time).getTime() -
-          new Date(a.message_info.approval_date_and_time).getTime()
-        );
+      const dateA = a.submitted_date ? new Date(a.submitted_date) : new Date(0);
+      const dateB = b.submitted_date ? new Date(b.submitted_date) : new Date(0);
+      if (orderByDate === "asc") {
+        return dateA.getTime() - dateB.getTime();
       } else {
-        return (
-          new Date(a.message_info.approval_date_and_time).getTime() -
-          new Date(b.message_info.approval_date_and_time).getTime()
-        );
+        return dateB.getTime() - dateA.getTime();
       }
     });
 
@@ -271,7 +292,7 @@ export default function COO() {
     try {
       await navigator.clipboard.writeText(text);
 
-      console.log("Control number copied to clipboard");
+      console.log("Invoice number copied to clipboard");
     } catch (err) {
       console.error("Failed to copy text: ", err);
     }
@@ -338,16 +359,43 @@ export default function COO() {
                       </Select>
                     </div>
 
-                    {/* Date Sort */}
+                    {/* COO Type Filter */}
                     <div className="relative w-full md:w-auto">
-                      <Select value={dateSort} onValueChange={setDateSort}>
+                      <Select
+                        value={cooTypeFilter}
+                        onValueChange={setCooTypeFilter}
+                      >
                         <SelectTrigger className="w-full md:w-[140px] text-zinc-600">
-                          <SelectValue placeholder="Sort by date" />
+                          <SelectValue placeholder="COO Type" />
                         </SelectTrigger>
                         <SelectContent>
                           <SelectGroup>
-                            <SelectItem value="newest">Newest First</SelectItem>
-                            <SelectItem value="oldest">Oldest First</SelectItem>
+                            <SelectItem value="__all__">All Types</SelectItem>
+                            {cooTypeOptions.map((type) => (
+                              <SelectItem key={type} value={type}>
+                                {type}
+                              </SelectItem>
+                            ))}
+                          </SelectGroup>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    {/* Date Sort */}
+                    <div className="relative w-full md:w-auto">
+                      <Select
+                        value={orderByDate}
+                        onValueChange={(value) =>
+                          setOrderByDate(value as "asc" | "desc")
+                        }
+                      >
+                        <SelectTrigger className="w-[120px] ml-2">
+                          <SelectValue placeholder="Order by date" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectGroup>
+                            <SelectItem value="desc">Newest</SelectItem>
+                            <SelectItem value="asc">Oldest</SelectItem>
                           </SelectGroup>
                         </SelectContent>
                       </Select>
@@ -388,7 +436,7 @@ export default function COO() {
                     onClick={() => setIsNewCertificateModalOpen(true)}
                   >
                     <Add size={20} color="#1376e8" />
-                    New Certificate
+                    Apply
                   </button>
                 </div>
               )}
@@ -508,15 +556,20 @@ export default function COO() {
                             <div className="text-blue-600 text-[12px] font-medium">
                               {certificate.message_info.party_tin}
                             </div>
+                            <div className="text-xs text-gray-500">
+                              Submitted On:{" "}
+                              {certificate.message_info.submitted_date}
+                            </div>
 
-                            {/* Control Number with Copy Functionality */}
+                            {/* Invoice number with Copy Functionality */}
                             <div className="flex flex-row items-center gap-2 mt-1">
                               <span className="text-[13px] text-gray-600">
-                                Control number:
+                                Invoice number:
                               </span>
                               <span className="text-[13px] font-medium text-gray-800">
                                 {certificate.message_info.control_number}
                               </span>
+                           
                               <button
                                 onClick={() =>
                                   copyToClipboard(
@@ -524,7 +577,7 @@ export default function COO() {
                                   )
                                 }
                                 className="p-1 hover:bg-gray-100 rounded cursor-pointer transition-colors duration-200"
-                                title="Copy control number"
+                                title="Copy Invoice number"
                               >
                                 <Copy size={14} color="#6B7280" />
                               </button>

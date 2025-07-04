@@ -11,6 +11,7 @@ import {
   Profile2User,
   Setting2,
   UserTick,
+  Lock,
 } from "iconsax-reactjs";
 import useMenuState from "../services/MenuState";
 import Link from "next/link";
@@ -92,13 +93,19 @@ export default function SideBar() {
     setSelectedTab((prev) => (prev === id ? id : id));
   };
 
+  // Check if a company is selected
+  let companySelected = false;
+  if (typeof window !== "undefined") {
+    const selectedCompany = localStorage.getItem("selectedCompany");
+    companySelected = !!selectedCompany;
+  }
+
   return (
     <div
       className={`bg-gray-50 h-full p-6 flex-col justify-between transition-all duration-300
         md:flex hidden
         ${isMenuOpen ? "md:w-[340px]" : "md:w-[120px]"}`}
     >
-
       <div className="flex flex-col">
         {/* Logo */}
         <div className="flex flex-row justify-start items-center gap-4">
@@ -117,174 +124,101 @@ export default function SideBar() {
         <div className="mt-8">
           <h2 className="text-sm text-gray-500 mb-4">{t("modules")}</h2>
           <div className="flex flex-col gap-2.5">
-            {menuItems.map((item) =>
-              role === "CEM" &&
-              [
-                "Factory Verification",
-                "Certificate of Origin",
-                "Firm Management",
-                "Employees Management",
-                "CFAs Management",
-                "Membership",
-                "Non-Tariff Barrier",
-                "Report a Problem",
-              ].includes(item.id) ? (
-                <div key={item.id} className="w-full flex flex-col items-end">
-                  <Link
-                    href={item.route}
-                    onClick={() => handleTabClick(item.id)}
-                    className={`cursor-pointer flex flex-row items-center h-[55px] w-full relative ${
-                      isMenuOpen ? "justify-between" : "justify-center"
-                    } md:gap-2 px-4 rounded-[8px] md:rounded-[10px] border-[0.5px] ${
-                      selectedTab === item.id
-                        ? "bg-blue-100 border-blue-500"
-                        : "border-gray-200 hover:bg-blue-50 hover:border-blue-300"
-                    }`}
-                    aria-expanded={selectedTab === item.id}
-                  >
-                    <div
-                      className={`w-1.5 h-6 max-h-6 rounded-tr-md rounded-br-md ${
-                        selectedTab === item.id
-                          ? "bg-blue-500"
-                          : "bg-transparent"
-                      } absolute left-0`}
-                    ></div>
-                    <div className="flex flex-row items-center gap-2">
-                      <item.icon
-                        size="20"
-                        color={selectedTab === item.id ? "#0561f5" : "#364153"}
-                      />
-                      {isMenuOpen && (
-                        <span className="text-gray-700 text-sm truncate">
-                          {t(item.translationKey)}
-                        </span>
-                      )}
-                    </div>
-                  </Link>
-                </div>
-              ) : role === "CEO" &&
-                [
-                  "Factory Verification",
-                  "Certificate of Origin",
-                  "Firm Management",
-                  "Membership",
-                  "Non-Tariff Barrier",
-                  "Report a Problem",
-                ].includes(item.id) ? (
-                <div key={item.id} className="w-full flex flex-col items-end">
-                  <Link
-                    href={item.route}
-                    onClick={() => handleTabClick(item.id)}
-                    className={`cursor-pointer flex flex-row items-center h-[55px] w-full relative ${
-                      isMenuOpen ? "justify-between" : "justify-center"
-                    } md:gap-2 px-4 md:rounded-[10px] border-[0.5px] ${
-                      selectedTab === item.id
-                        ? "bg-blue-100 border-blue-500"
-                        : "border-gray-200 hover:bg-blue-50 hover:border-blue-300"
-                    }`}
-                    aria-expanded={selectedTab === item.id}
-                  >
-                    <div
-                      className={`w-1.5 h-6 max-h-6 rounded-tr-md rounded-br-md ${
-                        selectedTab === item.id
-                          ? "bg-blue-500"
-                          : "bg-transparent"
-                      } absolute left-0`}
-                    ></div>
-                    <div className="flex flex-row items-center gap-2">
-                      <item.icon
-                        size="20"
-                        color={selectedTab === item.id ? "#0561f5" : "#364153"}
-                      />
-                      {isMenuOpen && (
-                        <span className="text-gray-700 text-sm truncate">
-                          {t(item.translationKey)}
-                        </span>
-                      )}
-                    </div>
-                  </Link>
-                </div>
-              ) : role === "CFAM" &&
-                [
-                  "Certificate of Origin",
-                  "CFA Officers Management",
-                  "Non-Tariff Barrier",
-                  "Report a Problem",
-                ].includes(item.id) ? (
-                <div key={item.id} className="w-full flex flex-col items-end">
-                  <Link
-                    href={item.route}
-                    onClick={() => handleTabClick(item.id)}
-                    className={`cursor-pointer flex flex-row items-center h-[55px] w-full relative ${
-                      isMenuOpen ? "justify-between" : "justify-center"
-                    } md:gap-2 px-4 rounded-[8px] md:rounded-[10px] border-[0.5px] ${
-                      selectedTab === item.id
-                        ? "bg-blue-100 border-blue-500"
-                        : "border-gray-200 hover:bg-blue-50 hover:border-blue-300"
-                    }`}
-                    aria-expanded={selectedTab === item.id}
-                  >
-                    <div
-                      className={`w-1.5 h-6 max-h-6 rounded-tr-md rounded-br-md ${
-                        selectedTab === item.id
-                          ? "bg-blue-500"
-                          : "bg-transparent"
-                      } absolute left-0`}
-                    ></div>
-                    <div className="flex flex-row items-center gap-2">
-                      <item.icon
-                        size="20"
-                        color={selectedTab === item.id ? "#0561f5" : "#364153"}
-                      />
-                      {isMenuOpen && (
-                        <span className="text-gray-700 text-sm truncate">
-                          {t(item.translationKey)}
-                        </span>
-                      )}
-                    </div>
-                  </Link>
-                </div>
-              ) : role === "CFAO" &&
-                [
-                  "Certificate of Origin",
-                  "Non-Tariff Barrier",
-                  "Report a Problem",
-                ].includes(item.id) ? (
-                <div key={item.id} className="w-full flex flex-col items-end">
-                  <Link
-                    href={item.route}
-                    onClick={() => handleTabClick(item.id)}
-                    className={`cursor-pointer flex flex-row items-center h-[55px] w-full relative ${
-                      isMenuOpen ? "justify-between" : "justify-center"
-                    } md:gap-2 px-4 rounded-[8px] md:rounded-[10px] border-[0.5px] ${
-                      selectedTab === item.id
-                        ? "bg-blue-100 border-blue-500"
-                        : "border-gray-200 hover:bg-blue-50 hover:border-blue-300"
-                    }`}
-                    aria-expanded={selectedTab === item.id}
-                  >
-                    <div
-                      className={`w-1.5 h-6 max-h-6 rounded-tr-md rounded-br-md ${
-                        selectedTab === item.id
-                          ? "bg-blue-500"
-                          : "bg-transparent"
-                      } absolute left-0`}
-                    ></div>
-                    <div className="flex flex-row items-center gap-2">
-                      <item.icon
-                        size="20"
-                        color={selectedTab === item.id ? "#0561f5" : "#364153"}
-                      />
-                      {isMenuOpen && (
-                        <span className="text-gray-700 text-sm truncate">
-                          {t(item.translationKey)}
-                        </span>
-                      )}
-                    </div>
-                  </Link>
-                </div>
-              ) : null
-            )}
+            {menuItems.map((item) => {
+              const isFirmManagement = item.id === "Firm Management";
+              const isLocked = !companySelected && !isFirmManagement;
+              if (
+                (role === "CEM" &&
+                  [
+                    "Factory Verification",
+                    "Certificate of Origin",
+                    "Firm Management",
+                    "Employees Management",
+                    "CFAs Management",
+                    "Membership",
+                    "Non-Tariff Barrier",
+                    "Report a Problem",
+                  ].includes(item.id)) ||
+                (role === "CEO" &&
+                  [
+                    "Factory Verification",
+                    "Certificate of Origin",
+                    "Firm Management",
+                    "Membership",
+                    "Non-Tariff Barrier",
+                    "Report a Problem",
+                  ].includes(item.id)) ||
+                (role === "CFAM" &&
+                  [
+                    "Certificate of Origin",
+                    "CFA Officers Management",
+                    "Non-Tariff Barrier",
+                    "Report a Problem",
+                  ].includes(item.id)) ||
+                (role === "CFAO" &&
+                  [
+                    "Certificate of Origin",
+                    "Non-Tariff Barrier",
+                    "Report a Problem",
+                  ].includes(item.id))
+              ) {
+                return (
+                  <div key={item.id} className="w-full flex flex-col items-end">
+                    {isLocked ? (
+                      <div
+                        className="flex flex-row items-center h-[55px] w-full relative justify-between md:gap-2 px-4 rounded-[8px] md:rounded-[10px] border-[0.5px] border-gray-200 bg-gray-100 cursor-not-allowed opacity-60"
+                        title="Select a company to access this module"
+                      >
+                        <div className="flex flex-row items-center gap-2">
+                          <item.icon size="20" color="#b0b0b0" />
+                          {isMenuOpen && (
+                            <span className="text-gray-400 text-sm truncate">
+                              {t(item.translationKey)}
+                            </span>
+                          )}
+                        </div>
+                        <Lock size="18" color="#b0b0b0" />
+                      </div>
+                    ) : (
+                      <Link
+                        href={item.route}
+                        onClick={() => handleTabClick(item.id)}
+                        className={`cursor-pointer flex flex-row items-center h-[55px] w-full relative ${
+                          isMenuOpen ? "justify-between" : "justify-center"
+                        } md:gap-2 px-4 rounded-[8px] md:rounded-[10px] border-[0.5px] ${
+                          selectedTab === item.id
+                            ? "bg-blue-100 border-blue-500"
+                            : "border-gray-200 hover:bg-blue-50 hover:border-blue-300"
+                        }`}
+                        aria-expanded={selectedTab === item.id}
+                      >
+                        <div
+                          className={`w-1.5 h-6 max-h-6 rounded-tr-md rounded-br-md ${
+                            selectedTab === item.id
+                              ? "bg-blue-500"
+                              : "bg-transparent"
+                          } absolute left-0`}
+                        ></div>
+                        <div className="flex flex-row items-center gap-2">
+                          <item.icon
+                            size="20"
+                            color={
+                              selectedTab === item.id ? "#0561f5" : "#364153"
+                            }
+                          />
+                          {isMenuOpen && (
+                            <span className="text-gray-700 text-sm truncate">
+                              {t(item.translationKey)}
+                            </span>
+                          )}
+                        </div>
+                      </Link>
+                    )}
+                  </div>
+                );
+              }
+              return null;
+            })}
           </div>
         </div>
       </div>

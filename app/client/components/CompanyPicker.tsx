@@ -4,17 +4,24 @@ import { Building } from "iconsax-reactjs";
 import usePickerState from "../services/PickerState";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
 import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Loader2 } from "lucide-react";
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { ChevronDownIcon, CheckIcon } from "lucide-react";
+import { cn } from "@/lib/utils";
 import usetinFormState from "../services/companytinformState";
+import { Loader2 } from "lucide-react";
 
 interface Company {
   id: number;
@@ -57,6 +64,7 @@ export default function CompanyPicker() {
   const [selectedCompany, setSelectedCompany] = useState<string>("");
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [open, setOpen] = useState(false);
 
   useEffect(() => {
     const fetchCompanies = async () => {
@@ -194,38 +202,70 @@ export default function CompanyPicker() {
           later.
         </div>
         <div className="flex flex-row items-center w-full">
-          <Select onValueChange={handleCompanySelect} value={selectedCompany}>
-            <SelectTrigger className="w-full border-[1px] border-gray-300 rounded-[7px] py-6 cursor-pointer hover:bg-gray-100 shadow-sm">
-              <SelectValue placeholder="Select a company" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectGroup>
-                <SelectLabel>Companies</SelectLabel>
-                {isLoading ? (
-                  <SelectItem value="loading" disabled>
-                    <div className="flex items-center gap-2">
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                      Loading companies...
-                    </div>
-                  </SelectItem>
-                ) : error ? (
-                  <SelectItem value="error" disabled>
-                    <div className="text-red-500">{error}</div>
-                  </SelectItem>
-                ) : companies.length === 0 ? (
-                  <SelectItem value="none" disabled>
-                    No companies found
-                  </SelectItem>
-                ) : (
-                  companies.map((company) => (
-                    <SelectItem key={company.id} value={company.company_tin}>
-                      {company.company_name}
-                    </SelectItem>
-                  ))
+          <Popover open={open} onOpenChange={setOpen}>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                role="combobox"
+                aria-expanded={open}
+                className={cn(
+                  "w-full border-[1px] border-gray-300 rounded-[7px] py-6 cursor-pointer hover:bg-gray-100 shadow-sm justify-between",
+                  !selectedCompany && "text-muted-foreground"
                 )}
-              </SelectGroup>
-            </SelectContent>
-          </Select>
+                disabled={isLoading}
+              >
+                {selectedCompany
+                  ? companies.find((c) => c.company_tin === selectedCompany)
+                      ?.company_name
+                  : "Select a company"}
+                <ChevronDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-[385px] max-w-[90vw] p-0">
+              <Command>
+                <CommandInput placeholder="Search company..." className="h-9" />
+                <CommandList>
+                  {isLoading ? (
+                    <CommandEmpty>
+                      <div className="flex items-center gap-2">
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        Loading companies...
+                      </div>
+                    </CommandEmpty>
+                  ) : error ? (
+                    <CommandEmpty>
+                      <div className="text-red-500">{error}</div>
+                    </CommandEmpty>
+                  ) : companies.length === 0 ? (
+                    <CommandEmpty>No companies found</CommandEmpty>
+                  ) : (
+                    <CommandGroup heading="Companies">
+                      {companies.map((company) => (
+                        <CommandItem
+                          key={company.id}
+                          value={company.company_tin}
+                          onSelect={(currentValue) => {
+                            handleCompanySelect(currentValue);
+                            setOpen(false);
+                          }}
+                        >
+                          {company.company_name}
+                          <CheckIcon
+                            className={cn(
+                              "ml-auto h-4 w-4",
+                              selectedCompany === company.company_tin
+                                ? "opacity-100"
+                                : "opacity-0"
+                            )}
+                          />
+                        </CommandItem>
+                      ))}
+                    </CommandGroup>
+                  )}
+                </CommandList>
+              </Command>
+            </PopoverContent>
+          </Popover>
         </div>
         <div className="flex flex-row items-center w-full gap-6 mt-2">
           <button

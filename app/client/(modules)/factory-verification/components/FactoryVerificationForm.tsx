@@ -8,6 +8,15 @@ import {
   SearchNormal1,
 } from "iconsax-reactjs";
 import { DatePicker } from "@/components/ui/date-picker";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface Product {
   id?: number;
@@ -26,11 +35,14 @@ interface FormProduct {
   product_category: string;
   unity_of_measure: string;
   manager_id: number;
+  manufacturer?: string;
 }
 
 interface FormData {
   products: FormProduct[];
   expected_inspection_date: string;
+  contact_name: string;
+  contact_phone: string;
 }
 
 const productSchema = z.object({
@@ -556,6 +568,8 @@ export default function FactoryVerificationForm() {
       },
     ],
     expected_inspection_date: "",
+    contact_name: "",
+    contact_phone: "",
   });
 
   const [errors, setErrors] = useState<{
@@ -567,12 +581,18 @@ export default function FactoryVerificationForm() {
       unity_of_measure?: string;
     }[];
     expected_inspection_date?: string;
+    contact_name?: string;
+    contact_phone?: string;
   }>({
     products: [{}],
     expected_inspection_date: undefined,
+    contact_name: undefined,
+    contact_phone: undefined,
   });
 
   const [previewState, togglePreview] = useState(false);
+  const [selectedManufacturer, setSelectedManufacturer] = useState("");
+  const manufacturers = ["Manufacturer A", "Manufacturer B", "Manufacturer C"];
 
   const validateProduct = (product: FormProduct, index: number) => {
     const productErrors: any = {};
@@ -614,20 +634,32 @@ export default function FactoryVerificationForm() {
         unity_of_measure?: string;
       }[];
       expected_inspection_date?: string;
+      contact_name?: string;
+      contact_phone?: string;
     } = {
       products: formData.products.map((product, index) =>
         validateProduct(product, index)
       ),
       expected_inspection_date: undefined,
+      contact_name: undefined,
+      contact_phone: undefined,
     };
 
     if (!formData.expected_inspection_date.trim()) {
       newErrors.expected_inspection_date =
         "Expected inspection date is required";
     }
+    if (!formData.contact_name.trim()) {
+      newErrors.contact_name = "Contact name is required";
+    }
+    if (!formData.contact_phone.trim()) {
+      newErrors.contact_phone = "Contact phone is required";
+    }
 
     const hasErrors =
       newErrors.expected_inspection_date ||
+      newErrors.contact_name ||
+      newErrors.contact_phone ||
       newErrors.products.some(
         (productErrors) => Object.keys(productErrors).length > 0
       );
@@ -640,6 +672,8 @@ export default function FactoryVerificationForm() {
     setErrors({
       products: formData.products.map(() => ({})),
       expected_inspection_date: undefined,
+      contact_name: undefined,
+      contact_phone: undefined,
     });
 
     getFormSummary();
@@ -735,7 +769,6 @@ export default function FactoryVerificationForm() {
     });
   };
 
-  
   const getValidFormData = (): FormData => {
     return {
       products: formData.products.map((product) => ({
@@ -747,8 +780,11 @@ export default function FactoryVerificationForm() {
         product_category: product.product_category.trim(),
         unity_of_measure: product.unity_of_measure.trim(),
         manager_id: product.manager_id,
+        manufacturer: product.manufacturer,
       })),
       expected_inspection_date: formData.expected_inspection_date.trim(),
+      contact_name: formData.contact_name.trim(),
+      contact_phone: formData.contact_phone.trim(),
     };
   };
 
@@ -791,6 +827,17 @@ export default function FactoryVerificationForm() {
     });
   };
 
+  // New handler for contact info
+  const handleContactChange = (
+    field: "contact_name" | "contact_phone",
+    value: string
+  ) => {
+    setFormData({ ...formData, [field]: value });
+    if (errors[field]) {
+      setErrors({ ...errors, [field]: undefined });
+    }
+  };
+
   return (
     <div className="flex flex-col w-full h-full">
       <PreviewWidget
@@ -804,6 +851,50 @@ export default function FactoryVerificationForm() {
         onSubmit={handlePreview}
       >
         <div className="flex flex-col gap-4 overflow-hidden overflow-y-auto h-[700px] pr-3">
+          {/* Contact Information */}
+          <div className="flex flex-row gap-6 mb-2">
+            <div className="flex flex-col flex-1">
+              <label className="text-sm text-gray-600 mb-1">Contact Name</label>
+              <input
+                type="text"
+                placeholder="Enter contact name"
+                value={formData.contact_name}
+                onChange={(e) =>
+                  handleContactChange("contact_name", e.target.value)
+                }
+                className={`w-full px-3 py-2 border text-sm ${
+                  errors.contact_name ? "border-red-500" : "border-zinc-300"
+                } bg-white outline-blue-400 rounded-md placeholder:text-zinc-400 text-zinc-500`}
+              />
+              {errors.contact_name && (
+                <p className="text-red-500 text-xs mt-1">
+                  {errors.contact_name}
+                </p>
+              )}
+            </div>
+            <div className="flex flex-col flex-1">
+              <label className="text-sm text-gray-600 mb-1">
+                Contact Phone
+              </label>
+              <input
+                type="text"
+                placeholder="Enter contact phone number"
+                value={formData.contact_phone}
+                onChange={(e) =>
+                  handleContactChange("contact_phone", e.target.value)
+                }
+                className={`w-full px-3 py-2 border text-sm ${
+                  errors.contact_phone ? "border-red-500" : "border-zinc-300"
+                } bg-white outline-blue-400 rounded-md placeholder:text-zinc-400 text-zinc-500`}
+              />
+              {errors.contact_phone && (
+                <p className="text-red-500 text-xs mt-1">
+                  {errors.contact_phone}
+                </p>
+              )}
+            </div>
+          </div>
+
           {/* Header with Date Picker */}
           <div className="flex flex-row justify-between items-center border-b border-gray-200 pb-4">
             <div className="text-lg font-semibold text-gray-700">
@@ -838,9 +929,35 @@ export default function FactoryVerificationForm() {
               className="flex flex-col gap-3 relative border border-gray-200 rounded-lg p-4 bg-gray-50"
               key={idx}
             >
+              {/* Manufacturer Dropdown for each product */}
+              <div className="flex flex-col gap-1 mb-2">
+                <label className="text-sm text-gray-600">
+                  Select Manufacturer
+                </label>
+                <Select
+                  value={product.manufacturer || ""}
+                  onValueChange={(value) =>
+                    handleInputChange(idx, "manufacturer", value)
+                  }
+                >
+                  <SelectTrigger className="w-full border border-zinc-200 bg-white rounded-[8px] px-4 py-2.5 text-gray-600">
+                    <SelectValue placeholder="Select a manufacturer" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      <SelectLabel>Manufacturers</SelectLabel>
+                      {manufacturers.map((manufacturer) => (
+                        <SelectItem key={manufacturer} value={manufacturer}>
+                          {manufacturer}
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+              </div>
               <div className="relative w-full">
                 <div className="text-sm font-medium text-gray-700 mb-1">
-                  Product Name
+                  Product HS Code
                 </div>
                 <ProductAutocomplete
                   value={product.name}
@@ -849,7 +966,7 @@ export default function FactoryVerificationForm() {
                     handleProductSelect(idx, selectedProduct)
                   }
                   error={errors.products[idx]?.name}
-                  placeholder="Start typing to search products..."
+                  placeholder="Start typing the HS Code to search for products..."
                 />
                 {errors.products[idx]?.name && (
                   <p className="text-red-500 text-xs mt-1">
@@ -861,11 +978,11 @@ export default function FactoryVerificationForm() {
               <div className="grid grid-cols-3 gap-3">
                 <div className="flex flex-col">
                   <div className="text-sm font-medium text-gray-700 mb-1">
-                    HS Code
+                    Product name
                   </div>
                   <input
                     type="text"
-                    placeholder="HS Code"
+                    placeholder="Product name"
                     value={product.hs_code}
                     onChange={(e) =>
                       handleInputChange(idx, "hs_code", e.target.value)

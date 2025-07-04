@@ -189,7 +189,9 @@ export default function StatsBar({
                   : "w-[40px] h-[40px] p-1"
               }`}
             >
+
               <Building variant="Bulk" size={70} color="#138abd" />
+
             </div>
 
             {expanded && selectedCompany && (

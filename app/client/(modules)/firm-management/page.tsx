@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import NavBar from "../../components/NavBar";
 import ProgressTracker from "../firm-management/components/StatsBar";
 import {
@@ -61,6 +61,10 @@ export default function FirmManagement() {
     [tin: string]: number;
   }>({});
   const [refreshing, setRefreshing] = useState(false);
+  const [nationalityFilter, setNationalityFilter] = useState("__all__");
+  const [registrationTypeFilter, setRegistrationTypeFilter] =
+    useState("__all__");
+  const [stateFilter, setStateFilter] = useState("__all__");
 
   const fetchCompanies = async () => {
     setLoading(true);
@@ -123,6 +127,34 @@ export default function FirmManagement() {
     });
   }, [companies]);
 
+  // Unique options for dropdowns
+  const nationalityOptions = useMemo(
+    () => [
+      ...new Set(
+        companies
+          .map((c) => c.company_nationality_code)
+          .filter((v) => !!v && v !== "")
+      ),
+    ],
+    [companies]
+  );
+  const registrationTypeOptions = useMemo(
+    () => [
+      ...new Set(
+        companies
+          .map((c) => c.company_registration_type_code)
+          .filter((v) => !!v && v !== "")
+      ),
+    ],
+    [companies]
+  );
+  const stateOptions = useMemo(
+    () => [
+      ...new Set(companies.map((c) => c.state).filter((v) => !!v && v !== "")),
+    ],
+    [companies]
+  );
+
   const filteredData = companies
     .filter((company) => {
       const matchesSearch =
@@ -138,7 +170,22 @@ export default function FirmManagement() {
         statusFilter === "all" ||
         company.state.toLowerCase() === statusFilter.toLowerCase();
 
-      return matchesSearch && matchesStatus;
+      const matchesNationality =
+        nationalityFilter === "__all__" ||
+        company.company_nationality_code === nationalityFilter;
+      const matchesRegistrationType =
+        registrationTypeFilter === "__all__" ||
+        company.company_registration_type_code === registrationTypeFilter;
+      const matchesState =
+        stateFilter === "__all__" || company.state === stateFilter;
+
+      return (
+        matchesSearch &&
+        matchesStatus &&
+        matchesNationality &&
+        matchesRegistrationType &&
+        matchesState
+      );
     })
     .sort((a, b) => {
       if (sortField === "name") {
@@ -217,65 +264,105 @@ export default function FirmManagement() {
                     />
                   </label>
 
-                  {/* Status Filter */}
-                  <div className="flex flex-row">
-                    <div className="relative w-full md:w-auto hidden">
+                  {/* Nationality Filter */}
+                  {/* <Select
+                    value={nationalityFilter}
+                    onValueChange={setNationalityFilter}
+                  >
+                    <SelectTrigger className="w-[140px] text-zinc-600">
+                      <SelectValue placeholder="Nationality" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectGroup>
+                        <SelectItem value="__all__">
+                          All Nationalities
+                        </SelectItem>
+                        {nationalityOptions.map((nat) => (
+                          <SelectItem key={nat} value={nat}>
+                            {nat}
+                          </SelectItem>
+                        ))}
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select> */}
+
+                  {/* Registration Type Filter */}
+                  {/* <Select
+                    value={registrationTypeFilter}
+                    onValueChange={setRegistrationTypeFilter}
+                  >
+                    <SelectTrigger className="w-[170px] text-zinc-600">
+                      <SelectValue placeholder="Registration Type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectGroup>
+                        <SelectItem value="__all__">
+                          All Registration Types
+                        </SelectItem>
+                        {registrationTypeOptions.map((reg) => (
+                          <SelectItem key={reg} value={reg}>
+                            {reg}
+                          </SelectItem>
+                        ))}
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select> */}
+
+                  {/* State Filter */}
+                  <Select value={stateFilter} onValueChange={setStateFilter}>
+                    <SelectTrigger className="w-[140px] text-zinc-600">
+                      <SelectValue placeholder="State" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectGroup>
+                        <SelectItem value="__all__">All States</SelectItem>
+                        {stateOptions.map((state) => (
+                          <SelectItem key={state} value={state}>
+                            {state}
+                          </SelectItem>
+                        ))}
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
+
+                  {/* Sort */}
+                  <div className="flex items-center gap-2">
+                    <div className="relative w-full md:w-auto">
                       <Select
-                        value={statusFilter}
-                        onValueChange={setStatusFilter}
+                        value={sortField}
+                        onValueChange={(value: "name" | "tin" | "state") => {
+                          setSortField(value);
+                          setCurrentPage(1);
+                        }}
                       >
                         <SelectTrigger className="w-full md:w-[140px] text-zinc-600">
-                          <SelectValue placeholder="All Status" />
+                          <SelectValue placeholder="Sort by" />
                         </SelectTrigger>
                         <SelectContent>
                           <SelectGroup>
-                            <SelectItem value="all">All Status</SelectItem>
-                            <SelectItem value="active">Active</SelectItem>
-                            <SelectItem value="inactive">Inactive</SelectItem>
+                            <SelectItem value="name">Name</SelectItem>
+                            <SelectItem value="tin">TIN</SelectItem>
+                            <SelectItem value="state">State</SelectItem>
                           </SelectGroup>
                         </SelectContent>
                       </Select>
                     </div>
 
-                    {/* Sort */}
-                    <div className="flex items-center gap-2">
-                      <div className="relative w-full md:w-auto">
-                        <Select
-                          value={sortField}
-                          onValueChange={(value: "name" | "tin" | "state") => {
-                            setSortField(value);
-                            setCurrentPage(1);
-                          }}
-                        >
-                          <SelectTrigger className="w-full md:w-[140px] text-zinc-600">
-                            <SelectValue placeholder="Sort by" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectGroup>
-                              <SelectItem value="name">Name</SelectItem>
-                              <SelectItem value="tin">TIN</SelectItem>
-                              <SelectItem value="state">State</SelectItem>
-                            </SelectGroup>
-                          </SelectContent>
-                        </Select>
-                      </div>
-
-                      {/* Sort Direction Toggle */}
-                      <button
-                        onClick={() => {
-                          setSortDirection(
-                            sortDirection === "asc" ? "desc" : "asc"
-                          );
-                          setCurrentPage(1);
-                        }}
-                        className="px-3 py-2 text-sm border border-zinc-300 rounded-[9px] hover:bg-gray-50 transition-colors"
-                        title={`Sort ${
-                          sortDirection === "asc" ? "Descending" : "Ascending"
-                        }`}
-                      >
-                        {sortDirection === "asc" ? "↑" : "↓"}
-                      </button>
-                    </div>
+                    {/* Sort Direction Toggle */}
+                    {/* <button
+                      onClick={() => {
+                        setSortDirection(
+                          sortDirection === "asc" ? "desc" : "asc"
+                        );
+                        setCurrentPage(1);
+                      }}
+                      className="px-3 py-2 text-sm border border-zinc-300 rounded-[9px] hover:bg-gray-50 transition-colors"
+                      title={`Sort ${
+                        sortDirection === "asc" ? "Descending" : "Ascending"
+                      }`}
+                    >
+                      {sortDirection === "asc" ? "↑" : "↓"}
+                    </button> */}
                   </div>
                 </div>
               )}
@@ -294,7 +381,7 @@ export default function FirmManagement() {
               ) : (
                 <div className="flex flex-row gap-2">
                   <button
-                    className={`flex flex-row gap-2 items-center bg-gray-200 hover:bg-gray-300 text-gray-700 text-sm rounded-[6px] cursor-pointer px-4 py-2 w-full md:w-auto border border-gray-300 ${
+                    className={`flex flex-row gap-2 items-center bg-gray-200 hover:bg-gray-300 text-gray-700 text-sm rounded-[6px] cursor-pointer px-4 py-1.5 w-full md:w-auto border border-gray-300 ${
                       refreshing ? "opacity-60 cursor-not-allowed" : ""
                     }`}
                     onClick={fetchCompanies}
@@ -309,7 +396,7 @@ export default function FirmManagement() {
                     {refreshing ? "Refreshing..." : "Refresh"}
                   </button>
                   <button
-                    className="flex flex-row gap-3 justify-between items-center bg-blue-600 hover:bg-blue-500 text-white text-sm rounded-[6px] cursor-pointer px-5 py-2 w-full md:w-auto"
+                    className="flex flex-row gap-3 justify-between items-center bg-blue-600 hover:bg-blue-500 text-white text-sm rounded-[6px] cursor-pointer px-5 py-1.5 w-full md:w-auto"
                     onClick={() => toggleCompanyTinForm()}
                   >
                     <Add size={20} color="white" />

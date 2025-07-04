@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import NavBar from "../../components/NavBar";
 import ProgressTracker from "../factory-verification/components/StatsBar";
 import FactoryVerificationForm from "../factory-verification/components/FactoryVerificationForm";
@@ -21,6 +21,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Download } from "lucide-react";
 
 interface Product {
   sn: number;
@@ -30,6 +31,7 @@ interface Product {
   state: string;
   community_name: string | null;
   community_short_code: string | null;
+  manufacturer?: string;
 }
 
 const stateLabels = {
@@ -46,6 +48,30 @@ const stateLabels = {
   finalized: "Finalized",
 };
 
+// Add a helper to get badge styles by status
+const getStatusBadgeClass = (status: string) => {
+  switch (status.toLowerCase()) {
+    case "approved":
+    case "verified":
+      return "bg-green-100 text-green-700";
+    case "pending":
+    case "submitted":
+    case "under_review":
+    case "awaiting_director":
+      return "bg-orange-100 text-orange-700";
+    case "rejected":
+      return "bg-red-100 text-red-700";
+    case "inspection_scheduled":
+    case "inspection_done":
+    case "report_disputed":
+    case "report_accepted":
+    case "finalized":
+      return "bg-blue-100 text-blue-700";
+    default:
+      return "bg-gray-100 text-gray-600";
+  }
+};
+
 export default function FactoryVerification() {
   const [verificationForm, toggleForm] = useState(false);
   const [discardBoxState, togglediscardBox] = useState(false);
@@ -59,9 +85,36 @@ export default function FactoryVerification() {
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [hsCodeFilter, setHsCodeFilter] = useState("__all__");
+  const [communityNameFilter, setCommunityNameFilter] = useState("__all__");
+  const [manufacturerFilter, setManufacturerFilter] = useState("__all__");
 
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 20;
+
+  // Get unique values for dropdown filters
+  const hsCodeOptions = useMemo(
+    () => [
+      ...new Set(products.map((p) => p.hs_code).filter((v) => !!v && v !== "")),
+    ],
+    [products]
+  );
+  const communityNameOptions = useMemo(
+    () => [
+      ...new Set(
+        products.map((p) => p.community_name).filter((v) => !!v && v !== "")
+      ),
+    ],
+    [products]
+  );
+  const manufacturerOptions = useMemo(
+    () => [
+      ...new Set(
+        products.map((p) => p.manufacturer).filter((v) => !!v && v !== "")
+      ),
+    ],
+    [products]
+  );
 
   useEffect(() => {
     fetchProducts();
@@ -100,6 +153,7 @@ export default function FactoryVerification() {
             state: product.state,
             community_name: product.community_name,
             community_short_code: product.community_short_code,
+            manufacturer: product.manufacturer,
           })
         );
         setProducts(mappedProducts);
@@ -145,7 +199,24 @@ export default function FactoryVerification() {
       const matchesStatus =
         statusFilter === "all" ||
         product.state.toLowerCase() === statusFilter.toLowerCase();
-      return matchesSearch && matchesStatus;
+      const matchesHSCode =
+        hsCodeFilter === "__all__" ||
+        (product.hs_code || "").toLowerCase() === hsCodeFilter.toLowerCase();
+      const matchesCommunity =
+        communityNameFilter === "__all__" ||
+        (product.community_name || "").toLowerCase() ===
+          communityNameFilter.toLowerCase();
+      const matchesManufacturer =
+        manufacturerFilter === "__all__" ||
+        (product.manufacturer || "").toLowerCase() ===
+          manufacturerFilter.toLowerCase();
+      return (
+        matchesSearch &&
+        matchesStatus &&
+        matchesHSCode &&
+        matchesCommunity &&
+        matchesManufacturer
+      );
     })
     .sort((a, b) => {
       let aValue: string | number;
@@ -188,6 +259,12 @@ export default function FactoryVerification() {
 
   const handlePreviousPage = () => {
     if (currentPage > 1) setCurrentPage(currentPage - 1);
+  };
+
+  // Placeholder for download report
+  const handleDownloadReport = (product: Product) => {
+    // TODO: Implement actual download logic
+    alert(`Download report for product: ${product.product_name}`);
   };
 
   // Add debug logs before rendering
@@ -249,13 +326,9 @@ export default function FactoryVerification() {
                 </h3>
                 <div className="flex items-center gap-2">
                   <span
-                    className={`px-3 py-1 rounded-full text-xs font-medium ${
-                      selectedProduct.state === "approved"
-                        ? "bg-green-100 text-green-700"
-                        : selectedProduct.state === "Pending"
-                        ? "bg-orange-100 text-orange-700"
-                        : "bg-red-100 text-red-700"
-                    }`}
+                    className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusBadgeClass(
+                      selectedProduct.state
+                    )}`}
                   >
                     {selectedProduct.state}
                   </span>
@@ -333,7 +406,7 @@ export default function FactoryVerification() {
                       placeholder="Search products..."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      className="border-[0.5px] border-zinc-300 focus:outline-2 focus:outline-blue-400 rounded-sm pl-8 pr-2.5 py-2.5 text-sm placeholder:text-sm"
+                      className="border-[0.5px] border-zinc-300 focus:outline-2 focus:outline-blue-400 rounded-[10px] pl-8 pr-2.5 py-2 text-sm placeholder:text-sm"
                     />
                     <SearchNormal1
                       size="18"
@@ -350,7 +423,7 @@ export default function FactoryVerification() {
                       setCurrentPage(1);
                     }}
                   >
-                    <SelectTrigger className="w-[120px] py-5">
+                    <SelectTrigger className="w-[120px] py-4.5">
                       <SelectValue placeholder="Select status" />
                     </SelectTrigger>
                     <SelectContent>
@@ -363,8 +436,70 @@ export default function FactoryVerification() {
                     </SelectContent>
                   </Select>
 
+                  {/* HS Code Filter */}
+                  <Select
+                    value={hsCodeFilter}
+                    onValueChange={(value) => setHsCodeFilter(value)}
+                  >
+                    <SelectTrigger className="w-[140px] py-4.5">
+                      <SelectValue placeholder="HS Code" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectGroup>
+                        <SelectItem value="__all__">All HS Codes</SelectItem>
+                        {hsCodeOptions.map((code) => (
+                          <SelectItem key={String(code)} value={String(code)}>
+                            {code}
+                          </SelectItem>
+                        ))}
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
+
+                  {/* Community Name Filter */}
+                  <Select
+                    value={communityNameFilter}
+                    onValueChange={(value) => setCommunityNameFilter(value)}
+                  >
+                    <SelectTrigger className="w-[170px] py-4.5">
+                      <SelectValue placeholder="Community Name" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectGroup>
+                        <SelectItem value="__all__">All Communities</SelectItem>
+                        {communityNameOptions.map((name) => (
+                          <SelectItem key={String(name)} value={String(name)}>
+                            {name}
+                          </SelectItem>
+                        ))}
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
+
+                  {/* Manufacturer Filter (if available) */}
+                  {/* <Select
+                    value={manufacturerFilter}
+                    onValueChange={(value) => setManufacturerFilter(value)}
+                  >
+                    <SelectTrigger className="w-[170px]">
+                      <SelectValue placeholder="Manufacturer" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectGroup>
+                        <SelectItem value="__all__">
+                          All Manufacturers
+                        </SelectItem>
+                        {manufacturerOptions.map((man) => (
+                          <SelectItem key={String(man)} value={String(man)}>
+                            {man}
+                          </SelectItem>
+                        ))}
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select> */}
+
                   {/* Sort Direction Toggle */}
-                  <button
+                  {/* <button
                     onClick={() => {
                       setSortDirection(
                         sortDirection === "asc" ? "desc" : "asc"
@@ -377,7 +512,7 @@ export default function FactoryVerification() {
                     }`}
                   >
                     {sortDirection === "asc" ? "↑" : "↓"}
-                  </button>
+                  </button> */}
                 </div>
               )}
 
@@ -395,7 +530,7 @@ export default function FactoryVerification() {
               ) : (
                 <div className="flex items-center gap-3">
                   <button
-                    className="flex flex-row gap-3 justify-between items-center bg-gray-100 hover:bg-gray-200 text-gray-600 text-sm rounded-[6px] cursor-pointer px-4 py-2.5 transition-colors"
+                    className="flex flex-row gap-3 justify-between items-center bg-gray-100 hover:bg-gray-200 text-gray-600 text-sm rounded-[6px] cursor-pointer px-4 py-2 transition-colors"
                     onClick={fetchProducts}
                     disabled={loading}
                   >
@@ -407,11 +542,11 @@ export default function FactoryVerification() {
                     {loading ? "Refreshing..." : "Refresh"}
                   </button>
                   <button
-                    className="flex flex-row gap-3 justify-between items-center bg-blue-600 hover:bg-blue-500 text-white text-sm rounded-[6px] cursor-pointer px-5 py-2.5"
+                    className="flex flex-row gap-3 justify-between items-center bg-blue-600 hover:bg-blue-500 text-white text-sm rounded-[6px] cursor-pointer px-5 py-2"
                     onClick={() => toggleForm(true)}
                   >
                     <Add size={20} color="white" />
-                    New Product
+                    Add
                   </button>
                 </div>
               )}
@@ -436,15 +571,17 @@ export default function FactoryVerification() {
                           <th className="px-4 py-5 text-left text-gray-700">
                             HS Code
                           </th>
-
                           <th className="px-4 py-5 text-left text-gray-700">
-                            Community Name
+                            Trade Region
                           </th>
                           <th className="px-4 py-5 text-left text-gray-700">
-                            Community Short Code
+                            Creterion
                           </th>
                           <th className="px-4 py-5 text-left text-gray-700">
                             State
+                          </th>
+                          <th className="px-4 py-5 text-left text-gray-700">
+                            Report file
                           </th>
                         </tr>
                       </thead>
@@ -472,6 +609,9 @@ export default function FactoryVerification() {
                             </td>
                             <td className="px-4 py-4">
                               <div className="h-4 w-12 bg-gray-200 rounded animate-pulse"></div>
+                            </td>
+                            <td className="px-4 py-4">
+                              <div className="h-4 w-20 bg-gray-200 rounded animate-pulse"></div>
                             </td>
                           </tr>
                         ))}
@@ -523,13 +663,16 @@ export default function FactoryVerification() {
                           HS Code
                         </th>
                         <th className="px-4 py-5 text-left text-gray-700">
-                          Community Name
+                          Trade Region{" "}
                         </th>
                         <th className="px-4 py-5 text-left text-gray-700">
-                          Short Code
+                          Creterion
                         </th>
                         <th className="px-4 py-5 text-left text-gray-700">
                           State
+                        </th>
+                        <th className="px-4 py-5 text-left text-gray-700">
+                          Report file
                         </th>
                       </tr>
                     </thead>
@@ -541,7 +684,6 @@ export default function FactoryVerification() {
                             index % 2 === 0 ? "bg-white" : "bg-gray-white"
                           }`}
                         >
-                          
                           <td className="px-4 py-4">{product.sn}</td>
                           <td className="px-4 py-4">{product.product_name}</td>
                           <td className="px-4 py-4">{product.hs_code}</td>
@@ -552,9 +694,25 @@ export default function FactoryVerification() {
                             {product.community_short_code || "-"}
                           </td>
                           <td className="px-4 py-4">
-                            {stateLabels[
-                              product.state as keyof typeof stateLabels
-                            ] || product.state}
+                            <span
+                              className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusBadgeClass(
+                                product.state
+                              )}`}
+                            >
+                              {stateLabels[
+                                product.state as keyof typeof stateLabels
+                              ] || product.state}
+                            </span>
+                          </td>
+                          <td className="px-4 py-4">
+                            <button
+                              onClick={() => handleDownloadReport(product)}
+                              className="p-2 rounded hover:bg-blue-50 flex flex-row gap-3 cursor-pointer"
+                              title="Download Verification Report"
+                            >
+                              <Download size={20} color="#0561f5" />
+                              Download
+                            </button>
                           </td>
                         </tr>
                       ))}
@@ -604,8 +762,10 @@ export default function FactoryVerification() {
         <ProgressTracker
           stats={{
             total: products.length,
-            submitted: products.filter((p) => p.state === "Pending").length,
-            approved: products.filter((p) => p.state === "Verified").length,
+            submitted: products.filter((p) => p.state === "under_review")
+              .length,
+            approved: products.filter((p) => p.state === "report_accepted")
+              .length,
           }}
           onCompanyChange={fetchProducts}
         />

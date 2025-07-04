@@ -11,11 +11,11 @@ import { ArrowDown2, Call, Sms, User } from "iconsax-reactjs";
 
 const Roles = {
   CEM: {
-    display: "Company Exporter Manager",
+    display: "Company Export Manager",
     value: "manager",
   },
   CFAM: {
-    display: "CFA Manager",
+    display: "Trader",
     value: "cfa",
   },
 } as const;

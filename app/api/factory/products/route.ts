@@ -32,22 +32,18 @@ export async function POST(request: Request) {
       );
     }
 
-    const apiUrl = `${API_BASE_URL}/api/factory/products`;
+    const apiUrl = `${API_BASE_URL}/api/factory/products?company_tin=${company_tin}`;
     console.log("Fetching factory products from:", apiUrl);
 
     const response = await fetch(apiUrl, {
-      method: "POST",
+      method: "GET",
       headers: {
-        "Content-Type": "application/json",
         Authorization: `Bearer ${token.value.trim()}`,
       },
-      body: JSON.stringify({
-        company_tin: company_tin,
-      }),
     });
 
-    console.log("Response status:", response.status);
-    console.log("Response body:", response.body);
+    console.log("Response status (Products):", response.status);
+    console.log("Response body (Products):", response.body);
 
     if (!response.ok) {
       const errorText = await response.text();
@@ -82,25 +78,19 @@ export async function POST(request: Request) {
     }
 
     const data = await response.json();
-    console.log("API response:", data.result.products);
+    console.log("API response:", data);
 
-    if (
-      data.result &&
-      data.result.error &&
-      data.result.error.includes("No factory verification found")
-    ) {
-      return NextResponse.json({
-        status: "success",
-        result: {
-          products: [],
+    if (!data.success) {
+      return NextResponse.json(
+        {
+          status: "error",
+          error: data.message || "API request failed",
         },
-        message: "No products found for this company",
-        empty: true,
-      });
+        { status: 400 }
+      );
     }
 
-    if (!data.result || !data.result.products) {
-      console.error("Unexpected API response structure:", data);
+    if (!Array.isArray(data.products)) {
       return NextResponse.json(
         {
           status: "error",
@@ -110,15 +100,18 @@ export async function POST(request: Request) {
       );
     }
 
-    const transformedProducts = data.result.products.map(
+    const transformedProducts = data.products.map(
       (product: any, index: number) => ({
         sn: index + 1,
         id: product.id,
         product_name: product.product_name,
         hs_code: product.hs_code,
         state: product.state,
-        community_name: product.community_name,
-        community_short_code: product.community_short_code,
+        community_name: product.community_names,
+        community_short_code: product.creation_short_codes,
+        description: product.description,
+        factory_verification_id: product.factory_verification_id,
+        factory_reference: product.factory_reference,
       })
     );
 
@@ -126,8 +119,9 @@ export async function POST(request: Request) {
       status: "success",
       result: {
         products: transformedProducts,
+        pagination: data.pagination,
       },
-      message: "Factory products fetched successfully",
+      message: data.message || "Factory products fetched successfully",
     });
   } catch (error) {
     console.error("Factory products fetch error:", error);
