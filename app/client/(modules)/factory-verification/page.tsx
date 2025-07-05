@@ -555,7 +555,7 @@ export default function FactoryVerification() {
             {verificationForm ? (
               <FactoryVerificationForm />
             ) : (
-              <div className="w-full mt-5 rounded-md border-[0.5px] overflow-hidden overflow-y-auto h-[100%] pr-1">
+              <div className="w-full mt-5 rounded-md border-[0.5px] overflow-hidden overflow-y-auto h-[100%]">
                 {loading ? (
                   <div className="w-full">
                     <table className="w-full text-sm">
@@ -580,9 +580,9 @@ export default function FactoryVerification() {
                           <th className="px-4 py-5 text-left text-gray-700">
                             State
                           </th>
-                          <th className="px-4 py-5 text-left text-gray-700">
+                          {/* <th className="px-4 py-5 text-left text-gray-700">
                             Report file
-                          </th>
+                          </th> */}
                         </tr>
                       </thead>
                       <tbody>
@@ -610,9 +610,9 @@ export default function FactoryVerification() {
                             <td className="px-4 py-4">
                               <div className="h-4 w-12 bg-gray-200 rounded animate-pulse"></div>
                             </td>
-                            <td className="px-4 py-4">
+                            {/* <td className="px-4 py-4">
                               <div className="h-4 w-20 bg-gray-200 rounded animate-pulse"></div>
-                            </td>
+                            </td> */}
                           </tr>
                         ))}
                       </tbody>
@@ -671,9 +671,9 @@ export default function FactoryVerification() {
                         <th className="px-4 py-5 text-left text-gray-700">
                           State
                         </th>
-                        <th className="px-4 py-5 text-left text-gray-700">
+                        {/* <th className="px-4 py-5 text-left text-gray-700">
                           Report file
-                        </th>
+                        </th> */}
                       </tr>
                     </thead>
                     <tbody>
@@ -704,7 +704,7 @@ export default function FactoryVerification() {
                               ] || product.state}
                             </span>
                           </td>
-                          <td className="px-4 py-4">
+                          {/* <td className="px-4 py-4">
                             <button
                               onClick={() => handleDownloadReport(product)}
                               className="p-2 rounded hover:bg-blue-50 flex flex-row gap-3 cursor-pointer"
@@ -713,7 +713,7 @@ export default function FactoryVerification() {
                               <Download size={20} color="#0561f5" />
                               Download
                             </button>
-                          </td>
+                          </td> */}
                         </tr>
                       ))}
                     </tbody>

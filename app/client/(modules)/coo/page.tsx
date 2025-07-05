@@ -47,7 +47,7 @@ export default function COO() {
 
   const [cooTypeFilter, setCooTypeFilter] = useState("__all__");
 
-  // Add state for order direction
+
   const [orderByDate, setOrderByDate] = useState<"asc" | "desc">("desc");
 
   const certificateTypeMap: Record<string, string> = {
@@ -75,10 +75,12 @@ export default function COO() {
       handleRefresh();
     };
 
+
     window.addEventListener("COMPANY_CHANGE_EVENT", handleCompanyChange);
     return () =>
       window.removeEventListener("COMPANY_CHANGE_EVENT", handleCompanyChange);
   }, []);
+
 
   const fetchCertificates = async () => {
     try {
@@ -526,7 +528,7 @@ export default function COO() {
                           index + 1
                         }. ${certificate.message_info.party_name}`}</div>
                         <div
-                          className={`border-[0.5px] text-sm rounded-[30px] px-4 py-1 ${
+                          className={`border-[0.5px] text-[12px] rounded-[30px] px-4 py-1 ${
                             certificate.message_info.status === "Approved"
                               ? "bg-green-50 border-green-200 text-green-600"
                               : "bg-orange-50 border-orange-200 text-orange-600"
@@ -602,7 +604,7 @@ export default function COO() {
                         <div className="flex flex-row justify-between items-center gap-3 md:gap-4">
                           <button
                             onClick={() => handleViewCertificate(certificate)}
-                            className="px-4 md:px-5 py-1.5 text-sm rounded-[6px] flex flex-row justify-center items-center gap-2 bg-blue-500 text-white hover:bg-blue-600 cursor-pointer transition-colors duration-200"
+                            className="px-4 md:px-5 py-1.5 text-[12px] rounded-[6px] flex flex-row justify-center items-center gap-2 bg-blue-500 text-white hover:bg-blue-600 cursor-pointer transition-colors duration-200"
                           >
                             <Eye size="16" color="white" />
                             Application
@@ -617,7 +619,7 @@ export default function COO() {
                                 certificate.message_info.application_code_number
                               )
                             }
-                            className="px-4 md:px-5 py-1.5 text-sm rounded-[6px] flex flex-row justify-center items-center gap-2 bg-blue-500 text-white disabled:bg-gray-400 disabled:cursor-not-allowed cursor-pointer"
+                            className="px-4 md:px-5 py-1.5 text-[12px] rounded-[6px] flex flex-row justify-center items-center gap-2 bg-blue-500 text-white disabled:bg-gray-400 disabled:cursor-not-allowed cursor-pointer"
                           >
                             <Printer size="16" color="white" />
                             Print
