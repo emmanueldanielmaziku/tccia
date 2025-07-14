@@ -6,6 +6,7 @@ import {
   Add,
   CloseCircle,
   SearchNormal1,
+  Book,
 } from "iconsax-reactjs";
 import { DatePicker } from "@/components/ui/date-picker";
 
@@ -1227,34 +1228,44 @@ export default function FactoryVerificationForm() {
                 />
               </div>
               <div className="relative w-full">
-                <div className="text-sm font-medium text-gray-700 mb-1">
+                <div className="text-sm text-gray-600 mb-1 flex flex-row items-center justify-between">
                   Product HS Code
+                  <button className="bg-blue-500 hover:bg-blue-600 flex flex-row gap-2 items-center border-1 border-blue-500 rounded-[6px] px-3 py-1 mb-1 cursor-pointer">
+                    <Book size="16" color="white" />
+                    <span className="text-[10px] text-white">HS Code List</span>
+                  </button>
                 </div>
-                <ProductAutocomplete
-                  value={product.hs_code}
-                  onChange={(val) => handleInputChange(idx, "hs_code", val)}
-                  onSelect={(selectedProduct) => {
-                    handleInputChange(idx, "name", selectedProduct.name);
-                    handleInputChange(idx, "hs_code", selectedProduct.hs_code);
-                    handleInputChange(
-                      idx,
-                      "product_category",
-                      selectedProduct.product_category
-                    );
-                    handleInputChange(
-                      idx,
-                      "unity_of_measure",
-                      selectedProduct.unity_of_measure
-                    );
-                    handleInputChange(
-                      idx,
-                      "product_id",
-                      selectedProduct.id ?? ""
-                    );
-                  }}
-                  placeholder="Search HS Code..."
-                  error={errors.products[idx]?.hs_code}
-                />
+                <div>
+                  <ProductAutocomplete
+                    value={product.hs_code}
+                    onChange={(val) => handleInputChange(idx, "hs_code", val)}
+                    onSelect={(selectedProduct) => {
+                      handleInputChange(idx, "name", selectedProduct.name);
+                      handleInputChange(
+                        idx,
+                        "hs_code",
+                        selectedProduct.hs_code
+                      );
+                      handleInputChange(
+                        idx,
+                        "product_category",
+                        selectedProduct.product_category
+                      );
+                      handleInputChange(
+                        idx,
+                        "unity_of_measure",
+                        selectedProduct.unity_of_measure
+                      );
+                      handleInputChange(
+                        idx,
+                        "product_id",
+                        selectedProduct.id ?? ""
+                      );
+                    }}
+                    placeholder="Search HS Code..."
+                    error={errors.products[idx]?.hs_code}
+                  />
+                </div>
                 {errors.products[idx]?.hs_code && (
                   <p className="text-red-500 text-xs mt-1">
                     {errors.products[idx]?.hs_code}
@@ -1264,7 +1275,7 @@ export default function FactoryVerificationForm() {
 
               <div className="grid grid-cols-3 gap-3">
                 <div className="flex flex-col">
-                  <div className="text-sm font-medium text-gray-700 mb-1">
+                  <div className="text-sm text-gray-600 mb-1">
                     Product name
                   </div>
                   <input
@@ -1289,7 +1300,7 @@ export default function FactoryVerificationForm() {
                 </div>
 
                 <div className="flex flex-col">
-                  <div className="text-sm font-medium text-gray-700 mb-1">
+                  <div className="text-sm text-gray-600 mb-1">
                     Product Category
                   </div>
                   <input
@@ -1314,7 +1325,7 @@ export default function FactoryVerificationForm() {
                 </div>
 
                 <div className="flex flex-col">
-                  <div className="text-sm font-medium text-gray-700 mb-1">
+                  <div className="text-sm text-gray-600 mb-1">
                     Unity of Measure
                   </div>
                   <input
@@ -1340,7 +1351,7 @@ export default function FactoryVerificationForm() {
               </div>
 
               <div className="flex flex-col w-full">
-                <div className="text-sm font-medium text-gray-700 mb-1">
+                <div className="text-sm text-gray-600 mb-1">
                   Product Description
                 </div>
                 <textarea
