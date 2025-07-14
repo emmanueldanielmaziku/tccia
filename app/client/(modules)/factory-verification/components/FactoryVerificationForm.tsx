@@ -491,7 +491,7 @@ function PreviewWidget({
             </div>
             <button
               onClick={onClose}
-              className="px-6 py-2 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 transition-colors"
+              className="px-6 py-1.5 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 transition-colors"
             >
               Close
             </button>
@@ -1230,7 +1230,7 @@ export default function FactoryVerificationForm() {
               <div className="relative w-full">
                 <div className="text-sm text-gray-600 mb-1 flex flex-row items-center justify-between">
                   Product HS Code
-                  <button className="bg-blue-500 hover:bg-blue-600 flex flex-row gap-2 items-center border-1 border-blue-500 rounded-[6px] px-3 py-1 mb-1 cursor-pointer">
+                  <button className="bg-blue-500 hover:bg-blue-600 flex flex-row gap-2 items-center border-1 border-blue-500 rounded-[5px] px-3 py-1 mb-1 cursor-pointer">
                     <Book size="16" color="white" />
                     <span className="text-[10px] text-white">HS Code List</span>
                   </button>
@@ -1403,7 +1403,7 @@ export default function FactoryVerificationForm() {
         <div className="w-full flex items-center justify-end mt-4">
           <button
             type="submit"
-            className="px-8 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 cursor-pointer text-sm font-medium"
+            className="px-8 py-2 bg-blue-500 text-white rounded-[7px] hover:bg-blue-600 cursor-pointer text-sm font-medium"
           >
             Submit Form
           </button>
