@@ -32,7 +32,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const apiUrl = `${API_BASE_URL}/api/factory/products?company_tin=${company_tin}`;
+    const apiUrl = `${API_BASE_URL}/api/factory_verification/products?company_tin=${company_tin}`;
     console.log("Fetching factory products from:", apiUrl);
 
     const response = await fetch(apiUrl, {
@@ -42,8 +42,8 @@ export async function POST(request: Request) {
       },
     });
 
-    console.log("Response status (Products):", response.status);
-    console.log("Response body (Products):", response.body);
+
+    // console.log("Response body (Products):", response.body);
 
     if (!response.ok) {
       const errorText = await response.text();
@@ -83,45 +83,28 @@ export async function POST(request: Request) {
     if (!data.success) {
       return NextResponse.json(
         {
-          status: "error",
+          success: false,
           error: data.message || "API request failed",
         },
         { status: 400 }
       );
     }
 
-    if (!Array.isArray(data.products)) {
+    if (!Array.isArray(data.verifications)) {
       return NextResponse.json(
         {
-          status: "error",
+          success: false,
           error: "Invalid response structure from API",
         },
         { status: 500 }
       );
     }
 
-    const transformedProducts = data.products.map(
-      (product: any, index: number) => ({
-        sn: index + 1,
-        id: product.id,
-        product_name: product.product_name,
-        hs_code: product.hs_code,
-        state: product.state,
-        community_name: product.community_names,
-        community_short_code: product.creation_short_codes,
-        description: product.description,
-        factory_verification_id: product.factory_verification_id,
-        factory_reference: product.factory_reference,
-      })
-    );
-
     return NextResponse.json({
-      status: "success",
-      result: {
-        products: transformedProducts,
-        pagination: data.pagination,
-      },
-      message: data.message || "Factory products fetched successfully",
+      success: true,
+      verifications: data.verifications,
+      pagination: data.pagination,
+      message: data.message || "Factory verifications fetched successfully",
     });
   } catch (error) {
     console.error("Factory products fetch error:", error);

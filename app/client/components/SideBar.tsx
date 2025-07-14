@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   ArchiveBook,
   Box,
@@ -28,6 +28,25 @@ export default function SideBar() {
   const [role, setRole] = useState("CEM");
   const t = useTranslations("sidebar");
   const ta = useTranslations("alerts");
+  const [companySelected, setCompanySelected] = useState(() => {
+    if (typeof window !== "undefined") {
+      return !!localStorage.getItem("selectedCompany");
+    }
+    return false;
+  });
+
+  useEffect(() => {
+    const handleCompanyChange = () => {
+      setCompanySelected(!!localStorage.getItem("selectedCompany"));
+    };
+    window.addEventListener("COMPANY_CHANGE_EVENT", handleCompanyChange);
+    // Also listen for direct localStorage changes (e.g. from other tabs)
+    window.addEventListener("storage", handleCompanyChange);
+    return () => {
+      window.removeEventListener("COMPANY_CHANGE_EVENT", handleCompanyChange);
+      window.removeEventListener("storage", handleCompanyChange);
+    };
+  }, []);
 
   const menuItems = [
     {
@@ -92,13 +111,6 @@ export default function SideBar() {
   const handleTabClick = (id: string) => {
     setSelectedTab((prev) => (prev === id ? id : id));
   };
-
-  // Check if a company is selected
-  let companySelected = false;
-  if (typeof window !== "undefined") {
-    const selectedCompany = localStorage.getItem("selectedCompany");
-    companySelected = !!selectedCompany;
-  }
 
   return (
     <div

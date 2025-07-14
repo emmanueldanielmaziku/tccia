@@ -8,15 +8,6 @@ import {
   SearchNormal1,
 } from "iconsax-reactjs";
 import { DatePicker } from "@/components/ui/date-picker";
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 
 interface Product {
   id?: number;
@@ -36,13 +27,15 @@ interface FormProduct {
   unity_of_measure: string;
   manager_id: number;
   manufacturer?: string;
+  manufacturer_id?: number;
 }
 
 interface FormData {
   products: FormProduct[];
   expected_inspection_date: string;
-  contact_name: string;
-  contact_phone: string;
+  applicant_name: string;
+  applicant_phone: string;
+  applicant_email: string;
 }
 
 const productSchema = z.object({
@@ -71,55 +64,52 @@ function ProductAutocomplete({
   onSelect,
   error,
   placeholder,
+  loading,
 }: {
   value: string;
   onChange: (value: string) => void;
   onSelect: (product: Product) => void;
   error?: string;
   placeholder: string;
+  loading?: boolean;
 }) {
   const [suggestions, setSuggestions] = useState<Product[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
-  const [products, setProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [search, setSearch] = useState("");
   const wrapperRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const fetchProducts = async () => {
-      setLoading(true);
-      try {
-        const response = await fetch("/api/products/list", {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        });
-        const data = await response.json();
-        if (data.status === "success" && data.data?.products) {
-          setProducts(data.data.products);
-        }
-      } catch (err) {
-        console.error("Failed to fetch products:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchProducts();
-  }, []);
+    setSearch(value);
+  }, [value]);
 
   useEffect(() => {
-    if (value.trim() === "") {
+    if (search.trim() === "") {
       setSuggestions([]);
       setShowSuggestions(false);
       return;
     }
-
-    const filtered = products.filter((product) =>
-      product.name.toLowerCase().includes(value.toLowerCase())
-    );
-    setSuggestions(filtered);
-    setShowSuggestions(filtered.length > 0);
-  }, [value, products]);
+    setIsLoading(true);
+    const timeout = setTimeout(async () => {
+      try {
+        const res = await fetch(
+          `/api/products/list?hse=${encodeURIComponent(search)}`
+        );
+        const data = await res.json();
+        if (data.status === "success" && data.data?.products) {
+          setSuggestions(data.data.products);
+        } else {
+          setSuggestions([]);
+        }
+      } catch (err) {
+        setSuggestions([]);
+      } finally {
+        setIsLoading(false);
+        setShowSuggestions(true);
+      }
+    }, 300);
+    return () => clearTimeout(timeout);
+  }, [search]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -130,7 +120,6 @@ function ProductAutocomplete({
         setShowSuggestions(false);
       }
     };
-
     document.addEventListener("mousedown", handleClickOutside);
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
@@ -138,7 +127,6 @@ function ProductAutocomplete({
   }, []);
 
   const handleSuggestionClick = (product: Product) => {
-    onChange(product.name);
     onSelect(product);
     setShowSuggestions(false);
   };
@@ -147,27 +135,38 @@ function ProductAutocomplete({
     <div className="relative" ref={wrapperRef}>
       <div className="relative">
         <input
-          type="text"
+          type="number"
+          inputMode="numeric"
+          pattern="[0-9]*"
           placeholder={placeholder}
           value={value}
-          onChange={(e) => onChange(e.target.value)}
+          onChange={(e) => {
+            const val = e.target.value.replace(/[^0-9]/g, "");
+            onChange(val);
+            setSearch(val);
+          }}
           onFocus={() =>
-            value.trim() !== "" && setShowSuggestions(suggestions.length > 0)
+            search.trim() !== "" && setShowSuggestions(suggestions.length > 0)
           }
           className={`w-full px-6 py-2 pr-12 border ${
             error ? "border-red-500" : "border-zinc-300"
           } bg-zinc-100 outline-blue-400 rounded-[8px] placeholder:text-zinc-400 text-zinc-500 placeholder:text-[15px]`}
         />
-        <SearchNormal1
-          size="20"
-          color="#9F9FA9"
-          className="absolute top-3 right-5"
-        />
+        {isLoading ? (
+          <span className="absolute top-3 right-5">
+            <span className="inline-block w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></span>
+          </span>
+        ) : (
+          <SearchNormal1
+            size="20"
+            color="#9F9FA9"
+            className="absolute top-3 right-5"
+          />
+        )}
       </div>
-
       {showSuggestions && (
         <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
-          {loading ? (
+          {isLoading ? (
             <div className="px-4 py-2 text-gray-500">Loading...</div>
           ) : suggestions.length > 0 ? (
             suggestions.map((product, index) => (
@@ -192,14 +191,163 @@ function ProductAutocomplete({
   );
 }
 
+function ManufacturerAutocomplete({
+  value,
+  onChange,
+  onSelect,
+  error,
+  placeholder,
+}: {
+  value: string;
+  onChange: (value: string) => void;
+  onSelect: (manufacturer: any) => void;
+  error?: string;
+  placeholder: string;
+}) {
+  const [suggestions, setSuggestions] = useState<any[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [search, setSearch] = useState("");
+  const wrapperRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    setSearch(value);
+  }, [value]);
+
+  useEffect(() => {
+    if (search.trim() === "") {
+      setSuggestions([]);
+      setShowSuggestions(false);
+      return;
+    }
+    setLoading(true);
+    const timeout = setTimeout(async () => {
+      try {
+        const res = await fetch(
+          `/api/manufacturers?search=${encodeURIComponent(search)}`
+        );
+        const data = await res.json();
+        if (data.success && Array.isArray(data.data)) {
+          setSuggestions(data.data);
+        } else {
+          setSuggestions([]);
+        }
+      } catch (err) {
+        setSuggestions([]);
+      } finally {
+        setLoading(false);
+        setShowSuggestions(true);
+      }
+    }, 300);
+    return () => clearTimeout(timeout);
+  }, [search]);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        wrapperRef.current &&
+        !wrapperRef.current.contains(event.target as Node)
+      ) {
+        setShowSuggestions(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  const handleSuggestionClick = (manufacturer: any) => {
+    onChange(manufacturer.company_name);
+    onSelect(manufacturer);
+    setShowSuggestions(false);
+  };
+
+  return (
+    <div className="relative" ref={wrapperRef}>
+      <div className="relative">
+        <input
+          type="text"
+          placeholder={placeholder}
+          value={value}
+          onChange={(e) => {
+            onChange(e.target.value);
+            setSearch(e.target.value);
+          }}
+          onFocus={() =>
+            search.trim() !== "" && setShowSuggestions(suggestions.length > 0)
+          }
+          className={`w-full px-6 py-2 pr-12 border ${
+            error ? "border-red-500" : "border-zinc-300"
+          } bg-zinc-100 outline-blue-400 rounded-[8px] placeholder:text-zinc-400 text-zinc-500 placeholder:text-[15px]`}
+        />
+        {loading ? (
+          <span className="absolute top-3 right-5">
+            <span className="inline-block w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></span>
+          </span>
+        ) : (
+          <SearchNormal1
+            size="20"
+            color="#9F9FA9"
+            className="absolute top-3 right-5"
+          />
+        )}
+      </div>
+      {showSuggestions && (
+        <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
+          {loading ? (
+            <div className="px-4 py-2 text-gray-500">Loading...</div>
+          ) : suggestions.length > 0 ? (
+            suggestions.map((manufacturer, index) => (
+              <div
+                key={manufacturer.id || index}
+                className="px-4 py-2 hover:bg-gray-100 cursor-pointer border-b border-gray-100 last:border-b-0"
+                onClick={() => handleSuggestionClick(manufacturer)}
+              >
+                <div className="font-medium text-gray-700">
+                  {manufacturer.company_name}
+                </div>
+                <div className="text-sm text-gray-500">
+                  {manufacturer.company_tin} | {manufacturer.company_email}
+                </div>
+              </div>
+            ))
+          ) : (
+            <div className="px-4 py-2 text-gray-500">
+              No manufacturers found
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// Improved date formatter
+function formatDateToDDMMYYYY(dateStr: string): string {
+  if (!dateStr) return "";
+  if (dateStr.includes("-")) {
+    const [year, month, day] = dateStr.split("-");
+    if (!year || !month || !day) return dateStr;
+    return `${day}/${month}/${year}`;
+  }
+  if (dateStr.includes("/")) {
+    // Already in dd/mm/yyyy
+    return dateStr;
+  }
+  return dateStr;
+}
+
 function PreviewWidget({
   open,
   onClose,
   formData,
+  getValidFormData,
 }: {
   open: boolean;
   onClose: () => void;
   formData: FormData;
+  getValidFormData: () => FormData;
 }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -208,7 +356,6 @@ function PreviewWidget({
   const handleSubmit = async () => {
     setIsSubmitting(true);
     setSubmitError(null);
-
     try {
       const selectedCompany = localStorage.getItem("selectedCompany");
       if (!selectedCompany) {
@@ -216,22 +363,61 @@ function PreviewWidget({
         setIsSubmitting(false);
         return;
       }
-
       const { company_tin } = JSON.parse(selectedCompany);
-
+      const validFormData = getValidFormData();
+      // Debug logs
+      console.log("formData before submit:", validFormData);
+      // Check for missing manufacturer_id or product_id
+      const missingManufacturer = validFormData.products.some(
+        (product: FormProduct) => !product.manufacturer_id
+      );
+      const missingProductId = validFormData.products.some(
+        (product: FormProduct) => !product.product_id
+      );
+      if (missingManufacturer) {
+        setSubmitError(
+          "Please select a manufacturer from the dropdown for each product."
+        );
+        setIsSubmitting(false);
+        return;
+      }
+      if (missingProductId) {
+        setSubmitError(
+          "Please select a product from the dropdown for each product."
+        );
+        setIsSubmitting(false);
+        return;
+      }
+      // Build payload as required
+      console.log(
+        "expected_inspection_date raw:",
+        validFormData.expected_inspection_date
+      );
+      const payload = {
+        company_tin,
+        applicant_name: validFormData.applicant_name,
+        applicant_phone: validFormData.applicant_phone,
+        applicant_email: validFormData.applicant_email,
+        suggested_inspection_date: validFormData.expected_inspection_date
+          ? formatDateToDDMMYYYY(validFormData.expected_inspection_date)
+          : null,
+        products: validFormData.products.map((product: FormProduct) => ({
+          manufacturer_id: product.manufacturer_id,
+          product_name_id: product.product_id,
+          description: product.description,
+        })),
+      };
+      console.log("payload to be sent:", payload);
       const response = await fetch("/api/factory-verification/submit", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ formData, company_tin }),
+        body: JSON.stringify(payload),
       });
-
       const result = await response.json();
-
       if (result.status === "success") {
         setSubmitSuccess(true);
-
         setTimeout(() => {
           onClose();
           setSubmitSuccess(false);
@@ -350,60 +536,53 @@ function PreviewWidget({
 
         {/* Content */}
         <div className="flex-1 overflow-hidden flex">
-          {/* Left Panel - Application Details */}
+          {/* Left Panel - Application & Applicant Details */}
           <div className="w-1/3 border-r border-gray-200 p-6 overflow-y-auto min-w-0">
             <div className="space-y-6">
-              {/* Company Information */}
+              {/* Applicant Information */}
               <div className="bg-blue-50 rounded-lg p-4">
                 <h3 className="text-lg font-semibold text-blue-800 mb-3 flex items-center gap-2">
                   <div className="w-2 h-2 bg-blue-500 rounded-full flex-shrink-0"></div>
-                  Company Information
+                  Applicant Information
                 </h3>
-                <div className="space-y-3 text-sm">
-                  <div className="flex flex-col">
-                    <span className="text-gray-600 mb-1">Company Name:</span>
-                    <span className="font-medium text-gray-800 break-words">
-                      ABC Corporation Limited International Trading Company
+                <div className="space-y-2 text-sm">
+                  <div>
+                    <span className="text-gray-600">Name:</span>{" "}
+                    <span className="font-medium text-gray-800">
+                      {formData.applicant_name}
                     </span>
                   </div>
-                  <div className="flex flex-col">
-                    <span className="text-gray-600 mb-1">TIN Number:</span>
-                    <span className="font-medium text-gray-800 font-mono">
-                      123456789012345
+                  <div>
+                    <span className="text-gray-600">Phone:</span>{" "}
+                    <span className="font-medium text-gray-800">
+                      {formData.applicant_phone}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-gray-600">Email:</span>{" "}
+                    <span className="font-medium text-gray-800">
+                      {formData.applicant_email}
                     </span>
                   </div>
                 </div>
               </div>
-
-              {/* Application Details */}
+              {/* Inspection Date */}
               <div className="bg-gray-100 rounded-lg p-4">
                 <h3 className="text-lg font-semibold text-gray-800 mb-3 flex items-center gap-2">
                   <div className="w-2 h-2 bg-gray-500 rounded-full flex-shrink-0"></div>
-                  Application Details
+                  Inspection Details
                 </h3>
-                <div className="space-y-3 text-sm">
-                  <div className="flex flex-row justify-between items-center">
-                    <span className="text-gray-600 mb-1">Submission Date:</span>
-                    <span className="font-medium text-gray-800">
-                      {new Date().toLocaleDateString()}
-                    </span>
-                  </div>
-                  <div className="flex flex-row justify-between items-center">
-                    <span className="text-gray-600 mb-1">
-                      Expected Inspection:
-                    </span>
+                <div className="space-y-2 text-sm">
+                  <div>
+                    <span className="text-gray-600">
+                      Suggested Inspection Date:
+                    </span>{" "}
                     <span className="font-medium text-gray-800">
                       {formData.expected_inspection_date
-                        ? new Date(
+                        ? formatDateToDDMMYYYY(
                             formData.expected_inspection_date
-                          ).toLocaleDateString()
+                          )
                         : "Not specified"}
-                    </span>
-                  </div>
-                  <div className="flex flex-row justify-between items-center">
-                    <span className="text-gray-600 mb-1">Total Products:</span>
-                    <span className="font-medium text-blue-600">
-                      {formData.products.length}
                     </span>
                   </div>
                 </div>
@@ -411,7 +590,7 @@ function PreviewWidget({
             </div>
           </div>
 
-          {/* Right Panel - Product List */}
+          {/* Right Panel - Product List with Manufacturer Info */}
           <div className="flex-1 overflow-y-auto min-w-0">
             <div className="h-full flex flex-col">
               {/* Header */}
@@ -433,76 +612,73 @@ function PreviewWidget({
                   </div>
                 </div>
               </div>
-
-              {/* Product Table */}
+              {/* Product Details (summary only) */}
               <div className="flex-1 overflow-y-auto">
-                <div className="min-h-full">
-                  {/* Table Header */}
-                  <div className="sticky top-0 bg-white border-b border-gray-200 px-4 py-2">
-                    <div className="grid grid-cols-12 gap-2 text-xs font-medium text-gray-600 uppercase tracking-wide">
-                      <div className="col-span-1">#</div>
-                      <div className="col-span-4">Product Name</div>
-                      <div className="col-span-2">HS Code</div>
-                      <div className="col-span-2">Category</div>
-                      <div className="col-span-2">Description</div>
-                      <div className="col-span-1">Status</div>
-                    </div>
-                  </div>
-
-                  {/* Table Rows */}
-                  <div className="divide-y divide-gray-100">
-                    {formData.products.map((product, index) => (
-                      <div
-                        key={index}
-                        className="px-4 py-2 hover:bg-gray-50 transition-colors"
-                      >
-                        <div className="grid grid-cols-12 gap-2 items-center">
-                          {/* Number */}
-                          <div className="col-span-1">
-                            <div className="w-5 h-5 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-xs font-semibold">
-                              {index + 1}
-                            </div>
-                          </div>
-
-                          {/* Product Name */}
-                          <div className="col-span-4 min-w-0">
-                            <div className="text-sm font-medium text-gray-900 truncate">
-                              {product.name}
-                            </div>
-                          </div>
-
-                          {/* HS Code */}
-                          <div className="col-span-2 min-w-0">
-                            <div className="text-xs text-gray-600 font-mono truncate">
-                              {product.hs_code}
-                            </div>
-                          </div>
-
-                          {/* Category */}
-                          <div className="col-span-2 min-w-0">
-                            <div className="text-xs text-gray-600 truncate">
-                              {product.product_category}
-                            </div>
-                          </div>
-
-                          {/* Description */}
-                          <div className="col-span-2 min-w-0">
-                            <div className="text-xs text-gray-500 truncate">
-                              {product.description || "No description"}
-                            </div>
-                          </div>
-
-                          {/* Status */}
-                          <div className="col-span-1">
-                            <div className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-green-50 text-green-700 rounded text-xs font-medium">
-                              <div className="w-1 h-1 bg-green-500 rounded-full"></div>
-                              Ready
-                            </div>
-                          </div>
+                <div className="min-h-full space-y-6 p-4">
+                  {formData.products.map((product, idx) => (
+                    <div
+                      key={idx}
+                      className="border border-gray-200 rounded-lg p-4 bg-white shadow-sm"
+                    >
+                      <div className="font-semibold text-blue-700 mb-2">
+                        Product #{idx + 1}
+                      </div>
+                      <div className="grid grid-cols-2 gap-x-6 gap-y-2 text-sm">
+                        <div>
+                          <span className="text-gray-600">Name:</span>{" "}
+                          <span className="font-medium">{product.name}</span>
+                        </div>
+                        <div>
+                          <span className="text-gray-600">HS Code:</span>{" "}
+                          <span className="font-mono">{product.hs_code}</span>
+                        </div>
+                        <div>
+                          <span className="text-gray-600">Product ID:</span>{" "}
+                          <span className="font-mono">
+                            {product.product_id ?? "-"}
+                          </span>
+                        </div>
+                        <div>
+                          <span className="text-gray-600">
+                            Product Category:
+                          </span>{" "}
+                          <span className="font-medium">
+                            {product.product_category}
+                          </span>
+                        </div>
+                        <div>
+                          <span className="text-gray-600">
+                            Unity of Measure:
+                          </span>{" "}
+                          <span className="font-medium">
+                            {product.unity_of_measure}
+                          </span>
+                        </div>
+                        <div>
+                          <span className="text-gray-600">Description:</span>{" "}
+                          <span className="font-medium">
+                            {product.description}
+                          </span>
+                        </div>
+                        <div>
+                          <span className="text-gray-600">
+                            Manufacturer Name:
+                          </span>{" "}
+                          <span className="font-medium">
+                            {product.manufacturer || "-"}
+                          </span>
+                        </div>
+                        <div>
+                          <span className="text-gray-600">
+                            Manufacturer ID:
+                          </span>{" "}
+                          <span className="font-mono">
+                            {product.manufacturer_id ?? "-"}
+                          </span>
                         </div>
                       </div>
-                    ))}
-                  </div>
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>
@@ -565,11 +741,15 @@ export default function FactoryVerificationForm() {
         product_category: "",
         unity_of_measure: "",
         manager_id: 2,
+        manufacturer: "",
+        manufacturer_id: undefined,
+        product_id: undefined,
       },
     ],
     expected_inspection_date: "",
-    contact_name: "",
-    contact_phone: "",
+    applicant_name: "",
+    applicant_phone: "",
+    applicant_email: "",
   });
 
   const [errors, setErrors] = useState<{
@@ -581,18 +761,97 @@ export default function FactoryVerificationForm() {
       unity_of_measure?: string;
     }[];
     expected_inspection_date?: string;
-    contact_name?: string;
-    contact_phone?: string;
+    applicant_name?: string;
+    applicant_phone?: string;
+    applicant_email?: string;
   }>({
     products: [{}],
     expected_inspection_date: undefined,
-    contact_name: undefined,
-    contact_phone: undefined,
+    applicant_name: undefined,
+    applicant_phone: undefined,
+    applicant_email: undefined,
   });
 
   const [previewState, togglePreview] = useState(false);
   const [selectedManufacturer, setSelectedManufacturer] = useState("");
   const manufacturers = ["Manufacturer A", "Manufacturer B", "Manufacturer C"];
+  const [manufacturerSearch, setManufacturerSearch] = useState<string[]>([]);
+  const [manufacturerOptions, setManufacturerOptions] = useState<any[][]>([]);
+  const [manufacturerLoading, setManufacturerLoading] = useState<boolean[]>([]);
+  const [manufacturerError, setManufacturerError] = useState<(string | null)[]>(
+    []
+  );
+  const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    setManufacturerSearch((prev) =>
+      formData.products.map((_, i) => prev[i] || "")
+    );
+    setManufacturerOptions((prev) =>
+      formData.products.map((_, i) => prev[i] || [])
+    );
+    setManufacturerLoading((prev) =>
+      formData.products.map((_, i) => prev[i] || false)
+    );
+    setManufacturerError((prev) =>
+      formData.products.map((_, i) => prev[i] || null)
+    );
+  }, [formData.products.length]);
+
+  useEffect(() => {
+    formData.products.forEach((_, idx) => {
+      const search = manufacturerSearch[idx];
+      if (!search) {
+        setManufacturerOptions((prev) => {
+          const next = [...prev];
+          next[idx] = [];
+          return next;
+        });
+        return;
+      }
+      setManufacturerLoading((prev) => {
+        const next = [...prev];
+        next[idx] = true;
+        return next;
+      });
+      const timeout = setTimeout(async () => {
+        try {
+          const res = await fetch(
+            `/api/manufacturers?search=${encodeURIComponent(search)}`
+          );
+          const data = await res.json();
+          setManufacturerOptions((prev) => {
+            const next = [...prev];
+            next[idx] = data.data || [];
+            return next;
+          });
+          setManufacturerError((prev) => {
+            const next = [...prev];
+            next[idx] = null;
+            return next;
+          });
+        } catch {
+          setManufacturerOptions((prev) => {
+            const next = [...prev];
+            next[idx] = [];
+            return next;
+          });
+          setManufacturerError((prev) => {
+            const next = [...prev];
+            next[idx] = "Failed to fetch manufacturers";
+            return next;
+          });
+        } finally {
+          setManufacturerLoading((prev) => {
+            const next = [...prev];
+            next[idx] = false;
+            return next;
+          });
+        }
+      }, 300);
+      return () => clearTimeout(timeout);
+    });
+  }, [manufacturerSearch, formData.products.length]);
 
   const validateProduct = (product: FormProduct, index: number) => {
     const productErrors: any = {};
@@ -622,62 +881,69 @@ export default function FactoryVerificationForm() {
     return productErrors;
   };
 
+  function validateEmail(email: string) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  }
+  function validatePhone(phone: string) {
+    return /^\d{7,15}$/.test(phone.replace(/\D/g, ""));
+  }
+
+  const validateApplicantFields = (formData: FormData) => {
+    const errors: any = {};
+    if (!formData.applicant_name.trim()) {
+      errors.applicant_name = "Applicant name is required";
+    }
+    if (!formData.applicant_phone.trim()) {
+      errors.applicant_phone = "Applicant phone is required";
+    } else if (!validatePhone(formData.applicant_phone)) {
+      errors.applicant_phone = "Invalid phone number format";
+    }
+    if (!formData.applicant_email.trim()) {
+      errors.applicant_email = "Applicant email is required";
+    } else if (!validateEmail(formData.applicant_email)) {
+      errors.applicant_email = "Invalid email format";
+    }
+    return errors;
+  };
+
   const handlePreview = (e?: React.FormEvent) => {
     if (e) e.preventDefault();
-
-    const newErrors: {
-      products: {
-        name?: string;
-        hs_code?: string;
-        description?: string;
-        product_category?: string;
-        unity_of_measure?: string;
-      }[];
-      expected_inspection_date?: string;
-      contact_name?: string;
-      contact_phone?: string;
-    } = {
+    const newErrors: any = {
       products: formData.products.map((product, index) =>
         validateProduct(product, index)
       ),
       expected_inspection_date: undefined,
-      contact_name: undefined,
-      contact_phone: undefined,
+      applicant_name: undefined,
+      applicant_phone: undefined,
+      applicant_email: undefined,
     };
-
     if (!formData.expected_inspection_date.trim()) {
       newErrors.expected_inspection_date =
         "Expected inspection date is required";
     }
-    if (!formData.contact_name.trim()) {
-      newErrors.contact_name = "Contact name is required";
-    }
-    if (!formData.contact_phone.trim()) {
-      newErrors.contact_phone = "Contact phone is required";
-    }
-
+    // Validate applicant fields
+    const applicantFieldErrors = validateApplicantFields(formData);
+    Object.assign(newErrors, applicantFieldErrors);
     const hasErrors =
       newErrors.expected_inspection_date ||
-      newErrors.contact_name ||
-      newErrors.contact_phone ||
+      newErrors.applicant_name ||
+      newErrors.applicant_phone ||
+      newErrors.applicant_email ||
       newErrors.products.some(
-        (productErrors) => Object.keys(productErrors).length > 0
+        (productErrors: any) => Object.keys(productErrors).length > 0
       );
-
     if (hasErrors) {
       setErrors(newErrors);
       return;
     }
-
     setErrors({
       products: formData.products.map(() => ({})),
       expected_inspection_date: undefined,
-      contact_name: undefined,
-      contact_phone: undefined,
+      applicant_name: undefined,
+      applicant_phone: undefined,
+      applicant_email: undefined,
     });
-
     getFormSummary();
-
     togglePreview(true);
   };
 
@@ -739,6 +1005,9 @@ export default function FactoryVerificationForm() {
       product_category: "",
       unity_of_measure: "",
       manager_id: 2,
+      manufacturer: "",
+      manufacturer_id: undefined,
+      product_id: undefined,
     };
 
     setFormData({
@@ -781,14 +1050,15 @@ export default function FactoryVerificationForm() {
         unity_of_measure: product.unity_of_measure.trim(),
         manager_id: product.manager_id,
         manufacturer: product.manufacturer,
+        manufacturer_id: product.manufacturer_id,
       })),
       expected_inspection_date: formData.expected_inspection_date.trim(),
-      contact_name: formData.contact_name.trim(),
-      contact_phone: formData.contact_phone.trim(),
+      applicant_name: formData.applicant_name.trim(),
+      applicant_phone: formData.applicant_phone.trim(),
+      applicant_email: formData.applicant_email.trim(),
     };
   };
 
-  // Function to ensure all required fields are filled
   const ensureFormCompleteness = (): boolean => {
     const validFormData = getValidFormData();
 
@@ -827,23 +1097,13 @@ export default function FactoryVerificationForm() {
     });
   };
 
-  // New handler for contact info
-  const handleContactChange = (
-    field: "contact_name" | "contact_phone",
-    value: string
-  ) => {
-    setFormData({ ...formData, [field]: value });
-    if (errors[field]) {
-      setErrors({ ...errors, [field]: undefined });
-    }
-  };
-
   return (
     <div className="flex flex-col w-full h-full">
       <PreviewWidget
         open={previewState}
         onClose={() => togglePreview(false)}
         formData={getValidFormData()}
+        getValidFormData={getValidFormData}
       />
 
       <form
@@ -851,45 +1111,62 @@ export default function FactoryVerificationForm() {
         onSubmit={handlePreview}
       >
         <div className="flex flex-col gap-4 overflow-hidden overflow-y-auto h-[700px] pr-3">
-          {/* Contact Information */}
+          {/* Applicant Information */}
           <div className="flex flex-row gap-6 mb-2">
             <div className="flex flex-col flex-1">
-              <label className="text-sm text-gray-600 mb-1">Contact Name</label>
+              <label className="text-sm text-gray-600 mb-1">
+                Applicant Name
+              </label>
               <input
                 type="text"
-                placeholder="Enter contact name"
-                value={formData.contact_name}
+                placeholder="Enter applicant name"
+                value={formData.applicant_name}
                 onChange={(e) =>
-                  handleContactChange("contact_name", e.target.value)
+                  setFormData({ ...formData, applicant_name: e.target.value })
                 }
-                className={`w-full px-3 py-2 border text-sm ${
-                  errors.contact_name ? "border-red-500" : "border-zinc-300"
-                } bg-white outline-blue-400 rounded-md placeholder:text-zinc-400 text-zinc-500`}
+                className="w-full px-3 py-2 border text-sm border-zinc-300 bg-white outline-blue-400 rounded-md placeholder:text-zinc-400 text-zinc-500"
               />
-              {errors.contact_name && (
+              {errors.applicant_name && (
                 <p className="text-red-500 text-xs mt-1">
-                  {errors.contact_name}
+                  {errors.applicant_name}
                 </p>
               )}
             </div>
             <div className="flex flex-col flex-1">
               <label className="text-sm text-gray-600 mb-1">
-                Contact Phone
+                Applicant Phone
               </label>
               <input
                 type="text"
-                placeholder="Enter contact phone number"
-                value={formData.contact_phone}
+                placeholder="Enter applicant phone"
+                value={formData.applicant_phone}
                 onChange={(e) =>
-                  handleContactChange("contact_phone", e.target.value)
+                  setFormData({ ...formData, applicant_phone: e.target.value })
                 }
-                className={`w-full px-3 py-2 border text-sm ${
-                  errors.contact_phone ? "border-red-500" : "border-zinc-300"
-                } bg-white outline-blue-400 rounded-md placeholder:text-zinc-400 text-zinc-500`}
+                className="w-full px-3 py-2 border text-sm border-zinc-300 bg-white outline-blue-400 rounded-md placeholder:text-zinc-400 text-zinc-500"
               />
-              {errors.contact_phone && (
+              {errors.applicant_phone && (
                 <p className="text-red-500 text-xs mt-1">
-                  {errors.contact_phone}
+                  {errors.applicant_phone}
+                </p>
+              )}
+            </div>
+            <div className="flex flex-col flex-1">
+              <label className="text-sm text-gray-600 mb-1">
+                Applicant Email
+              </label>
+              <input
+                type="email"
+                placeholder="Enter applicant email"
+                value={formData.applicant_email}
+                onChange={(e) =>
+                  setFormData({ ...formData, applicant_email: e.target.value })
+                }
+                className="w-full px-3 py-2 border text-sm border-zinc-300 bg-white outline-blue-400 rounded-md placeholder:text-zinc-400 text-zinc-500"
+              />
+              {errors.applicant_email && (
+                <p className="text-red-500 text-xs mt-1">
+                  {errors.applicant_email}
                 </p>
               )}
             </div>
@@ -929,48 +1206,58 @@ export default function FactoryVerificationForm() {
               className="flex flex-col gap-3 relative border border-gray-200 rounded-lg p-4 bg-gray-50"
               key={idx}
             >
-              {/* Manufacturer Dropdown for each product */}
+              {/* Manufacturer Input for each product */}
               <div className="flex flex-col gap-1 mb-2">
-                <label className="text-sm text-gray-600">
-                  Select Manufacturer
-                </label>
-                <Select
+                <label className="text-sm text-gray-600">Manufacturer</label>
+                <ManufacturerAutocomplete
                   value={product.manufacturer || ""}
-                  onValueChange={(value) =>
+                  onChange={(value) =>
                     handleInputChange(idx, "manufacturer", value)
                   }
-                >
-                  <SelectTrigger className="w-full border border-zinc-200 bg-white rounded-[8px] px-4 py-2.5 text-gray-600">
-                    <SelectValue placeholder="Select a manufacturer" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectGroup>
-                      <SelectLabel>Manufacturers</SelectLabel>
-                      {manufacturers.map((manufacturer) => (
-                        <SelectItem key={manufacturer} value={manufacturer}>
-                          {manufacturer}
-                        </SelectItem>
-                      ))}
-                    </SelectGroup>
-                  </SelectContent>
-                </Select>
+                  onSelect={(manufacturer) => {
+                    handleInputChange(
+                      idx,
+                      "manufacturer",
+                      manufacturer.company_name
+                    );
+                    handleInputChange(idx, "manufacturer_id", manufacturer.id);
+                  }}
+                  placeholder="Search manufacturer..."
+                  error={undefined}
+                />
               </div>
               <div className="relative w-full">
                 <div className="text-sm font-medium text-gray-700 mb-1">
                   Product HS Code
                 </div>
                 <ProductAutocomplete
-                  value={product.name}
-                  onChange={(value) => handleInputChange(idx, "name", value)}
-                  onSelect={(selectedProduct) =>
-                    handleProductSelect(idx, selectedProduct)
-                  }
-                  error={errors.products[idx]?.name}
-                  placeholder="Start typing the HS Code to search for products..."
+                  value={product.hs_code}
+                  onChange={(val) => handleInputChange(idx, "hs_code", val)}
+                  onSelect={(selectedProduct) => {
+                    handleInputChange(idx, "name", selectedProduct.name);
+                    handleInputChange(idx, "hs_code", selectedProduct.hs_code);
+                    handleInputChange(
+                      idx,
+                      "product_category",
+                      selectedProduct.product_category
+                    );
+                    handleInputChange(
+                      idx,
+                      "unity_of_measure",
+                      selectedProduct.unity_of_measure
+                    );
+                    handleInputChange(
+                      idx,
+                      "product_id",
+                      selectedProduct.id ?? ""
+                    );
+                  }}
+                  placeholder="Search HS Code..."
+                  error={errors.products[idx]?.hs_code}
                 />
-                {errors.products[idx]?.name && (
+                {errors.products[idx]?.hs_code && (
                   <p className="text-red-500 text-xs mt-1">
-                    {errors.products[idx]?.name}
+                    {errors.products[idx]?.hs_code}
                   </p>
                 )}
               </div>
@@ -983,20 +1270,20 @@ export default function FactoryVerificationForm() {
                   <input
                     type="text"
                     placeholder="Product name"
-                    value={product.hs_code}
+                    value={product.name}
                     onChange={(e) =>
-                      handleInputChange(idx, "hs_code", e.target.value)
+                      handleInputChange(idx, "name", e.target.value)
                     }
                     className={`w-full px-3 py-2 border text-sm ${
-                      errors.products[idx]?.hs_code
+                      errors.products[idx]?.name
                         ? "border-red-500"
                         : "border-zinc-300"
                     } bg-white outline-blue-400 rounded-md placeholder:text-zinc-400 text-zinc-500`}
                     readOnly
                   />
-                  {errors.products[idx]?.hs_code && (
+                  {errors.products[idx]?.name && (
                     <p className="text-red-500 text-xs mt-1">
-                      {errors.products[idx]?.hs_code}
+                      {errors.products[idx]?.name}
                     </p>
                   )}
                 </div>

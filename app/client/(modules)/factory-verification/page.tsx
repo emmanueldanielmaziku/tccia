@@ -32,6 +32,10 @@ interface Product {
   community_name: string | null;
   community_short_code: string | null;
   manufacturer?: string;
+  verification_id: number;
+  verification_reference: string;
+  verification_state: string;
+  description?: string;
 }
 
 const stateLabels = {
@@ -48,11 +52,11 @@ const stateLabels = {
   finalized: "Finalized",
 };
 
-// Add a helper to get badge styles by status
 const getStatusBadgeClass = (status: string) => {
   switch (status.toLowerCase()) {
     case "approved":
     case "verified":
+    case "report_accepted":
       return "bg-green-100 text-green-700";
     case "pending":
     case "submitted":
@@ -64,7 +68,6 @@ const getStatusBadgeClass = (status: string) => {
     case "inspection_scheduled":
     case "inspection_done":
     case "report_disputed":
-    case "report_accepted":
     case "finalized":
       return "bg-blue-100 text-blue-700";
     default:
@@ -87,32 +90,16 @@ export default function FactoryVerification() {
   const [statusFilter, setStatusFilter] = useState("all");
   const [hsCodeFilter, setHsCodeFilter] = useState("__all__");
   const [communityNameFilter, setCommunityNameFilter] = useState("__all__");
-  const [manufacturerFilter, setManufacturerFilter] = useState("__all__");
 
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 20;
 
-  // Get unique values for dropdown filters
   const hsCodeOptions = useMemo(
-    () => [
-      ...new Set(products.map((p) => p.hs_code).filter((v) => !!v && v !== "")),
-    ],
+    () => [...new Set(products.map((p) => p.hs_code).filter(Boolean))],
     [products]
   );
   const communityNameOptions = useMemo(
-    () => [
-      ...new Set(
-        products.map((p) => p.community_name).filter((v) => !!v && v !== "")
-      ),
-    ],
-    [products]
-  );
-  const manufacturerOptions = useMemo(
-    () => [
-      ...new Set(
-        products.map((p) => p.manufacturer).filter((v) => !!v && v !== "")
-      ),
-    ],
+    () => [...new Set(products.map((p) => p.community_name).filter(Boolean))],
     [products]
   );
 
@@ -142,38 +129,46 @@ export default function FactoryVerification() {
 
       const result = await response.json();
 
-      if (result.status === "success") {
-        // Map to new structure
-        const mappedProducts = (result.result.products || []).map(
-          (product: any, index: number) => ({
-            sn: index + 1,
-            id: product.id,
-            product_name: product.product_name,
-            hs_code: product.hs_code,
-            state: product.state,
-            community_name: product.community_name,
-            community_short_code: product.community_short_code,
-            manufacturer: product.manufacturer,
-          })
+      if (result.success && Array.isArray(result.verifications)) {
+        let sn = 1;
+        const mappedProducts: Product[] = result.verifications.flatMap(
+          (verification: any) =>
+            (verification.products || []).map((product: any) => ({
+              sn: sn++,
+              id: product.id,
+              product_name: product.product_name,
+              hs_code: product.hs_code,
+              description:
+                typeof product.description === "string"
+                  ? product.description
+                  : "",
+              state: product.state,
+              community_name: product.community_names || null,
+              community_short_code: product.creation_short_codes || null,
+              manufacturer:
+                typeof product.manufacturer === "object" &&
+                product.manufacturer !== null
+                  ? product.manufacturer.name
+                  : "",
+              verification_id: verification.id,
+              verification_reference: verification.reference,
+              verification_state: verification.state,
+            }))
         );
+
         setProducts(mappedProducts);
-        setError(null);
         setIsEmpty(mappedProducts.length === 0);
+        setError(null);
       } else {
         setError(result.error || "Failed to fetch products");
         setIsEmpty(false);
       }
-    } catch (error) {
-      console.error("Fetch products error:", error);
+    } catch (err) {
+      console.error("Fetch error:", err);
       setError("Network error occurred. Please try again.");
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleViewDetails = (product: Product) => {
-    setSelectedProduct(product);
-    setShowDetailModal(true);
   };
 
   const handleSort = (field: "sn" | "product" | "status") => {
@@ -186,7 +181,6 @@ export default function FactoryVerification() {
     setCurrentPage(1);
   };
 
-  // Sort products based on current sort field and direction
   const sortedProducts = [...products]
     .filter((product) => {
       const matchesSearch =
@@ -206,16 +200,8 @@ export default function FactoryVerification() {
         communityNameFilter === "__all__" ||
         (product.community_name || "").toLowerCase() ===
           communityNameFilter.toLowerCase();
-      const matchesManufacturer =
-        manufacturerFilter === "__all__" ||
-        (product.manufacturer || "").toLowerCase() ===
-          manufacturerFilter.toLowerCase();
       return (
-        matchesSearch &&
-        matchesStatus &&
-        matchesHSCode &&
-        matchesCommunity &&
-        matchesManufacturer
+        matchesSearch && matchesStatus && matchesHSCode && matchesCommunity
       );
     })
     .sort((a, b) => {
@@ -261,132 +247,14 @@ export default function FactoryVerification() {
     if (currentPage > 1) setCurrentPage(currentPage - 1);
   };
 
-  // Placeholder for download report
-  const handleDownloadReport = (product: Product) => {
-    // TODO: Implement actual download logic
-    alert(`Download report for product: ${product.product_name}`);
+  const handleViewDetails = (product: Product) => {
+    setSelectedProduct(product);
+    setShowDetailModal(true);
   };
 
-  // Add debug logs before rendering
-  console.log("products:", products);
-  console.log("loading:", loading);
-
   return (
-    <main className="w-full h-[97vh] rounded-[14px] overflow-hidden bg-white border-[1px] border-gray-200 shadow-sm relative">
-      {discardBoxState && (
-        <AlertBox
-          onConfirm={() => {
-            togglediscardBox(false), toggleForm(false);
-          }}
-          onCancel={() => togglediscardBox(false)}
-        />
-      )}
-
-      {showDetailModal && selectedProduct && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-          <div className="bg-white rounded-xl shadow-2xl p-8 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-bold text-gray-700">
-                Product Details
-              </h2>
-              <button
-                onClick={() => setShowDetailModal(false)}
-                className="text-gray-400 hover:text-gray-600"
-              >
-                <CloseCircle size={24} />
-              </button>
-            </div>
-
-            <div className="space-y-6">
-              {/* Basic Info */}
-              <div className="bg-gray-50 rounded-lg p-4">
-                <h3 className="text-lg font-semibold text-gray-700 mb-3">
-                  Basic Information
-                </h3>
-                <div className="grid grid-cols-2 gap-4 text-sm">
-                  <div>
-                    <span className="font-medium text-gray-600">
-                      Product Name:
-                    </span>
-                    <p className="text-gray-800">
-                      {selectedProduct.product_name}
-                    </p>
-                  </div>
-                  <div>
-                    <span className="font-medium text-gray-600">HS Code:</span>
-                    <p className="text-gray-800">{selectedProduct.hs_code}</p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Status */}
-              <div className="bg-gray-50 rounded-lg p-4">
-                <h3 className="text-lg font-semibold text-gray-700 mb-3">
-                  Status
-                </h3>
-                <div className="flex items-center gap-2">
-                  <span
-                    className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusBadgeClass(
-                      selectedProduct.state
-                    )}`}
-                  >
-                    {selectedProduct.state}
-                  </span>
-                  <span className="text-sm text-gray-500">
-                    ({selectedProduct.state})
-                  </span>
-                </div>
-              </div>
-
-              {/* Trade Agreements */}
-              <div className="bg-gray-50 rounded-lg p-4">
-                <h3 className="text-lg font-semibold text-gray-700 mb-3">
-                  Trade Agreements
-                </h3>
-                <div className="grid grid-cols-2 gap-4 text-sm">
-                  <div className="flex items-center gap-2">
-                    <span className="font-medium text-gray-600">EAC:</span>
-                    <span
-                      className={
-                        selectedProduct.community_name !== "-"
-                          ? "text-green-600"
-                          : "text-gray-400"
-                      }
-                    >
-                      {selectedProduct.community_name}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="font-medium text-gray-600">SADC:</span>
-                    <span
-                      className={
-                        selectedProduct.community_short_code !== "-"
-                          ? "text-green-600"
-                          : "text-gray-400"
-                      }
-                    >
-                      {selectedProduct.community_short_code}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="flex justify-end mt-6">
-              <button
-                onClick={() => setShowDetailModal(false)}
-                className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-              >
-                Close
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      <NavBar title={"Factory Verification"} />
-
-      {/* Content */}
+    <main className="w-full h-[97vh] rounded-[14px] overflow-hidden bg-white border-[1px] border-gray-200 ml-2 shadow-sm relative">
+      <NavBar title="Factory Verification" />
       <section className="flex flex-row">
         <div className="flex flex-col items-center flex-1 h-[97vh] pt-18 w-full bg-transparent border-transparent border-[1px] rounded-xl">
           <div className="flex flex-col justify-between items-center mt-2 w-full h-[86vh] rounded-sm relative px-16.5">
@@ -507,9 +375,9 @@ export default function FactoryVerification() {
                       setCurrentPage(1);
                     }}
                     className="px-3 py-2 text-sm border border-zinc-300 rounded-sm hover:bg-gray-50 transition-colors"
-                    title={`Sort ${
+                    title={Sort ${
                       sortDirection === "asc" ? "Descending" : "Ascending"
-                    }`}
+                    }}
                   >
                     {sortDirection === "asc" ? "↑" : "↓"}
                   </button> */}
@@ -653,17 +521,14 @@ export default function FactoryVerification() {
                         >
                           S/N
                         </th>
-                        <th
-                          className="px-4 py-5 text-left text-gray-700 cursor-pointer hover:bg-gray-300 transition-colors"
-                          onClick={() => handleSort("product")}
-                        >
+                        <th className="px-4 py-5 text-left text-gray-700">
                           Product Name
                         </th>
                         <th className="px-4 py-5 text-left text-gray-700">
                           HS Code
                         </th>
                         <th className="px-4 py-5 text-left text-gray-700">
-                          Trade Region{" "}
+                          Trade Region
                         </th>
                         <th className="px-4 py-5 text-left text-gray-700">
                           Creterion
@@ -671,9 +536,6 @@ export default function FactoryVerification() {
                         <th className="px-4 py-5 text-left text-gray-700">
                           State
                         </th>
-                        {/* <th className="px-4 py-5 text-left text-gray-700">
-                          Report file
-                        </th> */}
                       </tr>
                     </thead>
                     <tbody>
@@ -696,24 +558,14 @@ export default function FactoryVerification() {
                           <td className="px-4 py-4">
                             <span
                               className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusBadgeClass(
-                                product.state
+                                product.verification_state
                               )}`}
                             >
                               {stateLabels[
-                                product.state as keyof typeof stateLabels
-                              ] || product.state}
+                                product.verification_state as keyof typeof stateLabels
+                              ] || product.verification_state}
                             </span>
                           </td>
-                          {/* <td className="px-4 py-4">
-                            <button
-                              onClick={() => handleDownloadReport(product)}
-                              className="p-2 rounded hover:bg-blue-50 flex flex-row gap-3 cursor-pointer"
-                              title="Download Verification Report"
-                            >
-                              <Download size={20} color="#0561f5" />
-                              Download
-                            </button>
-                          </td> */}
                         </tr>
                       ))}
                     </tbody>
@@ -770,6 +622,19 @@ export default function FactoryVerification() {
           onCompanyChange={fetchProducts}
         />
       </section>
+      {discardBoxState && (
+        <AlertBox
+          title="Are you sure?"
+          message="You are about to close the application and lose all the data in the form."
+          onCancel={() => togglediscardBox(false)}
+          onConfirm={() => {
+            togglediscardBox(false);
+            toggleForm(false);
+          }}
+          cancelText="Cancel"
+          confirmText="Confirm"
+        />
+      )}
     </main>
   );
 }

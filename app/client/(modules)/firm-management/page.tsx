@@ -99,7 +99,7 @@ export default function FirmManagement() {
     if (companies.length === 0) return;
 
     companies.forEach((company) => {
-      fetch("/api/factory/products", {
+      fetch("/api/products/count", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ company_tin: company.company_tin }),
@@ -108,7 +108,7 @@ export default function FirmManagement() {
         .then((data) => {
           setProductCounts((prev) => ({
             ...prev,
-            [company.company_tin]: data.data?.products?.length || 0,
+            [company.company_tin]: data.product_count || 0,
           }));
         });
 

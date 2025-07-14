@@ -62,7 +62,6 @@ export default function COO() {
   };
 
   const getCertificateType = (application_code_number: string) => {
-  
     return certificateTypeMap[application_code_number] || "EAC";
   };
 
@@ -366,7 +365,8 @@ export default function COO() {
                       <Select
                         value={cooTypeFilter}
                         onValueChange={setCooTypeFilter}
-                      >
+                        >
+                          
                         <SelectTrigger className="w-full md:w-[140px] text-zinc-600">
                           <SelectValue placeholder="COO Type" />
                         </SelectTrigger>
@@ -637,7 +637,6 @@ export default function COO() {
                 )}
               </div>
             )}
-
             {/* Pagination */}
             {(!verificationForm || totalPages > 1) && (
               <div className="flex flex-row justify-between items-center gap-4 mt-4 bg-white/35 backdrop-blur-md w-full p-4">

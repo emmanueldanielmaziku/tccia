@@ -5,6 +5,44 @@ const API_BASE_URL = "https://tccia.kalen.co.tz";
 
 export async function GET(request: Request) {
   try {
+    const { searchParams } = new URL(request.url);
+    const hse = searchParams.get("hse");
+    if (hse) {
+      // If searching by hse, use GET with query param
+      const apiUrl = `${API_BASE_URL}/api/products/master?hse=${encodeURIComponent(
+        hse
+      )}`;
+      console.log("[ProductMaster] Outgoing GET:", apiUrl);
+      const response = await fetch(apiUrl, {
+        method: "GET",
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        return NextResponse.json(
+          {
+            status: "error",
+            error: data.error || "API request failed",
+            details: data,
+          },
+          { status: response.status }
+        );
+      }
+      // Assume data.result.products or data.products
+      const products = data.result?.products || data.products || [];
+      const transformedProducts = products.map((product: any) => ({
+        id: product.id,
+        name: product.name,
+        hs_code: typeof product.hse === "string" ? product.hse : "",
+        product_category: product.product_category,
+        unity_of_measure: typeof product.uom === "string" ? product.uom : "",
+      }));
+      return NextResponse.json({
+        status: "success",
+        data: { products: transformedProducts },
+        message: "Products fetched successfully",
+      });
+    }
+    // Default: POST with company_id (existing logic)
     const cookieStore = await cookies();
     const token = cookieStore.get("token");
     const uid = cookieStore.get("uid");

@@ -19,8 +19,8 @@ export async function POST(request: Request) {
       );
     }
 
-    const body = await request.json();
-    const { formData, company_tin } = body;
+    const formData = await request.json();
+    const { company_tin } = formData;
 
     if (!company_tin) {
       return NextResponse.json(
@@ -34,12 +34,14 @@ export async function POST(request: Request) {
 
     const payload = {
       company_tin: company_tin,
-      suggested_inspection_date: formData.expected_inspection_date
-        ? new Date(formData.expected_inspection_date).toLocaleDateString(
-            "en-GB"
-          )
+      applicant_name: formData.applicant_name,
+      applicant_phone: formData.applicant_phone,
+      applicant_email: formData.applicant_email,
+      suggested_inspection_date: formData.suggested_inspection_date
+        ? formData.suggested_inspection_date
         : null,
       products: formData.products.map((product: any) => ({
+        manufacturer_id: product.manufacturer_id,
         product_name_id: product.product_id || 1,
         description: product.description,
       })),
@@ -51,12 +53,12 @@ export async function POST(request: Request) {
     const response = await fetch(apiUrl, {
       method: "POST",
       headers: {
-        "Content-Type": "application/json",
         Authorization: `Bearer ${token.value.trim()}`,
+        // "Content-Type": "application/json",
       },
       body: JSON.stringify(payload),
     });
-
+    console.log("Body sent to API:", payload);
     console.log("API response status:", response.status);
 
     if (!response.ok) {
