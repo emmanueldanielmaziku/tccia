@@ -40,7 +40,7 @@ export default function SideBar() {
       setCompanySelected(!!localStorage.getItem("selectedCompany"));
     };
     window.addEventListener("COMPANY_CHANGE_EVENT", handleCompanyChange);
-    // Also listen for direct localStorage changes (e.g. from other tabs)
+  
     window.addEventListener("storage", handleCompanyChange);
     return () => {
       window.removeEventListener("COMPANY_CHANGE_EVENT", handleCompanyChange);
@@ -100,12 +100,12 @@ export default function SideBar() {
       icon: Direct,
       route: "/client/ntb",
     },
-    // {
-    //   id: "Report a Problem",
-    //   translationKey: "reportProblem",
-    //   icon: Lifebuoy,
-    //   route: "/client/report",
-    // },
+    {
+      id: "Help Desk",
+      translationKey: "reportProblem",
+      icon: Lifebuoy,
+      route: "/client/report",
+    }
   ];
 
   const handleTabClick = (id: string) => {

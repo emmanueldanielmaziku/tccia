@@ -22,6 +22,8 @@ import {
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import SideBarMobile from "./SideBar-Mobile";
 import Link from "next/link";
+import HSCodeWidget from "../(modules)/factory-verification/components/HSCodeWidget";
+import { createPortal } from "react-dom";
 
 type NavBarProps = {
   title: string;
@@ -36,6 +38,7 @@ export default function NavBar({ title }: NavBarProps) {
   const [sheetOpen, setSheetOpen] = useState(false);
   const t = useTranslations();
   const tn = useTranslations("nav");
+  const [showHSCodeWidget, setShowHSCodeWidget] = useState(false);
 
   useEffect(() => {
     const handleResize = () => {
@@ -90,10 +93,24 @@ export default function NavBar({ title }: NavBarProps) {
       </div>
 
       <div className="flex flex-row items-center">
+        <Button
+          className="hidden md:flex items-center px-4 py-2 text-sm font-medium text-blue-600 border-[0.5px] border-blue-200 cursor-pointer hover:text-blue-700 bg-transparent hover:bg-blue-50 rounded-lg transition-colors duration-200 mr-4"
+          onClick={() => setShowHSCodeWidget(true)}
+        >
+          HS Codes list
+        </Button>
+        {showHSCodeWidget &&
+          createPortal(
+            <HSCodeWidget
+              open={showHSCodeWidget}
+              onClose={() => setShowHSCodeWidget(false)}
+            />,
+            document.body
+          )}
         {/* Report NTB Link */}
         <Link
           href="/client/ntb"
-          className="hidden md:flex items-center px-4 py-2 text-sm font-medium text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-colors duration-200 mr-4"
+          className="hidden md:flex items-center px-4 py-2 text-sm font-medium text-blue-600 border-[0.5px] border-blue-200 cursor-pointer hover:text-blue-700 bg-transparent hover:bg-blue-50 rounded-lg transition-colors duration-200 mr-4"
         >
           Report NTB
         </Link>

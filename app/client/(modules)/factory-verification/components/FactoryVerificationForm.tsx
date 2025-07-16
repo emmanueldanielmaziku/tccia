@@ -9,6 +9,7 @@ import {
   Book,
 } from "iconsax-reactjs";
 import { DatePicker } from "@/components/ui/date-picker";
+import HSCodeWidget from "./HSCodeWidget";
 
 interface Product {
   id?: number;
@@ -1107,6 +1108,8 @@ export default function FactoryVerificationForm() {
         getValidFormData={getValidFormData}
       />
 
+      <HSCodeWidget open={open} onClose={() => setOpen(false)} />
+
       <form
         className="flex flex-col w-full pb-10 mt-5"
         onSubmit={handlePreview}
@@ -1230,7 +1233,11 @@ export default function FactoryVerificationForm() {
               <div className="relative w-full">
                 <div className="text-sm text-gray-600 mb-1 flex flex-row items-center justify-between">
                   Product HS Code
-                  <button className="bg-blue-500 hover:bg-blue-600 flex flex-row gap-2 items-center border-1 border-blue-500 rounded-[5px] px-3 py-1 mb-1 cursor-pointer">
+                  <button
+                    type="button"
+                    className="bg-blue-500 hover:bg-blue-600 flex flex-row gap-2 items-center border-1 border-blue-500 rounded-[5px] px-3 py-1 mb-1 cursor-pointer"
+                    onClick={() => setOpen(true)}
+                  >
                     <Book size="16" color="white" />
                     <span className="text-[10px] text-white">HS Code List</span>
                   </button>
@@ -1275,9 +1282,7 @@ export default function FactoryVerificationForm() {
 
               <div className="grid grid-cols-3 gap-3">
                 <div className="flex flex-col">
-                  <div className="text-sm text-gray-600 mb-1">
-                    Product name
-                  </div>
+                  <div className="text-sm text-gray-600 mb-1">Product name</div>
                   <input
                     type="text"
                     placeholder="Product name"
