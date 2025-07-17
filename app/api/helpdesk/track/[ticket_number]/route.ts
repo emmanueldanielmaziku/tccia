@@ -4,17 +4,15 @@ const REMOTE_BASE_URL = "https://tccia.kalen.co.tz/api";
 
 export async function GET(
   request: Request,
-  context: { params: { ticket_number: string } }
+  context: { params: Record<string, string> }
 ) {
-  const params = await context.params;
-  const { ticket_number } = params;
+  const { ticket_number } = context.params; // No await needed
   console.log("Tracking ticket:", ticket_number);
   try {
     const res = await fetch(
       `${REMOTE_BASE_URL}/helpdesk/track/${encodeURIComponent(ticket_number)}`,
       {
         method: "GET",
-      
       }
     );
     if (!res.ok) {
