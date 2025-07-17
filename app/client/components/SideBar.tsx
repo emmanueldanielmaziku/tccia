@@ -67,26 +67,26 @@ export default function SideBar() {
       icon: ArchiveBook,
       route: "/client/coo",
     },
-    {
-      id: "CFA Officers Management",
-      translationKey: "cfaOfficersManagement",
-      icon: Profile2User,
-      route: "/client/exporter",
-    },
+    // {
+    //   id: "CFA Officers Management",
+    //   translationKey: "cfaOfficersManagement",
+    //   icon: Profile2User,
+    //   route: "/client/exporter",
+    // },
 
-    {
-      id: "CFAs Management",
-      translationKey: "cfasManagement",
-      icon: Profile2User,
-      route: "/client/cfa-management",
-    },
+    // {
+    //   id: "CFAs Management",
+    //   translationKey: "cfasManagement",
+    //   icon: Profile2User,
+    //   route: "/client/cfa-management",
+    // },
 
-    {
-      id: "Employees Management",
-      translationKey: "employeesManagement",
-      icon: UserTick,
-      route: "/client/employees",
-    },
+    // {
+    //   id: "Employees Management",
+    //   translationKey: "employeesManagement",
+    //   icon: UserTick,
+    //   route: "/client/employees",
+    // },
 
     {
       id: "Membership",
@@ -145,11 +145,11 @@ export default function SideBar() {
                     "Factory Verification",
                     "Certificate of Origin",
                     "Firm Management",
-                    "Employees Management",
-                    "CFAs Management",
+                    // "Employees Management",
+                    // "CFAs Management",
                     "Membership",
                     "Non-Tariff Barrier",
-                    "Report a Problem",
+                    "Help Desk",
                   ].includes(item.id)) ||
                 (role === "CEO" &&
                   [
@@ -237,7 +237,7 @@ export default function SideBar() {
 
       {/* Settings and Logout */}
       <div className="flex flex-col gap-2.5">
-        <Link
+        {/* <Link
           href="/client/settings"
           className={`cursor-pointer flex flex-row items-center h-[55px] w-full relative ${
             isMenuOpen ? "justify-between" : "justify-center"
@@ -251,7 +251,7 @@ export default function SideBar() {
               </span>
             )}
           </div>
-        </Link>
+        </Link> */}
         <button
           onClick={toggleAlert}
           className={`cursor-pointer flex flex-row items-center h-[55px] w-full relative ${
