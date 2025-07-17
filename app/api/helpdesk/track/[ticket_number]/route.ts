@@ -2,11 +2,8 @@ import { NextResponse } from "next/server";
 
 const REMOTE_BASE_URL = "https://tccia.kalen.co.tz/api";
 
-export async function GET(
-  request: Request,
-  context: { params: Record<string, string> }
-) {
-  const { ticket_number } = context.params; // No await needed
+export async function GET(request: Request, context: { params: { ticket_number: string } }) {
+  const { ticket_number } = context.params;
   console.log("Tracking ticket:", ticket_number);
   try {
     const res = await fetch(

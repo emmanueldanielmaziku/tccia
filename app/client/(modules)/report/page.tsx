@@ -191,7 +191,7 @@ export default function HelpdeskReport() {
                         <FileText className="w-8 h-8 text-blue-600" />
                       </div>
                       <h3 className="text-xl font-semibold text-gray-900 mb-4">
-                        Submit a Support Ticket
+                        Submit a Support Request
                       </h3>
                       <p className="text-gray-600 mb-6">
                         Report a problem, request support, or get help with our
@@ -202,7 +202,7 @@ export default function HelpdeskReport() {
                         size="lg"
                         onClick={() => setMode("report")}
                       >
-                        Create Ticket
+                        Report a problem
                         <ArrowRight className="w-4 h-4 ml-2" />
                       </Button>
                     </CardContent>
@@ -213,7 +213,7 @@ export default function HelpdeskReport() {
                         <Search className="w-8 h-8 text-green-600" />
                       </div>
                       <h3 className="text-xl font-semibold text-gray-900 mb-4">
-                        Track a Ticket
+                        Track Report
                       </h3>
                       <p className="text-gray-600 mb-6">
                         Check the status and details of your submitted support
@@ -224,7 +224,7 @@ export default function HelpdeskReport() {
                         size="lg"
                         onClick={() => setMode("track")}
                       >
-                        Track Ticket
+                        Track Report
                         <ArrowRight className="w-4 h-4 ml-2" />
                       </Button>
                     </CardContent>
