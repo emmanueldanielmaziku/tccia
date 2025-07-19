@@ -95,7 +95,11 @@
       "title": "Having trouble?",
       "description": "Feel free to contact us and we will always help you through the process.",
       "contactButton": "Contact us"
-    }
+    },
+    "submitTicketHeading": "Submit Ticket",
+    "submitTicket": "Submit a ticket for any issue or support request. Fill out the form with detailed information about your problem.",
+    "trackTicketHeading": "Track Ticket Status",
+    "trackTicket": "Enter the ticket number you received when you submitted your help desk request to check the current status and feedback."
   },
   "alerts": {
     "success": "Success",

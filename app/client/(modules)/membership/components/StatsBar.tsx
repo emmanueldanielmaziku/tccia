@@ -36,6 +36,7 @@ export default function StatsBar() {
   const [selectedCompany, setSelectedCompany] = useState<CompanyData | null>(
     null
   );
+  const [companies, setCompanies] = useState<CompanyData[]>([]);
   const t = useTranslations("stats");
 
   useEffect(() => {
@@ -43,7 +44,32 @@ export default function StatsBar() {
     if (storedCompany) {
       setSelectedCompany(JSON.parse(storedCompany));
     }
+    
+    const fetchCompanies = async () => {
+      try {
+        const response = await fetch("/api/companies/list", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+        const data = await response.json();
+        if (data.status === "success" && data.data?.companies) {
+          setCompanies(data.data.companies);
+        }
+      } catch (err) {}
+    };
+    fetchCompanies();
   }, []);
+
+  const handleCompanyChange = (value: string) => {
+    const company = companies.find((c) => c.company_tin === value);
+    if (company) {
+      setSelectedCompany(company);
+      localStorage.setItem("selectedCompany", JSON.stringify(company));
+      window.dispatchEvent(new Event("COMPANY_CHANGE_EVENT"));
+    }
+  };
 
   return (
     <div
@@ -140,7 +166,6 @@ export default function StatsBar() {
               expanded ? "px-5 md:px-6 py-5 md:py-6" : "px-2 py-2"
             }`}
           >
-
             <div
               className={`border-[0.5px] bg-blue-50 border-blue-200 py-4 rounded-full px-4 flex items-center justify-center transition-all duration-300 ${
                 expanded
@@ -165,7 +190,10 @@ export default function StatsBar() {
               </div>
             )}
             {expanded && (
-              <Select>
+              <Select
+                onValueChange={handleCompanyChange}
+                value={selectedCompany?.company_tin || ""}
+              >
                 <SelectTrigger className="w-full border-[1px] border-blue-300 rounded-[8px] text-blue-600 py-4 md:py-5 cursor-pointer hover:bg-gray-50 shadow-sm text-sm md:text-[14px] transition-colors duration-200">
                   <SelectValue placeholder={t("switchCompany")} className="" />
                 </SelectTrigger>
@@ -174,11 +202,15 @@ export default function StatsBar() {
                     <SelectLabel className="text-gray-600">
                       {t("companies")}
                     </SelectLabel>
-                    <SelectItem value="apple">TCCIA COMPANY</SelectItem>
-                    <SelectItem value="banana">ABC COMPANY</SelectItem>
-                    <SelectItem value="blueberry">AZANIA GROUP</SelectItem>
-                    <SelectItem value="grapes">MO COMPANY</SelectItem>
-                    <SelectItem value="pineapple">SERENGETI COMPANY</SelectItem>
+                    {/* Map companies here as SelectItem */}
+                    {companies?.map((company) => (
+                      <SelectItem
+                        key={company.company_tin}
+                        value={company.company_tin}
+                      >
+                        {company.company_name}
+                      </SelectItem>
+                    ))}
                   </SelectGroup>
                 </SelectContent>
               </Select>

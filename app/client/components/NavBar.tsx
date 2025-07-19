@@ -207,8 +207,6 @@ export default function NavBar({ title }: NavBarProps) {
             <DropdownMenuItem onClick={() => refreshUserProfile()}>
               Refresh Profile
             </DropdownMenuItem>
-            <DropdownMenuItem>Profile Settings</DropdownMenuItem>
-            <DropdownMenuItem>Notifications</DropdownMenuItem>
             <DropdownMenuItem className="text-red-600">
               Sign Out
             </DropdownMenuItem>

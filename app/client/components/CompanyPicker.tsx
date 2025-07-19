@@ -153,6 +153,7 @@ export default function CompanyPicker() {
         company_telephone_number: selectedCompanyData.company_telephone_number,
       };
       localStorage.setItem("selectedCompany", JSON.stringify(companySession));
+      window.dispatchEvent(new Event("COMPANY_CHANGE_EVENT"));
     }
   };
 
@@ -176,7 +177,7 @@ export default function CompanyPicker() {
             selectedCompanyData.company_telephone_number,
         };
         localStorage.setItem("selectedCompany", JSON.stringify(companySession));
-
+        window.dispatchEvent(new Event("COMPANY_CHANGE_EVENT"));
         hidePicker();
       }
     }

@@ -51,7 +51,6 @@ export default function StatsBar({
   const t = useTranslations("stats");
 
   useEffect(() => {
-
     const storedCompany = localStorage.getItem("selectedCompany");
     if (storedCompany) {
       setSelectedCompany(JSON.parse(storedCompany));
@@ -79,6 +78,7 @@ export default function StatsBar({
     if (company) {
       setSelectedCompany(company);
       localStorage.setItem("selectedCompany", JSON.stringify(company));
+      window.dispatchEvent(new Event("COMPANY_CHANGE_EVENT"));
       if (onCompanyChange) onCompanyChange();
     }
   };

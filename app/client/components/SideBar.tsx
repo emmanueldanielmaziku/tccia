@@ -138,7 +138,11 @@ export default function SideBar() {
           <div className="flex flex-col gap-2.5">
             {menuItems.map((item) => {
               const isFirmManagement = item.id === "Firm Management";
-              const isLocked = !companySelected && !isFirmManagement;
+              const isNTB = item.id === "Non-Tariff Barrier";
+              const isHelpDesk = item.id === "Help Desk";
+              const isMembership = item.id === "Membership";
+
+              const isLocked = !companySelected && !isFirmManagement && !isMembership && !isNTB && !isHelpDesk;
               if (
                 (role === "CEM" &&
                   [

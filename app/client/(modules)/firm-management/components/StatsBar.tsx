@@ -36,7 +36,7 @@ export interface StatsData {
   approved: number;
 }
 
-export default function StatsBar({ stats } : { stats: StatsData}) {
+export default function StatsBar({ stats }: { stats: StatsData }) {
   const [expanded, setExpanded] = useState(true);
   const [selectedCompany, setSelectedCompany] = useState<CompanyData | null>(
     null
@@ -63,19 +63,31 @@ export default function StatsBar({ stats } : { stats: StatsData}) {
         if (data.status === "success" && data.data?.companies) {
           setCompanies(data.data.companies);
         }
-      } catch (err) {
-        
-      }
+      } catch (err) {}
     };
     fetchCompanies();
+
+    // Listen for company change events
+    const handleCompanyChange = () => {
+      const updatedCompany = localStorage.getItem("selectedCompany");
+      if (updatedCompany) {
+        setSelectedCompany(JSON.parse(updatedCompany));
+      }
+    };
+    window.addEventListener("COMPANY_CHANGE_EVENT", handleCompanyChange);
+    window.addEventListener("storage", handleCompanyChange);
+    return () => {
+      window.removeEventListener("COMPANY_CHANGE_EVENT", handleCompanyChange);
+      window.removeEventListener("storage", handleCompanyChange);
+    };
   }, []);
 
-  
   const handleCompanyChange = (value: string) => {
     const company = companies.find((c) => c.company_tin === value);
     if (company) {
       setSelectedCompany(company);
       localStorage.setItem("selectedCompany", JSON.stringify(company));
+      window.dispatchEvent(new Event("COMPANY_CHANGE_EVENT"));
     }
   };
 

@@ -34,6 +34,7 @@ import {
   Info,
   Clock,
 } from "lucide-react";
+import StatsBar from "./components/StatsBar";
 
 export default function HelpdeskReport() {
   const [mode, setMode] = useState<"none" | "report" | "track">("none");
@@ -441,7 +442,7 @@ export default function HelpdeskReport() {
                             <SelectContent>
                               <SelectItem value="low">Low</SelectItem>
                               <SelectItem value="normal">Normal</SelectItem>
-                               <SelectItem value="high">High</SelectItem>
+                              <SelectItem value="high">High</SelectItem>
                               <SelectItem value="urgent">Urgent</SelectItem>
                               <SelectItem value="critical">Critical</SelectItem>
                             </SelectContent>
@@ -611,6 +612,8 @@ export default function HelpdeskReport() {
             )}
           </div>
         </div>
+        {/* Right sidebar */}
+        <StatsBar />
       </section>
     </main>
   );

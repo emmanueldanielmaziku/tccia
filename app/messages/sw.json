@@ -91,11 +91,16 @@
     "companyDetails": "Maelezo ya Kampuni",
     "switchCompany": "Badilisha kwa kampuni nyingine",
     "companies": "Kampuni",
+    "submitTicketHeading": "Wasilisha Tiketi",
+    "submitTicket": "Wasilisha tiketi kwa tatizo lolote au ombi la msaada. Jaza fomu kwa maelezo kamili kuhusu tatizo lako.",
+    "trackTicketHeading": "Fuatilia Hali ya Tiketi",
+    "trackTicket": "Weka nambari ya tiketi uliyopokea ulipowasilisha ombi lako la msaada ili kuangalia hali ya sasa na mrejesho.",
     "help": {
       "title": "Una shida?",
       "description": "Jisikie huru kututafuta na tutakusaidia daima katika mchakato.",
       "contactButton": "Wasiliana nasi"
-    }
+    },
+    "helpdeskPortal": "Portal ya Usaidizi"
   },
   "alerts": {
     "success": "Imefanikiwa",
