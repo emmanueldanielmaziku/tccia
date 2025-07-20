@@ -35,8 +35,10 @@ import {
   Clock,
 } from "lucide-react";
 import StatsBar from "./components/StatsBar";
+import { useTranslations } from "next-intl";
 
 export default function HelpdeskReport() {
+  const t = useTranslations("helpdesk");
   const [mode, setMode] = useState<"none" | "report" | "track">("none");
   const [services, setServices] = useState<any[]>([]);
   const [serviceCategory, setServiceCategory] = useState<string>("");
@@ -163,7 +165,7 @@ export default function HelpdeskReport() {
 
   return (
     <main className="w-full h-[97vh] rounded-[14px] overflow-hidden bg-white border-[1px] border-gray-200 shadow-sm relative">
-      <NavBar title={"Helpdesk & Support"} />
+      <NavBar title={t("title")} />
       <section className="flex flex-1 flex-col lg:flex-row h-full">
         <div className="flex flex-col items-start flex-1 w-full overflow-y-auto max-h-[calc(97vh-80px)]">
           <div className="w-full max-w-4xl mx-auto mt-24 mb-8 px-6 pb-8">
@@ -176,12 +178,10 @@ export default function HelpdeskReport() {
                   </div>
                   <div>
                     <h1 className="text-4xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">
-                      Welcome to Helpdesk & Support
+                      {t("welcome")}
                     </h1>
                     <p className="text-lg text-gray-600 mt-3 max-w-2xl mx-auto">
-                      Submit a support ticket or track your existing requests
-                      for technical, account, or general issues. Our team is
-                      here to help!
+                      {t("intro")}
                     </p>
                   </div>
                 </div>
@@ -192,18 +192,17 @@ export default function HelpdeskReport() {
                         <FileText className="w-8 h-8 text-blue-600" />
                       </div>
                       <h3 className="text-xl font-semibold text-gray-900 mb-4">
-                        Submit a Support Request
+                        {t("submitRequest")}
                       </h3>
                       <p className="text-gray-600 mb-6">
-                        Report a problem, request support, or get help with our
-                        services.
+                        {t("submitRequestDesc")}
                       </p>
                       <Button
                         className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-6 cursor-pointer rounded-[9px] transition-all duration-200 group-hover:scale-105"
                         size="lg"
                         onClick={() => setMode("report")}
                       >
-                        Report a problem
+                        {t("reportProblem")}
                         <ArrowRight className="w-4 h-4 ml-2" />
                       </Button>
                     </CardContent>
@@ -214,18 +213,17 @@ export default function HelpdeskReport() {
                         <Search className="w-8 h-8 text-green-600" />
                       </div>
                       <h3 className="text-xl font-semibold text-gray-900 mb-4">
-                        Track Report
+                        {t("trackReport")}
                       </h3>
                       <p className="text-gray-600 mb-6">
-                        Check the status and details of your submitted support
-                        tickets.
+                        {t("trackReportDesc")}
                       </p>
                       <Button
                         className="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-6 cursor-pointer rounded-[9px] transition-all duration-200 group-hover:scale-105"
                         size="lg"
                         onClick={() => setMode("track")}
                       >
-                        Track Report
+                        {t("trackReport")}
                         <ArrowRight className="w-4 h-4 ml-2" />
                       </Button>
                     </CardContent>
@@ -245,11 +243,10 @@ export default function HelpdeskReport() {
                       </div>
                       <div>
                         <CardTitle className="text-xl text-gray-900">
-                          Submit a Support Ticket
+                          {t("submitTicketTitle")}
                         </CardTitle>
                         <CardDescription className="text-[14px]">
-                          Fill in the form below to report your issue. You will
-                          receive a ticket number after submission.
+                          {t("submitTicketDesc")}
                         </CardDescription>
                       </div>
                     </div>
@@ -262,15 +259,14 @@ export default function HelpdeskReport() {
                         </div>
                         <div>
                           <h3 className="text-2xl font-bold text-gray-900 mb-3">
-                            Ticket Submitted Successfully!
+                            {t("ticketSubmitted")}
                           </h3>
                           <p className="text-gray-600 mb-6">
-                            Your support ticket has been submitted and is being
-                            processed.
+                            {t("ticketSubmittedDesc")}
                           </p>
                           <div className="bg-gray-50 rounded-2xl p-6 border border-gray-200">
                             <p className="text-sm text-gray-600 mb-2">
-                              Your ticket number:
+                              {t("yourTicketNumber")}
                             </p>
                             <Badge
                               variant="secondary"
@@ -291,13 +287,13 @@ export default function HelpdeskReport() {
                             }}
                           >
                             <ClipboardCheck className="w-4 h-4 mr-2" />
-                            Copy Number
+                            {t("copyNumber")}
                           </Button>
                           <Button
                             className="flex-1 bg-blue-600 hover:bg-blue-700 py-3 rounded-xl"
                             onClick={() => setMode("none")}
                           >
-                            Back to Home
+                            {t("backToHome")}
                           </Button>
                         </div>
                       </div>
@@ -314,14 +310,14 @@ export default function HelpdeskReport() {
                         <div className="space-y-2">
                           <Label className="font-medium text-gray-700">
                             <User className="w-4 h-4 mr-1 inline" />
-                            Customer Name
+                            {t("customerName")}
                           </Label>
                           <Input
                             value={form.customer_name}
                             onChange={(e) =>
                               handleFormChange("customer_name", e.target.value)
                             }
-                            placeholder="Your name"
+                            placeholder={t("customerName")}
                             required
                             className="py-3 px-4 rounded-lg border-gray-300"
                           />
@@ -329,7 +325,7 @@ export default function HelpdeskReport() {
                         <div className="space-y-2">
                           <Label className="font-medium text-gray-700">
                             <Phone className="w-4 h-4 mr-1 inline" />
-                            Customer Phone
+                            {t("customerPhone")}
                           </Label>
                           <Input
                             value={form.customer_phone}
@@ -348,14 +344,14 @@ export default function HelpdeskReport() {
                       <div className="space-y-2">
                         <Label className="font-medium text-gray-700">
                           <Info className="w-4 h-4 mr-1 inline" />
-                          Subject
+                          {t("subject")}
                         </Label>
                         <Input
                           value={form.subject}
                           onChange={(e) =>
                             handleFormChange("subject", e.target.value)
                           }
-                          placeholder="Brief summary of the issue"
+                          placeholder={t("subject")}
                           required
                           className="py-3 px-4 rounded-lg border-gray-300"
                         />
@@ -365,7 +361,7 @@ export default function HelpdeskReport() {
                       <div className="space-y-2">
                         <Label className="font-medium text-gray-700">
                           <FileText className="w-4 h-4 mr-1 inline" />
-                          Description
+                          {t("description")}
                         </Label>
                         <textarea
                           className="w-full border rounded-lg px-4 py-3 min-h-[100px] border-gray-300"
@@ -373,7 +369,7 @@ export default function HelpdeskReport() {
                           onChange={(e) =>
                             handleFormChange("description", e.target.value)
                           }
-                          placeholder="Describe the problem in detail"
+                          placeholder={t("description")}
                           required
                         />
                       </div>
@@ -382,7 +378,7 @@ export default function HelpdeskReport() {
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="space-y-2">
                           <Label className="font-medium text-gray-700">
-                            Service Category
+                            {t("serviceCategory")}
                           </Label>
                           <Select
                             value={serviceCategory}
@@ -390,7 +386,7 @@ export default function HelpdeskReport() {
                             required
                           >
                             <SelectTrigger className="py-3 px-4 rounded-lg border-gray-300">
-                              <SelectValue placeholder="Select service" />
+                              <SelectValue placeholder={t("selectService")} />
                             </SelectTrigger>
                             <SelectContent>
                               {services.map((svc) => (
@@ -403,7 +399,7 @@ export default function HelpdeskReport() {
                         </div>
                         <div className="space-y-2">
                           <Label className="font-medium text-gray-700">
-                            Issue Category
+                            {t("issueCategory")}
                           </Label>
                           <Select
                             value={issueCategory}
@@ -412,7 +408,7 @@ export default function HelpdeskReport() {
                             disabled={!serviceCategory}
                           >
                             <SelectTrigger className="py-3 px-4 rounded-lg border-gray-300">
-                              <SelectValue placeholder="Select issue" />
+                              <SelectValue placeholder={t("selectIssue")} />
                             </SelectTrigger>
                             <SelectContent>
                               {issueCategories.map((cat) => (
@@ -428,7 +424,7 @@ export default function HelpdeskReport() {
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="space-y-2">
                           <Label className="font-medium text-gray-700">
-                            Priority
+                            {t("priority")}
                           </Label>
                           <Select
                             value={form.priority}
@@ -437,27 +433,33 @@ export default function HelpdeskReport() {
                             }
                           >
                             <SelectTrigger className="py-3 px-4 rounded-lg border-gray-300">
-                              <SelectValue placeholder="Select priority" />
+                              <SelectValue placeholder={t("selectPriority")} />
                             </SelectTrigger>
                             <SelectContent>
-                              <SelectItem value="low">Low</SelectItem>
-                              <SelectItem value="normal">Normal</SelectItem>
-                              <SelectItem value="high">High</SelectItem>
-                              <SelectItem value="urgent">Urgent</SelectItem>
-                              <SelectItem value="critical">Critical</SelectItem>
+                              <SelectItem value="low">{t("low")}</SelectItem>
+                              <SelectItem value="normal">
+                                {t("normal")}
+                              </SelectItem>
+                              <SelectItem value="high">{t("high")}</SelectItem>
+                              <SelectItem value="urgent">
+                                {t("urgent")}
+                              </SelectItem>
+                              <SelectItem value="critical">
+                                {t("critical")}
+                              </SelectItem>
                             </SelectContent>
                           </Select>
                         </div>
                         <div className="space-y-2">
                           <Label className="font-medium text-gray-700">
-                            Location
+                            {t("location")}
                           </Label>
                           <Input
                             value={form.location}
                             onChange={(e) =>
                               handleFormChange("location", e.target.value)
                             }
-                            placeholder="e.g. Namanga Border"
+                            placeholder={t("location")}
                             className="py-3 px-4 rounded-lg border-gray-300"
                           />
                         </div>
@@ -469,7 +471,7 @@ export default function HelpdeskReport() {
                           className="bg-blue-600 text-white px-8 py-3 rounded-lg"
                           disabled={isSubmitting}
                         >
-                          {isSubmitting ? "Submitting..." : "Submit Ticket"}
+                          {isSubmitting ? t("submitting") : t("submitTicket")}
                         </Button>
                         <Button
                           type="button"
@@ -477,7 +479,7 @@ export default function HelpdeskReport() {
                           className="px-8 py-3 rounded-lg"
                           onClick={() => setMode("none")}
                         >
-                          Cancel
+                          {t("cancel")}
                         </Button>
                       </div>
                     </form>
@@ -497,11 +499,10 @@ export default function HelpdeskReport() {
                       </div>
                       <div>
                         <CardTitle className="text-2xl text-gray-900">
-                          Track a Ticket
+                          {t("trackTicketTitle")}
                         </CardTitle>
                         <CardDescription className="text-base">
-                          Enter your ticket number to view the status and
-                          details of your support request.
+                          {t("trackTicketDesc")}
                         </CardDescription>
                       </div>
                     </div>
@@ -511,7 +512,7 @@ export default function HelpdeskReport() {
                       <div className="space-y-3">
                         <Label>
                           <Clock className="w-4 h-4 mr-1 inline" />
-                          Ticket Number
+                          {t("ticketNumber")}
                         </Label>
                         <Input
                           value={trackId}
@@ -526,14 +527,14 @@ export default function HelpdeskReport() {
                           className="bg-green-600 text-white px-8"
                           disabled={isTracking}
                         >
-                          {isTracking ? "Tracking..." : "Track Ticket"}
+                          {isTracking ? t("tracking") : t("trackTicket")}
                         </Button>
                         <Button
                           type="button"
                           variant="secondary"
                           onClick={() => setMode("none")}
                         >
-                          Cancel
+                          {t("cancel")}
                         </Button>
                       </div>
                       {trackError && (
@@ -547,49 +548,61 @@ export default function HelpdeskReport() {
                         <div className="flex items-center gap-2 mb-2">
                           <CheckCircle2 className="text-green-500 w-6 h-6" />
                           <span className="text-blue-800 font-semibold">
-                            Ticket Found
+                            {t("ticketFound")}
                           </span>
                         </div>
                         <div className="mb-2">
-                          <span className="font-semibold">Subject:</span>{" "}
+                          <span className="font-semibold">{t("subject")}:</span>{" "}
                           {trackResult.subject}
                         </div>
                         <div className="mb-2">
-                          <span className="font-semibold">Status:</span>{" "}
+                          <span className="font-semibold">{t("status")}:</span>{" "}
                           {trackResult.status_description || trackResult.status}
                         </div>
                         <div className="mb-2">
-                          <span className="font-semibold">Priority:</span>{" "}
+                          <span className="font-semibold">
+                            {t("priority")}:
+                          </span>{" "}
                           {trackResult.priority}
                         </div>
                         <div className="mb-2">
-                          <span className="font-semibold">Service:</span>{" "}
+                          <span className="font-semibold">{t("service")}:</span>{" "}
                           {trackResult.service_name}
                         </div>
                         <div className="mb-2">
-                          <span className="font-semibold">Issue:</span>{" "}
+                          <span className="font-semibold">{t("issue")}:</span>{" "}
                           {trackResult.issue_category_name}
                         </div>
                         <div className="mb-2">
-                          <span className="font-semibold">Customer:</span>{" "}
+                          <span className="font-semibold">
+                            {t("customer")}:
+                          </span>{" "}
                           {trackResult.customer_name}
                         </div>
                         <div className="mb-2">
-                          <span className="font-semibold">Location:</span>{" "}
+                          <span className="font-semibold">
+                            {t("location")}:
+                          </span>{" "}
                           {trackResult.location}
                         </div>
                         <div className="mb-2">
-                          <span className="font-semibold">Submitted:</span>{" "}
+                          <span className="font-semibold">
+                            {t("submitted")}:
+                          </span>{" "}
                           {new Date(
                             trackResult.submission_date
                           ).toLocaleString()}
                         </div>
                         <div className="mb-2">
-                          <span className="font-semibold">Last Updated:</span>{" "}
+                          <span className="font-semibold">
+                            {t("lastUpdated")}:
+                          </span>{" "}
                           {new Date(trackResult.last_updated).toLocaleString()}
                         </div>
                         <div className="mb-2">
-                          <span className="font-semibold">Description:</span>{" "}
+                          <span className="font-semibold">
+                            {t("description")}:
+                          </span>{" "}
                           <span className="whitespace-pre-line">
                             {trackResult.description}
                           </span>
@@ -597,7 +610,7 @@ export default function HelpdeskReport() {
                         {trackResult.latest_communication && (
                           <div className="mt-4 p-4 bg-white border rounded-md">
                             <div className="font-semibold text-blue-700 mb-1">
-                              Latest Communication
+                              {t("latestCommunication")}
                             </div>
                             <div className="text-gray-700 whitespace-pre-line">
                               {trackResult.latest_communication}

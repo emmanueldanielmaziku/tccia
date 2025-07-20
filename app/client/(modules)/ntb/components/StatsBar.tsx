@@ -16,7 +16,7 @@ import { useTranslations } from "next-intl";
 export default function StatsBar() {
   const [expanded, setExpanded] = useState(true);
 
-  const t = useTranslations("stats");
+  const t = useTranslations("ntb");
 
   return (
     <div
@@ -57,7 +57,7 @@ export default function StatsBar() {
         </button>
         {expanded && (
           <span className="w-full h-7 pl-4 ml-2 flex border-l-[0.5px] items-center font-bold text-[16px] text-gray-700">
-            NTB Portal
+            {t("ntbPortal")}
           </span>
         )}
       </div>
@@ -87,17 +87,15 @@ export default function StatsBar() {
                   <div className="flex items-center gap-1 mb-1">
                     <DocumentText size={18} color="#138abd" />
                     <h4 className="font-semibold text-gray-700 text-[13px]">
-                      Submit NTB Report
+                      {t("submitNTBHeading")}
                     </h4>
                   </div>
                   <p className="text-gray-600 text-[10px] md:text-[13px] leading-relaxed mb-3 text-left">
-                    Report any non-tariff barrier you encounter. Fill out the
-                    form with detailed information about the issue.
+                    {t("submitNTB")}
                   </p>
                   <div className="bg-yellow-50 border-[0.5px] border-yellow-200 rounded-lg p-3">
                     <p className="text-yellow-800 text-[10px] md:text-[12px] text-left font-medium leading-relaxed">
-                      ⚠️ Important: Save the tracking code provided after
-                      submission to track your report later.
+                      {t("saveTrackingTip")}
                     </p>
                   </div>
                 </div>
@@ -107,17 +105,15 @@ export default function StatsBar() {
                   <div className="flex items-center gap-1 mb-1">
                     <SearchNormal size={18} color="#059669" />
                     <h4 className="font-semibold text-gray-700 text-[13px]">
-                      Track NTB Status
+                      {t("trackNTBHeading")}
                     </h4>
                   </div>
                   <p className="text-gray-600 text-[10px] md:text-[13px] leading-relaxed mb-3 text-left">
-                    Enter the tracking code you received when you submitted your
-                    NTB report to check the current status and feedback.
+                    {t("trackNTB")}
                   </p>
                   <div className="bg-green-50 border-[0.5px] border-green-200 rounded-lg p-3">
                     <p className="text-green-800 text-[10px] md:text-[12px] text-left font-medium leading-relaxed">
-                      💡 Tip: Use the tracking code from your submission
-                      confirmation to monitor progress.
+                      {t("useTrackingTip")}
                     </p>
                   </div>
                 </div>

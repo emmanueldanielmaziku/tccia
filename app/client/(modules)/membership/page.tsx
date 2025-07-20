@@ -1,13 +1,38 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import NavBar from "../../components/NavBar";
-import MembershipForm from "./components/MembershipForm";
-import { Add, CloseCircle } from "iconsax-reactjs";
+import MembershipForm from "./components/MembershipApplicationForm";
+import { Add, CloseCircle, Lock } from "iconsax-reactjs";
 import AlertBox from "../factory-verification/components/AlertBox";
+import StatsBar from "./components/StatsBar";
+import MembershipApplication from "./components/MembershipApplication";
 
 export default function Membership() {
   const [showForm, setShowForm] = useState(false);
   const [discardBoxState, setDiscardBoxState] = useState(false);
+  const [selectedTin, setSelectedTin] = useState<string | null>(null);
+  const [hasApplication, setHasApplication] = useState(false);
+
+  useEffect(() => {
+    const storedCompany = localStorage.getItem("selectedCompany");
+    if (storedCompany) {
+      const parsed = JSON.parse(storedCompany);
+      setSelectedTin(parsed.company_tin || null);
+    }
+    const handleCompanyChange = () => {
+      const updatedCompany = localStorage.getItem("selectedCompany");
+      if (updatedCompany) {
+        const parsed = JSON.parse(updatedCompany);
+        setSelectedTin(parsed.company_tin || null);
+      }
+    };
+    window.addEventListener("COMPANY_CHANGE_EVENT", handleCompanyChange);
+    window.addEventListener("storage", handleCompanyChange);
+    return () => {
+      window.removeEventListener("COMPANY_CHANGE_EVENT", handleCompanyChange);
+      window.removeEventListener("storage", handleCompanyChange);
+    };
+  }, []);
 
   const handleDiscard = () => {
     setDiscardBoxState(false);
@@ -23,9 +48,8 @@ export default function Membership() {
         />
       )}
       <NavBar title={"Membership"} />
-
-      {/* Content */}
-      <section className="flex flex-col lg:flex-row">
+      <section className="flex flex-row w-full h-full">
+        {/* Main Content */}
         <div className="flex flex-col items-start flex-1 h-[97vh] pt-18 w-full bg-transparent border-transparent border-[1px] rounded-xl">
           <div className="flex flex-col justify-start items-start mt-2 w-full h-[86vh] rounded-sm relative px-4 md:px-8 lg:px-16.5">
             {/* Header */}
@@ -41,7 +65,6 @@ export default function Membership() {
                   </h1>
                 </div>
               )}
-
               {/* button */}
               {showForm ? (
                 <button
@@ -53,33 +76,47 @@ export default function Membership() {
                 </button>
               ) : (
                 <button
-                  className="flex flex-row gap-3 justify-between items-center bg-blue-600 hover:bg-blue-500 text-white text-sm rounded-[6px] cursor-pointer px-5 py-2 w-full md:w-auto"
-                  onClick={() => setShowForm(true)}
+                  className={`flex flex-row gap-3 justify-between items-center text-sm rounded-[6px] px-5 py-2 w-full md:w-auto ${
+                    hasApplication
+                      ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                      : "bg-blue-600 hover:bg-blue-500 text-white cursor-pointer"
+                  }`}
+                  onClick={() => {
+                    if (!hasApplication) setShowForm(true);
+                  }}
+                  disabled={hasApplication}
+                  title={
+                    hasApplication
+                      ? "You already have a membership application"
+                      : "Start a new application"
+                  }
                 >
-                  <Add size={20} color="white" />
+                  {hasApplication ? (
+                    <Lock size={20} color="#6b7280" />
+                  ) : (
+                    <Add size={20} color="white" />
+                  )}
                   New Application
                 </button>
               )}
             </div>
-
             {/* Main Content */}
             {showForm ? (
-              <MembershipForm />
+              <MembershipForm onSuccess={() => setShowForm(false)} />
             ) : (
               <div className="w-full mt-8">
-                <div className="bg-gray-50 p-8 rounded-lg text-center">
-                  <h2 className="text-xl font-medium text-gray-700 mb-2">
-                    Welcome to Membership Management
-                  </h2>
-                  <p className="text-gray-600">
-                    Click the "New Application" button to start a new membership
-                    application process.
-                  </p>
-                </div>
+                {selectedTin && (
+                  <MembershipApplication
+                    tin={selectedTin}
+                    onHasApplication={setHasApplication}
+                  />
+                )}
               </div>
             )}
           </div>
         </div>
+        {/* Fixed Sidebar */}
+        <StatsBar />
       </section>
     </main>
   );

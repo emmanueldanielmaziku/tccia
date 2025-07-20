@@ -39,6 +39,7 @@ import {
   Phone,
 } from "lucide-react";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
 const TANZANIA_REGIONS = [
   "Arusha",
@@ -74,6 +75,7 @@ const TANZANIA_REGIONS = [
 ];
 
 export default function NTB() {
+  const t = useTranslations("ntb");
   const [mode, setMode] = useState<"none" | "report" | "track">("none");
   const [form, setForm] = useState({
     reporter_name: "",
@@ -202,7 +204,7 @@ export default function NTB() {
 
   return (
     <main className="w-full h-[97vh] rounded-[14px] overflow-hidden bg-white border-[1px] border-gray-200 ml-2 shadow-sm relative">
-      <NavBar title={"Report & Track NTB Issues"} />
+      <NavBar title={t("title")} />
       <section className="flex flex-1 flex-col lg:flex-row h-full">
         <div className="flex flex-col items-start flex-1 w-full overflow-y-auto max-h-[calc(97vh-80px)]">
           <div className="w-full max-w-4xl mx-auto mt-24 mb-8 px-6 pb-8">
@@ -214,11 +216,10 @@ export default function NTB() {
                   </div>
                   <div>
                     <h1 className="text-4xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">
-                      Welcome to NTB Reporting Portal
+                      {t("welcome")}
                     </h1>
                     <p className="text-lg text-gray-600 mt-3 max-w-2xl mx-auto">
-                      Report Non-Tariff Barrier issues or track existing reports
-                      with our streamlined platform
+                      {t("intro")}
                     </p>
                   </div>
                 </div>
@@ -230,18 +231,17 @@ export default function NTB() {
                         <FileText className="w-8 h-8 text-blue-600" />
                       </div>
                       <h3 className="text-xl font-semibold text-gray-900 mb-4">
-                        Report NTB Issue
+                        {t("reportNTBIssue")}
                       </h3>
                       <p className="text-gray-600 mb-6">
-                        Submit a new Non-Tariff Barrier report with detailed
-                        information
+                        {t("reportNTBIssueDesc")}
                       </p>
                       <Button
                         className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-6 cursor-pointer rounded-[9px] transition-all duration-200 group-hover:scale-105"
                         size="lg"
                         onClick={() => setMode("report")}
                       >
-                        Create Report
+                        {t("createReport")}
                         <ArrowRight className="w-4 h-4 ml-2" />
                       </Button>
                     </CardContent>
@@ -253,18 +253,15 @@ export default function NTB() {
                         <Search className="w-8 h-8 text-green-600" />
                       </div>
                       <h3 className="text-xl font-semibold text-gray-900 mb-4">
-                        Track NTB Issue
+                        {t("trackNTBHeading")}
                       </h3>
-                      <p className="text-gray-600 mb-6">
-                        Check the status and feedback of your submitted reports
-                      </p>
+                      <p className="text-gray-600 mb-6">{t("trackNTBDesc")}</p>
                       <Button
-                        variant="outline"
-                        className="w-full border-green-200 text-green-700 hover:bg-green-50 font-medium py-6 rounded-[9px] cursor-pointer transition-all duration-200 group-hover:scale-105"
+                        className="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-6 cursor-pointer rounded-[9px] transition-all duration-200 group-hover:scale-105"
                         size="lg"
                         onClick={handleTrackButtonClick}
                       >
-                        Track Report
+                        {t("trackReport")}
                         <ArrowRight className="w-4 h-4 ml-2" />
                       </Button>
                     </CardContent>
@@ -284,11 +281,10 @@ export default function NTB() {
                       </div>
                       <div>
                         <CardTitle className="text-xl text-gray-900">
-                          Report NTB Issue
+                          {t("reportNTBIssue")}
                         </CardTitle>
                         <CardDescription className="text-[14px]">
-                          Fill in the form below to report your NTB issue. You
-                          will receive a tracking code after submission.
+                          {t("reportNTBIssueDesc")}
                         </CardDescription>
                       </div>
                     </div>
@@ -301,15 +297,14 @@ export default function NTB() {
                         </div>
                         <div>
                           <h3 className="text-2xl font-bold text-gray-900 mb-3">
-                            Report Submitted Successfully!
+                            {t("reportSubmittedSuccess")}
                           </h3>
                           <p className="text-gray-600 mb-6">
-                            Your NTB report has been submitted and is being
-                            processed.
+                            {t("reportSubmittedDesc")}
                           </p>
                           <div className="bg-gray-50 rounded-2xl p-6 border border-gray-200">
                             <p className="text-sm text-gray-600 mb-2">
-                              Your tracking code:
+                              {t("trackingCode")}:
                             </p>
                             <Badge
                               variant="secondary"
@@ -331,13 +326,13 @@ export default function NTB() {
                             }}
                           >
                             <ClipboardCheck className="w-4 h-4 mr-2" />
-                            Copy Code
+                            {t("copyCode")}
                           </Button>
                           <Button
                             className="flex-1 bg-blue-600 hover:bg-blue-700 py-3 rounded-xl"
                             onClick={() => setMode("none")}
                           >
-                            Back to Home
+                            {t("backToHome")}
                           </Button>
                         </div>
                       </div>
@@ -350,11 +345,11 @@ export default function NTB() {
                               className="text-sm font-medium text-gray-700 flex items-center gap-2"
                             >
                               <User className="w-4 h-4" />
-                              Your Name
+                              {t("yourName")}
                             </Label>
                             <Input
                               id="reporter_name"
-                              placeholder="Enter your full name"
+                              placeholder={t("enterYourName")}
                               value={form.reporter_name}
                               onChange={(e) =>
                                 handleChange("reporter_name", e.target.value)
@@ -369,11 +364,11 @@ export default function NTB() {
                               className="text-sm font-medium text-gray-700 flex items-center gap-2"
                             >
                               <Phone className="w-4 h-4" />
-                              Contact Number
+                              {t("contactNumber")}
                             </Label>
                             <Input
                               id="reporter_contact"
-                              placeholder="+255..."
+                              placeholder={t("enterContactNumber")}
                               value={form.reporter_contact}
                               onChange={(e) =>
                                 handleChange("reporter_contact", e.target.value)
@@ -389,11 +384,11 @@ export default function NTB() {
                             htmlFor="subject"
                             className="text-sm font-medium text-gray-700"
                           >
-                            Issue Subject
+                            {t("issueSubject")}
                           </Label>
                           <Input
                             id="subject"
-                            placeholder="e.g., Delay in clearing cargo at port"
+                            placeholder={t("e.g.,DelayInClearingCargoAtPort")}
                             value={form.subject}
                             onChange={(e) =>
                               handleChange("subject", e.target.value)
@@ -408,7 +403,7 @@ export default function NTB() {
                             htmlFor="description"
                             className="text-sm font-medium text-gray-700"
                           >
-                            Detailed Description
+                            {t("detailedDescription")}
                           </Label>
                           <div className="border border-gray-200 rounded-xl bg-white overflow-hidden focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500">
                             <div className="flex gap-1 border-b border-gray-100 px-4 py-3 bg-gray-50">
@@ -475,7 +470,7 @@ export default function NTB() {
                             className="text-sm font-medium text-gray-700 flex items-center gap-2"
                           >
                             <MapPin className="w-4 h-4" />
-                            Location
+                            {t("location")}
                           </Label>
                           <Select
                             value={form.location}
@@ -485,7 +480,7 @@ export default function NTB() {
                             required
                           >
                             <SelectTrigger className="h-12 py-6 cursor-pointer w-full rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500">
-                              <SelectValue placeholder="Select region" />
+                              <SelectValue placeholder={t("selectRegion")} />
                             </SelectTrigger>
                             <SelectContent>
                               {TANZANIA_REGIONS.map((region) => (
@@ -508,10 +503,10 @@ export default function NTB() {
                             {isSubmitting ? (
                               <>
                                 <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
-                                Submitting...
+                                {t("submitting")}
                               </>
                             ) : (
-                              "Submit Report"
+                              t("submitReport")
                             )}
                           </Button>
                           <Button
@@ -521,7 +516,7 @@ export default function NTB() {
                             onClick={() => setMode("none")}
                             disabled={isSubmitting}
                           >
-                            Cancel
+                            {t("cancel")}
                           </Button>
                         </div>
                       </form>
@@ -542,11 +537,10 @@ export default function NTB() {
                       </div>
                       <div>
                         <CardTitle className="text-2xl text-gray-900">
-                          Track NTB Report
+                          {t("trackNTBReport")}
                         </CardTitle>
                         <CardDescription className="text-base">
-                          Enter your tracking code to view the status and
-                          feedback of your NTB report.
+                          {t("trackNTBDesc")}
                         </CardDescription>
                       </div>
                     </div>
@@ -559,11 +553,11 @@ export default function NTB() {
                           className="text-sm font-medium text-gray-700 flex items-center gap-2"
                         >
                           <Clock className="w-4 h-4" />
-                          Tracking Code
+                          {t("trackingCode")}
                         </Label>
                         <Input
                           id="track_id"
-                          placeholder="e.g., NTB-0001"
+                          placeholder={t("e.g.,NTB-0001")}
                           value={trackId}
                           onChange={(e) => setTrackId(e.target.value)}
                           className="h-12 rounded-[9px] border-gray-200 focus:border-green-500 focus:ring-green-500"
@@ -580,12 +574,12 @@ export default function NTB() {
                           {isTracking ? (
                             <>
                               <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
-                              Tracking...
+                              {t("tracking")}
                             </>
                           ) : (
                             <>
                               <Search className="w-4 h-4 mr-2" />
-                              Track Report
+                              {t("trackReport")}
                             </>
                           )}
                         </Button>
@@ -595,7 +589,7 @@ export default function NTB() {
                           className="flex-1 border-gray-200 text-gray-700 cursor-pointer hover:bg-gray-50 py-3 rounded-[9px] h-12"
                           onClick={() => setMode("none")}
                         >
-                          Cancel
+                          {t("cancel")}
                         </Button>
                       </div>
 
@@ -616,7 +610,7 @@ export default function NTB() {
                   <Card className="border-0 shadow-lg bg-white/90 backdrop-blur-sm">
                     <CardHeader>
                       <CardTitle className="text-xl text-gray-900">
-                        Report Details
+                        {t("reportDetails")}
                       </CardTitle>
                     </CardHeader>
                     <CardContent className="px-8 pb-8 space-y-6 max-h-[60vh] overflow-y-auto">
@@ -643,7 +637,7 @@ export default function NTB() {
                                   <div className="flex items-center gap-2">
                                     <MapPin className="w-4 h-4 text-gray-500" />
                                     <span className="font-medium text-gray-700">
-                                      Location:
+                                      {t("location")}:
                                     </span>
                                     <span className="text-gray-600">
                                       {report.location}
@@ -652,7 +646,7 @@ export default function NTB() {
                                   <div className="flex items-center gap-2">
                                     <User className="w-4 h-4 text-gray-500" />
                                     <span className="font-medium text-gray-700">
-                                      Reporter:
+                                      {t("reporter")}:
                                     </span>
                                     <span className="text-gray-600">
                                       {report.reporter_name}
@@ -661,7 +655,7 @@ export default function NTB() {
                                   <div className="flex items-center gap-2">
                                     <Phone className="w-4 h-4 text-gray-500" />
                                     <span className="font-medium text-gray-700">
-                                      Contact:
+                                      {t("contact")}:
                                     </span>
                                     <span className="text-gray-600">
                                       {report.reporter_contact}
@@ -670,7 +664,7 @@ export default function NTB() {
                                   <div className="flex items-center gap-2">
                                     <Clock className="w-4 h-4 text-gray-500" />
                                     <span className="font-medium text-gray-700">
-                                      Tracking Code:
+                                      {t("trackingCode")}:
                                     </span>
                                     <Badge
                                       variant="outline"
@@ -683,7 +677,7 @@ export default function NTB() {
 
                                 <div className="flex items-center gap-2">
                                   <span className="font-medium text-sm text-gray-700">
-                                    Status:
+                                    {t("status")}:
                                   </span>
                                   <Badge
                                     variant="secondary"
@@ -699,7 +693,7 @@ export default function NTB() {
                               <div className="bg-gray-50 border border-gray-200 rounded-2xl p-6">
                                 <h5 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
                                   <FileText className="w-4 h-4" />
-                                  Feedback & Updates
+                                  {t("feedbackUpdates")}
                                 </h5>
                                 <div className="whitespace-pre-line text-sm text-gray-700 leading-relaxed bg-white p-4 rounded-xl border">
                                   {report.feedback_messages}
@@ -733,7 +727,7 @@ export default function NTB() {
                                 <div className="flex items-center gap-2">
                                   <MapPin className="w-4 h-4 text-gray-500" />
                                   <span className="font-medium text-gray-700">
-                                    Location:
+                                    {t("location")}:
                                   </span>
                                   <span className="text-gray-600">
                                     {trackResult.data.location}
@@ -742,7 +736,7 @@ export default function NTB() {
                                 <div className="flex items-center gap-2">
                                   <User className="w-4 h-4 text-gray-500" />
                                   <span className="font-medium text-gray-700">
-                                    Reporter:
+                                    {t("reporter")}:
                                   </span>
                                   <span className="text-gray-600">
                                     {trackResult.data.reporter_name}
@@ -751,7 +745,7 @@ export default function NTB() {
                                 <div className="flex items-center gap-2">
                                   <Phone className="w-4 h-4 text-gray-500" />
                                   <span className="font-medium text-gray-700">
-                                    Contact:
+                                    {t("contact")}:
                                   </span>
                                   <span className="text-gray-600">
                                     {trackResult.data.reporter_contact}
@@ -760,7 +754,7 @@ export default function NTB() {
                                 <div className="flex items-center gap-2">
                                   <Clock className="w-4 h-4 text-gray-500" />
                                   <span className="font-medium text-gray-700">
-                                    Tracking Code:
+                                    {t("trackingCode")}:
                                   </span>
                                   <Badge
                                     variant="outline"
@@ -773,7 +767,7 @@ export default function NTB() {
 
                               <div className="flex items-center gap-2">
                                 <span className="font-medium text-sm text-gray-700">
-                                  Status:
+                                  {t("status")}:
                                 </span>
                                 <Badge
                                   variant="secondary"
@@ -790,7 +784,7 @@ export default function NTB() {
                             <div className="bg-gray-50 border border-gray-200 rounded-2xl p-6">
                               <h5 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
                                 <FileText className="w-4 h-4" />
-                                Feedback & Updates
+                                {t("feedbackUpdates")}
                               </h5>
                               <div className="whitespace-pre-line text-sm text-gray-700 leading-relaxed bg-white p-4 rounded-xl border">
                                 {trackResult.data.feedback_messages}

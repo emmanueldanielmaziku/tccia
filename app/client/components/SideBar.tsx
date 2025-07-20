@@ -140,9 +140,9 @@ export default function SideBar() {
               const isFirmManagement = item.id === "Firm Management";
               const isNTB = item.id === "Non-Tariff Barrier";
               const isHelpDesk = item.id === "Help Desk";
-              const isMembership = item.id === "Membership";
+              // const isMembership = item.id === "Membership";
 
-              const isLocked = !companySelected && !isFirmManagement && !isMembership && !isNTB && !isHelpDesk;
+              const isLocked = !companySelected && !isFirmManagement && !isNTB && !isHelpDesk;
               if (
                 (role === "CEM" &&
                   [
