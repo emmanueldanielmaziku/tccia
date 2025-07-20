@@ -92,6 +92,7 @@ export default function NTB() {
   const [trackId, setTrackId] = useState("");
   const [trackResult, setTrackResult] = useState<any>(null);
   const [trackError, setTrackError] = useState<string | null>(null);
+  const [phoneError, setPhoneError] = useState<string | null>(null);
 
   const handleChange = (field: string, value: string) => {
     setForm((prev) => ({ ...prev, [field]: value }));
@@ -105,10 +106,24 @@ export default function NTB() {
     },
   });
 
+  function isValidPhone(phone: string) {
+   
+    return /^\+255\d{9}$/.test(phone);
+  }
+
   const handleReportSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
     setSuccessData(null);
+    setPhoneError(null);
+
+    if (!isValidPhone(form.reporter_contact)) {
+      setPhoneError(
+        "Use Tanzanian format: +255XXXXXXXXX"
+      );
+      setIsSubmitting(false);
+      return;
+    }
 
     try {
       const response = await fetch("/api/ntb/submit", {
@@ -370,12 +385,21 @@ export default function NTB() {
                               id="reporter_contact"
                               placeholder={t("enterContactNumber")}
                               value={form.reporter_contact}
-                              onChange={(e) =>
-                                handleChange("reporter_contact", e.target.value)
-                              }
+                              onChange={(e) => {
+                                handleChange(
+                                  "reporter_contact",
+                                  e.target.value
+                                );
+                                if (phoneError) setPhoneError(null);
+                              }}
                               className="h-12 rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500"
                               required
                             />
+                            {phoneError && (
+                              <div className="flex flex-row items-center gap-2 mt-1 text-red-600 text-sm">
+                                <AlertCircle className="w-4 h-4" /> {phoneError}
+                              </div>
+                            )}
                           </div>
                         </div>
 

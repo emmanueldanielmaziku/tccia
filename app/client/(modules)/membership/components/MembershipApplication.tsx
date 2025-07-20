@@ -284,18 +284,19 @@ export default function MembershipApplication({
             <Money size={18} /> Fees
           </div>
           <div className="flex flex-wrap gap-3">
-            <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1">
+            {/* <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1">
               <Receipt size={14} /> Entry: {data.entry_fee}
-            </span>
+            </span> */}
             <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1">
               <Receipt size={14} /> Annual: {data.annual_fee}
             </span>
-            <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1">
+            {/* <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1">
               <Receipt size={14} /> Certificate: {data.certificate_fee}
-            </span>
-            <span className="bg-blue-600 text-white px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1">
+            </span> */} 
+            {/* <br /> */}
+            <div className="bg-blue-600 text-white px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1">
               <Receipt size={14} /> Total: {data.total_fee}
-            </span>
+            </div>
           </div>
         </div>
         {/* Dates & Invoice */}

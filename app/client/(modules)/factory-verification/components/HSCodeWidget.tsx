@@ -17,6 +17,9 @@ import {
 } from "@/components/ui/pagination";
 import { Search } from "lucide-react";
 
+const REMOTE_BASE_URL =
+  process.env.NEXT_PUBLIC_API_BASE_URL || "https://tccia.kalen.co.tz/api/";
+
 export default function HSCodeWidget({
   open,
   onClose,
@@ -28,47 +31,63 @@ export default function HSCodeWidget({
   const [description, setDescription] = useState("");
   const [digit, setDigit] = useState("12");
   const [page, setPage] = useState(1);
+  const [loading, setLoading] = useState(false);
+  const [data, setData] = useState<any[]>([]);
+  const [total, setTotal] = useState(0);
+  const [error, setError] = useState<string | null>(null);
   const modalRef = useRef<HTMLDivElement>(null);
 
-  // Dummy data for demonstration
-  const data = [
-    { code: "010121000000", desc: "Horses: Pure-bred breeding animals" },
-    { code: "010129000000", desc: "Horses: Other pure bred-breeding animals" },
-    { code: "010130100000", desc: "Asses: Pure-bred breeding animals" },
-    { code: "010130900000", desc: "Asses: Other" },
-    {
-      code: "010190100000",
-      desc: "Live horses, asses, mules and hinnies: Pure-bred breeding animals",
-    },
-    {
-      code: "010190900000",
-      desc: "Live horses, asses, mules and hinnies: Other",
-    },
-    { code: "010221000000", desc: "Cattle: Pure-bred breeding animals" },
-    { code: "010229000000", desc: "Cattle: Other" },
-    { code: "010231000000", desc: "Buffalo: Pure-bred breeding animals" },
-    { code: "010239000000", desc: "Buffalo: Other" },
-    { code: "010290100000", desc: "Camels: Pure-bred breeding animals" },
-    { code: "010290900000", desc: "Camels: Other" },
-    { code: "010310000000", desc: "Swine: Pure-bred breeding animals" },
-    { code: "010391000000", desc: "Swine: Other, weighing less than 50 kg" },
-    { code: "010392000000", desc: "Swine: Other, weighing 50 kg or more" },
-    { code: "010410100000", desc: "Sheep: Pure-bred breeding animals" },
-    { code: "010410900000", desc: "Sheep: Other" },
-    { code: "010420100000", desc: "Goats: Pure-bred breeding animals" },
-    { code: "010420900000", desc: "Goats: Other" },
-    {
-      code: "010511000000",
-      desc: "Fowls of the species Gallus domesticus: Weighing not more than 185 g",
-    },
-    {
-      code: "010512000000",
-      desc: "Fowls of the species Gallus domesticus: Weighing more than 185 g",
-    },
-  ];
   const pageSize = 10;
-  const totalPages = Math.ceil(data.length / pageSize);
-  const paginatedData = data.slice((page - 1) * pageSize, page * pageSize);
+  const totalPages = Math.max(1, Math.ceil(total / pageSize));
+
+  // Fetch HS codes (list or search)
+  const fetchData = async (isSearch = false) => {
+    setLoading(true);
+    setError(null);
+    try {
+      let url = "";
+      const offset = (page - 1) * pageSize;
+      if (isSearch && (hs || description || digit)) {
+        const params = new URLSearchParams();
+        if (hs) params.append("hs_code", hs);
+        if (description) params.append("description", description);
+        if (digit) params.append("digits", digit);
+        params.append("limit", String(pageSize));
+        params.append("offset", String(offset));
+        url = `${REMOTE_BASE_URL}hscode/search?${params.toString()}`;
+      } else {
+        const params = new URLSearchParams();
+        params.append("limit", String(pageSize));
+        params.append("offset", String(offset));
+        url = `${REMOTE_BASE_URL}hscode/list?${params.toString()}`;
+      }
+      const res = await fetch(url);
+      const json = await res.json();
+      if (!res.ok || !json.success) throw new Error("Failed to fetch HS codes");
+      if (json.results) {
+        setData(json.results);
+        setTotal(json.total_count || json.results.length);
+      } else if (json.hs_codes) {
+        setData(json.hs_codes);
+        setTotal(json.pagination?.total || json.hs_codes.length);
+      } else {
+        setData([]);
+        setTotal(0);
+      }
+    } catch (err: any) {
+      setError(err.message || "Failed to fetch HS codes");
+      setData([]);
+      setTotal(0);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fetch on open, page, or filters
+  useEffect(() => {
+    if (open) fetchData(Boolean(hs || description || digit !== "12"));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, page]);
 
   // Close on outside click
   useEffect(() => {
@@ -81,6 +100,19 @@ export default function HSCodeWidget({
     document.addEventListener("mousedown", handle);
     return () => document.removeEventListener("mousedown", handle);
   }, [open, onClose]);
+
+  const handleSearch = () => {
+    setPage(1);
+    fetchData(true);
+  };
+
+  const handleReset = () => {
+    setHs("");
+    setDescription("");
+    setDigit("12");
+    setPage(1);
+    fetchData(false);
+  };
 
   if (!open) return null;
 
@@ -141,7 +173,10 @@ export default function HSCodeWidget({
                 </div>
                 <div className="col-span-6 flex flex-row gap-4">
                   {["2", "4", "6", "8", "12"].map((d) => (
-                    <div key={d} className="flex flex-row items-center gap-1 text-sm">
+                    <div
+                      key={d}
+                      className="flex flex-row items-center gap-1 text-sm"
+                    >
                       <input
                         type="radio"
                         checked={digit === d}
@@ -157,50 +192,64 @@ export default function HSCodeWidget({
                 <Button
                   type="button"
                   variant="secondary"
-                  className="bg-[#2196f3] text-white hover:bg-[#1976d2] px-6 h-[30px] text-[12px] rounded-sm"
-                  onClick={() => {
-                    setHs("");
-                    setDescription("");
-                    setDigit("12");
-                  }}
+                  className="bg-[#2196f3] text-white cursor-pointer hover:bg-[#1976d2] px-6 h-[30px] text-[12px] rounded-sm"
+                  onClick={handleReset}
                 >
                   Reset
                 </Button>
                 <Button
                   type="button"
-                  className="bg-[#2196f3] text-white hover:bg-[#1976d2] px-6 h-[30px] text-[12px] rounded-sm"
+                  className="bg-[#2196f3] text-white cursor-pointer hover:bg-[#1976d2] px-6 h-[30px] text-[12px] rounded-sm"
+                  onClick={handleSearch}
                 >
                   Search
                 </Button>
               </div>
             </div>
             {/* Table */}
-            <div className="w-full overflow-x-auto border rounded-md bg-white">
-              <Table className="w-full">
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="w-12">#</TableHead>
-                    <TableHead className="w-48">HS Code</TableHead>
-                    <TableHead>HS Description</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {paginatedData.map((row, idx) => (
-                    <TableRow key={row.code} className="hover:bg-blue-50">
-                      <TableCell>{(page - 1) * pageSize + idx + 1}</TableCell>
-                      <TableCell className="text-blue-600 underline cursor-pointer">
-                        {row.code}
-                      </TableCell>
-                      <TableCell>{row.desc}</TableCell>
+            <div className="w-full overflow-x-auto border rounded-md bg-white min-h-[200px]">
+              {loading ? (
+                <div className="py-12 text-center text-blue-600 font-semibold">
+                  Loading...
+                </div>
+              ) : error ? (
+                <div className="py-12 text-center text-red-500 font-semibold">
+                  {error}
+                </div>
+              ) : data.length === 0 ? (
+                <div className="py-12 text-center text-gray-500 font-semibold">
+                  No results found.
+                </div>
+              ) : (
+                <Table className="w-full">
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="w-12">#</TableHead>
+                      <TableHead className="w-48">HS Code</TableHead>
+                      <TableHead>HS Description</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                  </TableHeader>
+                  <TableBody>
+                    {data.map((row, idx) => (
+                      <TableRow
+                        key={row.id || row.hs_code}
+                        className="hover:bg-blue-50"
+                      >
+                        <TableCell>{(page - 1) * pageSize + idx + 1}</TableCell>
+                        <TableCell className="text-blue-600 underline cursor-pointer">
+                          {row.hs_code}
+                        </TableCell>
+                        <TableCell>{row.description}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              )}
             </div>
             {/* Pagination */}
             <div className="flex justify-between items-center my-5">
               <span className="text-sm text-muted-foreground">
-                Page : {page} / {totalPages} &nbsp; Total : {data.length}
+                Page : {page} / {totalPages} &nbsp; Total : {total}
               </span>
               <Pagination>
                 <PaginationContent>
@@ -209,6 +258,7 @@ export default function HSCodeWidget({
                       isActive={page === 1}
                       onClick={() => setPage(1)}
                       aria-disabled={page === 1}
+                      className="cursor-pointer"
                     >
                       {"<"}
                     </PaginationLink>
@@ -225,6 +275,7 @@ export default function HSCodeWidget({
                   ))}
                   <PaginationItem>
                     <PaginationLink
+                      className="cursor-pointer"
                       isActive={page === totalPages}
                       onClick={() => setPage(totalPages)}
                       aria-disabled={page === totalPages}
@@ -234,7 +285,12 @@ export default function HSCodeWidget({
                   </PaginationItem>
                 </PaginationContent>
               </Pagination>
-              <Button type="button" variant="destructive" onClick={onClose} className="text-sm h-[30px] rounded-sm">
+              <Button
+                type="button"
+                variant="destructive"
+                onClick={onClose}
+                className="text-sm h-[30px] rounded-sm cursor-pointer"
+              >
                 Close
               </Button>
             </div>

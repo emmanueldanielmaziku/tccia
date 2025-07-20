@@ -96,8 +96,8 @@ export default function HelpdeskReport() {
   };
 
   function isValidPhone(phone: string) {
-    // Accepts + followed by 9-15 digits
-    return /^\+\d{9,15}$/.test(phone);
+    // Must start with +255 and be followed by 9 digits (Tanzania format)
+    return /^\+255\d{9}$/.test(phone);
   }
 
   const handleReportSubmit = async (e: React.FormEvent) => {
@@ -107,7 +107,7 @@ export default function HelpdeskReport() {
 
     if (!isValidPhone(form.customer_phone)) {
       setSubmitError(
-        "Invalid phone number format. Use international format, e.g., +255123456789"
+        "Use Tanzanian format: +255XXXXXXXXX"
       );
       return;
     }
@@ -252,7 +252,7 @@ export default function HelpdeskReport() {
                     </div>
                   </CardHeader>
                   <CardContent className="px-8 pb-8">
-                    {submitResult && (
+                    {submitResult ? (
                       <div className="text-center space-y-8">
                         <div className="mx-auto w-24 h-24 bg-gradient-to-br from-green-400 to-green-600 rounded-full flex items-center justify-center shadow-lg">
                           <CheckCircle2 className="w-12 h-12 text-white" />
@@ -297,192 +297,215 @@ export default function HelpdeskReport() {
                           </Button>
                         </div>
                       </div>
-                    )}
-                    {submitError && (
-                      <div className="flex flex-row items-center gap-2 mb-6 text-red-600">
-                        <AlertCircle className="w-5 h-5" /> {submitError}
-                      </div>
-                    )}
-                    {/* Form fields */}
-                    <form onSubmit={handleReportSubmit} className="space-y-7">
-                      {/* Name & Phone */}
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div className="space-y-2">
-                          <Label className="font-medium text-gray-700">
-                            <User className="w-4 h-4 mr-1 inline" />
-                            {t("customerName")}
-                          </Label>
-                          <Input
-                            value={form.customer_name}
-                            onChange={(e) =>
-                              handleFormChange("customer_name", e.target.value)
-                            }
-                            placeholder={t("customerName")}
-                            required
-                            className="py-3 px-4 rounded-lg border-gray-300"
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <Label className="font-medium text-gray-700">
-                            <Phone className="w-4 h-4 mr-1 inline" />
-                            {t("customerPhone")}
-                          </Label>
-                          <Input
-                            value={form.customer_phone}
-                            onChange={(e) => {
-                              const val = e.target.value.replace(/[^\d+]/g, "");
-                              handleFormChange("customer_phone", val);
-                            }}
-                            placeholder="e.g. +255123456789"
-                            required
-                            className="py-3 px-4 rounded-lg border-gray-300"
-                          />
-                        </div>
-                      </div>
-
-                      {/* Subject */}
-                      <div className="space-y-2">
-                        <Label className="font-medium text-gray-700">
-                          <Info className="w-4 h-4 mr-1 inline" />
-                          {t("subject")}
-                        </Label>
-                        <Input
-                          value={form.subject}
-                          onChange={(e) =>
-                            handleFormChange("subject", e.target.value)
-                          }
-                          placeholder={t("subject")}
-                          required
-                          className="py-3 px-4 rounded-lg border-gray-300"
-                        />
-                      </div>
-
-                      {/* Description */}
-                      <div className="space-y-2">
-                        <Label className="font-medium text-gray-700">
-                          <FileText className="w-4 h-4 mr-1 inline" />
-                          {t("description")}
-                        </Label>
-                        <textarea
-                          className="w-full border rounded-lg px-4 py-3 min-h-[100px] border-gray-300"
-                          value={form.description}
-                          onChange={(e) =>
-                            handleFormChange("description", e.target.value)
-                          }
-                          placeholder={t("description")}
-                          required
-                        />
-                      </div>
-
-                      {/* Dropdowns: Service, Issue, Priority, Location */}
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div className="space-y-2">
-                          <Label className="font-medium text-gray-700">
-                            {t("serviceCategory")}
-                          </Label>
-                          <Select
-                            value={serviceCategory}
-                            onValueChange={(v) => setServiceCategory(v)}
-                            required
-                          >
-                            <SelectTrigger className="py-3 px-4 rounded-lg border-gray-300">
-                              <SelectValue placeholder={t("selectService")} />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {services.map((svc) => (
-                                <SelectItem key={svc.code} value={svc.code}>
-                                  {svc.name}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </div>
-                        <div className="space-y-2">
-                          <Label className="font-medium text-gray-700">
-                            {t("issueCategory")}
-                          </Label>
-                          <Select
-                            value={issueCategory}
-                            onValueChange={(v) => setIssueCategory(v)}
-                            required
-                            disabled={!serviceCategory}
-                          >
-                            <SelectTrigger className="py-3 px-4 rounded-lg border-gray-300">
-                              <SelectValue placeholder={t("selectIssue")} />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {issueCategories.map((cat) => (
-                                <SelectItem key={cat.code} value={cat.code}>
-                                  {cat.name}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </div>
-                      </div>
-
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div className="space-y-2">
-                          <Label className="font-medium text-gray-700">
-                            {t("priority")}
-                          </Label>
-                          <Select
-                            value={form.priority}
-                            onValueChange={(v) =>
-                              handleFormChange("priority", v)
-                            }
-                          >
-                            <SelectTrigger className="py-3 px-4 rounded-lg border-gray-300">
-                              <SelectValue placeholder={t("selectPriority")} />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="low">{t("low")}</SelectItem>
-                              <SelectItem value="normal">
-                                {t("normal")}
-                              </SelectItem>
-                              <SelectItem value="high">{t("high")}</SelectItem>
-                              <SelectItem value="urgent">
-                                {t("urgent")}
-                              </SelectItem>
-                              <SelectItem value="critical">
-                                {t("critical")}
-                              </SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-                        <div className="space-y-2">
-                          <Label className="font-medium text-gray-700">
-                            {t("location")}
-                          </Label>
-                          <Input
-                            value={form.location}
-                            onChange={(e) =>
-                              handleFormChange("location", e.target.value)
-                            }
-                            placeholder={t("location")}
-                            className="py-3 px-4 rounded-lg border-gray-300"
-                          />
-                        </div>
-                      </div>
-
-                      <div className="flex gap-4 mt-8">
-                        <Button
-                          type="submit"
-                          className="bg-blue-600 text-white px-8 py-3 rounded-lg"
-                          disabled={isSubmitting}
+                    ) : (
+                      <>
+                        {/* Form fields */}
+                        <form
+                          onSubmit={handleReportSubmit}
+                          className="space-y-7"
                         >
-                          {isSubmitting ? t("submitting") : t("submitTicket")}
-                        </Button>
-                        <Button
-                          type="button"
-                          variant="secondary"
-                          className="px-8 py-3 rounded-lg"
-                          onClick={() => setMode("none")}
-                        >
-                          {t("cancel")}
-                        </Button>
-                      </div>
-                    </form>
+                          {/* Name & Phone */}
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="space-y-2">
+                              <Label className="font-medium text-gray-700">
+                                <User className="w-4 h-4 mr-1 inline" />
+                                {t("customerName")}
+                              </Label>
+                              <Input
+                                value={form.customer_name}
+                                onChange={(e) =>
+                                  handleFormChange(
+                                    "customer_name",
+                                    e.target.value
+                                  )
+                                }
+                                placeholder={t("customerName")}
+                                required
+                                className="py-3 px-4 rounded-lg border-gray-300"
+                              />
+                            </div>
+                            <div className="space-y-2">
+                              <Label className="font-medium text-gray-700">
+                                <Phone className="w-4 h-4 mr-1 inline" />
+                                {t("customerPhone")}
+                              </Label>
+                              <Input
+                                value={form.customer_phone}
+                                onChange={(e) => {
+                                  const val = e.target.value.replace(
+                                    /[^\d+]/g,
+                                    ""
+                                  );
+                                  handleFormChange("customer_phone", val);
+                                }}
+                                placeholder="e.g. +255123456789"
+                                required
+                                className="py-3 px-4 rounded-lg border-gray-300"
+                              />
+                              {submitError && (
+                                <div className="flex flex-row items-center gap-2 mt-1 text-red-600 text-sm">
+                                  <AlertCircle className="w-4 h-4" />{" "}
+                                  {submitError}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+
+                          {/* Subject */}
+                          <div className="space-y-2">
+                            <Label className="font-medium text-gray-700">
+                              <Info className="w-4 h-4 mr-1 inline" />
+                              {t("subject")}
+                            </Label>
+                            <Input
+                              value={form.subject}
+                              onChange={(e) =>
+                                handleFormChange("subject", e.target.value)
+                              }
+                              placeholder={t("subject")}
+                              required
+                              className="py-3 px-4 rounded-lg border-gray-300"
+                            />
+                          </div>
+
+                          {/* Description */}
+                          <div className="space-y-2">
+                            <Label className="font-medium text-gray-700">
+                              <FileText className="w-4 h-4 mr-1 inline" />
+                              {t("description")}
+                            </Label>
+                            <textarea
+                              className="w-full border rounded-lg px-4 py-3 min-h-[100px] border-gray-300"
+                              value={form.description}
+                              onChange={(e) =>
+                                handleFormChange("description", e.target.value)
+                              }
+                              placeholder={t("description")}
+                              required
+                            />
+                          </div>
+
+                          {/* Dropdowns: Service, Issue, Priority, Location */}
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="space-y-2">
+                              <Label className="font-medium text-gray-700">
+                                {t("serviceCategory")}
+                              </Label>
+                              <Select
+                                value={serviceCategory}
+                                onValueChange={(v) => setServiceCategory(v)}
+                                required
+                              >
+                                <SelectTrigger className="py-3 px-4 rounded-lg border-gray-300">
+                                  <SelectValue
+                                    placeholder={t("selectService")}
+                                  />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {services.map((svc) => (
+                                    <SelectItem key={svc.code} value={svc.code}>
+                                      {svc.name}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            </div>
+                            <div className="space-y-2">
+                              <Label className="font-medium text-gray-700">
+                                {t("issueCategory")}
+                              </Label>
+                              <Select
+                                value={issueCategory}
+                                onValueChange={(v) => setIssueCategory(v)}
+                                required
+                                disabled={!serviceCategory}
+                              >
+                                <SelectTrigger className="py-3 px-4 rounded-lg border-gray-300">
+                                  <SelectValue placeholder={t("selectIssue")} />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {issueCategories.map((cat) => (
+                                    <SelectItem key={cat.code} value={cat.code}>
+                                      {cat.name}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            </div>
+                          </div>
+
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="space-y-2">
+                              <Label className="font-medium text-gray-700">
+                                {t("priority")}
+                              </Label>
+                              <Select
+                                value={form.priority}
+                                onValueChange={(v) =>
+                                  handleFormChange("priority", v)
+                                }
+                              >
+                                <SelectTrigger className="py-3 px-4 rounded-lg border-gray-300">
+                                  <SelectValue
+                                    placeholder={t("selectPriority")}
+                                  />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="low">
+                                    {t("low")}
+                                  </SelectItem>
+                                  <SelectItem value="normal">
+                                    {t("normal")}
+                                  </SelectItem>
+                                  <SelectItem value="high">
+                                    {t("high")}
+                                  </SelectItem>
+                                  <SelectItem value="urgent">
+                                    {t("urgent")}
+                                  </SelectItem>
+                                  <SelectItem value="critical">
+                                    {t("critical")}
+                                  </SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                            <div className="space-y-2">
+                              <Label className="font-medium text-gray-700">
+                                {t("location")}
+                              </Label>
+                              <Input
+                                value={form.location}
+                                onChange={(e) =>
+                                  handleFormChange("location", e.target.value)
+                                }
+                                placeholder={t("location")}
+                                className="py-3 px-4 rounded-lg border-gray-300"
+                              />
+                            </div>
+                          </div>
+
+                          <div className="flex gap-4 mt-8">
+                            <Button
+                              type="submit"
+                              className="bg-blue-600 text-white px-8 py-3 rounded-lg"
+                              disabled={isSubmitting}
+                            >
+                              {isSubmitting
+                                ? t("submitting")
+                                : t("submitTicket")}
+                            </Button>
+                            <Button
+                              type="button"
+                              variant="secondary"
+                              className="px-8 py-3 rounded-lg"
+                              onClick={() => setMode("none")}
+                            >
+                              {t("cancel")}
+                            </Button>
+                          </div>
+                        </form>
+                      </>
+                    )}
                   </CardContent>
                 </Card>
               </div>
