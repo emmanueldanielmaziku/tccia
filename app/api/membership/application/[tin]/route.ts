@@ -5,7 +5,7 @@ const API_BASE_URL = "https://tccia.kalen.co.tz";
 
 export async function GET(
   req: Request,
-  { params }: { params: { tin: string } }
+  { params }: { params: Promise<{ tin: string }> }
 ) {
   const { tin } = await params;
   try {
@@ -40,7 +40,6 @@ export async function GET(
       );
     }
     const data = await res.json();
-    console.log(data)
     if (!data?.success || !data?.data) {
       return NextResponse.json(
         {
