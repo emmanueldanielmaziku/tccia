@@ -14,7 +14,6 @@ export default function NewCertificateModal({
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center">
       <div className="bg-white rounded-[12px] w-full max-w-[600px] mx-4 shadow-xl">
-       
         <div className="flex items-center justify-between p-6 border-b border-gray-200">
           <h2 className="text-xl font-semibold text-gray-800">
             New Certificate of Origin Application
@@ -41,6 +40,18 @@ export default function NewCertificateModal({
                   <span className="text-blue-600 text-sm font-medium">1</span>
                 </div>
                 <p className="text-gray-600">
+                  Complete <b>Factory Verification</b> first. This process
+                  involves verifying your products and ensuring they meet the
+                  required <b>Origin Criteria</b>. Once your factory and
+                  products are verified, you can proceed to apply for a
+                  Certificate of Origin.
+                </p>
+              </div>
+              <div className="flex items-start gap-3">
+                <div className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <span className="text-blue-600 text-sm font-medium">2</span>
+                </div>
+                <p className="text-gray-600">
                   Visit the TANCIS website and complete the application form
                   with all required details.
                 </p>
@@ -48,7 +59,7 @@ export default function NewCertificateModal({
 
               <div className="flex items-start gap-3">
                 <div className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0 mt-0.5">
-                  <span className="text-blue-600 text-sm font-medium">2</span>
+                  <span className="text-blue-600 text-sm font-medium">3</span>
                 </div>
                 <p className="text-gray-600">
                   After submission, your application will be visible here in
@@ -58,7 +69,7 @@ export default function NewCertificateModal({
 
               <div className="flex items-start gap-3">
                 <div className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0 mt-0.5">
-                  <span className="text-blue-600 text-sm font-medium">3</span>
+                  <span className="text-blue-600 text-sm font-medium">4</span>
                 </div>
                 <p className="text-gray-600">
                   Once approved, you can view and download your Certificate of
@@ -76,7 +87,6 @@ export default function NewCertificateModal({
           </div>
         </div>
 
-        
         <div className="p-6 border-t border-gray-200 flex justify-end gap-3">
           <button
             onClick={onClose}
@@ -85,7 +95,7 @@ export default function NewCertificateModal({
             Close
           </button>
           <a
-            href="https://tansic.go.tz"
+            href="https://ntanesw-dev.tra.go.tz/"
             target="_blank"
             rel="noopener noreferrer"
             className="px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
