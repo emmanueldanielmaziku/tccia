@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { z } from "zod";
 import { TextBlock, TickCircle } from "iconsax-reactjs";
+import usetinFormState from "../../../services/companytinformState";
 
 const companySchema = z.object({
   companyTin: z.string().min(6, "Company TIN is Invalid"),
@@ -299,6 +300,7 @@ export default function FirmRegForm() {
   const [previewState, togglePreview] = useState(false);
   const [companyData, setCompanyData] = useState<CompanyData | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const { toggleCompanyTinForm } = usetinFormState();
 
   const fetchCompanyData = async (tin: string) => {
     setIsLoading(true);
@@ -310,7 +312,6 @@ export default function FirmRegForm() {
         },
         body: JSON.stringify({
           company_tin: tin,
-          
         }),
       });
 
@@ -321,7 +322,6 @@ export default function FirmRegForm() {
         setCompanyData(result.result.data);
         togglePreview(true);
       } else if (result.result?.status === "error") {
-       
         if (result.result.error?.message) {
           setError(result.result.error.message);
         } else if (typeof result.result.error === "string") {
@@ -363,6 +363,8 @@ export default function FirmRegForm() {
     togglePreview(false);
     setCompanyTin("");
     setCompanyData(null);
+    toggleCompanyTinForm(); // Close the TIN input form and show the company list
+    // Optionally, you can also dispatch a custom event or call a callback to trigger a refresh if needed
   };
 
   return (
