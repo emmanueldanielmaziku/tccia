@@ -37,7 +37,7 @@ export async function POST(request: Request) {
     );
 
     const data = await response.json();
-    console.log(data);
+    // console.log(data);
 
     if (data.result?.error) {
       return NextResponse.json(

@@ -369,6 +369,7 @@ export default function FirmRegForm({
     setCompanyData(null);
     toggleCompanyTinForm();
     if (onCompanyAdded) onCompanyAdded(); // Notify parent to refresh company list
+    window.dispatchEvent(new Event("COMPANY_LIST_UPDATED")); // Notify other components
   };
 
   return (

@@ -76,9 +76,17 @@ export default function StatsBar({ stats }: { stats: StatsData }) {
     };
     window.addEventListener("COMPANY_CHANGE_EVENT", handleCompanyChange);
     window.addEventListener("storage", handleCompanyChange);
+
+    // Listen for company list updates
+    const handleCompanyListUpdated = () => {
+      fetchCompanies();
+    };
+    window.addEventListener("COMPANY_LIST_UPDATED", handleCompanyListUpdated);
+
     return () => {
       window.removeEventListener("COMPANY_CHANGE_EVENT", handleCompanyChange);
       window.removeEventListener("storage", handleCompanyChange);
+      window.removeEventListener("COMPANY_LIST_UPDATED", handleCompanyListUpdated);
     };
   }, []);
 
