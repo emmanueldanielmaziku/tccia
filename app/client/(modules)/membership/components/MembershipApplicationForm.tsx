@@ -195,11 +195,10 @@ export default function MembershipApplicationForm({
     if (!categoryId) errors.categoryId = "Category is required.";
     if (!subcategoryId) errors.subcategoryId = "Subcategory is required.";
 
+    // Directors are now optional, so skip required validation
     errors.directors = directors.map((d: any) => {
       const e: any = {};
-      if (!d.name) e.name = "Name required";
-      if (!d.phone) e.phone = "Phone required";
-      if (!d.email) e.email = "Email required";
+      // No required fields for directors
       return e;
     });
 
@@ -211,8 +210,7 @@ export default function MembershipApplicationForm({
       return e;
     });
 
-    if (directors.length === 0)
-      errors.directorsGeneral = "At least one director required.";
+    // Remove directorsGeneral required check
     if (contacts.length === 0)
       errors.contactsGeneral = "At least one contact required.";
 

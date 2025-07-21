@@ -184,7 +184,7 @@ export default function CompanyPicker() {
   };
 
   const handleAddCompany = () => {
-    toggleCompanyTinForm();
+    toggleCompanyTinForm(); // Only show TIN input when Register is clicked
     router.push("/client/firm-management");
     hidePicker();
   };
