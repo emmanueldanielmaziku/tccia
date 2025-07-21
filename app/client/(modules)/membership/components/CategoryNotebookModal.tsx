@@ -5,7 +5,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 export default function CategoryNotebookModal({
   open,
   onClose,
-}: {
+} : {
   open: boolean;
   onClose: () => void;
 }) {

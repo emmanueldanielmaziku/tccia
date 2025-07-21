@@ -30,7 +30,7 @@ export async function POST(request: Request) {
       body: JSON.stringify(body),
     });
     const data = await res.json();
-    // console.log(data);
+    console.log(data);
     return NextResponse.json(data);
   } catch (error) {
     return NextResponse.json(
