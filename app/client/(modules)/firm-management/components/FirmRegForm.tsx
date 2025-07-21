@@ -294,7 +294,11 @@ function PreviewWidget({
   );
 }
 
-export default function FirmRegForm() {
+export default function FirmRegForm({
+  onCompanyAdded,
+}: {
+  onCompanyAdded?: () => void;
+}) {
   const [companyTin, setCompanyTin] = useState("");
   const [error, setError] = useState<string | undefined>(undefined);
   const [previewState, togglePreview] = useState(false);
@@ -363,8 +367,8 @@ export default function FirmRegForm() {
     togglePreview(false);
     setCompanyTin("");
     setCompanyData(null);
-    toggleCompanyTinForm(); // Close the TIN input form and show the company list
-    // Optionally, you can also dispatch a custom event or call a callback to trigger a refresh if needed
+    toggleCompanyTinForm();
+    if (onCompanyAdded) onCompanyAdded(); // Notify parent to refresh company list
   };
 
   return (

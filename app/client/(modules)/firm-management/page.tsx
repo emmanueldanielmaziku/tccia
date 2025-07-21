@@ -446,7 +446,7 @@ export default function FirmManagement() {
             ) : error ? (
               <div className="text-red-500">{error}</div>
             ) : tinformState ? (
-              <FirmRegForm />
+              <FirmRegForm onCompanyAdded={fetchCompanies} />
             ) : (
               <div className="w-full grid grid-cols-1 pr-3 gap-5 mt-5 rounded-md overflow-hidden overflow-y-auto">
                 {paginatedData.map((firm, index) => (
