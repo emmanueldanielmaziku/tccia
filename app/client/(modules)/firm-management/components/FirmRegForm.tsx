@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { z } from "zod";
 import { TextBlock, TickCircle } from "iconsax-reactjs";
 import usetinFormState from "../../../services/companytinformState";
@@ -305,6 +305,13 @@ export default function FirmRegForm({
   const [companyData, setCompanyData] = useState<CompanyData | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const { toggleCompanyTinForm } = usetinFormState();
+
+  // Ensure modal is not open if no companyData
+  useEffect(() => {
+    if (!companyData && previewState) {
+      togglePreview(false);
+    }
+  }, [companyData, previewState]);
 
   const fetchCompanyData = async (tin: string) => {
     setIsLoading(true);

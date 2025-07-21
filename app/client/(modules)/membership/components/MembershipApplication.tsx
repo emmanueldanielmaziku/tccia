@@ -197,6 +197,24 @@ export default function MembershipApplication({
     );
   }
 
+  // Helper for thousands separator
+  function formatNumber(num: number | undefined) {
+    return num?.toLocaleString() ?? "-";
+  }
+
+  // Status color mapping
+  const statusColorMap = {
+    draft: "bg-gray-200 text-gray-700",
+    submitted: "bg-blue-200 text-blue-800",
+    under_review: "bg-yellow-100 text-yellow-800",
+    sent_to_approver: "bg-purple-200 text-purple-800",
+    approved: "bg-green-100 text-green-700",
+    waiting_payment: "bg-orange-100 text-orange-700",
+    paid: "bg-green-200 text-green-800",
+    rejected: "bg-red-100 text-red-700",
+    expired: "bg-gray-300 text-gray-600",
+  };
+
   // Modern, sectioned card layout
   return (
     <div className="w-full max-w-5xl mx-auto rounded-2xl shadow-lg bg-white mt-8 overflow-hidden border border-blue-100">
@@ -207,8 +225,15 @@ export default function MembershipApplication({
           <div>
             <div className="text-xl font-bold text-blue-900 flex items-center gap-2">
               {data.company_name}
-              <span className="ml-2 text-xs font-semibold px-2 py-1 rounded bg-blue-100 text-blue-700 uppercase tracking-wide">
-                {data.state}
+              <span
+                className={`ml-2 text-xs font-semibold px-2 py-1 rounded uppercase tracking-wide ${
+                  statusColorMap[data.state as keyof typeof statusColorMap] ||
+                  "bg-gray-100 text-gray-700"
+                }`}
+              >
+                {data.state
+                  .replace(/_/g, " ")
+                  .replace(/\b\w/g, (c) => c.toUpperCase())}
               </span>
             </div>
             <div className="text-sm text-blue-700 font-medium">
@@ -288,14 +313,14 @@ export default function MembershipApplication({
               <Receipt size={14} /> Entry: {data.entry_fee}
             </span> */}
             <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1">
-              <Receipt size={14} /> Annual: {data.annual_fee}
+              <Receipt size={14} /> Annual: {formatNumber(data.annual_fee)}
             </span>
             {/* <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1">
               <Receipt size={14} /> Certificate: {data.certificate_fee}
-            </span> */} 
+            </span> */}
             {/* <br /> */}
             <div className="bg-blue-600 text-white px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1">
-              <Receipt size={14} /> Total: {data.total_fee}
+              <Receipt size={14} /> Total: {formatNumber(data.total_fee)}
             </div>
           </div>
         </div>

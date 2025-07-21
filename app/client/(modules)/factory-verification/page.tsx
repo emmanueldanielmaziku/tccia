@@ -127,6 +127,13 @@ export default function FactoryVerification() {
         body: JSON.stringify({ company_tin }),
       });
 
+      if (response.status === 404) {
+        setError("NO_PRODUCTS_FOUND");
+        setIsEmpty(true);
+        setLoading(false);
+        return;
+      }
+
       const result = await response.json();
 
       if (result.success && Array.isArray(result.verifications)) {
@@ -485,6 +492,27 @@ export default function FactoryVerification() {
                         ))}
                       </tbody>
                     </table>
+                  </div>
+                ) : error === "NO_PRODUCTS_FOUND" ? (
+                  <div className="flex flex-col items-center justify-center h-64 mt-28">
+                    <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                      <Box size={32} color="#9CA3AF" />
+                    </div>
+                    <h3 className="text-lg font-medium text-gray-700 mb-2">
+                      No Products Found
+                    </h3>
+                    <p className="text-gray-500 text-center mb-6 max-w-md">
+                      It seems you have not registered any products for the
+                      selected company. Start by adding your first product to
+                      get started.
+                    </p>
+                    <button
+                      onClick={() => toggleForm(true)}
+                      className="flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white px-6 py-3 rounded-md transition-colors"
+                    >
+                      <Add size={20} color="white" />
+                      Add Your First Product
+                    </button>
                   </div>
                 ) : error ? (
                   <div className="flex items-center justify-center h-64">

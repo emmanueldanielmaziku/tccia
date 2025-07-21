@@ -443,10 +443,30 @@ export default function FirmManagement() {
                   </div>
                 ))}
               </div>
-            ) : error ? (
-              <div className="text-red-500">{error}</div>
             ) : tinformState ? (
               <FirmRegForm onCompanyAdded={fetchCompanies} />
+            ) : companies.length === 0 ? (
+              <div className="flex flex-1 flex-col items-center justify-center w-full h-full min-h-[400px] mt-0">
+                <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                  <Building size={32} color="#9CA3AF" />
+                </div>
+                <h3 className="text-lg font-medium text-gray-700 mb-2">
+                  No Companies Found
+                </h3>
+                <p className="text-gray-500 text-center mb-6 max-w-md">
+                  It seems you have not registered any companies yet. Start by
+                  adding your first company to get started.
+                </p>
+                <button
+                  onClick={() => toggleCompanyTinForm()}
+                  className="flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white px-6 py-3 rounded-md transition-colors"
+                >
+                  <Add size={20} color="white" />
+                  Add Your First Company
+                </button>
+              </div>
+            ) : error ? (
+              <div className="text-red-500">{error}</div>
             ) : (
               <div className="w-full grid grid-cols-1 pr-3 gap-5 mt-5 rounded-md overflow-hidden overflow-y-auto">
                 {paginatedData.map((firm, index) => (
