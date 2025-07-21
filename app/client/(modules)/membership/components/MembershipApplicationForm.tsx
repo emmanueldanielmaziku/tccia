@@ -1,10 +1,12 @@
+"use client";
+
+import type React from "react";
+
 import { useEffect, useState } from "react";
 import {
   Select,
   SelectContent,
-  SelectGroup,
   SelectItem,
-  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
@@ -18,32 +20,45 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { TickCircle } from "iconsax-reactjs";
+import {
+  CheckCircle,
+  AlertCircle,
+  Trash2,
+  Plus,
+  User,
+  Users,
+  Building,
+  Book,
+} from "lucide-react";
 import CategoryNotebookModal from "./CategoryNotebookModal";
-import { InfoCircle, Trash, Add } from "iconsax-reactjs";
 
 interface Region {
   id: number;
   name: string;
   districts: District[];
 }
+
 interface District {
   id: number;
   name: string;
 }
+
 interface Sector {
   id: number;
   name: string;
 }
+
 interface Category {
   id: number;
   name: string;
   subcategories: Subcategory[];
 }
+
 interface Subcategory {
   id: number;
   name: string;
 }
+
 interface Person {
   name: string;
   phone: string;
@@ -72,6 +87,7 @@ export default function MembershipApplicationForm({
   const [contacts, setContacts] = useState<Person[]>([
     { name: "", phone: "", email: "" },
   ]);
+
   const [showPreview, setShowPreview] = useState(false);
   const [showNotebook, setShowNotebook] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -79,6 +95,7 @@ export default function MembershipApplicationForm({
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<any>({});
+
   // Track touched state for directors/contacts
   const [touchedDirectors, setTouchedDirectors] = useState(() => [
     { name: false, phone: false, email: false },
@@ -93,9 +110,11 @@ export default function MembershipApplicationForm({
     fetch("/api/membership/regions")
       .then((res) => res.json())
       .then((data) => setRegions(data?.data?.regions || []));
+
     fetch("/api/membership/sectors")
       .then((res) => res.json())
       .then((data) => setSectors(data?.data?.sectors || []));
+
     fetch("/api/membership/categories")
       .then((res) => res.json())
       .then((data) => setCategories(data?.data?.categories || []));
@@ -123,6 +142,7 @@ export default function MembershipApplicationForm({
       return arr;
     });
   };
+
   const addDirector = () => {
     setDirectors((prev) => [...prev, { name: "", phone: "", email: "" }]);
     setTouchedDirectors((prev) => [
@@ -130,6 +150,7 @@ export default function MembershipApplicationForm({
       { name: false, phone: false, email: false },
     ]);
   };
+
   const removeDirector = (idx: number) => {
     setDirectors((prev) => prev.filter((_, i) => i !== idx));
     setTouchedDirectors((prev) => prev.filter((_, i) => i !== idx));
@@ -150,6 +171,7 @@ export default function MembershipApplicationForm({
       return arr;
     });
   };
+
   const addContact = () => {
     setContacts((prev) => [...prev, { name: "", phone: "", email: "" }]);
     setTouchedContacts((prev) => [
@@ -157,6 +179,7 @@ export default function MembershipApplicationForm({
       { name: false, phone: false, email: false },
     ]);
   };
+
   const removeContact = (idx: number) => {
     setContacts((prev) => prev.filter((_, i) => i !== idx));
     setTouchedContacts((prev) => prev.filter((_, i) => i !== idx));
@@ -165,11 +188,13 @@ export default function MembershipApplicationForm({
   // Preview and submit
   const validateForm = () => {
     const errors: any = {};
+
     if (!regionId) errors.regionId = "Region is required.";
     if (!districtId) errors.districtId = "District is required.";
     if (!sectorId) errors.sectorId = "Sector is required.";
     if (!categoryId) errors.categoryId = "Category is required.";
     if (!subcategoryId) errors.subcategoryId = "Subcategory is required.";
+
     errors.directors = directors.map((d: any) => {
       const e: any = {};
       if (!d.name) e.name = "Name required";
@@ -177,6 +202,7 @@ export default function MembershipApplicationForm({
       if (!d.email) e.email = "Email required";
       return e;
     });
+
     errors.contacts = contacts.map((c: any) => {
       const e: any = {};
       if (!c.name) e.name = "Name required";
@@ -184,10 +210,12 @@ export default function MembershipApplicationForm({
       if (!c.email) e.email = "Email required";
       return e;
     });
+
     if (directors.length === 0)
       errors.directorsGeneral = "At least one director required.";
     if (contacts.length === 0)
       errors.contactsGeneral = "At least one contact required.";
+
     // Check if any errors
     const hasFieldError =
       Object.keys(errors).some(
@@ -195,6 +223,7 @@ export default function MembershipApplicationForm({
       ) ||
       errors.directors.some((e: any) => Object.keys(e).length > 0) ||
       errors.contacts.some((e: any) => Object.keys(e).length > 0);
+
     return { errors, hasFieldError };
   };
 
@@ -203,17 +232,21 @@ export default function MembershipApplicationForm({
     setForceShowErrors(true);
     const { errors, hasFieldError } = validateForm();
     setFieldErrors(errors);
+
     if (hasFieldError) {
       setErrorMsg("Please fill all required fields correctly.");
       return;
     }
+
     setErrorMsg(null);
     setShowPreview(true);
   };
+
   const handleSubmit = async () => {
     setLoading(true);
     setErrorMsg(null);
     setSuccessMsg(null);
+
     try {
       // Get company_tin from localStorage
       let company_tin = "";
@@ -224,11 +257,13 @@ export default function MembershipApplicationForm({
           company_tin = parsed.company_tin || "";
         }
       } catch {}
+
       if (!company_tin) {
         setErrorMsg("No company selected. Please select a company first.");
         setLoading(false);
         return;
       }
+
       const res = await fetch("/api/membership/apply", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -243,7 +278,9 @@ export default function MembershipApplicationForm({
           contacts,
         }),
       });
+
       const data = await res.json();
+
       if (data?.result?.success) {
         setSuccessMsg(
           `Application #${data.result.data.application_number} submitted! State: ${data.result.data.state}`
@@ -263,539 +300,650 @@ export default function MembershipApplicationForm({
 
   const ErrorMsg = ({ children }: { children: React.ReactNode }) => (
     <div className="flex items-center gap-2 bg-red-50 text-red-600 px-3 py-2 rounded-md font-medium text-sm mt-1">
-      <InfoCircle size={16} className="text-red-400" />
+      <AlertCircle size={16} className="text-red-400" />
       <span>{children}</span>
     </div>
   );
 
   return (
-    <div className="flex flex-col w-full h-full bg-white p-8">
-      <form onSubmit={handlePreview} className="space-y-10 flex-1">
-        <div className="grid grid-cols-3 gap-8">
-          <div>
-            <label className="block mb-1 font-medium">Region</label>
-            <Select value={regionId} onValueChange={setRegionId}>
-              <SelectTrigger
-                className={fieldErrors.regionId ? "border-red-500" : ""}
-              >
-                <SelectValue placeholder="Select region" />
-              </SelectTrigger>
-              <SelectContent>
-                {regions.map((r) => (
-                  <SelectItem key={r.id} value={String(r.id)}>
-                    {r.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            {fieldErrors.regionId && (
-              <div className="text-xs text-red-500 mt-1">
-                {fieldErrors.regionId}
-              </div>
-            )}
-          </div>
-          <div>
-            <label className="block mb-1 font-medium">District</label>
-            <Select
-              value={districtId}
-              onValueChange={setDistrictId}
-              disabled={!regionId}
-            >
-              <SelectTrigger
-                className={fieldErrors.districtId ? "border-red-500" : ""}
-              >
-                <SelectValue placeholder="Select district" />
-              </SelectTrigger>
-              <SelectContent>
-                {districts.map((d) => (
-                  <SelectItem key={d.id} value={String(d.id)}>
-                    {d.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            {fieldErrors.districtId && (
-              <div className="text-xs text-red-500 mt-1">
-                {fieldErrors.districtId}
-              </div>
-            )}
-          </div>
-          <div>
-            <label className="block mb-1 font-medium">Sector</label>
-            <Select value={sectorId} onValueChange={setSectorId}>
-              <SelectTrigger
-                className={fieldErrors.sectorId ? "border-red-500" : ""}
-              >
-                <SelectValue placeholder="Select sector" />
-              </SelectTrigger>
-              <SelectContent>
-                {sectors.map((s) => (
-                  <SelectItem key={s.id} value={String(s.id)}>
-                    {s.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            {fieldErrors.sectorId && (
-              <div className="text-xs text-red-500 mt-1">
-                {fieldErrors.sectorId}
-              </div>
-            )}
-          </div>
-        </div>
-        <div className="grid grid-cols-3 gap-8 mt-8 items-end">
-          <div>
-            <label className="block mb-1 font-medium">Category</label>
-            <Select value={categoryId} onValueChange={setCategoryId}>
-              <SelectTrigger
-                className={fieldErrors.categoryId ? "border-red-500" : ""}
-              >
-                <SelectValue placeholder="Select category" />
-              </SelectTrigger>
-              <SelectContent>
-                {categories.map((c) => (
-                  <SelectItem key={c.id} value={String(c.id)}>
-                    {c.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            {fieldErrors.categoryId && (
-              <div className="text-xs text-red-500 mt-1">
-                {fieldErrors.categoryId}
-              </div>
-            )}
-          </div>
-          <div>
-            <label className="block mb-1 font-medium">Subcategory</label>
-            <Select
-              value={subcategoryId}
-              onValueChange={setSubcategoryId}
-              disabled={!categoryId}
-            >
-              <SelectTrigger
-                className={fieldErrors.subcategoryId ? "border-red-500" : ""}
-              >
-                <SelectValue placeholder="Select subcategory" />
-              </SelectTrigger>
-              <SelectContent>
-                {subcategories.map((s) => (
-                  <SelectItem key={s.id} value={String(s.id)}>
-                    {s.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            {fieldErrors.subcategoryId && (
-              <div className="text-xs text-red-500 mt-1">
-                {fieldErrors.subcategoryId}
-              </div>
-            )}
-          </div>
-          <div className="flex items-end h-full">
-            <button
-              type="button"
-              className="w-full text-sm px-4 py-2 rounded-md font-semibold bg-blue-600 hover:bg-blue-700 text-white"
-              onClick={() => setShowNotebook(true)}
-            >
-              View Services List Notebook
-            </button>
-          </div>
-        </div>
-        <div className="mt-8">
-          <div className="text-lg font-semibold text-gray-700 mb-4 border-b pb-2">
-            Directors
-          </div>
-          {fieldErrors.directorsGeneral && (
-            <div className="flex items-center gap-2 bg-red-50 text-red-600 px-3 py-2 rounded-md font-medium text-sm mb-2">
-              <InfoCircle size={16} className="text-red-400" />
-              <span>{fieldErrors.directorsGeneral}</span>
+    <div className="flex flex-col w-full h-full bg-white">
+      <form onSubmit={handlePreview} className="flex flex-col w-full pb-10">
+        <div className="flex flex-col gap-6 overflow-hidden overflow-y-auto h-[720px] pr-3">
+          {/* Header */}
+          {/* <div className="flex flex-row justify-between items-center border-b border-gray-200 pb-4">
+            <div className="text-2xl font-bold text-gray-800">
+              Membership Application
             </div>
-          )}
-          {directors.map((d, i) => (
-            <div key={i} className="grid grid-cols-4 gap-6 mb-4 items-center">
-              {/* Name */}
-              <div className="relative">
-                <Input
-                  placeholder="Name"
-                  value={d.name}
-                  onChange={(e) =>
-                    handleDirectorChange(i, "name", e.target.value)
-                  }
-                  onBlur={() =>
-                    setTouchedDirectors((prev) => {
-                      const arr = [...prev];
-                      if (!arr[i])
-                        arr[i] = { name: false, phone: false, email: false };
-                      arr[i].name = true;
-                      return arr;
-                    })
-                  }
-                  className={`w-full px-6 py-4 pr-10 ${
-                    fieldErrors.directors &&
-                    fieldErrors.directors[i]?.name &&
-                    (touchedDirectors[i]?.name || forceShowErrors)
-                      ? "border-red-500 bg-red-50"
-                      : ""
-                  }`}
-                />
-                {fieldErrors.directors &&
-                  fieldErrors.directors[i]?.name &&
-                  (touchedDirectors[i]?.name || forceShowErrors) && (
-                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-red-400">
-                      <InfoCircle size={16} />
-                    </span>
-                  )}
-                {fieldErrors.directors &&
-                  fieldErrors.directors[i]?.name &&
-                  (touchedDirectors[i]?.name || forceShowErrors) && (
-                    <div className="absolute left-0 -bottom-5 text-xs text-red-500">
-                      {fieldErrors.directors[i].name}
-                    </div>
-                  )}
-              </div>
-              {/* Phone */}
-              <div className="relative">
-                <Input
-                  placeholder="Phone"
-                  value={d.phone}
-                  onChange={(e) =>
-                    handleDirectorChange(i, "phone", e.target.value)
-                  }
-                  onBlur={() =>
-                    setTouchedDirectors((prev) => {
-                      const arr = [...prev];
-                      if (!arr[i])
-                        arr[i] = { name: false, phone: false, email: false };
-                      arr[i].phone = true;
-                      return arr;
-                    })
-                  }
-                  className={`w-full px-6 py-4 pr-10 ${
-                    fieldErrors.directors &&
-                    fieldErrors.directors[i]?.phone &&
-                    (touchedDirectors[i]?.phone || forceShowErrors)
-                      ? "border-red-500 bg-red-50"
-                      : ""
-                  }`}
-                />
-                {fieldErrors.directors &&
-                  fieldErrors.directors[i]?.phone &&
-                  (touchedDirectors[i]?.phone || forceShowErrors) && (
-                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-red-400">
-                      <InfoCircle size={16} />
-                    </span>
-                  )}
-                {fieldErrors.directors &&
-                  fieldErrors.directors[i]?.phone &&
-                  (touchedDirectors[i]?.phone || forceShowErrors) && (
-                    <div className="absolute left-0 -bottom-5 text-xs text-red-500">
-                      {fieldErrors.directors[i].phone}
-                    </div>
-                  )}
-              </div>
-              {/* Email */}
-              <div className="relative">
-                <Input
-                  placeholder="Email"
-                  value={d.email}
-                  onChange={(e) =>
-                    handleDirectorChange(i, "email", e.target.value)
-                  }
-                  onBlur={() =>
-                    setTouchedDirectors((prev) => {
-                      const arr = [...prev];
-                      if (!arr[i])
-                        arr[i] = { name: false, phone: false, email: false };
-                      arr[i].email = true;
-                      return arr;
-                    })
-                  }
-                  className={`w-full px-6 py-4 pr-10 ${
-                    fieldErrors.directors &&
-                    fieldErrors.directors[i]?.email &&
-                    (touchedDirectors[i]?.email || forceShowErrors)
-                      ? "border-red-500 bg-red-50"
-                      : ""
-                  }`}
-                />
-                {fieldErrors.directors &&
-                  fieldErrors.directors[i]?.email &&
-                  (touchedDirectors[i]?.email || forceShowErrors) && (
-                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-red-400">
-                      <InfoCircle size={16} />
-                    </span>
-                  )}
-                {fieldErrors.directors &&
-                  fieldErrors.directors[i]?.email &&
-                  (touchedDirectors[i]?.email || forceShowErrors) && (
-                    <div className="absolute left-0 -bottom-5 text-xs text-red-500">
-                      {fieldErrors.directors[i].email}
-                    </div>
-                  )}
-              </div>
-              {/* Delete button */}
-              <div className="flex items-center justify-center h-full">
-                {directors.length > 1 && (
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => removeDirector(i)}
+           
+          </div> */}
+
+          {/* Section: Membership Details */}
+          <div className="bg-gray-50 rounded-lg p-6 mt-3 border border-gray-200">
+            <div className="flex flex-row items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
+                <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                Membership Details
+              </h3>
+              <button
+                type="button"
+                className="flex items-center gap-2 px-4 py-2 bg-gray-100 cursor-pointer hover:bg-blue-100 text-blue-700 border border-blue-200 rounded-md text-sm font-medium transition-colors"
+                onClick={() => setShowNotebook(true)}
+              >
+                <Book size={16} className="text-blue-600" />
+                View Services List Notebook
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="flex flex-col gap-2">
+                <label className="text-sm text-gray-600 font-medium">
+                  Region
+                </label>
+                <Select value={regionId} onValueChange={setRegionId}>
+                  <SelectTrigger
+                    className={`w-full px-3 py-2 text-sm bg-white border-gray-300 focus:border-blue-500 focus:ring-blue-500 ${
+                      fieldErrors.regionId ? "border-red-500" : ""
+                    }`}
                   >
-                    <Trash size={18} />
-                  </Button>
+                    <SelectValue placeholder="Select region" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {regions.map((r) => (
+                      <SelectItem key={r.id} value={String(r.id)}>
+                        {r.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {fieldErrors.regionId && (
+                  <p className="text-red-500 text-xs">{fieldErrors.regionId}</p>
+                )}
+              </div>
+
+              <div className="flex flex-col gap-2">
+                <label className="text-sm text-gray-600 font-medium">
+                  District
+                </label>
+                <Select
+                  value={districtId}
+                  onValueChange={setDistrictId}
+                  disabled={!regionId}
+                >
+                  <SelectTrigger
+                    className={`w-full px-3 py-2 text-sm bg-white border-gray-300 focus:border-blue-500 focus:ring-blue-500 ${
+                      fieldErrors.districtId ? "border-red-500" : ""
+                    }`}
+                  >
+                    <SelectValue placeholder="Select district" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {districts.map((d) => (
+                      <SelectItem key={d.id} value={String(d.id)}>
+                        {d.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {fieldErrors.districtId && (
+                  <p className="text-red-500 text-xs">
+                    {fieldErrors.districtId}
+                  </p>
+                )}
+              </div>
+
+              <div className="flex flex-col gap-2">
+                <label className="text-sm text-gray-600 font-medium">
+                  Sector
+                </label>
+                <Select value={sectorId} onValueChange={setSectorId}>
+                  <SelectTrigger
+                    className={`w-full px-3 py-2 text-sm bg-white border-gray-300 focus:border-blue-500 focus:ring-blue-500 ${
+                      fieldErrors.sectorId ? "border-red-500" : ""
+                    }`}
+                  >
+                    <SelectValue placeholder="Select sector" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {sectors.map((s) => (
+                      <SelectItem key={s.id} value={String(s.id)}>
+                        {s.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {fieldErrors.sectorId && (
+                  <p className="text-red-500 text-xs">{fieldErrors.sectorId}</p>
+                )}
+              </div>
+
+              <div className="flex flex-col gap-2">
+                <label className="text-sm text-gray-600 font-medium">
+                  Category
+                </label>
+                <Select value={categoryId} onValueChange={setCategoryId}>
+                  <SelectTrigger
+                    className={`w-full px-3 py-2 text-sm bg-white border-gray-300 focus:border-blue-500 focus:ring-blue-500 ${
+                      fieldErrors.categoryId ? "border-red-500" : ""
+                    }`}
+                  >
+                    <SelectValue placeholder="Select category" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {categories.map((c) => (
+                      <SelectItem key={c.id} value={String(c.id)}>
+                        {c.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {fieldErrors.categoryId && (
+                  <p className="text-red-500 text-xs">
+                    {fieldErrors.categoryId}
+                  </p>
+                )}
+              </div>
+
+              <div className="flex flex-col gap-2 md:col-span-2">
+                <label className="text-sm text-gray-600 font-medium">
+                  Subcategory
+                </label>
+                <Select
+                  value={subcategoryId}
+                  onValueChange={setSubcategoryId}
+                  disabled={!categoryId}
+                >
+                  <SelectTrigger
+                    className={`w-full px-3 py-2 text-sm bg-white border-gray-300 focus:border-blue-500 focus:ring-blue-500 ${
+                      fieldErrors.subcategoryId ? "border-red-500" : ""
+                    }`}
+                  >
+                    <SelectValue placeholder="Select subcategory" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {subcategories.map((s) => (
+                      <SelectItem key={s.id} value={String(s.id)}>
+                        {s.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {fieldErrors.subcategoryId && (
+                  <p className="text-red-500 text-xs">
+                    {fieldErrors.subcategoryId}
+                  </p>
                 )}
               </div>
             </div>
-          ))}
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            className="mt-1"
-            onClick={addDirector}
-          >
-            <Add size={16} className="mr-1" /> Add Director
-          </Button>
-        </div>
-        <div className="mt-8">
-          <div className="text-lg font-semibold text-gray-700 mb-4 border-b pb-2">
-            Contacts
           </div>
-          {fieldErrors.contactsGeneral && (
-            <div className="flex items-center gap-2 bg-red-50 text-red-600 px-3 py-2 rounded-md font-medium text-sm mb-2">
-              <InfoCircle size={16} className="text-red-400" />
-              <span>{fieldErrors.contactsGeneral}</span>
+
+          {/* Directors Section */}
+          <div className="bg-gray-50 rounded-lg p-6 border border-gray-200">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
+                <Users size={20} className="text-blue-600" />
+                Directors
+              </h3>
+              <button
+                type="button"
+                onClick={addDirector}
+                className="flex items-center gap-2 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-[12px] font-medium rounded-sm transition-colors"
+              >
+                <Plus size={16} />
+                Add another director
+              </button>
             </div>
-          )}
-          {contacts.map((c, i) => (
-            <div key={i} className="grid grid-cols-4 gap-6 mb-4 items-center">
-              {/* Name */}
-              <div className="relative">
-                <Input
-                  placeholder="Name"
-                  value={c.name}
-                  onChange={(e) =>
-                    handleContactChange(i, "name", e.target.value)
-                  }
-                  onBlur={() =>
-                    setTouchedContacts((prev) => {
-                      const arr = [...prev];
-                      if (!arr[i])
-                        arr[i] = { name: false, phone: false, email: false };
-                      arr[i].name = true;
-                      return arr;
-                    })
-                  }
-                  className={`w-full px-6 py-4 pr-10 ${
-                    fieldErrors.contacts &&
-                    fieldErrors.contacts[i]?.name &&
-                    (touchedContacts[i]?.name || forceShowErrors)
-                      ? "border-red-500 bg-red-50"
-                      : ""
-                  }`}
-                />
-                {fieldErrors.contacts &&
-                  fieldErrors.contacts[i]?.name &&
-                  (touchedContacts[i]?.name || forceShowErrors) && (
-                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-red-400">
-                      <InfoCircle size={16} />
-                    </span>
-                  )}
-                {fieldErrors.contacts &&
-                  fieldErrors.contacts[i]?.name &&
-                  (touchedContacts[i]?.name || forceShowErrors) && (
-                    <div className="absolute left-0 -bottom-5 text-xs text-red-500">
-                      {fieldErrors.contacts[i].name}
+
+            {fieldErrors.directorsGeneral && (
+              <div className="flex items-center gap-2 bg-red-50 text-red-600 px-3 py-2 rounded-md font-medium text-sm mb-4">
+                <AlertCircle size={16} className="text-red-400" />
+                <span>{fieldErrors.directorsGeneral}</span>
+              </div>
+            )}
+
+            <div className="space-y-4">
+              {directors.map((d, i) => (
+                <div
+                  key={i}
+                  className="bg-white rounded-lg p-4 border border-gray-200 relative"
+                >
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {/* Name */}
+                    <div className="flex flex-col gap-1">
+                      <label className="text-sm text-gray-600 font-medium">
+                        Name
+                      </label>
+                      <Input
+                        placeholder="Enter full name"
+                        value={d.name}
+                        onChange={(e) =>
+                          handleDirectorChange(i, "name", e.target.value)
+                        }
+                        onBlur={() =>
+                          setTouchedDirectors((prev) => {
+                            const arr = [...prev];
+                            if (!arr[i])
+                              arr[i] = {
+                                name: false,
+                                phone: false,
+                                email: false,
+                              };
+                            arr[i].name = true;
+                            return arr;
+                          })
+                        }
+                        className={`text-sm ${
+                          fieldErrors.directors &&
+                          fieldErrors.directors[i]?.name &&
+                          (touchedDirectors[i]?.name || forceShowErrors)
+                            ? "border-red-500 bg-red-50"
+                            : ""
+                        }`}
+                      />
+                      {fieldErrors.directors &&
+                        fieldErrors.directors[i]?.name &&
+                        (touchedDirectors[i]?.name || forceShowErrors) && (
+                          <p className="text-red-500 text-xs">
+                            {fieldErrors.directors[i].name}
+                          </p>
+                        )}
                     </div>
-                  )}
-              </div>
-              {/* Phone */}
-              <div className="relative">
-                <Input
-                  placeholder="Phone"
-                  value={c.phone}
-                  onChange={(e) =>
-                    handleContactChange(i, "phone", e.target.value)
-                  }
-                  onBlur={() =>
-                    setTouchedContacts((prev) => {
-                      const arr = [...prev];
-                      if (!arr[i])
-                        arr[i] = { name: false, phone: false, email: false };
-                      arr[i].phone = true;
-                      return arr;
-                    })
-                  }
-                  className={`w-full px-6 py-4 pr-10 ${
-                    fieldErrors.contacts &&
-                    fieldErrors.contacts[i]?.phone &&
-                    (touchedContacts[i]?.phone || forceShowErrors)
-                      ? "border-red-500 bg-red-50"
-                      : ""
-                  }`}
-                />
-                {fieldErrors.contacts &&
-                  fieldErrors.contacts[i]?.phone &&
-                  (touchedContacts[i]?.phone || forceShowErrors) && (
-                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-red-400">
-                      <InfoCircle size={16} />
-                    </span>
-                  )}
-                {fieldErrors.contacts &&
-                  fieldErrors.contacts[i]?.phone &&
-                  (touchedContacts[i]?.phone || forceShowErrors) && (
-                    <div className="absolute left-0 -bottom-5 text-xs text-red-500">
-                      {fieldErrors.contacts[i].phone}
+
+                    {/* Phone */}
+                    <div className="flex flex-col gap-1">
+                      <label className="text-sm text-gray-600 font-medium">
+                        Phone
+                      </label>
+                      <Input
+                        placeholder="Enter phone number"
+                        value={d.phone}
+                        onChange={(e) =>
+                          handleDirectorChange(i, "phone", e.target.value)
+                        }
+                        onBlur={() =>
+                          setTouchedDirectors((prev) => {
+                            const arr = [...prev];
+                            if (!arr[i])
+                              arr[i] = {
+                                name: false,
+                                phone: false,
+                                email: false,
+                              };
+                            arr[i].phone = true;
+                            return arr;
+                          })
+                        }
+                        className={`text-sm ${
+                          fieldErrors.directors &&
+                          fieldErrors.directors[i]?.phone &&
+                          (touchedDirectors[i]?.phone || forceShowErrors)
+                            ? "border-red-500 bg-red-50"
+                            : ""
+                        }`}
+                      />
+                      {fieldErrors.directors &&
+                        fieldErrors.directors[i]?.phone &&
+                        (touchedDirectors[i]?.phone || forceShowErrors) && (
+                          <p className="text-red-500 text-xs">
+                            {fieldErrors.directors[i].phone}
+                          </p>
+                        )}
                     </div>
-                  )}
-              </div>
-              {/* Email */}
-              <div className="relative">
-                <Input
-                  placeholder="Email"
-                  value={c.email}
-                  onChange={(e) =>
-                    handleContactChange(i, "email", e.target.value)
-                  }
-                  onBlur={() =>
-                    setTouchedContacts((prev) => {
-                      const arr = [...prev];
-                      if (!arr[i])
-                        arr[i] = { name: false, phone: false, email: false };
-                      arr[i].email = true;
-                      return arr;
-                    })
-                  }
-                  className={`w-full px-6 py-4 pr-10 ${
-                    fieldErrors.contacts &&
-                    fieldErrors.contacts[i]?.email &&
-                    (touchedContacts[i]?.email || forceShowErrors)
-                      ? "border-red-500 bg-red-50"
-                      : ""
-                  }`}
-                />
-                {fieldErrors.contacts &&
-                  fieldErrors.contacts[i]?.email &&
-                  (touchedContacts[i]?.email || forceShowErrors) && (
-                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-red-400">
-                      <InfoCircle size={16} />
-                    </span>
-                  )}
-                {fieldErrors.contacts &&
-                  fieldErrors.contacts[i]?.email &&
-                  (touchedContacts[i]?.email || forceShowErrors) && (
-                    <div className="absolute left-0 -bottom-5 text-xs text-red-500">
-                      {fieldErrors.contacts[i].email}
+
+                    {/* Email */}
+                    <div className="flex flex-col gap-1">
+                      <label className="text-sm text-gray-600 font-medium">
+                        Email
+                      </label>
+                      <Input
+                        placeholder="Enter email address"
+                        value={d.email}
+                        onChange={(e) =>
+                          handleDirectorChange(i, "email", e.target.value)
+                        }
+                        onBlur={() =>
+                          setTouchedDirectors((prev) => {
+                            const arr = [...prev];
+                            if (!arr[i])
+                              arr[i] = {
+                                name: false,
+                                phone: false,
+                                email: false,
+                              };
+                            arr[i].email = true;
+                            return arr;
+                          })
+                        }
+                        className={`text-sm ${
+                          fieldErrors.directors &&
+                          fieldErrors.directors[i]?.email &&
+                          (touchedDirectors[i]?.email || forceShowErrors)
+                            ? "border-red-500 bg-red-50"
+                            : ""
+                        }`}
+                      />
+                      {fieldErrors.directors &&
+                        fieldErrors.directors[i]?.email &&
+                        (touchedDirectors[i]?.email || forceShowErrors) && (
+                          <p className="text-red-500 text-xs">
+                            {fieldErrors.directors[i].email}
+                          </p>
+                        )}
                     </div>
+                  </div>
+
+                  {/* Delete button */}
+                  {directors.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={() => removeDirector(i)}
+                      className="absolute top-2 right-2 p-1.5 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-md transition-colors"
+                      aria-label="Remove director"
+                    >
+                      <Trash2 size={16} />
+                    </button>
                   )}
-              </div>
-              {/* Delete button */}
-              <div className="flex items-center justify-center h-full">
-                {contacts.length > 1 && (
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => removeContact(i)}
-                  >
-                    <Trash size={18} />
-                  </Button>
-                )}
-              </div>
+                </div>
+              ))}
             </div>
-          ))}
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            className="mt-1"
-            onClick={addContact}
-          >
-            <Add size={16} className="mr-1" /> Add Contact
-          </Button>
+          </div>
+
+          {/* Contacts Section */}
+          <div className="bg-gray-50 rounded-lg p-6 border border-gray-200">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
+                <User size={20} className="text-blue-600" />
+                Contacts
+              </h3>
+              <button
+                type="button"
+                onClick={addContact}
+                className="flex items-center gap-2 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-[12px] font-medium rounded-sm transition-colors"
+              >
+                <Plus size={16} />
+                Add another contact
+              </button>
+            </div>
+
+            {fieldErrors.contactsGeneral && (
+              <div className="flex items-center gap-2 bg-red-50 text-red-600 px-3 py-2 rounded-md font-medium text-sm mb-4">
+                <AlertCircle size={16} className="text-red-400" />
+                <span>{fieldErrors.contactsGeneral}</span>
+              </div>
+            )}
+
+            <div className="space-y-4">
+              {contacts.map((c, i) => (
+                <div
+                  key={i}
+                  className="bg-white rounded-lg p-4 border border-gray-200 relative"
+                >
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {/* Name */}
+                    <div className="flex flex-col gap-1">
+                      <label className="text-sm text-gray-600 font-medium">
+                        Name
+                      </label>
+                      <Input
+                        placeholder="Enter full name"
+                        value={c.name}
+                        onChange={(e) =>
+                          handleContactChange(i, "name", e.target.value)
+                        }
+                        onBlur={() =>
+                          setTouchedContacts((prev) => {
+                            const arr = [...prev];
+                            if (!arr[i])
+                              arr[i] = {
+                                name: false,
+                                phone: false,
+                                email: false,
+                              };
+                            arr[i].name = true;
+                            return arr;
+                          })
+                        }
+                        className={`text-sm ${
+                          fieldErrors.contacts &&
+                          fieldErrors.contacts[i]?.name &&
+                          (touchedContacts[i]?.name || forceShowErrors)
+                            ? "border-red-500 bg-red-50"
+                            : ""
+                        }`}
+                      />
+                      {fieldErrors.contacts &&
+                        fieldErrors.contacts[i]?.name &&
+                        (touchedContacts[i]?.name || forceShowErrors) && (
+                          <p className="text-red-500 text-xs">
+                            {fieldErrors.contacts[i].name}
+                          </p>
+                        )}
+                    </div>
+
+                    {/* Phone */}
+                    <div className="flex flex-col gap-1">
+                      <label className="text-sm text-gray-600 font-medium">
+                        Phone
+                      </label>
+                      <Input
+                        placeholder="Enter phone number"
+                        value={c.phone}
+                        onChange={(e) =>
+                          handleContactChange(i, "phone", e.target.value)
+                        }
+                        onBlur={() =>
+                          setTouchedContacts((prev) => {
+                            const arr = [...prev];
+                            if (!arr[i])
+                              arr[i] = {
+                                name: false,
+                                phone: false,
+                                email: false,
+                              };
+                            arr[i].phone = true;
+                            return arr;
+                          })
+                        }
+                        className={`text-sm ${
+                          fieldErrors.contacts &&
+                          fieldErrors.contacts[i]?.phone &&
+                          (touchedContacts[i]?.phone || forceShowErrors)
+                            ? "border-red-500 bg-red-50"
+                            : ""
+                        }`}
+                      />
+                      {fieldErrors.contacts &&
+                        fieldErrors.contacts[i]?.phone &&
+                        (touchedContacts[i]?.phone || forceShowErrors) && (
+                          <p className="text-red-500 text-xs">
+                            {fieldErrors.contacts[i].phone}
+                          </p>
+                        )}
+                    </div>
+
+                    {/* Email */}
+                    <div className="flex flex-col gap-1">
+                      <label className="text-sm text-gray-600 font-medium">
+                        Email
+                      </label>
+                      <Input
+                        placeholder="Enter email address"
+                        value={c.email}
+                        onChange={(e) =>
+                          handleContactChange(i, "email", e.target.value)
+                        }
+                        onBlur={() =>
+                          setTouchedContacts((prev) => {
+                            const arr = [...prev];
+                            if (!arr[i])
+                              arr[i] = {
+                                name: false,
+                                phone: false,
+                                email: false,
+                              };
+                            arr[i].email = true;
+                            return arr;
+                          })
+                        }
+                        className={`text-sm ${
+                          fieldErrors.contacts &&
+                          fieldErrors.contacts[i]?.email &&
+                          (touchedContacts[i]?.email || forceShowErrors)
+                            ? "border-red-500 bg-red-50"
+                            : ""
+                        }`}
+                      />
+                      {fieldErrors.contacts &&
+                        fieldErrors.contacts[i]?.email &&
+                        (touchedContacts[i]?.email || forceShowErrors) && (
+                          <p className="text-red-500 text-xs">
+                            {fieldErrors.contacts[i].email}
+                          </p>
+                        )}
+                    </div>
+                  </div>
+
+                  {/* Delete button */}
+                  {contacts.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={() => removeContact(i)}
+                      className="absolute top-2 right-2 p-1.5 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-md transition-colors"
+                      aria-label="Remove contact"
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
-        <div className="flex justify-end gap-4 mt-10">
-          <Button
+
+        {/* Submit Button */}
+        <div className="w-full flex items-center justify-end mt-6 pt-4 border-t border-gray-200">
+          <button
             type="submit"
-            variant="default"
-            className="px-8 py-3 rounded-lg font-semibold text-base"
+            className="px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-sm font-medium text-[13px] transition-colors disabled:opacity-50"
             disabled={loading}
           >
-            Preview
-          </Button>
+            Preview Application
+          </button>
         </div>
       </form>
+
+      {/* Preview Dialog */}
       <Dialog open={showPreview} onOpenChange={setShowPreview}>
-        <DialogContent>
+        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Preview Membership Application</DialogTitle>
-            <DialogDescription>
+            <DialogTitle className="text-xl font-bold text-gray-800">
+              Preview Membership Application
+            </DialogTitle>
+            <DialogDescription className="text-gray-600">
               Review your details before submitting.
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-2 text-sm">
-            <div>
-              <b>Region:</b>{" "}
-              {regions.find((r) => r.id === Number(regionId))?.name || "-"}
+
+          <div className="space-y-6 py-4">
+            {/* Membership Details */}
+            <div className="bg-blue-50 rounded-lg p-4">
+              <h3 className="text-lg font-semibold text-blue-800 mb-3">
+                Membership Details
+              </h3>
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                <div>
+                  <span className="text-gray-600">Region:</span>{" "}
+                  <span className="font-medium">
+                    {regions.find((r) => r.id === Number(regionId))?.name ||
+                      "-"}
+                  </span>
+                </div>
+                <div>
+                  <span className="text-gray-600">District:</span>{" "}
+                  <span className="font-medium">
+                    {districts.find((d) => d.id === Number(districtId))?.name ||
+                      "-"}
+                  </span>
+                </div>
+                <div>
+                  <span className="text-gray-600">Sector:</span>{" "}
+                  <span className="font-medium">
+                    {sectors.find((s) => s.id === Number(sectorId))?.name ||
+                      "-"}
+                  </span>
+                </div>
+                <div>
+                  <span className="text-gray-600">Category:</span>{" "}
+                  <span className="font-medium">
+                    {categories.find((c) => c.id === Number(categoryId))
+                      ?.name || "-"}
+                  </span>
+                </div>
+                <div className="col-span-2">
+                  <span className="text-gray-600">Subcategory:</span>{" "}
+                  <span className="font-medium">
+                    {subcategories.find((s) => s.id === Number(subcategoryId))
+                      ?.name || "-"}
+                  </span>
+                </div>
+              </div>
             </div>
-            <div>
-              <b>District:</b>{" "}
-              {districts.find((d) => d.id === Number(districtId))?.name || "-"}
-            </div>
-            <div>
-              <b>Sector:</b>{" "}
-              {sectors.find((s) => s.id === Number(sectorId))?.name || "-"}
-            </div>
-            <div>
-              <b>Category:</b>{" "}
-              {categories.find((c) => c.id === Number(categoryId))?.name || "-"}
-            </div>
-            <div>
-              <b>Subcategory:</b>{" "}
-              {subcategories.find((s) => s.id === Number(subcategoryId))
-                ?.name || "-"}
-            </div>
-            <div>
-              <b>Directors:</b>{" "}
-              <ul className="list-disc ml-6">
+
+            {/* Directors */}
+            <div className="bg-gray-50 rounded-lg p-4">
+              <h3 className="text-lg font-semibold text-gray-800 mb-3">
+                Directors
+              </h3>
+              <div className="space-y-2">
                 {directors.map((d, i) => (
-                  <li key={i}>
-                    {d.name} - {d.phone} - {d.email}
-                  </li>
+                  <div key={i} className="text-sm bg-white p-3 rounded border">
+                    <div className="font-medium">{d.name}</div>
+                    <div className="text-gray-600">
+                      {d.phone} • {d.email}
+                    </div>
+                  </div>
                 ))}
-              </ul>
+              </div>
             </div>
-            <div>
-              <b>Contacts:</b>{" "}
-              <ul className="list-disc ml-6">
+
+            {/* Contacts */}
+            <div className="bg-gray-50 rounded-lg p-4">
+              <h3 className="text-lg font-semibold text-gray-800 mb-3">
+                Contacts
+              </h3>
+              <div className="space-y-2">
                 {contacts.map((c, i) => (
-                  <li key={i}>
-                    {c.name} - {c.phone} - {c.email}
-                  </li>
+                  <div key={i} className="text-sm bg-white p-3 rounded border">
+                    <div className="font-medium">{c.name}</div>
+                    <div className="text-gray-600">
+                      {c.phone} • {c.email}
+                    </div>
+                  </div>
                 ))}
-              </ul>
+              </div>
             </div>
           </div>
-          <DialogFooter>
+
+          <DialogFooter className="gap-2">
             <Button
-              variant="secondary"
+              variant="outline"
               onClick={() => setShowPreview(false)}
               disabled={loading}
             >
-              Edit
+              Edit Application
             </Button>
-            <Button variant="default" onClick={handleSubmit} disabled={loading}>
-              {loading ? "Submitting..." : "Submit"}
+            <Button onClick={handleSubmit} disabled={loading}>
+              {loading ? "Submitting..." : "Submit Application"}
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Category Notebook Modal */}
       <CategoryNotebookModal
         open={showNotebook}
         onClose={() => setShowNotebook(false)}
       />
+
       {/* Success Dialog */}
       <Dialog
         open={!!successMsg}
@@ -809,12 +957,7 @@ export default function MembershipApplicationForm({
       >
         <DialogContent className="max-w-md">
           <div className="flex flex-col items-center justify-center py-6">
-            <TickCircle
-              size={64}
-              color="#22c55e"
-              variant="Bulk"
-              className="mb-4"
-            />
+            <CheckCircle size={64} className="text-green-600 mb-4" />
             <DialogTitle className="text-green-700 text-2xl font-bold mb-2 text-center">
               Application Submitted!
             </DialogTitle>
@@ -834,10 +977,12 @@ export default function MembershipApplicationForm({
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Error Message */}
       {errorMsg && (
         <div className="flex justify-center mt-6">
           <div className="flex items-center gap-2 bg-red-50 text-red-600 px-4 py-3 rounded-lg font-semibold text-base">
-            <InfoCircle size={20} className="text-red-400" />
+            <AlertCircle size={20} className="text-red-400" />
             <span>{errorMsg}</span>
           </div>
         </div>

@@ -81,7 +81,7 @@ export default function CategoryNotebookModal({
                   {cat.subcategories?.map((sub: any) => (
                     <div
                       key={sub.id}
-                      className="ml-4 mb-2 p-2 border rounded bg-gray-50"
+                      className="mr-3 mb-2 p-2 border rounded bg-gray-50"
                     >
                       <div className="font-semibold text-blue-700 text-sm">
                         {sub.name}

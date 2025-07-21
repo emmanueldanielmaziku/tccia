@@ -57,7 +57,7 @@ export default function Membership() {
             <div className="flex flex-col md:flex-row w-full justify-between items-start md:items-center gap-4 my-1">
               {showForm ? (
                 <div className="font-semibold antialiased text-[18px] text-zinc-600">
-                  New Membership Application
+                  Membership Application
                 </div>
               ) : (
                 <div className="flex flex-col md:flex-row items-start md:items-center gap-4 w-full md:w-auto">
