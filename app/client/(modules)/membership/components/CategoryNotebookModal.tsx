@@ -34,7 +34,7 @@ export default function CategoryNotebookModal({
 
   if (!open) return null;
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-[3px]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30  backdrop-blur-[3px]">
       <div className="bg-white rounded-xl shadow-2xl p-6 w-full max-w-2xl relative">
         <button
           className="absolute top-3 right-3 text-gray-400 hover:text-red-500 text-2xl"

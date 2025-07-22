@@ -15,10 +15,8 @@ import { Input } from "@/components/ui/input";
 import {
   Dialog,
   DialogContent,
-  DialogHeader,
   DialogTitle,
   DialogDescription,
-  DialogFooter,
 } from "@/components/ui/dialog";
 import {
   CheckCircle,
@@ -29,6 +27,7 @@ import {
   Users,
   Building,
   Book,
+  X,
 } from "lucide-react";
 import CategoryNotebookModal from "./CategoryNotebookModal";
 
@@ -67,8 +66,12 @@ interface Person {
 
 export default function MembershipApplicationForm({
   onSuccess,
+  submitLabel,
+  action = "apply",
 }: {
   onSuccess?: () => void;
+  submitLabel?: string;
+  action?: "apply" | "renew";
 }) {
   // Dropdown data
   const [regions, setRegions] = useState<Region[]>([]);
@@ -262,7 +265,7 @@ export default function MembershipApplicationForm({
         return;
       }
 
-      const res = await fetch("/api/membership/apply", {
+      const res = await fetch(`/api/membership/${action}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -829,112 +832,137 @@ export default function MembershipApplicationForm({
         </div>
       </form>
 
-      {/* Preview Dialog */}
-      <Dialog open={showPreview} onOpenChange={setShowPreview}>
-        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle className="text-xl font-bold text-gray-800">
-              Preview Membership Application
-            </DialogTitle>
-            <DialogDescription className="text-gray-600">
-              Review your details before submitting.
-            </DialogDescription>
-          </DialogHeader>
+      {/* Custom Preview Popup */}
+      {showPreview && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
+          onClick={() => setShowPreview(false)}
+        >
+          <div
+            className="relative bg-white rounded-lg shadow-xl w-full max-w-5xl max-h-[90vh] flex flex-col"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              onClick={() => setShowPreview(false)}
+              className="absolute top-3 right-3 p-2 rounded-full text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+            >
+              <X size={24} />
+            </button>
+            {/* Header */}
+            <div className="p-6 border-b">
+              <h2 className="text-xl font-bold text-gray-800">
+                Preview Membership Application
+              </h2>
+              <p className="text-gray-600">
+                Review your details before submitting.
+              </p>
+            </div>
 
-          <div className="space-y-6 py-4">
-            {/* Membership Details */}
-            <div className="bg-blue-50 rounded-lg p-4">
-              <h3 className="text-lg font-semibold text-blue-800 mb-3">
-                Membership Details
-              </h3>
-              <div className="grid grid-cols-2 gap-4 text-sm">
-                <div>
-                  <span className="text-gray-600">Region:</span>{" "}
-                  <span className="font-medium">
-                    {regions.find((r) => r.id === Number(regionId))?.name ||
-                      "-"}
-                  </span>
+            {/* Content */}
+            <div className="p-6 space-y-6 overflow-y-auto">
+              {/* Membership Details */}
+              <div className="bg-blue-50 rounded-lg p-4">
+                <h3 className="text-lg font-semibold text-blue-800 mb-3">
+                  Membership Details
+                </h3>
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <span className="text-gray-600">Region:</span>{" "}
+                    <span className="font-medium">
+                      {regions.find((r) => r.id === Number(regionId))?.name ||
+                        "-"}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-gray-600">District:</span>{" "}
+                    <span className="font-medium">
+                      {districts.find((d) => d.id === Number(districtId))
+                        ?.name || "-"}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-gray-600">Sector:</span>{" "}
+                    <span className="font-medium">
+                      {sectors.find((s) => s.id === Number(sectorId))?.name ||
+                        "-"}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-gray-600">Category:</span>{" "}
+                    <span className="font-medium">
+                      {categories.find((c) => c.id === Number(categoryId))
+                        ?.name || "-"}
+                    </span>
+                  </div>
+                  <div className="col-span-2">
+                    <span className="text-gray-600">Subcategory:</span>{" "}
+                    <span className="font-medium">
+                      {subcategories.find((s) => s.id === Number(subcategoryId))
+                        ?.name || "-"}
+                    </span>
+                  </div>
                 </div>
-                <div>
-                  <span className="text-gray-600">District:</span>{" "}
-                  <span className="font-medium">
-                    {districts.find((d) => d.id === Number(districtId))?.name ||
-                      "-"}
-                  </span>
+              </div>
+
+              {/* Directors */}
+              <div className="bg-gray-50 rounded-lg p-4">
+                <h3 className="text-lg font-semibold text-gray-800 mb-3">
+                  Directors
+                </h3>
+                <div className="space-y-2">
+                  {directors.map((d, i) => (
+                    <div
+                      key={i}
+                      className="text-sm bg-white p-3 rounded border"
+                    >
+                      <div className="font-medium">{d.name}</div>
+                      <div className="text-gray-600">
+                        {d.phone} • {d.email}
+                      </div>
+                    </div>
+                  ))}
                 </div>
-                <div>
-                  <span className="text-gray-600">Sector:</span>{" "}
-                  <span className="font-medium">
-                    {sectors.find((s) => s.id === Number(sectorId))?.name ||
-                      "-"}
-                  </span>
-                </div>
-                <div>
-                  <span className="text-gray-600">Category:</span>{" "}
-                  <span className="font-medium">
-                    {categories.find((c) => c.id === Number(categoryId))
-                      ?.name || "-"}
-                  </span>
-                </div>
-                <div className="col-span-2">
-                  <span className="text-gray-600">Subcategory:</span>{" "}
-                  <span className="font-medium">
-                    {subcategories.find((s) => s.id === Number(subcategoryId))
-                      ?.name || "-"}
-                  </span>
+              </div>
+
+              {/* Contacts */}
+              <div className="bg-gray-50 rounded-lg p-4">
+                <h3 className="text-lg font-semibold text-gray-800 mb-3">
+                  Contacts
+                </h3>
+                <div className="space-y-2">
+                  {contacts.map((c, i) => (
+                    <div
+                      key={i}
+                      className="text-sm bg-white p-3 rounded border"
+                    >
+                      <div className="font-medium">{c.name}</div>
+                      <div className="text-gray-600">
+                        {c.phone} • {c.email}
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>
 
-            {/* Directors */}
-            <div className="bg-gray-50 rounded-lg p-4">
-              <h3 className="text-lg font-semibold text-gray-800 mb-3">
-                Directors
-              </h3>
-              <div className="space-y-2">
-                {directors.map((d, i) => (
-                  <div key={i} className="text-sm bg-white p-3 rounded border">
-                    <div className="font-medium">{d.name}</div>
-                    <div className="text-gray-600">
-                      {d.phone} • {d.email}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Contacts */}
-            <div className="bg-gray-50 rounded-lg p-4">
-              <h3 className="text-lg font-semibold text-gray-800 mb-3">
-                Contacts
-              </h3>
-              <div className="space-y-2">
-                {contacts.map((c, i) => (
-                  <div key={i} className="text-sm bg-white p-3 rounded border">
-                    <div className="font-medium">{c.name}</div>
-                    <div className="text-gray-600">
-                      {c.phone} • {c.email}
-                    </div>
-                  </div>
-                ))}
-              </div>
+            {/* Footer */}
+            <div className="p-4 bg-gray-50 border-t flex justify-end gap-2 mt-auto rounded-b-lg">
+              <Button
+                variant="outline"
+                onClick={() => setShowPreview(false)}
+                disabled={loading}
+              >
+                Edit Application
+              </Button>
+              <Button onClick={handleSubmit} disabled={loading}>
+                {loading
+                  ? "Submitting..."
+                  : submitLabel || "Submit Application"}
+              </Button>
             </div>
           </div>
-
-          <DialogFooter className="gap-2">
-            <Button
-              variant="outline"
-              onClick={() => setShowPreview(false)}
-              disabled={loading}
-            >
-              Edit Application
-            </Button>
-            <Button onClick={handleSubmit} disabled={loading}>
-              {loading ? "Submitting..." : "Submit Application"}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+        </div>
+      )}
 
       {/* Category Notebook Modal */}
       <CategoryNotebookModal

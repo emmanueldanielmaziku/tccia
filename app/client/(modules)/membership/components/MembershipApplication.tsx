@@ -16,7 +16,10 @@ import {
   Call,
   Message,
   ProfileCircle,
+  Refresh,
 } from "iconsax-reactjs";
+import MembershipApplicationForm from "./MembershipApplicationForm";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 
 interface Director {
   id: number;
@@ -72,6 +75,7 @@ export default function MembershipApplication({
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState<ApplicationData | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [showRenewForm, setShowRenewForm] = useState(false);
 
   useEffect(() => {
     if (!tin) return;
@@ -241,17 +245,38 @@ export default function MembershipApplication({
             </div>
           </div>
         </div>
-        <div className="flex flex-col items-end gap-1">
-          <div className="flex items-center gap-2 text-sm text-blue-700">
-            <Verify size={18} className="mr-1" /> TIN:{" "}
-            <span className="font-semibold">{data.company_tin}</span>
-          </div>
-          <div className="flex items-center gap-2 text-xs text-gray-500">
-            <Calendar size={16} /> Applied:{" "}
-            {new Date(data.application_date).toLocaleDateString()}
-          </div>
+        <div className="flex flex-row gap-2 items-center">
+          <a
+            href={`/api/proxy/certificate/${data.id}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-sm shadow hover:bg-blue-600 transition-colors font-semibold text-sm"
+            download
+          >
+            <DocumentText size={20} className="mr-1" />
+            Download Certificate
+          </a>
+          {data.state === "expired" && (
+            <button
+              className="inline-flex items-center gap-2 px-4 py-2 bg-orange-600 text-white rounded-lg shadow hover:bg-orange-700 transition-colors font-semibold text-sm"
+              onClick={() => setShowRenewForm(true)}
+            >
+              <Refresh size={20} className="mr-1" />
+              Renew Membership
+            </button>
+          )}
         </div>
       </div>
+      {/* Renew Membership Dialog */}
+      <Dialog open={showRenewForm} onOpenChange={setShowRenewForm}>
+        <DialogContent className="max-w-2xl">
+          <MembershipApplicationForm
+            onSuccess={() => setShowRenewForm(false)}
+            submitLabel="Renew Membership"
+            action="renew"
+          />
+        </DialogContent>
+      </Dialog>
       {/* Main Content */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 px-8 py-8">
         {/* Company Info */}
@@ -303,6 +328,16 @@ export default function MembershipApplication({
             Sector: <span className="font-semibold">{data.sector_name}</span>
           </div>
         </div>
+        <div className="flex flex-col items-start gap-1">
+          <div className="flex items-center gap-2 text-sm text-blue-700">
+            <Verify size={18} className="mr-1" /> TIN:{" "}
+            <span className="font-semibold">{data.company_tin}</span>
+          </div>
+          <div className="flex items-center gap-2 text-xs text-gray-500">
+            <Calendar size={16} /> Applied:{" "}
+            {new Date(data.application_date).toLocaleDateString()}
+          </div>
+        </div>
         {/* Fees */}
         <div className="space-y-4">
           <div className="flex items-center gap-2 text-blue-800 font-semibold text-base mb-1">
@@ -312,9 +347,9 @@ export default function MembershipApplication({
             {/* <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1">
               <Receipt size={14} /> Entry: {data.entry_fee}
             </span> */}
-            <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1">
+            {/* <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1">
               <Receipt size={14} /> Annual: {formatNumber(data.annual_fee)}
-            </span>
+            </span> */}
             {/* <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1">
               <Receipt size={14} /> Certificate: {data.certificate_fee}
             </span> */}
