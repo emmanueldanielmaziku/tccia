@@ -5,18 +5,13 @@ const REMOTE_BASE_URL = "https://tccia.kalen.co.tz/api";
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: { id: string } }
 ) {
-  let token = "";
-  try {
-    const cookieStore = await cookies();
-    token = cookieStore.get("token")?.value || "";
-  } catch (error) {
-    return new NextResponse("Unauthorized", { status: 401 });
-  }
+  const cookieStore = await cookies();
+  const token = cookieStore.get("token")?.value || "";
 
   const remoteRes = await fetch(
-    `${REMOTE_BASE_URL}/membership/certificate/${params.id}`,
+    `${REMOTE_BASE_URL}/membership/certificate/${context.params.id}`,
     {
       headers: {
         Authorization: token ? `Bearer ${token}` : "",
