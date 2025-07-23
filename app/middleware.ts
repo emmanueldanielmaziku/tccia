@@ -2,9 +2,8 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 function isMobileUserAgent(userAgent: string) {
-  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile/i.test(
-    userAgent
-  );
+  // Updated regex for broader mobile detection (2025)
+  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile|Windows Phone|Kindle|Silk|Opera Mobi|SamsungBrowser|Fennec|MeeGo|Nokia|HTC|LG|MOT|SonyEricsson|PlayBook|Xperia|Tablet|Touch|Pixel|OnePlus|Redmi|Miui|Huawei|Realme|Oppo|Vivo|Infinix|Tecno|Itel|Googlebot-Mobile/i.test(userAgent);
 }
 
 export function middleware(request: NextRequest) {
