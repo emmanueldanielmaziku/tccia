@@ -16,6 +16,8 @@ import {
   Message,
   ProfileCircle,
   Refresh,
+  Copy,
+  TickCircle,
 } from "iconsax-reactjs";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -78,6 +80,7 @@ export default function MembershipApplication({
   const [error, setError] = useState<string | null>(null);
   const [showRenewForm, setShowRenewForm] = useState(false);
   const [downloading, setDownloading] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     if (!tin) return;
@@ -226,22 +229,22 @@ export default function MembershipApplication({
         >
           <DocumentText size={48} color="#3b82f6" variant="Bulk" />
         </div>
-        <Alert className="max-w-md mx-auto border-0 bg-white text-center">
-          <AlertTitle className="text-lg font-semibold text-blue-800">
+        <Alert className="w-full max-w-md mx-auto border-0 bg-white text-center flex flex-col items-center">
+          <AlertTitle className="text-lg font-semibold text-blue-800 w-full text-center">
             No Membership Application Found
           </AlertTitle>
-          <AlertDescription className="mt-2 text-gray-600">
+          <AlertDescription className="mt-2 text-gray-600 w-full text-center flex flex-col items-center">
             There is no membership application for this TIN.
             <br />
             <span className="block mt-2 text-xs text-blue-500">
               Start a new application to become a member.
             </span>
-            <button
+            {/* <button
               className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition text-xs font-semibold"
               onClick={() => window.location.reload()}
             >
               Retry
-            </button>
+            </button> */}
           </AlertDescription>
         </Alert>
       </div>
@@ -385,17 +388,38 @@ export default function MembershipApplication({
         {/* Invoice + TIN */}
         <div>
           <SectionHeader icon={<Receipt size={18} />} title="Invoice & Payment" />
-          <div className="text-sm text-gray-700 mb-1">
-            Invoice Number:{" "}
+          <div className="flex items-center gap-2 text-sm text-gray-700 mb-1">
+            <span>Invoice Number:</span>
             {data.invoice_number ? (
-              <strong>{data.invoice_number}</strong>
+              <>
+                <span className="font-semibold text-blue-900 bg-blue-50 px-2 py-1 rounded select-all text-base tracking-wide">
+                  {data.invoice_number}
+                </span>
+                <button
+                  className={`ml-1 p-1 rounded hover:bg-blue-100 transition border border-transparent focus:outline-none focus:ring-2 focus:ring-blue-300`}
+                  title={copied ? "Copied!" : "Copy Invoice Number"}
+                  aria-label="Copy Invoice Number"
+                  onClick={() => {
+                    if (data.invoice_number) {
+                      navigator.clipboard.writeText(data.invoice_number.toString());
+                      setCopied(true);
+                      setTimeout(() => setCopied(false), 1500);
+                    }
+                  }}
+                  disabled={copied}
+                >
+                  {copied ? <TickCircle size={18} color="#22c55e" /> : <Copy size={18} color="#2563eb" />}
+                </button>
+              </>
             ) : (
               <span className="text-red-600">Not generated yet</span>
             )}
           </div>
-          <div className="text-sm text-blue-700 font-semibold mb-2">
-            Membership Fee: {formatNumber(data.total_fee)} TZS
-          </div>
+          {data.invoice_number && (
+            <div className="text-sm text-blue-700 font-semibold mb-2">
+              Membership Fee: {formatNumber(data.total_fee)} TZS
+            </div>
+          )}
           <div className="text-sm text-gray-600">
             Use the invoice number to make payment via bank or mobile money.
           </div>
