@@ -3,19 +3,19 @@ import { cookies } from "next/headers";
 
 const REMOTE_BASE_URL = "https://tccia.kalen.co.tz/api";
 
-export async function GET(
-  req: NextRequest,
-  context: { params: { id: string } }
-) {
-  try {
-    const { params } = await context; // ✅ Await the context destructuring
-    const { id } = params;
+type Params = {
+  params: {
+    id: string;
+  };
+};
 
+export async function GET(req: NextRequest, { params }: Params) {
+  try {
     const cookieStore = await cookies();
     const token = cookieStore.get("token")?.value || "";
 
     const remoteRes = await fetch(
-      `${REMOTE_BASE_URL}/membership/certificate/${id}`,
+      `${REMOTE_BASE_URL}/membership/certificate/${params.id}`,
       {
         headers: {
           Authorization: token ? `Bearer ${token}` : "",
@@ -39,7 +39,7 @@ export async function GET(
           remoteRes.headers.get("Content-Type") || "application/pdf",
         "Content-Disposition":
           remoteRes.headers.get("Content-Disposition") ||
-          `attachment; filename=certificate-${id}.pdf`,
+          `attachment; filename=certificate-${params.id}.pdf`,
       },
     });
   } catch (error) {
