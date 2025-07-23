@@ -11,18 +11,26 @@ export function middleware(request: NextRequest) {
   const userAgent = request.headers.get("user-agent") || "";
   const pathname = request.nextUrl.pathname;
 
-  console.log("User-Agent:", userAgent);
-
-  const isMobile = isMobileUserAgent(userAgent);
-  const isMobileInfoPage = pathname === "/mobile-info";
-
-  if (isMobile && !isMobileInfoPage) {
-    return NextResponse.redirect(new URL("/mobile-info", request.url));
-  }
-
+  // Always redirect root to /auth
   if (pathname === "/") {
     return NextResponse.redirect(new URL("/auth", request.url));
   }
 
+  const isMobile = isMobileUserAgent(userAgent);
+  const isMobileInfoPage = pathname === "/mobile-info";
+
+  if (isMobile) {
+    if (!isMobileInfoPage) {
+      // Block all other pages for mobile devices
+      return new NextResponse(
+        "Mobile access is not allowed. Please use a desktop browser.",
+        { status: 403, headers: { "Content-Type": "text/plain" } }
+      );
+    }
+    // Allow /mobile-info for mobile
+    return NextResponse.next();
+  }
+
+  // Allow all for non-mobile
   return NextResponse.next();
 }
