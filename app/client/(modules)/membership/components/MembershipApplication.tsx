@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
-import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
-import { Skeleton } from "@/components/ui/skeleton";
 import {
+  InfoCircle,
   DocumentText,
   Profile2User,
   Sms,
@@ -18,6 +17,8 @@ import {
   ProfileCircle,
   Refresh,
 } from "iconsax-reactjs";
+import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
+import { Skeleton } from "@/components/ui/skeleton";
 import MembershipApplicationForm from "./MembershipApplicationForm";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 
@@ -82,132 +83,43 @@ export default function MembershipApplication({
     setLoading(true);
     setError(null);
     setData(null);
+
     fetch(`/api/membership/application/${tin}`)
       .then((res) => res.json())
       .then((res) => {
         if (res.success && res.data) {
           setData(res.data);
-          if (onHasApplication) onHasApplication(true);
+          onHasApplication?.(true);
         } else {
           setError(res.message || "No membership application found.");
-          if (onHasApplication) onHasApplication(false);
+          onHasApplication?.(false);
         }
         setLoading(false);
       })
       .catch(() => {
         setError("Failed to fetch application.");
-        if (onHasApplication) onHasApplication(false);
+        onHasApplication?.(false);
         setLoading(false);
       });
   }, [tin]);
 
-  if (loading) {
-    return (
-      <div className="w-full max-w-5xl mx-auto rounded-2xl shadow-lg bg-white mt-8 overflow-hidden border border-blue-100 animate-pulse">
-        {/* Header Skeleton */}
-        <div className="flex flex-col md:flex-row items-center justify-between gap-4 bg-blue-50 px-6 py-5 border-b border-blue-100">
-          <div className="flex items-center gap-4">
-            <Skeleton className="w-12 h-12 rounded-full bg-blue-100" />
-            <div>
-              <Skeleton className="h-6 w-48 mb-2 bg-blue-100" />
-              <Skeleton className="h-4 w-32 bg-blue-100" />
-            </div>
-          </div>
-          <div className="flex flex-col items-end gap-1">
-            <Skeleton className="h-4 w-32 bg-blue-100" />
-            <Skeleton className="h-3 w-24 bg-blue-100" />
-          </div>
-        </div>
-        {/* Main Content Skeleton */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 px-8 py-8">
-          <div className="space-y-4">
-            <Skeleton className="h-5 w-32 bg-blue-100" />
-            <Skeleton className="h-4 w-40 bg-blue-100" />
-            <Skeleton className="h-4 w-32 bg-blue-100" />
-            <Skeleton className="h-4 w-28 bg-blue-100" />
-            <Skeleton className="h-4 w-36 bg-blue-100" />
-            <Skeleton className="h-4 w-44 bg-blue-100" />
-          </div>
-          <div className="space-y-4">
-            <Skeleton className="h-5 w-32 bg-blue-100" />
-            <Skeleton className="h-4 w-40 bg-blue-100" />
-            <Skeleton className="h-4 w-32 bg-blue-100" />
-            <Skeleton className="h-4 w-28 bg-blue-100" />
-            <Skeleton className="h-4 w-36 bg-blue-100" />
-          </div>
-          <div className="space-y-4">
-            <Skeleton className="h-5 w-32 bg-blue-100" />
-            <div className="flex flex-wrap gap-3">
-              <Skeleton className="h-6 w-20 rounded-full bg-blue-100" />
-              <Skeleton className="h-6 w-20 rounded-full bg-blue-100" />
-              <Skeleton className="h-6 w-20 rounded-full bg-blue-100" />
-              <Skeleton className="h-6 w-24 rounded-full bg-blue-200" />
-            </div>
-          </div>
-          <div className="space-y-4">
-            <Skeleton className="h-5 w-32 bg-blue-100" />
-            <Skeleton className="h-4 w-40 bg-blue-100" />
-            <Skeleton className="h-4 w-32 bg-blue-100" />
-            <Skeleton className="h-4 w-28 bg-blue-100" />
-            <Skeleton className="h-4 w-36 bg-blue-100" />
-          </div>
-        </div>
-        {/* Directors & Contacts Skeleton */}
-        <div className="px-8 pb-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div>
-              <Skeleton className="h-5 w-32 mb-2 bg-blue-100" />
-              <div className="space-y-2">
-                <Skeleton className="h-4 w-40 bg-blue-100" />
-                <Skeleton className="h-4 w-32 bg-blue-100" />
-                <Skeleton className="h-4 w-36 bg-blue-100" />
-              </div>
-            </div>
-            <div>
-              <Skeleton className="h-5 w-32 mb-2 bg-blue-100" />
-              <div className="space-y-2">
-                <Skeleton className="h-4 w-40 bg-blue-100" />
-                <Skeleton className="h-4 w-32 bg-blue-100" />
-                <Skeleton className="h-4 w-36 bg-blue-100" />
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-  if (error || !data) {
-    return (
-      <div className="w-full flex flex-col items-center justify-center py-20">
-        <div
-          className="mb-6 flex items-center justify-center rounded-full bg-blue-50"
-          style={{ width: 80, height: 80 }}
-        >
-          <DocumentText size={48} color="#3b82f6" variant="Bulk" />
-        </div>
-        <Alert className="max-w-md mx-auto border-0 bg-white flex flex-col items-center text-center">
-          <AlertTitle className="text-lg font-semibold text-blue-800 flex items-center gap-2 justify-center text-center w-full">
-            No Membership Application Found
-          </AlertTitle>
-          <AlertDescription className="mt-2 text-gray-600 text-center w-full flex flex-col items-center">
-            There is no membership application for this TIN yet.
-            <br />
-            <span className="block mt-2 text-xs text-blue-500">
-              Start a new application to become a member.
-            </span>
-          </AlertDescription>
-        </Alert>
-      </div>
-    );
-  }
-
-  // Helper for thousands separator
-  function formatNumber(num: number | undefined) {
+  function formatNumber(num?: number) {
     return num?.toLocaleString() ?? "-";
   }
 
-  // Status color mapping
-  const statusColorMap = {
+  function formatDate(dateStr?: string) {
+    if (!dateStr) return "-";
+    const date = new Date(dateStr);
+    return date.toLocaleDateString("en-GB", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  }
+
+  const statusColorMap: Record<string, string> = {
     draft: "bg-gray-200 text-gray-700",
     submitted: "bg-blue-200 text-blue-800",
     under_review: "bg-yellow-100 text-yellow-800",
@@ -219,25 +131,139 @@ export default function MembershipApplication({
     expired: "bg-gray-300 text-gray-600",
   };
 
-  // Modern, sectioned card layout
+  const SectionHeader = ({
+    icon,
+    title,
+  }: {
+    icon: React.ReactNode;
+    title: string;
+  }) => (
+    <div className="flex items-center gap-2 text-blue-800 font-semibold text-base mb-3 border-l-4 border-blue-400 pl-3 bg-blue-50 py-1 rounded">
+      {icon} {title}
+    </div>
+  );
+
+  if (loading) {
+    return (
+      <div className="w-full max-w-5xl mx-auto mt-6 overflow-hidden rounded-2xl border border-blue-100 bg-white shadow-lg animate-pulse">
+        {/* Header Skeleton */}
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-blue-50 px-6 py-5 border-b border-blue-100">
+          <div className="flex items-start md:items-center gap-4">
+            <Skeleton className="w-10 h-10 rounded-full bg-blue-100" />
+            <div>
+              <Skeleton className="h-6 w-48 mb-2 bg-blue-100" />
+              <Skeleton className="h-4 w-32 bg-blue-100" />
+            </div>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <Skeleton className="h-8 w-40 bg-blue-100 rounded-lg" />
+            <Skeleton className="h-8 w-40 bg-blue-100 rounded-lg" />
+          </div>
+        </div>
+        {/* Main Grid Skeleton */}
+        <div className="grid md:grid-cols-2 gap-8 px-6 py-8">
+          {/* Company Info */}
+          <div>
+            <Skeleton className="h-6 w-32 mb-4 bg-blue-100 rounded" />
+            <Skeleton className="h-4 w-40 mb-2 bg-blue-100" />
+            <Skeleton className="h-4 w-40 mb-2 bg-blue-100" />
+            <Skeleton className="h-4 w-40 mb-2 bg-blue-100" />
+            <Skeleton className="h-4 w-40 mb-2 bg-blue-100" />
+            <Skeleton className="h-4 w-48 bg-blue-100" />
+          </div>
+          {/* Membership Details */}
+          <div>
+            <Skeleton className="h-6 w-40 mb-4 bg-blue-100 rounded" />
+            <Skeleton className="h-4 w-36 mb-2 bg-blue-100" />
+            <Skeleton className="h-4 w-36 mb-2 bg-blue-100" />
+            <Skeleton className="h-4 w-36 mb-2 bg-blue-100" />
+            <Skeleton className="h-4 w-36 mb-2 bg-blue-100" />
+            <Skeleton className="h-4 w-36 bg-blue-100" />
+          </div>
+          {/* Invoice & Payment */}
+          <div>
+            <Skeleton className="h-6 w-44 mb-4 bg-blue-100 rounded" />
+            <Skeleton className="h-4 w-32 mb-2 bg-blue-100" />
+            <Skeleton className="h-4 w-32 mb-2 bg-blue-100" />
+            <Skeleton className="h-4 w-48 bg-blue-100" />
+          </div>
+          {/* Dates & TIN */}
+          <div>
+            <Skeleton className="h-6 w-32 mb-4 bg-blue-100 rounded" />
+            <Skeleton className="h-4 w-32 mb-2 bg-blue-100" />
+            <Skeleton className="h-4 w-32 mb-2 bg-blue-100" />
+            <Skeleton className="h-4 w-32 bg-blue-100" />
+          </div>
+        </div>
+        {/* Directors & Contacts Skeleton */}
+        <div className="px-6 pb-8">
+          <div className="grid md:grid-cols-2 gap-6">
+            <div>
+              <Skeleton className="h-6 w-32 mb-4 bg-blue-100 rounded" />
+              <Skeleton className="h-4 w-40 mb-2 bg-blue-100" />
+              <Skeleton className="h-4 w-32 mb-2 bg-blue-100" />
+              <Skeleton className="h-4 w-36 bg-blue-100" />
+            </div>
+            <div>
+              <Skeleton className="h-6 w-32 mb-4 bg-blue-100 rounded" />
+              <Skeleton className="h-4 w-40 mb-2 bg-blue-100" />
+              <Skeleton className="h-4 w-32 mb-2 bg-blue-100" />
+              <Skeleton className="h-4 w-36 bg-blue-100" />
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !data) {
+    return (
+      <div className="w-full flex flex-col items-center justify-center py-20">
+        <div
+          className="mb-6 flex items-center justify-center rounded-full bg-blue-50"
+          style={{ width: 80, height: 80 }}
+        >
+          <DocumentText size={48} color="#3b82f6" variant="Bulk" />
+        </div>
+        <Alert className="max-w-md mx-auto border-0 bg-white text-center">
+          <AlertTitle className="text-lg font-semibold text-blue-800">
+            No Membership Application Found
+          </AlertTitle>
+          <AlertDescription className="mt-2 text-gray-600">
+            There is no membership application for this TIN.
+            <br />
+            <span className="block mt-2 text-xs text-blue-500">
+              Start a new application to become a member.
+            </span>
+            <button
+              className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition text-xs font-semibold"
+              onClick={() => window.location.reload()}
+            >
+              Retry
+            </button>
+          </AlertDescription>
+        </Alert>
+      </div>
+    );
+  }
+
   return (
-    <div className="w-full max-w-5xl mx-auto rounded-2xl shadow-lg bg-white mt-8 overflow-hidden border border-blue-100">
+    <div className="w-full max-w-5xl mx-auto mt-6 overflow-hidden rounded-2xl border border-blue-100 bg-white shadow-lg">
       {/* Header */}
-      <div className="flex flex-col md:flex-row items-center justify-between gap-4 bg-blue-50 px-6 py-5 border-b border-blue-100">
-        <div className="flex items-center gap-4">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-blue-50 px-6 py-5 border-b border-blue-100">
+        <div className="flex items-start md:items-center gap-4">
           <Profile2User size={38} color="#2563eb" variant="Bulk" />
           <div>
-            <div className="text-xl font-bold text-blue-900 flex items-center gap-2">
+            <div className="text-xl font-bold text-blue-900 flex items-center gap-2 flex-wrap">
               {data.company_name}
               <span
-                className={`ml-2 text-xs font-semibold px-2 py-1 rounded uppercase tracking-wide ${
-                  statusColorMap[data.state as keyof typeof statusColorMap] ||
-                  "bg-gray-100 text-gray-700"
+                className={`text-xs font-semibold px-2 py-1 rounded uppercase tracking-wide flex items-center gap-1 ${
+                  statusColorMap[data.state] ?? "bg-gray-100 text-gray-700"
                 }`}
+                title={data.state}
               >
-                {data.state
-                  .replace(/_/g, " ")
-                  .replace(/\b\w/g, (c) => c.toUpperCase())}
+                {data.state.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())}
+                <InfoCircle size={16} />
               </span>
             </div>
             <div className="text-sm text-blue-700 font-medium">
@@ -245,29 +271,30 @@ export default function MembershipApplication({
             </div>
           </div>
         </div>
-        <div className="flex flex-row gap-2 items-center">
+
+        <div className="flex flex-wrap justify-start md:justify-end gap-2">
           <a
             href={`/api/proxy/certificate/${data.id}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-sm shadow hover:bg-blue-600 transition-colors font-semibold text-sm"
+            className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm font-semibold"
             download
           >
-            <DocumentText size={20} className="mr-1" />
+            <DocumentText size={20} />
             Download Certificate
           </a>
           {data.state === "expired" && (
             <button
-              className="inline-flex items-center gap-2 px-4 py-2 bg-orange-600 text-white rounded-lg shadow hover:bg-orange-700 transition-colors font-semibold text-sm"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition text-sm font-semibold"
               onClick={() => setShowRenewForm(true)}
             >
-              <Refresh size={20} className="mr-1" />
+              <Refresh size={20} />
               Renew Membership
             </button>
           )}
         </div>
       </div>
-      {/* Renew Membership Dialog */}
+
       <Dialog open={showRenewForm} onOpenChange={setShowRenewForm}>
         <DialogContent className="max-w-2xl">
           <MembershipApplicationForm
@@ -277,169 +304,116 @@ export default function MembershipApplication({
           />
         </DialogContent>
       </Dialog>
-      {/* Main Content */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 px-8 py-8">
+
+      {/* Main Grid */}
+      <div className="grid md:grid-cols-2 gap-8 px-6 py-8">
         {/* Company Info */}
-        <div className="space-y-4">
-          <div className="flex items-center gap-2 text-blue-800 font-semibold text-base mb-1">
-            <Home size={18} /> Company Info
+        <div>
+          <SectionHeader icon={<Home size={18} />} title="Company Info" />
+          <div className="text-sm text-gray-700 mb-1">
+            <ProfileCircle size={16} className="inline mr-1" /> {data.company_name}
           </div>
-          <div className="text-sm text-gray-700">
-            <ProfileCircle size={16} className="inline mr-1" />{" "}
-            {data.company_name}
-          </div>
-          <div className="text-sm text-gray-700">
+          <div className="text-sm text-gray-700 mb-1">
             <Sms size={16} className="inline mr-1" /> {data.company_email}
           </div>
-          <div className="text-sm text-gray-700">
-            <Call size={16} className="inline mr-1" />{" "}
-            {data.company_telephone_number}
+          <div className="text-sm text-gray-700 mb-1">
+            <Call size={16} className="inline mr-1" /> {data.company_telephone_number}
+          </div>
+          <div className="text-sm text-gray-700 mb-1">
+            <Location size={16} className="inline mr-1" /> {data.company_physical_address}
           </div>
           <div className="text-sm text-gray-700">
-            <Location size={16} className="inline mr-1" />{" "}
-            {data.company_physical_address}
-          </div>
-          <div className="text-sm text-gray-700">
-            <Note size={16} className="inline mr-1" />{" "}
-            {data.company_description}
+            <Note size={16} className="inline mr-1" /> {data.company_description}
           </div>
         </div>
-        {/* Membership Details */}
-        <div className="space-y-4">
-          <div className="flex items-center gap-2 text-blue-800 font-semibold text-base mb-1">
-            <Category size={18} /> Membership Details
+
+        {/* Membership */}
+        <div>
+          <SectionHeader icon={<Category size={18} />} title="Membership Details" />
+          <div className="text-sm text-gray-700">Category: <strong>{data.category_name}</strong></div>
+          <div className="text-sm text-gray-700">Subcategory: <strong>{data.subcategory_name}</strong></div>
+          <div className="text-sm text-gray-700">Region: <strong>{data.region_name}</strong></div>
+          <div className="text-sm text-gray-700">District: <strong>{data.district_name}</strong></div>
+          <div className="text-sm text-gray-700">Sector: <strong>{data.sector_name}</strong></div>
+        </div>
+
+        {/* Invoice + TIN */}
+        <div>
+          <SectionHeader icon={<Receipt size={18} />} title="Invoice & Payment" />
+          <div className="text-sm text-gray-700 mb-1">
+            Invoice Number:{" "}
+            {data.invoice_number ? (
+              <strong>{data.invoice_number}</strong>
+            ) : (
+              <span className="text-red-600">Not generated yet</span>
+            )}
           </div>
-          <div className="text-sm text-gray-700">
-            Category:{" "}
-            <span className="font-semibold">{data.category_name}</span>
+          <div className="text-sm text-blue-700 font-semibold mb-2">
+            Total Fee: {formatNumber(data.total_fee)} TZS
           </div>
-          <div className="text-sm text-gray-700">
-            Subcategory:{" "}
-            <span className="font-semibold">{data.subcategory_name}</span>
-          </div>
-          <div className="text-sm text-gray-700">
-            Region: <span className="font-semibold">{data.region_name}</span>
-          </div>
-          <div className="text-sm text-gray-700">
-            District:{" "}
-            <span className="font-semibold">{data.district_name}</span>
-          </div>
-          <div className="text-sm text-gray-700">
-            Sector: <span className="font-semibold">{data.sector_name}</span>
+          <div className="text-sm text-gray-600">
+            Use the invoice number to make payment via bank or mobile money.
           </div>
         </div>
-        <div className="flex flex-col items-start gap-1">
-          <div className="flex items-center gap-2 text-sm text-blue-700">
-            <Verify size={18} className="mr-1" /> TIN:{" "}
-            <span className="font-semibold">{data.company_tin}</span>
+
+        {/* Dates */}
+        <div>
+          <SectionHeader icon={<Calendar size={18} />} title="Dates & TIN" />
+          <div className="text-sm text-gray-700 mb-1">
+            Applied: {formatDate(data.application_date)}
           </div>
-          <div className="flex items-center gap-2 text-xs text-gray-500">
-            <Calendar size={16} /> Applied:{" "}
-            {new Date(data.application_date).toLocaleDateString()}
-          </div>
-        </div>
-        {/* Fees */}
-        <div className="space-y-4">
-          <div className="flex items-center gap-2 text-blue-800 font-semibold text-base mb-1">
-            <Money size={18} /> Fees
-          </div>
-          <div className="flex flex-wrap gap-3">
-            {/* <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1">
-              <Receipt size={14} /> Entry: {data.entry_fee}
-            </span> */}
-            {/* <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1">
-              <Receipt size={14} /> Annual: {formatNumber(data.annual_fee)}
-            </span> */}
-            {/* <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1">
-              <Receipt size={14} /> Certificate: {data.certificate_fee}
-            </span> */}
-            {/* <br /> */}
-            <div className="bg-blue-600 text-white px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1">
-              <Receipt size={14} /> Total: {formatNumber(data.total_fee)}
-            </div>
-          </div>
-        </div>
-        {/* Dates & Invoice */}
-        <div className="space-y-4">
-          <div className="flex items-center gap-2 text-blue-800 font-semibold text-base mb-1">
-            <Calendar size={18} /> Dates & Invoice
-          </div>
-          <div className="text-sm text-gray-700">
-            Application:{" "}
-            <span className="font-semibold">
-              {new Date(data.application_date).toLocaleString()}
-            </span>
-          </div>
-          <div className="text-sm text-gray-700">
-            Submission:{" "}
-            <span className="font-semibold">
-              {new Date(data.submission_date).toLocaleString()}
-            </span>
-          </div>
-          <div className="text-sm text-gray-700">
-            Invoice:{" "}
-            <span className="font-semibold">
-              {data.invoice_number ? data.invoice_number : "-"}
-            </span>
+          <div className="text-sm text-gray-700 mb-1">
+            Submission: {formatDate(data.submission_date)}
           </div>
           <div className="text-sm text-gray-700">
             TIN Verification:{" "}
-            {(() => {
-              const status = data.tin_verification_status || "";
-              const capitalized =
-                status.charAt(0).toUpperCase() + status.slice(1).toLowerCase();
-              const isVerified = status.trim().toLowerCase() === "verified";
-              return (
-                <span
-                  className={`font-semibold px-2 py-1 rounded-full text-xs ml-1 ${
-                    isVerified
-                      ? "bg-green-100 text-green-700"
-                      : "bg-gray-100 text-gray-700"
-                  }`}
-                >
-                  {capitalized}
-                </span>
-              );
-            })()}
+            <span
+              className={`ml-1 px-2 py-0.5 rounded-full text-xs font-semibold ${
+                data.tin_verification_status.toLowerCase() === "verified"
+                  ? "bg-green-100 text-green-700"
+                  : "bg-gray-100 text-gray-600"
+              }`}
+            >
+              {data.tin_verification_status}
+            </span>
           </div>
         </div>
       </div>
+
       {/* Directors & Contacts */}
-      <div className="px-8 pb-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+      <div className="px-6 pb-8">
+        <div className="grid md:grid-cols-2 gap-6">
           <div>
-            <div className="flex items-center gap-2 text-blue-800 font-semibold text-base mb-2">
-              <Profile2User size={18} /> Directors
-            </div>
-            <ul className="divide-y divide-blue-50 bg-blue-50 rounded-lg">
-              {data.directors.map((d) => (
-                <li
-                  key={d.id}
-                  className="py-2 px-3 flex flex-col md:flex-row md:items-center gap-1 md:gap-3"
-                >
-                  <span className="font-semibold text-blue-900">{d.name}</span>
-                  <span className="text-xs text-gray-500">{d.phone}</span>
-                  <span className="text-xs text-gray-500">{d.email}</span>
-                </li>
-              ))}
-            </ul>
+            <SectionHeader icon={<Profile2User size={18} />} title="Directors" />
+            {data.directors.length > 0 ? (
+              <ul className="bg-blue-50 rounded-lg divide-y divide-blue-100">
+                {data.directors.map((d) => (
+                  <li key={d.id} className="py-2 px-3 space-y-1">
+                    <div className="text-blue-900 font-semibold">{d.name}</div>
+                    <div className="text-xs text-gray-500">{d.phone}</div>
+                    <div className="text-xs text-gray-500">{d.email}</div>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-sm text-gray-500 italic">No directors listed.</p>
+            )}
           </div>
           <div>
-            <div className="flex items-center gap-2 text-blue-800 font-semibold text-base mb-2">
-              <Profile2User size={18} /> Contacts
-            </div>
-            <ul className="divide-y divide-blue-50 bg-blue-50 rounded-lg">
-              {data.contacts.map((c) => (
-                <li
-                  key={c.id}
-                  className="py-2 px-3 flex flex-col md:flex-row md:items-center gap-1 md:gap-3"
-                >
-                  <span className="font-semibold text-blue-900">{c.name}</span>
-                  <span className="text-xs text-gray-500">{c.phone}</span>
-                  <span className="text-xs text-gray-500">{c.email}</span>
-                </li>
-              ))}
-            </ul>
+            <SectionHeader icon={<Message size={18} />} title="Contacts" />
+            {data.contacts.length > 0 ? (
+              <ul className="bg-blue-50 rounded-lg divide-y divide-blue-100">
+                {data.contacts.map((c) => (
+                  <li key={c.id} className="py-2 px-3 space-y-1">
+                    <div className="text-blue-900 font-semibold">{c.name}</div>
+                    <div className="text-xs text-gray-500">{c.phone}</div>
+                    <div className="text-xs text-gray-500">{c.email}</div>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-sm text-gray-500 italic">No contacts listed.</p>
+            )}
           </div>
         </div>
       </div>
