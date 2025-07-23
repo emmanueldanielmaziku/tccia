@@ -273,7 +273,7 @@ export default function MembershipApplication({
           </div>
         </div>
 
-        <div className="flex flex-wrap justify-start md:justify-end gap-2">
+        <div className="flex flex-wrap justify-start md:justify-end gap-2 cursor-pointer">
             <button
             onClick={async () => {
               setDownloading(true);
@@ -294,7 +294,7 @@ export default function MembershipApplication({
               }
               setDownloading(false);
             }}
-            className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg transition text-sm font-semibold ${
+            className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg transition text-sm font-semibold cursor-pointer ${
               downloading
               ? "bg-blue-300 text-white cursor-not-allowed"
               : "bg-blue-600 text-white hover:bg-blue-700"
