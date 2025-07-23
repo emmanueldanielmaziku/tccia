@@ -394,7 +394,7 @@ export default function MembershipApplication({
             )}
           </div>
           <div className="text-sm text-blue-700 font-semibold mb-2">
-            Total Fee: {formatNumber(data.total_fee)} TZS
+            Membership Fee: {formatNumber(data.total_fee)} TZS
           </div>
           <div className="text-sm text-gray-600">
             Use the invoice number to make payment via bank or mobile money.
