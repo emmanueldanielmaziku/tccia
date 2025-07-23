@@ -77,6 +77,7 @@ export default function MembershipApplication({
   const [data, setData] = useState<ApplicationData | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [showRenewForm, setShowRenewForm] = useState(false);
+  const [downloading, setDownloading] = useState(false);
 
   useEffect(() => {
     if (!tin) return;
@@ -273,16 +274,60 @@ export default function MembershipApplication({
         </div>
 
         <div className="flex flex-wrap justify-start md:justify-end gap-2">
-          <a
-            href={`/api/proxy/certificate/${data.id}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm font-semibold"
-            download
-          >
-            <DocumentText size={20} />
-            Download Certificate
-          </a>
+            <button
+            onClick={async () => {
+              setDownloading(true);
+              try {
+              const res = await fetch(`/api/proxy/certificate/${data.id}`);
+              if (!res.ok) throw new Error("Failed to download");
+              const blob = await res.blob();
+              const url = window.URL.createObjectURL(blob);
+              const a = document.createElement("a");
+              a.href = url;
+              a.download = `certificate_${data.id}.pdf`;
+              document.body.appendChild(a);
+              a.click();
+              a.remove();
+              window.URL.revokeObjectURL(url);
+              } catch {
+              alert("Failed to download certificate.");
+              }
+              setDownloading(false);
+            }}
+            className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg transition text-sm font-semibold ${
+              downloading
+              ? "bg-blue-300 text-white cursor-not-allowed"
+              : "bg-blue-600 text-white hover:bg-blue-700"
+            }`}
+            disabled={downloading}
+            >
+            {downloading ? (
+              <>
+              <svg className="animate-spin h-5 w-5 text-white" viewBox="0 0 24 24">
+                <circle
+                className="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                strokeWidth="4"
+                fill="none"
+                />
+                <path
+                className="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                />
+              </svg>
+              Downloading...
+              </>
+            ) : (
+              <>
+              <DocumentText size={20} />
+              Download Certificate
+              </>
+            )}
+            </button>
           {data.state === "expired" && (
             <button
               className="inline-flex items-center gap-2 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition text-sm font-semibold"
