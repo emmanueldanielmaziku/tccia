@@ -115,7 +115,13 @@ export default function Membership() {
             </div>
             {/* Main Content */}
             {showForm ? (
-              <MembershipForm onSuccess={() => setShowForm(false)} />
+              <MembershipForm
+                onSuccess={() => {
+                  setShowForm(false);
+                  setRefreshKey((k) => k + 1);
+                }}
+                // Always refresh MembershipApplication after any successful submit (apply or renew)
+              />
             ) : (
               <div className="w-full mt-8">
                 {selectedTin && (

@@ -291,18 +291,73 @@ export default function MembershipApplicationForm({
         body: JSON.stringify(requestBody),
       });
 
-      const data = await res.json();
+      let data: any = null;
+      let fetchError = false;
+      try {
+        data = await res.json();
+      } catch (e) {
+        fetchError = true;
+      }
 
-      if (data?.result?.success) {
-        setSuccessMsg(
-          `Application #${data.result.data.application_number} submitted! State: ${data.result.data.state}`
-        );
+      // Log the full response for debugging
+      console.log("API response received:", data);
+
+      // Defensive: If HTTP error, show error
+      if (!res.ok || fetchError) {
+        setErrorMsg("Server error. Please try again later.");
+        if (data) console.error("API error response:", data);
+        return;
+      }
+
+      // Support both { result: { success, ... } } and { result: { result: { success, ... } } } and { result: { ... } }
+      let success = false;
+      let resultData = null;
+      let message = "";
+      if (data?.result?.success !== undefined) {
+        // Standard or flat result
+        success = data.result.success;
+        resultData = data.result.data || null;
+        message = data.result.message;
+      } else if (data?.result?.result?.success !== undefined) {
+        // Nested result
+        success = data.result.result.success;
+        resultData = data.result.result.data || null;
+        message = data.result.result.message;
+      } else if (data?.result) {
+        // Fallback: if result exists, but no success field, try to use message
+        message = data.result.message || "";
+      }
+
+      // Always treat success === true as success, even if data is missing
+      if (success === true) {
+        let appNum = "-";
+        let state = "-";
+        if (resultData) {
+          appNum = resultData.application_number || resultData.renewal_application_id || "-";
+          state = resultData.state || "-";
+        }
+        let msg = "";
+        if (resultData) {
+          if (action === "renew") {
+            msg = `🎉 <span class='font-bold text-green-700'>Membership Renewal Submitted!</span><br />Your renewal application <span class='font-semibold text-blue-700'>#${appNum}</span> was received and is now <span class='uppercase font-semibold text-blue-700'>${state.replace(/_/g, " ")}</span>.<br />You will be notified once it is processed.`;
+          } else {
+            msg = `🎉 <span class='font-bold text-green-700'>Membership Application Submitted!</span><br />Your application <span class='font-semibold text-blue-700'>#${appNum}</span> was received and is now <span class='uppercase font-semibold text-blue-700'>${state.replace(/_/g, " ")}</span>.<br />You will be notified once it is processed.`;
+          }
+        } else {
+          // No data, fallback to backend message
+          msg = message || (action === "renew"
+            ? "Membership renewal application submitted successfully."
+            : "Membership application submitted successfully.");
+        }
+        setSuccessMsg(msg);
         setShowPreview(false);
         setSubmitted(true);
-        // Optionally reset form fields here
-      } else {
-        setErrorMsg(data?.result?.message || "Submission failed.");
+        return;
       }
+
+      // If not success, show error (always show backend message if present)
+      setErrorMsg(message || data?.result?.message || "Submission failed.");
+      if (data) console.error("API error response:", data);
     } catch (err: any) {
       setErrorMsg(err?.message || "Submission failed.");
     } finally {
@@ -316,6 +371,27 @@ export default function MembershipApplicationForm({
       <span>{children}</span>
     </div>
   );
+
+  
+  const resetForm = () => {
+    setRegionId("");
+    setDistrictId("");
+    setSectorId("");
+    setCategoryId("");
+    setSubcategoryId("");
+    setDirectors([{ name: "", phone: "", email: "" }]);
+    setContacts([{ name: "", phone: "", email: "" }]);
+    setTouchedDirectors([{ name: false, phone: false, email: false }]);
+    setTouchedContacts([{ name: false, phone: false, email: false }]);
+    setFieldErrors({});
+    setForceShowErrors(false);
+    setShowPreview(false);
+    setShowNotebook(false);
+    setSubmitted(false);
+    setLoading(false);
+    setErrorMsg(null);
+    setSuccessMsg(null);
+  };
 
   return (
     <div className="flex flex-col w-full h-full bg-white">
@@ -986,26 +1062,22 @@ export default function MembershipApplicationForm({
         open={!!successMsg}
         onOpenChange={(open) => {
           if (!open) {
-            setSuccessMsg(null);
-            setSubmitted(false);
+            resetForm();
             if (onSuccess) onSuccess();
           }
         }}
       >
-        <DialogContent className="max-w-md">
-          <div className="flex flex-col items-center justify-center py-6">
-            <CheckCircle size={64} className="text-green-600 mb-4" />
-            <DialogTitle className="text-green-700 text-2xl font-bold mb-2 text-center">
-              Application Submitted!
-            </DialogTitle>
-            <DialogDescription className="text-center text-base text-gray-700 mb-2">
-              {successMsg}
-            </DialogDescription>
+        <DialogContent className="max-w-lg">
+          <div className="flex flex-col items-center justify-center py-8">
+            <CheckCircle size={72} className="text-green-600 mb-4 animate-bounce" />
+            <div className="text-center text-lg font-semibold text-green-700 mb-2">
+              {action === "renew" ? "Membership Renewal Submitted!" : "Membership Application Submitted!"}
+            </div>
+            <div className="text-center text-base text-gray-700 mb-4" dangerouslySetInnerHTML={{ __html: successMsg || "" }} />
             <Button
-              className="mt-4 px-8 py-2 rounded-lg bg-green-600 hover:bg-green-700 text-white font-semibold text-base"
+              className="mt-2 px-8 py-2 rounded-lg bg-green-600 hover:bg-green-700 text-white font-semibold text-base"
               onClick={() => {
-                setSuccessMsg(null);
-                setSubmitted(false);
+                resetForm();
                 if (onSuccess) onSuccess();
               }}
             >

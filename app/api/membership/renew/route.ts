@@ -19,18 +19,21 @@ export async function POST(req: NextRequest) {
       body: JSON.stringify(body),
     });
 
-    const data = await remoteRes.json();
-         console.log("Sent body:", body);
-
-         console.log("Renew response:", data);
-    if (!remoteRes.ok) {
+    let data = null;
+    try {
+      data = await remoteRes.json();
+    } catch (e) {
+      // If remote did not return JSON, treat as error
       return NextResponse.json(
-        { error: data?.message || "Failed to renew membership" },
-        { status: remoteRes.status }
+        { error: "Invalid response from remote server" },
+        { status: 502 }
       );
     }
+    console.log("Sent body:", body);
+    console.log("Renew response:", data);
 
-    return NextResponse.json({ result: data });
+    // Always return { result: data } so frontend can check result.success
+    return NextResponse.json({ result: data.result }, { status: remoteRes.status });
   } catch (error) {
     console.error("Renew API error:", error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
