@@ -68,10 +68,12 @@ export default function MembershipApplicationForm({
   onSuccess,
   submitLabel,
   action = "apply",
+  membershipId,
 }: {
   onSuccess?: () => void;
   submitLabel?: string;
   action?: "apply" | "renew";
+  membershipId?: number;
 }) {
   // Dropdown data
   const [regions, setRegions] = useState<Region[]>([]);
@@ -249,35 +251,44 @@ export default function MembershipApplicationForm({
     setSuccessMsg(null);
 
     try {
-      // Get company_tin from localStorage
+      // Get company_tin from localStorage (only for apply)
       let company_tin = "";
-      try {
-        const stored = localStorage.getItem("selectedCompany");
-        if (stored) {
-          const parsed = JSON.parse(stored);
-          company_tin = parsed.company_tin || "";
+      if (action === "apply") {
+        try {
+          const stored = localStorage.getItem("selectedCompany");
+          if (stored) {
+            const parsed = JSON.parse(stored);
+            company_tin = parsed.company_tin || "";
+          }
+        } catch {}
+        if (!company_tin) {
+          setErrorMsg("No company selected. Please select a company first.");
+          setLoading(false);
+          return;
         }
-      } catch {}
+      }
 
-      if (!company_tin) {
-        setErrorMsg("No company selected. Please select a company first.");
-        setLoading(false);
-        return;
+      // Build request body
+      const requestBody: any = {
+        category_id: Number(categoryId),
+        subcategory_id: Number(subcategoryId),
+        region_id: Number(regionId),
+        district_id: Number(districtId),
+        sector_id: Number(sectorId),
+        directors,
+        contacts,
+      };
+      if (action === "apply") {
+        requestBody.company_tin = company_tin;
+      }
+      if (action === "renew" && membershipId) {
+        requestBody.membership_id = membershipId;
       }
 
       const res = await fetch(`/api/membership/${action}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          company_tin,
-          category_id: Number(categoryId),
-          subcategory_id: Number(subcategoryId),
-          region_id: Number(regionId),
-          district_id: Number(districtId),
-          sector_id: Number(sectorId),
-          directors,
-          contacts,
-        }),
+        body: JSON.stringify(requestBody),
       });
 
       const data = await res.json();

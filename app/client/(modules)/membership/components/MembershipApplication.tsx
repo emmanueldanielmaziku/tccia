@@ -132,7 +132,7 @@ export default function MembershipApplication({
     waiting_payment: "bg-orange-100 text-orange-700",
     paid: "bg-green-200 text-green-800",
     rejected: "bg-red-100 text-red-700",
-    expired: "bg-gray-300 text-gray-600",
+    expired: "bg-red-100 text-red-700",
   };
 
   const SectionHeader = ({
@@ -277,60 +277,64 @@ export default function MembershipApplication({
         </div>
 
         <div className="flex flex-wrap justify-start md:justify-end gap-2 cursor-pointer">
-            <button
+          <button
             onClick={async () => {
+              if (data.state !== "paid") return;
               setDownloading(true);
               try {
-              const res = await fetch(`/api/proxy/certificate/${data.id}`);
-              if (!res.ok) throw new Error("Failed to download");
-              const blob = await res.blob();
-              const url = window.URL.createObjectURL(blob);
-              const a = document.createElement("a");
-              a.href = url;
-              a.download = `certificate_${data.id}.pdf`;
-              document.body.appendChild(a);
-              a.click();
-              a.remove();
-              window.URL.revokeObjectURL(url);
+                const res = await fetch(`/api/proxy/certificate/${data.id}`);
+                if (!res.ok) throw new Error("Failed to download");
+                const blob = await res.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = `certificate_${data.id}.pdf`;
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                window.URL.revokeObjectURL(url);
               } catch {
-              alert("Failed to download certificate.");
+                alert("Failed to download certificate.");
               }
               setDownloading(false);
             }}
             className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg transition text-sm font-semibold cursor-pointer ${
-              downloading
-              ? "bg-blue-300 text-white cursor-not-allowed"
-              : "bg-blue-600 text-white hover:bg-blue-700"
+              data.state === "paid"
+                ? downloading
+                  ? "bg-blue-300 text-white cursor-not-allowed"
+                  : "bg-blue-600 text-white hover:bg-blue-700"
+                : "bg-gray-300 text-gray-500 cursor-not-allowed"
             }`}
-            disabled={downloading}
-            >
+            disabled={downloading || data.state !== "paid"}
+            title={data.state !== "paid" ? "Certificate is only available after payment." : downloading ? "Downloading..." : "Download Certificate"}
+          >
             {downloading ? (
               <>
-              <svg className="animate-spin h-5 w-5 text-white" viewBox="0 0 24 24">
-                <circle
-                className="opacity-25"
-                cx="12"
-                cy="12"
-                r="10"
-                stroke="currentColor"
-                strokeWidth="4"
-                fill="none"
-                />
-                <path
-                className="opacity-75"
-                fill="currentColor"
-                d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
-                />
-              </svg>
-              Downloading...
+                <svg className="animate-spin h-5 w-5 text-white" viewBox="0 0 24 24">
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                    fill="none"
+                  />
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                  />
+                </svg>
+                Downloading...
               </>
             ) : (
               <>
-              <DocumentText size={20} />
-              Download Certificate
+                <DocumentText size={20} />
+                Download Certificate
               </>
             )}
-            </button>
+          </button>
           {data.state === "expired" && (
             <button
               className="inline-flex items-center gap-2 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition text-sm font-semibold"
@@ -343,15 +347,34 @@ export default function MembershipApplication({
         </div>
       </div>
 
-      <Dialog open={showRenewForm} onOpenChange={setShowRenewForm}>
-        <DialogContent className="max-w-2xl">
-          <MembershipApplicationForm
-            onSuccess={() => setShowRenewForm(false)}
-            submitLabel="Renew Membership"
-            action="renew"
+      {showRenewForm && data && (
+        <>
+          {/* Blurred overlay */}
+          <div
+            className="fixed inset-0 z-40 bg-black/30 backdrop-blur-sm transition-all duration-300"
+            onClick={() => setShowRenewForm(false)}
+            aria-label="Close renewal form"
           />
-        </DialogContent>
-      </Dialog>
+          {/* Renewal form container */}
+          <div className="fixed inset-0 z-50 flex items-center justify-center">
+            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-3xl mx-auto p-8 relative">
+              <button
+                className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 text-xl font-bold"
+                onClick={() => setShowRenewForm(false)}
+                aria-label="Close"
+              >
+                &times;
+              </button>
+              <MembershipApplicationForm
+                onSuccess={() => setShowRenewForm(false)}
+                submitLabel="Renew Membership"
+                action="renew"
+                membershipId={data.id}
+              />
+            </div>
+          </div>
+        </>
+      )}
 
       {/* Main Grid */}
       <div className="grid md:grid-cols-2 gap-8 px-6 py-8">
