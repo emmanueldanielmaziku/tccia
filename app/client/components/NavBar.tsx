@@ -198,11 +198,6 @@ export default function NavBar({ title }: NavBarProps) {
                 <span>{userProfile?.role || tn("exporterManager")}</span>
                 <ShieldTick size="14" color="#FF8A65" variant="Bold" />
               </div>
-              {userProfile?.company && (
-                <div className="text-gray-500 text-xs mt-1">
-                  {userProfile.company}
-                </div>
-              )}
             </div>
             <DropdownMenuItem onClick={() => refreshUserProfile()}>
               Refresh Profile
