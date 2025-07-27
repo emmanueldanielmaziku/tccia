@@ -45,6 +45,16 @@ interface District {
 interface Sector {
   id: number;
   name: string;
+  description?: string;
+  active?: boolean;
+  subsector_count?: number;
+  subsectors: Subsector[];
+}
+
+interface Subsector {
+  id: number;
+  name: string;
+  description?: string;
 }
 
 interface Category {
@@ -56,6 +66,10 @@ interface Category {
 interface Subcategory {
   id: number;
   name: string;
+  services?: { id: number; name: string; description?: string }[];
+  annual_fee?: number;
+  certificate_fee?: number;
+  total_fees?: number;
 }
 
 interface Person {
@@ -69,11 +83,13 @@ export default function MembershipApplicationForm({
   submitLabel,
   action = "apply",
   membershipId,
+  existingData,
 }: {
   onSuccess?: () => void;
   submitLabel?: string;
   action?: "apply" | "renew";
   membershipId?: number;
+  existingData?: any;
 }) {
   // Dropdown data
   const [regions, setRegions] = useState<Region[]>([]);
@@ -84,6 +100,7 @@ export default function MembershipApplicationForm({
   const [regionId, setRegionId] = useState<string>("");
   const [districtId, setDistrictId] = useState<string>("");
   const [sectorId, setSectorId] = useState<string>("");
+  const [subsectorId, setSubsectorId] = useState<string>("");
   const [categoryId, setCategoryId] = useState<string>("");
   const [subcategoryId, setSubcategoryId] = useState<string>("");
   const [directors, setDirectors] = useState<Person[]>([
@@ -125,11 +142,29 @@ export default function MembershipApplicationForm({
       .then((data) => setCategories(data?.data?.categories || []));
   }, []);
 
+  // Pre-populate form data when renewing with existing data
+  useEffect(() => {
+    if (action === "renew" && existingData) {
+      setCategoryId(existingData.category_id?.toString() || "");
+      setSubcategoryId(existingData.subcategory_id?.toString() || "");
+      setDirectors(existingData.directors || [{ name: "", phone: "", email: "" }]);
+      setContacts(existingData.contacts || [{ name: "", phone: "", email: "" }]);
+    }
+  }, [action, existingData]);
+
   // Filtered lists
   const selectedRegion = regions.find((r) => r.id === Number(regionId));
   const districts = selectedRegion?.districts || [];
+  const selectedSector = sectors.find((s) => s.id === Number(sectorId));
+  const subsectors = selectedSector?.subsectors || [];
   const selectedCategory = categories.find((c) => c.id === Number(categoryId));
   const subcategories = selectedCategory?.subcategories || [];
+
+  // Check if fields should be disabled (read-only) for renew action
+  const isRenewMode = action === "renew";
+
+  // Get selected subcategory and its services
+  const selectedSubcategory = subcategories.find((s) => s.id === Number(subcategoryId));
 
   // Handlers for dynamic fields
   const handleDirectorChange = (
@@ -194,9 +229,14 @@ export default function MembershipApplicationForm({
   const validateForm = () => {
     const errors: any = {};
 
-    if (!regionId) errors.regionId = "Region is required.";
-    if (!districtId) errors.districtId = "District is required.";
-    if (!sectorId) errors.sectorId = "Sector is required.";
+    // Only validate region, district, sector, subsector for new applications (not renew mode)
+    if (!isRenewMode) {
+      if (!regionId) errors.regionId = "Region is required.";
+      if (!districtId) errors.districtId = "District is required.";
+      if (!sectorId) errors.sectorId = "Sector is required.";
+      if (!subsectorId) errors.subsectorId = "Subsector is required.";
+    }
+
     if (!categoryId) errors.categoryId = "Category is required.";
     if (!subcategoryId) errors.subcategoryId = "Subcategory is required.";
 
@@ -272,12 +312,15 @@ export default function MembershipApplicationForm({
       const requestBody: any = {
         category_id: Number(categoryId),
         subcategory_id: Number(subcategoryId),
-        region_id: Number(regionId),
-        district_id: Number(districtId),
-        sector_id: Number(sectorId),
         directors,
         contacts,
       };
+      
+      // Add region, district, sector, and subsector IDs if they exist
+      if (regionId) requestBody.region_id = Number(regionId);
+      if (districtId) requestBody.district_id = Number(districtId);
+      if (sectorId) requestBody.sector_id = Number(sectorId);
+      if (subsectorId) requestBody.subsector_id = Number(subsectorId);
       if (action === "apply") {
         requestBody.company_tin = company_tin;
       }
@@ -374,9 +417,6 @@ export default function MembershipApplicationForm({
 
   
   const resetForm = () => {
-    setRegionId("");
-    setDistrictId("");
-    setSectorId("");
     setCategoryId("");
     setSubcategoryId("");
     setDirectors([{ name: "", phone: "", email: "" }]);
@@ -395,7 +435,7 @@ export default function MembershipApplicationForm({
 
   return (
     <div className="flex flex-col w-full h-full bg-white">
-      <form onSubmit={handlePreview} className="flex flex-col w-full pb-10">
+      <form onSubmit={handlePreview} className="flex flex-col w-full pb-8">
         <div className="flex flex-col gap-6 overflow-hidden overflow-y-auto h-[720px] pr-3">
           {/* Header */}
           {/* <div className="flex flex-row justify-between items-center border-b border-gray-200 pb-4">
@@ -423,86 +463,119 @@ export default function MembershipApplicationForm({
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="flex flex-col gap-2">
-                <label className="text-sm text-gray-600 font-medium">
-                  Region
-                </label>
-                <Select value={regionId} onValueChange={setRegionId}>
-                  <SelectTrigger
-                    className={`w-full px-3 py-2 text-sm bg-white border-gray-300 focus:border-blue-500 focus:ring-blue-500 ${
-                      fieldErrors.regionId ? "border-red-500" : ""
-                    }`}
-                  >
-                    <SelectValue placeholder="Select region" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {regions.map((r) => (
-                      <SelectItem key={r.id} value={String(r.id)}>
-                        {r.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                {fieldErrors.regionId && (
-                  <p className="text-red-500 text-xs">{fieldErrors.regionId}</p>
-                )}
-              </div>
+              {!isRenewMode && (
+                <>
+                  <div className="flex flex-col gap-2">
+                    <label className="text-sm text-gray-600 font-medium">
+                      Region
+                    </label>
+                    <Select value={regionId} onValueChange={setRegionId}>
+                      <SelectTrigger
+                        className={`w-full px-3 py-2 text-sm bg-white border-gray-300 focus:border-blue-500 focus:ring-blue-500 ${
+                          fieldErrors.regionId ? "border-red-500" : ""
+                        }`}
+                      >
+                        <SelectValue placeholder="Select region" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {regions.map((r) => (
+                          <SelectItem key={r.id} value={String(r.id)}>
+                            {r.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    {fieldErrors.regionId && (
+                      <p className="text-red-500 text-xs">{fieldErrors.regionId}</p>
+                    )}
+                  </div>
 
-              <div className="flex flex-col gap-2">
-                <label className="text-sm text-gray-600 font-medium">
-                  District
-                </label>
-                <Select
-                  value={districtId}
-                  onValueChange={setDistrictId}
-                  disabled={!regionId}
-                >
-                  <SelectTrigger
-                    className={`w-full px-3 py-2 text-sm bg-white border-gray-300 focus:border-blue-500 focus:ring-blue-500 ${
-                      fieldErrors.districtId ? "border-red-500" : ""
-                    }`}
-                  >
-                    <SelectValue placeholder="Select district" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {districts.map((d) => (
-                      <SelectItem key={d.id} value={String(d.id)}>
-                        {d.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                {fieldErrors.districtId && (
-                  <p className="text-red-500 text-xs">
-                    {fieldErrors.districtId}
-                  </p>
-                )}
-              </div>
+                  <div className="flex flex-col gap-2">
+                    <label className="text-sm text-gray-600 font-medium">
+                      District
+                    </label>
+                    <Select
+                      value={districtId}
+                      onValueChange={setDistrictId}
+                      disabled={!regionId}
+                    >
+                      <SelectTrigger
+                        className={`w-full px-3 py-2 text-sm bg-white border-gray-300 focus:border-blue-500 focus:ring-blue-500 ${
+                          fieldErrors.districtId ? "border-red-500" : ""
+                        }`}
+                      >
+                        <SelectValue placeholder="Select district" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {districts.map((d) => (
+                          <SelectItem key={d.id} value={String(d.id)}>
+                            {d.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    {fieldErrors.districtId && (
+                      <p className="text-red-500 text-xs">
+                        {fieldErrors.districtId}
+                      </p>
+                    )}
+                  </div>
 
-              <div className="flex flex-col gap-2">
-                <label className="text-sm text-gray-600 font-medium">
-                  Sector
-                </label>
-                <Select value={sectorId} onValueChange={setSectorId}>
-                  <SelectTrigger
-                    className={`w-full px-3 py-2 text-sm bg-white border-gray-300 focus:border-blue-500 focus:ring-blue-500 ${
-                      fieldErrors.sectorId ? "border-red-500" : ""
-                    }`}
-                  >
-                    <SelectValue placeholder="Select sector" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {sectors.map((s) => (
-                      <SelectItem key={s.id} value={String(s.id)}>
-                        {s.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                {fieldErrors.sectorId && (
-                  <p className="text-red-500 text-xs">{fieldErrors.sectorId}</p>
-                )}
-              </div>
+                  <div className="flex flex-col gap-2">
+                    <label className="text-sm text-gray-600 font-medium">
+                      Sector
+                    </label>
+                    <Select value={sectorId} onValueChange={setSectorId}>
+                      <SelectTrigger
+                        className={`w-full px-3 py-2 text-sm bg-white border-gray-300 focus:border-blue-500 focus:ring-blue-500 ${
+                          fieldErrors.sectorId ? "border-red-500" : ""
+                        }`}
+                      >
+                        <SelectValue placeholder="Select sector" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {sectors.map((s) => (
+                          <SelectItem key={s.id} value={String(s.id)}>
+                            {s.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    {fieldErrors.sectorId && (
+                      <p className="text-red-500 text-xs">{fieldErrors.sectorId}</p>
+                    )}
+                  </div>
+
+                  <div className="flex flex-col gap-2">
+                    <label className="text-sm text-gray-600 font-medium">
+                      Subsector
+                    </label>
+                    <Select
+                      value={subsectorId}
+                      onValueChange={setSubsectorId}
+                      disabled={!sectorId}
+                    >
+                      <SelectTrigger
+                        className={`w-full px-3 py-2 text-sm bg-white border-gray-300 focus:border-blue-500 focus:ring-blue-500 ${
+                          fieldErrors.subsectorId ? "border-red-500" : ""
+                        }`}
+                      >
+                        <SelectValue placeholder="Select subsector" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {subsectors.map((s) => (
+                          <SelectItem key={s.id} value={String(s.id)}>
+                            {s.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    {fieldErrors.subsectorId && (
+                      <p className="text-red-500 text-xs">{fieldErrors.subsectorId}</p>
+                    )}
+                  </div>
+                </>
+              )}
 
               <div className="flex flex-col gap-2">
                 <label className="text-sm text-gray-600 font-medium">
@@ -531,7 +604,7 @@ export default function MembershipApplicationForm({
                 )}
               </div>
 
-              <div className="flex flex-col gap-2 md:col-span-2">
+              <div className="flex flex-col gap-2">
                 <label className="text-sm text-gray-600 font-medium">
                   Subcategory
                 </label>
@@ -564,347 +637,431 @@ export default function MembershipApplicationForm({
             </div>
           </div>
 
-          {/* Directors Section */}
-          <div className="bg-gray-50 rounded-lg p-6 border border-gray-200">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
-                <Users size={20} className="text-blue-600" />
-                Directors
-              </h3>
-              <button
-                type="button"
-                onClick={addDirector}
-                className="flex items-center gap-2 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-[12px] font-medium rounded-sm transition-colors"
-              >
-                <Plus size={16} />
-                Add another director
-              </button>
-            </div>
-
-            {fieldErrors.directorsGeneral && (
-              <div className="flex items-center gap-2 bg-red-50 text-red-600 px-3 py-2 rounded-md font-medium text-sm mb-4">
-                <AlertCircle size={16} className="text-red-400" />
-                <span>{fieldErrors.directorsGeneral}</span>
+          {/* Services Information Widget - Only show in renew mode */}
+          {isRenewMode && selectedSubcategory && (
+            <div className="bg-blue-50 rounded-lg p-6 border border-blue-200">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                  <Book size={20} className="text-blue-600" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-blue-800">
+                    Services Information
+                  </h3>
+                  <p className="text-sm text-blue-600">
+                    Changing your category will update your available services
+                  </p>
+                </div>
               </div>
-            )}
+              
+              <div className="bg-white rounded-lg p-4 border border-blue-100">
+                <div className="flex items-center justify-between mb-3">
+                  <h4 className="font-semibold text-gray-800">
+                    Selected Category: {selectedCategory?.name}
+                  </h4>
+                  <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full">
+                    {selectedSubcategory?.name}
+                  </span>
+                </div>
+                
+                <div className="mb-3">
+                  <p className="text-sm text-gray-600 mb-2">
+                    <strong>Note:</strong> By changing your category and subcategory, you will gain access to new services and may lose access to some current services.
+                  </p>
+                </div>
 
-            <div className="space-y-4">
-              {directors.map((d, i) => (
-                <div
-                  key={i}
-                  className="bg-white rounded-lg p-4 border border-gray-200 relative"
+                {selectedSubcategory?.services && selectedSubcategory.services.length > 0 ? (
+                  <div>
+                    <h5 className="font-medium text-gray-700 mb-2">Available Services:</h5>
+                    <div className="space-y-2">
+                      {selectedSubcategory.services.map((service: any) => (
+                        <div key={service.id} className="flex items-start gap-2 p-2 bg-gray-50 rounded border">
+                          <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
+                          <div className="flex-1">
+                            <div className="font-medium text-sm text-gray-800">
+                              {service.name}
+                            </div>
+                            {service.description && (
+                              <div className="text-xs text-gray-600 mt-1">
+                                {service.description}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="text-sm text-gray-500 italic">
+                    No services available for this subcategory.
+                  </div>
+                )}
+
+                {selectedSubcategory?.annual_fee && (
+                  <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded">
+                    <div className="text-sm font-medium text-green-800 mb-1">
+                      Fee Information:
+                    </div>
+                    <div className="text-xs text-green-700 space-y-1">
+                      <div>Annual Fee: {selectedSubcategory.annual_fee} TZS</div>
+                      {selectedSubcategory.certificate_fee && (
+                        <div>Certificate Fee: {selectedSubcategory.certificate_fee} TZS</div>
+                      )}
+                      {selectedSubcategory.total_fees && (
+                        <div className="font-semibold">Total Fees: {selectedSubcategory.total_fees} TZS</div>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Directors Section - Hidden in renew mode */}
+          {!isRenewMode && (
+            <div className="bg-gray-50 rounded-lg p-6 border border-gray-200">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
+                  <Users size={20} className="text-blue-600" />
+                  Directors
+                </h3>
+                <button
+                  type="button"
+                  onClick={addDirector}
+                  className="flex items-center gap-2 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-[12px] font-medium rounded-sm transition-colors"
                 >
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    {/* Name */}
-                    <div className="flex flex-col gap-1">
-                      <label className="text-sm text-gray-600 font-medium">
-                        Name
-                      </label>
-                      <Input
-                        placeholder="Enter full name"
-                        value={d.name}
-                        onChange={(e) =>
-                          handleDirectorChange(i, "name", e.target.value)
-                        }
-                        onBlur={() =>
-                          setTouchedDirectors((prev) => {
-                            const arr = [...prev];
-                            if (!arr[i])
-                              arr[i] = {
-                                name: false,
-                                phone: false,
-                                email: false,
-                              };
-                            arr[i].name = true;
-                            return arr;
-                          })
-                        }
-                        className={`text-sm ${
-                          fieldErrors.directors &&
+                  <Plus size={16} />
+                  Add another director
+                </button>
+              </div>
+
+              {fieldErrors.directorsGeneral && (
+                <div className="flex items-center gap-2 bg-red-50 text-red-600 px-3 py-2 rounded-md font-medium text-sm mb-4">
+                  <AlertCircle size={16} className="text-red-400" />
+                  <span>{fieldErrors.directorsGeneral}</span>
+                </div>
+              )}
+
+              <div className="space-y-4">
+                {directors.map((d, i) => (
+                  <div
+                    key={i}
+                    className="bg-white rounded-lg p-4 border border-gray-200 relative"
+                  >
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      {/* Name */}
+                      <div className="flex flex-col gap-1">
+                        <label className="text-sm text-gray-600 font-medium">
+                          Name
+                        </label>
+                        <Input
+                          placeholder="Enter full name"
+                          value={d.name}
+                          onChange={(e) =>
+                            handleDirectorChange(i, "name", e.target.value)
+                          }
+                          onBlur={() =>
+                            setTouchedDirectors((prev) => {
+                              const arr = [...prev];
+                              if (!arr[i])
+                                arr[i] = {
+                                  name: false,
+                                  phone: false,
+                                  email: false,
+                                };
+                              arr[i].name = true;
+                              return arr;
+                            })
+                          }
+                          className={`text-sm ${
+                            fieldErrors.directors &&
+                            fieldErrors.directors[i]?.name &&
+                            (touchedDirectors[i]?.name || forceShowErrors)
+                              ? "border-red-500 bg-red-50"
+                              : ""
+                          }`}
+                        />
+                        {fieldErrors.directors &&
                           fieldErrors.directors[i]?.name &&
-                          (touchedDirectors[i]?.name || forceShowErrors)
-                            ? "border-red-500 bg-red-50"
-                            : ""
-                        }`}
-                      />
-                      {fieldErrors.directors &&
-                        fieldErrors.directors[i]?.name &&
-                        (touchedDirectors[i]?.name || forceShowErrors) && (
-                          <p className="text-red-500 text-xs">
-                            {fieldErrors.directors[i].name}
-                          </p>
-                        )}
-                    </div>
+                          (touchedDirectors[i]?.name || forceShowErrors) && (
+                            <p className="text-red-500 text-xs">
+                              {fieldErrors.directors[i].name}
+                            </p>
+                          )}
+                      </div>
 
-                    {/* Phone */}
-                    <div className="flex flex-col gap-1">
-                      <label className="text-sm text-gray-600 font-medium">
-                        Phone
-                      </label>
-                      <Input
-                        placeholder="Enter phone number"
-                        value={d.phone}
-                        onChange={(e) =>
-                          handleDirectorChange(i, "phone", e.target.value)
-                        }
-                        onBlur={() =>
-                          setTouchedDirectors((prev) => {
-                            const arr = [...prev];
-                            if (!arr[i])
-                              arr[i] = {
-                                name: false,
-                                phone: false,
-                                email: false,
-                              };
-                            arr[i].phone = true;
-                            return arr;
-                          })
-                        }
-                        className={`text-sm ${
-                          fieldErrors.directors &&
+                      {/* Phone */}
+                      <div className="flex flex-col gap-1">
+                        <label className="text-sm text-gray-600 font-medium">
+                          Phone
+                        </label>
+                        <Input
+                          placeholder="Enter phone number"
+                          value={d.phone}
+                          onChange={(e) =>
+                            handleDirectorChange(i, "phone", e.target.value)
+                          }
+                          onBlur={() =>
+                            setTouchedDirectors((prev) => {
+                              const arr = [...prev];
+                              if (!arr[i])
+                                arr[i] = {
+                                  name: false,
+                                  phone: false,
+                                  email: false,
+                                };
+                              arr[i].phone = true;
+                              return arr;
+                            })
+                          }
+                          className={`text-sm ${
+                            fieldErrors.directors &&
+                            fieldErrors.directors[i]?.phone &&
+                            (touchedDirectors[i]?.phone || forceShowErrors)
+                              ? "border-red-500 bg-red-50"
+                              : ""
+                          }`}
+                        />
+                        {fieldErrors.directors &&
                           fieldErrors.directors[i]?.phone &&
-                          (touchedDirectors[i]?.phone || forceShowErrors)
-                            ? "border-red-500 bg-red-50"
-                            : ""
-                        }`}
-                      />
-                      {fieldErrors.directors &&
-                        fieldErrors.directors[i]?.phone &&
-                        (touchedDirectors[i]?.phone || forceShowErrors) && (
-                          <p className="text-red-500 text-xs">
-                            {fieldErrors.directors[i].phone}
-                          </p>
-                        )}
-                    </div>
+                          (touchedDirectors[i]?.phone || forceShowErrors) && (
+                            <p className="text-red-500 text-xs">
+                              {fieldErrors.directors[i].phone}
+                            </p>
+                          )}
+                      </div>
 
-                    {/* Email */}
-                    <div className="flex flex-col gap-1">
-                      <label className="text-sm text-gray-600 font-medium">
-                        Email
-                      </label>
-                      <Input
-                        placeholder="Enter email address"
-                        value={d.email}
-                        onChange={(e) =>
-                          handleDirectorChange(i, "email", e.target.value)
-                        }
-                        onBlur={() =>
-                          setTouchedDirectors((prev) => {
-                            const arr = [...prev];
-                            if (!arr[i])
-                              arr[i] = {
-                                name: false,
-                                phone: false,
-                                email: false,
-                              };
-                            arr[i].email = true;
-                            return arr;
-                          })
-                        }
-                        className={`text-sm ${
-                          fieldErrors.directors &&
+                      {/* Email */}
+                      <div className="flex flex-col gap-1">
+                        <label className="text-sm text-gray-600 font-medium">
+                          Email
+                        </label>
+                        <Input
+                          placeholder="Enter email address"
+                          value={d.email}
+                          onChange={(e) =>
+                            handleDirectorChange(i, "email", e.target.value)
+                          }
+                          onBlur={() =>
+                            setTouchedDirectors((prev) => {
+                              const arr = [...prev];
+                              if (!arr[i])
+                                arr[i] = {
+                                  name: false,
+                                  phone: false,
+                                  email: false,
+                                };
+                              arr[i].email = true;
+                              return arr;
+                            })
+                          }
+                          className={`text-sm ${
+                            fieldErrors.directors &&
+                            fieldErrors.directors[i]?.email &&
+                            (touchedDirectors[i]?.email || forceShowErrors)
+                              ? "border-red-500 bg-red-50"
+                              : ""
+                          }`}
+                        />
+                        {fieldErrors.directors &&
                           fieldErrors.directors[i]?.email &&
-                          (touchedDirectors[i]?.email || forceShowErrors)
-                            ? "border-red-500 bg-red-50"
-                            : ""
-                        }`}
-                      />
-                      {fieldErrors.directors &&
-                        fieldErrors.directors[i]?.email &&
-                        (touchedDirectors[i]?.email || forceShowErrors) && (
-                          <p className="text-red-500 text-xs">
-                            {fieldErrors.directors[i].email}
-                          </p>
-                        )}
+                          (touchedDirectors[i]?.email || forceShowErrors) && (
+                            <p className="text-red-500 text-xs">
+                              {fieldErrors.directors[i].email}
+                            </p>
+                          )}
+                      </div>
                     </div>
+
+                    {/* Delete button */}
+                    {directors.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => removeDirector(i)}
+                        className="absolute top-2 right-2 p-1.5 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-md transition-colors"
+                        aria-label="Remove director"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    )}
                   </div>
-
-                  {/* Delete button */}
-                  {directors.length > 1 && (
-                    <button
-                      type="button"
-                      onClick={() => removeDirector(i)}
-                      className="absolute top-2 right-2 p-1.5 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-md transition-colors"
-                      aria-label="Remove director"
-                    >
-                      <Trash2 size={16} />
-                    </button>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Contacts Section */}
-          <div className="bg-gray-50 rounded-lg p-6 border border-gray-200">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
-                <User size={20} className="text-blue-600" />
-                Contacts
-              </h3>
-              <button
-                type="button"
-                onClick={addContact}
-                className="flex items-center gap-2 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-[12px] font-medium rounded-sm transition-colors"
-              >
-                <Plus size={16} />
-                Add another contact
-              </button>
-            </div>
-
-            {fieldErrors.contactsGeneral && (
-              <div className="flex items-center gap-2 bg-red-50 text-red-600 px-3 py-2 rounded-md font-medium text-sm mb-4">
-                <AlertCircle size={16} className="text-red-400" />
-                <span>{fieldErrors.contactsGeneral}</span>
+                ))}
               </div>
-            )}
-
-            <div className="space-y-4">
-              {contacts.map((c, i) => (
-                <div
-                  key={i}
-                  className="bg-white rounded-lg p-4 border border-gray-200 relative"
-                >
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    {/* Name */}
-                    <div className="flex flex-col gap-1">
-                      <label className="text-sm text-gray-600 font-medium">
-                        Name
-                      </label>
-                      <Input
-                        placeholder="Enter full name"
-                        value={c.name}
-                        onChange={(e) =>
-                          handleContactChange(i, "name", e.target.value)
-                        }
-                        onBlur={() =>
-                          setTouchedContacts((prev) => {
-                            const arr = [...prev];
-                            if (!arr[i])
-                              arr[i] = {
-                                name: false,
-                                phone: false,
-                                email: false,
-                              };
-                            arr[i].name = true;
-                            return arr;
-                          })
-                        }
-                        className={`text-sm ${
-                          fieldErrors.contacts &&
-                          fieldErrors.contacts[i]?.name &&
-                          (touchedContacts[i]?.name || forceShowErrors)
-                            ? "border-red-500 bg-red-50"
-                            : ""
-                        }`}
-                      />
-                      {fieldErrors.contacts &&
-                        fieldErrors.contacts[i]?.name &&
-                        (touchedContacts[i]?.name || forceShowErrors) && (
-                          <p className="text-red-500 text-xs">
-                            {fieldErrors.contacts[i].name}
-                          </p>
-                        )}
-                    </div>
-
-                    {/* Phone */}
-                    <div className="flex flex-col gap-1">
-                      <label className="text-sm text-gray-600 font-medium">
-                        Phone
-                      </label>
-                      <Input
-                        placeholder="Enter phone number"
-                        value={c.phone}
-                        onChange={(e) =>
-                          handleContactChange(i, "phone", e.target.value)
-                        }
-                        onBlur={() =>
-                          setTouchedContacts((prev) => {
-                            const arr = [...prev];
-                            if (!arr[i])
-                              arr[i] = {
-                                name: false,
-                                phone: false,
-                                email: false,
-                              };
-                            arr[i].phone = true;
-                            return arr;
-                          })
-                        }
-                        className={`text-sm ${
-                          fieldErrors.contacts &&
-                          fieldErrors.contacts[i]?.phone &&
-                          (touchedContacts[i]?.phone || forceShowErrors)
-                            ? "border-red-500 bg-red-50"
-                            : ""
-                        }`}
-                      />
-                      {fieldErrors.contacts &&
-                        fieldErrors.contacts[i]?.phone &&
-                        (touchedContacts[i]?.phone || forceShowErrors) && (
-                          <p className="text-red-500 text-xs">
-                            {fieldErrors.contacts[i].phone}
-                          </p>
-                        )}
-                    </div>
-
-                    {/* Email */}
-                    <div className="flex flex-col gap-1">
-                      <label className="text-sm text-gray-600 font-medium">
-                        Email
-                      </label>
-                      <Input
-                        placeholder="Enter email address"
-                        value={c.email}
-                        onChange={(e) =>
-                          handleContactChange(i, "email", e.target.value)
-                        }
-                        onBlur={() =>
-                          setTouchedContacts((prev) => {
-                            const arr = [...prev];
-                            if (!arr[i])
-                              arr[i] = {
-                                name: false,
-                                phone: false,
-                                email: false,
-                              };
-                            arr[i].email = true;
-                            return arr;
-                          })
-                        }
-                        className={`text-sm ${
-                          fieldErrors.contacts &&
-                          fieldErrors.contacts[i]?.email &&
-                          (touchedContacts[i]?.email || forceShowErrors)
-                            ? "border-red-500 bg-red-50"
-                            : ""
-                        }`}
-                      />
-                      {fieldErrors.contacts &&
-                        fieldErrors.contacts[i]?.email &&
-                        (touchedContacts[i]?.email || forceShowErrors) && (
-                          <p className="text-red-500 text-xs">
-                            {fieldErrors.contacts[i].email}
-                          </p>
-                        )}
-                    </div>
-                  </div>
-
-                  {/* Delete button */}
-                  {contacts.length > 1 && (
-                    <button
-                      type="button"
-                      onClick={() => removeContact(i)}
-                      className="absolute top-2 right-2 p-1.5 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-md transition-colors"
-                      aria-label="Remove contact"
-                    >
-                      <Trash2 size={16} />
-                    </button>
-                  )}
-                </div>
-              ))}
             </div>
-          </div>
+          )}
+
+          {/* Contacts Section - Hidden in renew mode */}
+          {!isRenewMode && (
+            <div className="bg-gray-50 rounded-lg p-6 border border-gray-200">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
+                  <User size={20} className="text-blue-600" />
+                  Contacts
+                </h3>
+                <button
+                  type="button"
+                  onClick={addContact}
+                  className="flex items-center gap-2 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-[12px] font-medium rounded-sm transition-colors"
+                >
+                  <Plus size={16} />
+                  Add another contact
+                </button>
+              </div>
+
+              {fieldErrors.contactsGeneral && (
+                <div className="flex items-center gap-2 bg-red-50 text-red-600 px-3 py-2 rounded-md font-medium text-sm mb-4">
+                  <AlertCircle size={16} className="text-red-400" />
+                  <span>{fieldErrors.contactsGeneral}</span>
+                </div>
+              )}
+
+              <div className="space-y-4">
+                {contacts.map((c, i) => (
+                  <div
+                    key={i}
+                    className="bg-white rounded-lg p-4 border border-gray-200 relative"
+                  >
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      {/* Name */}
+                      <div className="flex flex-col gap-1">
+                        <label className="text-sm text-gray-600 font-medium">
+                          Name
+                        </label>
+                        <Input
+                          placeholder="Enter full name"
+                          value={c.name}
+                          onChange={(e) =>
+                            handleContactChange(i, "name", e.target.value)
+                          }
+                          onBlur={() =>
+                            setTouchedContacts((prev) => {
+                              const arr = [...prev];
+                              if (!arr[i])
+                                arr[i] = {
+                                  name: false,
+                                  phone: false,
+                                  email: false,
+                                };
+                              arr[i].name = true;
+                              return arr;
+                          })
+                          }
+                          className={`text-sm ${
+                            fieldErrors.contacts &&
+                            fieldErrors.contacts[i]?.name &&
+                            (touchedContacts[i]?.name || forceShowErrors)
+                              ? "border-red-500 bg-red-50"
+                              : ""
+                          }`}
+                        />
+                        {fieldErrors.contacts &&
+                          fieldErrors.contacts[i]?.name &&
+                          (touchedContacts[i]?.name || forceShowErrors) && (
+                            <p className="text-red-500 text-xs">
+                              {fieldErrors.contacts[i].name}
+                            </p>
+                          )}
+                      </div>
+
+                      {/* Phone */}
+                      <div className="flex flex-col gap-1">
+                        <label className="text-sm text-gray-600 font-medium">
+                          Phone
+                        </label>
+                        <Input
+                          placeholder="Enter phone number"
+                          value={c.phone}
+                          onChange={(e) =>
+                            handleContactChange(i, "phone", e.target.value)
+                          }
+                          onBlur={() =>
+                            setTouchedContacts((prev) => {
+                              const arr = [...prev];
+                              if (!arr[i])
+                                arr[i] = {
+                                  name: false,
+                                  phone: false,
+                                  email: false,
+                                };
+                              arr[i].phone = true;
+                              return arr;
+                            })
+                          }
+                          className={`text-sm ${
+                            fieldErrors.contacts &&
+                            fieldErrors.contacts[i]?.phone &&
+                            (touchedContacts[i]?.phone || forceShowErrors)
+                              ? "border-red-500 bg-red-50"
+                              : ""
+                          }`}
+                        />
+                        {fieldErrors.contacts &&
+                          fieldErrors.contacts[i]?.phone &&
+                          (touchedContacts[i]?.phone || forceShowErrors) && (
+                            <p className="text-red-500 text-xs">
+                              {fieldErrors.contacts[i].phone}
+                            </p>
+                          )}
+                      </div>
+
+                      {/* Email */}
+                      <div className="flex flex-col gap-1">
+                        <label className="text-sm text-gray-600 font-medium">
+                          Email
+                        </label>
+                        <Input
+                          placeholder="Enter email address"
+                          value={c.email}
+                          onChange={(e) =>
+                            handleContactChange(i, "email", e.target.value)
+                          }
+                          onBlur={() =>
+                            setTouchedContacts((prev) => {
+                              const arr = [...prev];
+                              if (!arr[i])
+                                arr[i] = {
+                                  name: false,
+                                  phone: false,
+                                  email: false,
+                                };
+                              arr[i].email = true;
+                              return arr;
+                            })
+                          }
+                          className={`text-sm ${
+                            fieldErrors.contacts &&
+                            fieldErrors.contacts[i]?.email &&
+                            (touchedContacts[i]?.email || forceShowErrors)
+                              ? "border-red-500 bg-red-50"
+                              : ""
+                          }`}
+                        />
+                        {fieldErrors.contacts &&
+                          fieldErrors.contacts[i]?.email &&
+                          (touchedContacts[i]?.email || forceShowErrors) && (
+                            <p className="text-red-500 text-xs">
+                              {fieldErrors.contacts[i].email}
+                            </p>
+                          )}
+                      </div>
+                    </div>
+
+                    {/* Delete button */}
+                    {contacts.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => removeContact(i)}
+                        className="absolute top-2 right-2 p-1.5 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-md transition-colors"
+                        aria-label="Remove contact"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Submit Button */}
@@ -953,27 +1110,34 @@ export default function MembershipApplicationForm({
                   Membership Details
                 </h3>
                 <div className="grid grid-cols-2 gap-4 text-sm">
-                  <div>
-                    <span className="text-gray-600">Region:</span>{" "}
-                    <span className="font-medium">
-                      {regions.find((r) => r.id === Number(regionId))?.name ||
-                        "-"}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="text-gray-600">District:</span>{" "}
-                    <span className="font-medium">
-                      {districts.find((d) => d.id === Number(districtId))
-                        ?.name || "-"}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="text-gray-600">Sector:</span>{" "}
-                    <span className="font-medium">
-                      {sectors.find((s) => s.id === Number(sectorId))?.name ||
-                        "-"}
-                    </span>
-                  </div>
+                  {!isRenewMode && (
+                    <>
+                      <div>
+                        <span className="text-gray-600">Region:</span>{" "}
+                        <span className="font-medium">
+                          {regions.find((r) => r.id === Number(regionId))?.name || "-"}
+                        </span>
+                      </div>
+                      <div>
+                        <span className="text-gray-600">District:</span>{" "}
+                        <span className="font-medium">
+                          {districts.find((d) => d.id === Number(districtId))?.name || "-"}
+                        </span>
+                      </div>
+                      <div>
+                        <span className="text-gray-600">Sector:</span>{" "}
+                        <span className="font-medium">
+                          {sectors.find((s) => s.id === Number(sectorId))?.name || "-"}
+                        </span>
+                      </div>
+                      <div>
+                        <span className="text-gray-600">Subsector:</span>{" "}
+                        <span className="font-medium">
+                          {subsectors.find((s) => s.id === Number(subsectorId))?.name || "-"}
+                        </span>
+                      </div>
+                    </>
+                  )}
                   <div>
                     <span className="text-gray-600">Category:</span>{" "}
                     <span className="font-medium">
@@ -981,7 +1145,7 @@ export default function MembershipApplicationForm({
                         ?.name || "-"}
                     </span>
                   </div>
-                  <div className="col-span-2">
+                  <div>
                     <span className="text-gray-600">Subcategory:</span>{" "}
                     <span className="font-medium">
                       {subcategories.find((s) => s.id === Number(subcategoryId))
@@ -1067,15 +1231,14 @@ export default function MembershipApplicationForm({
           }
         }}
       >
-        <DialogContent className="max-w-lg">
-          <div className="flex flex-col items-center justify-center py-8">
-            <CheckCircle size={72} className="text-green-600 mb-4 animate-bounce" />
-            <div className="text-center text-lg font-semibold text-green-700 mb-2">
-              {action === "renew" ? "Membership Renewal Submitted!" : "Membership Application Submitted!"}
+        <DialogContent className="max-w-md">
+          <div className="flex flex-col items-center justify-center py-6">
+            <CheckCircle size={48} className="text-green-600 mb-3" />
+            <div className="text-center text-base font-medium text-gray-800 mb-4">
+              {action === "renew" ? "Membership Renewal Submitted Successfully!" : "Membership Application Submitted Successfully!"}
             </div>
-            <div className="text-center text-base text-gray-700 mb-4" dangerouslySetInnerHTML={{ __html: successMsg || "" }} />
             <Button
-              className="mt-2 px-8 py-2 rounded-lg bg-green-600 hover:bg-green-700 text-white font-semibold text-base"
+              className="px-6 py-2 bg-green-600 hover:bg-green-700 text-white font-medium"
               onClick={() => {
                 resetForm();
                 if (onSuccess) onSuccess();

@@ -52,7 +52,7 @@ export default function Membership() {
       <section className="flex flex-row w-full h-full">
         {/* Main Content */}
         <div className="flex flex-col items-start flex-1 h-[97vh] pt-18 w-full bg-transparent border-transparent border-[1px] rounded-xl">
-          <div className="flex flex-col justify-start items-start mt-2 w-full h-[86vh] rounded-sm relative px-4 md:px-8 lg:px-16.5 overflow-y-auto">
+          <div className="flex flex-col justify-start items-start my-3 w-full h-[86vh] rounded-sm relative px-4 md:px-8 lg:px-16.5">
             {/* Header */}
             <div className="flex flex-col md:flex-row w-full justify-between items-start md:items-center gap-4 my-1">
               {showForm ? (

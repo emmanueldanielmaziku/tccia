@@ -529,7 +529,7 @@ export default function COO() {
                         }. ${certificate.message_info.party_name}`}</div>
                         <div
                           className={`border-[0.5px] text-[12px] rounded-[30px] px-4 py-1 ${
-                            certificate.message_info.status === "Approved"
+                            certificate.message_info.status === "Approved" || certificate.message_info.status === "Paid"
                               ? "bg-green-50 border-green-200 text-green-600"
                               : "bg-orange-50 border-orange-200 text-orange-600"
                           }`}

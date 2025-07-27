@@ -20,7 +20,7 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import {
@@ -37,184 +37,236 @@ import {
   MapPin,
   User,
   Phone,
+  Plus,
+  Calendar,
+  DollarSign,
+  Package,
+  Upload,
+  Trash2,
+  Eye,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 
-const TANZANIA_REGIONS = [
-  "Arusha",
-  "Dar es Salaam",
-  "Dodoma",
-  "Geita",
-  "Iringa",
-  "Kagera",
-  "Katavi",
-  "Kigoma",
-  "Kilimanjaro",
-  "Lindi",
-  "Manyara",
-  "Mara",
-  "Mbeya",
-  "Morogoro",
-  "Mtwara",
-  "Mwanza",
-  "Njombe",
-  "Pemba North",
-  "Pemba South",
-  "Pwani",
-  "Rukwa",
-  "Ruvuma",
-  "Shinyanga",
-  "Simiyu",
-  "Singida",
-  "Tabora",
-  "Tanga",
-  "Zanzibar North",
-  "Zanzibar South",
-  "Zanzibar West",
+const NTB_TYPES = [
+  "Administrative issues",
+  "Import ban",
+  "Rule of origin Issues",
+  "Import Licensing",
+  "Length/Costly customs procedures",
+  "Poor testing/Inspection Facilities",
+  "Administrative fee & levies",
+  "Lack of clarity on border Procedures",
+  "Others",
+];
+
+const STATUS_OPTIONS = [
+  "Pending",
+  "Under Review",
+  "In Progress",
+  "Resolved",
+  "Closed",
+];
+
+const COST_RANGES = [
+  "0 - 100",
+  "101 - 250",
+  "251 - 500",
+  "501 - 1000",
+  "1001 - 2500",
+  "2501 - 5000",
+  "5000+",
+];
+
+const OCCURRENCE_OPTIONS = [
+  "First time",
+  "Once before",
+  "A few times",
+  "Every month",
+  "Every week",
+  "Every day",
+];
+
+const TIME_LOST_OPTIONS = [
+  "1-2 hours",
+  "3-6 hours",
+  "6-12 hours",
+  "12-24 hours",
+  "1-3 days",
+  "3-7 days",
+  "1-2 weeks",
+  "2+ weeks",
+];
+
+const MONEY_LOST_RANGES = [
+  "$0 - $100",
+  "$101 - $250",
+  "$251 - $500",
+  "$501 - $1000",
+  "$1001 - $2500",
+  "$2501 - $5000",
+  "$5000+",
+];
+
+const COUNTRIES = [
+  "Tanzania",
+  "Kenya",
+  "Uganda",
+  "Rwanda",
+  "Burundi",
+  "South Sudan",
+  "DR Congo",
+  "Zambia",
+  "Malawi",
+  "Mozambique",
+  "Zimbabwe",
+  "Botswana",
+  "Namibia",
+  "South Africa",
+  "Other",
 ];
 
 export default function NTB() {
   const t = useTranslations("ntb");
-  const [mode, setMode] = useState<"none" | "report" | "track">("none");
+  const [mode, setMode] = useState<"list" | "new">("list");
+  const [ntbList, setNtbList] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [form, setForm] = useState({
-    reporter_name: "",
-    reporter_contact: "",
-    subject: "",
-    description: "",
+    ntb_type: "",
+    date_of_incident: "",
+    status: "",
+    country_of_incident: "",
     location: "",
+    complaint_details: "",
+    product_description: "",
+    cost_value_goods: "",
+    hs_code: "",
+    hs_description: "",
+    occurrence: "",
+    time_lost: "",
+    money_lost: "",
+    exact_value_loss: "",
+    loss_calculation_description: "",
   });
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isTracking, setIsTracking] = useState(false);
-  const [successData, setSuccessData] = useState<{
-    tracking_code: string;
-  } | null>(null);
-  const [trackId, setTrackId] = useState("");
-  const [trackResult, setTrackResult] = useState<any>(null);
-  const [trackError, setTrackError] = useState<string | null>(null);
-  const [phoneError, setPhoneError] = useState<string | null>(null);
+
+  const editor = useEditor({
+    extensions: [StarterKit],
+    content: "",
+    onUpdate: ({ editor }) => {
+      setForm(prev => ({ ...prev, complaint_details: editor.getHTML() }));
+    },
+  });
+
+  // Fetch NTB list on component mount
+  useEffect(() => {
+    fetchNTBList();
+  }, []);
+
+  const fetchNTBList = async () => {
+    setLoading(true);
+    try {
+      // Replace with your actual API endpoint
+      const response = await fetch('/api/ntb/list');
+      const data = await response.json();
+      if (data.success) {
+        setNtbList(data.data || []);
+      }
+    } catch (error) {
+      console.error('Error fetching NTB list:', error);
+      toast.error('Failed to fetch NTB list');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleChange = (field: string, value: string) => {
     setForm((prev) => ({ ...prev, [field]: value }));
   };
 
-  const editor = useEditor({
-    extensions: [StarterKit],
-    content: form.description,
-    onUpdate: ({ editor }) => {
-      handleChange("description", editor.getHTML());
-    },
-  });
-
-  function isValidPhone(phone: string) {
-   
-    return /^\+255\d{9}$/.test(phone);
-  }
-
-  const handleReportSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    setSuccessData(null);
-    setPhoneError(null);
-
-    if (!isValidPhone(form.reporter_contact)) {
-      setPhoneError(
-        "Use Tanzanian format: +255XXXXXXXXX"
-      );
-      setIsSubmitting(false);
-      return;
-    }
-
-    try {
-      const response = await fetch("/api/ntb/submit", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(form),
-      });
-
-      const result = await response.json();
-
-      if (!response.ok) {
-        throw new Error(result.error || "Failed to submit report");
-      }
-
-      const trackingCode = result.data?.tracking_code || "NTB-" + Date.now();
-      setSuccessData({ tracking_code: trackingCode });
-
-      setForm({
-        reporter_name: "",
-        reporter_contact: "",
-        subject: "",
-        description: "",
-        location: "",
-      });
-      editor?.commands.setContent("");
-
-      toast.success("NTB report submitted successfully!");
-    } catch (error) {
-      console.error("Error submitting report:", error);
-      toast.error(
-        error instanceof Error ? error.message : "Failed to submit report"
-      );
-    } finally {
-      setIsSubmitting(false);
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setSelectedFile(file);
     }
   };
 
-  const handleTrackSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setTrackError(null);
-    setTrackResult(null);
-    setIsTracking(true);
+    setSubmitting(true);
 
     try {
-      const response = await fetch(
-        `/api/ntb/feedback?tracking_code=${encodeURIComponent(trackId)}`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      const formData = new FormData();
+      
+      // Add all form fields
+      Object.entries(form).forEach(([key, value]) => {
+        formData.append(key, value);
+      });
 
-      const result = await response.json();
-
-      if (!response.ok) {
-        if (response.status === 404) {
-          setTrackError("No report found with that tracking code.");
-        } else {
-          throw new Error(result.error || "Failed to fetch report feedback");
-        }
-        return;
+      // Add file if selected
+      if (selectedFile) {
+        formData.append('attachment', selectedFile);
       }
 
-      setTrackResult(result);
-      toast.success("Report feedback fetched successfully!");
+      const response = await fetch('/api/ntb/submit', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        toast.success('NTB submitted successfully!');
+        setMode('list');
+        fetchNTBList(); // Refresh the list
+        resetForm();
+      } else {
+        toast.error(data.message || 'Failed to submit NTB');
+      }
     } catch (error) {
-      console.error("Error fetching report feedback:", error);
-      setTrackError(
-        error instanceof Error
-          ? error.message
-          : "Failed to fetch report feedback"
-      );
+      console.error('Error submitting NTB:', error);
+      toast.error('Failed to submit NTB');
     } finally {
-      setIsTracking(false);
+      setSubmitting(false);
     }
   };
 
-  const handleTrackButtonClick = () => {
-    setMode("track");
-    // Add a small delay to show the transition effect
-    setTimeout(() => {
-      // Focus on the tracking input field
-      const trackInput = document.getElementById("track_id");
-      if (trackInput) {
-        trackInput.focus();
-      }
-    }, 100);
+  const resetForm = () => {
+    setForm({
+      ntb_type: "",
+      date_of_incident: "",
+      status: "",
+      country_of_incident: "",
+      location: "",
+      complaint_details: "",
+      product_description: "",
+      cost_value_goods: "",
+      hs_code: "",
+      hs_description: "",
+      occurrence: "",
+      time_lost: "",
+      money_lost: "",
+      exact_value_loss: "",
+      loss_calculation_description: "",
+    });
+    setSelectedFile(null);
+    editor?.commands.setContent('');
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status.toLowerCase()) {
+      case 'resolved':
+        return 'bg-green-100 text-green-800 border-green-300';
+      case 'in progress':
+        return 'bg-blue-100 text-blue-800 border-blue-300';
+      case 'under review':
+        return 'bg-yellow-100 text-yellow-800 border-yellow-300';
+      case 'closed':
+        return 'bg-gray-100 text-gray-800 border-gray-300';
+      default:
+        return 'bg-orange-100 text-orange-800 border-orange-300';
+    }
   };
 
   return (
@@ -223,72 +275,112 @@ export default function NTB() {
       <section className="flex flex-1 flex-col lg:flex-row h-full">
         <div className="flex flex-col items-start flex-1 w-full overflow-y-auto max-h-[calc(97vh-80px)]">
           <div className="w-full max-w-4xl mx-auto mt-24 mb-8 px-6 pb-8">
-            {mode === "none" && (
-              <div className="flex flex-col gap-8 items-center text-center">
-                <div className="text-center space-y-10">
-                  <div className="mx-auto w-20 h-20 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center shadow-lg">
-                    <FileText className="w-10 h-10 text-white" />
-                  </div>
+            
+            {/* Header with New NTB Button */}
+            <div className="flex justify-between items-center mb-8">
                   <div>
-                    <h1 className="text-4xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">
-                      {t("welcome")}
+                <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                  Non-Tariff Barriers (NTB)
                     </h1>
-                    <p className="text-lg text-gray-600 mt-3 max-w-2xl mx-auto">
-                      {t("intro")}
-                    </p>
-                  </div>
-                </div>
+                <p className="text-gray-600">
+                  Track and report non-tariff barriers affecting your trade
+                </p>
+              </div>
+              <Button
+                onClick={() => setMode('new')}
+                className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-md flex items-center gap-2 cursor-pointer"
+              >
+                <Plus className="w-4 h-4" />
+                New NTB Report
+              </Button>
+            </div>
 
-                <div className="grid md:grid-cols-2 gap-10 w-full max-w-3xl">
-                  <Card className="group hover:shadow-lg transition-all duration-300 border-[0.5px] shadow-sm bg-white/80 backdrop-blur-sm">
-                    <CardContent className="p-8 text-center">
-                      <div className="w-16 h-16 bg-blue-100 rounded-xl flex items-center justify-center mx-auto mb-4 group-hover:bg-blue-200 transition-colors">
-                        <FileText className="w-8 h-8 text-blue-600" />
-                      </div>
-                      <h3 className="text-xl font-semibold text-gray-900 mb-4">
-                        {t("reportNTBIssue")}
+            {/* NTB List */}
+            {mode === "list" && (
+              <div className="space-y-6">
+                {loading ? (
+                  <div className="text-center py-12">
+                    <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                    <p className="text-gray-600">Loading NTB reports...</p>
+                  </div>
+                ) : ntbList.length === 0 ? (
+                  <Card className="text-center py-12 shadow-[0_0_10px_rgba(0,0,0,0.1)]">
+                    <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <FileText className="w-8 h-8 text-gray-400" />
+                </div>
+                    <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                      No NTB Reports Found
                       </h3>
                       <p className="text-gray-600 mb-6">
-                        {t("reportNTBIssueDesc")}
+                      You haven't submitted any NTB reports yet.
                       </p>
                       <Button
-                        className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-6 cursor-pointer rounded-[9px] transition-all duration-200 group-hover:scale-105"
-                        size="lg"
-                        onClick={() => setMode("report")}
+                      onClick={() => setMode('new')}
+                      className="bg-blue-600 hover:bg-blue-700 text-white mx-auto cursor-pointer"
                       >
-                        {t("createReport")}
-                        <ArrowRight className="w-4 h-4 ml-2" />
+                      Submit Your First NTB Report
                       </Button>
-                    </CardContent>
                   </Card>
-
-                  <Card className="group hover:shadow-lg transition-all duration-300 border-[0.5px] shadow-sm bg-white/80 backdrop-blur-sm">
-                    <CardContent className="p-8 text-center">
-                      <div className="w-16 h-16 bg-green-100 rounded-xl flex items-center justify-center mx-auto mb-4 group-hover:bg-green-200 transition-colors">
-                        <Search className="w-8 h-8 text-green-600" />
+                ) : (
+                  <div className="space-y-4">
+                    {ntbList.map((ntb, index) => (
+                      <Card key={index} className="hover:shadow-md transition-shadow">
+                        <CardContent className="p-6">
+                          <div className="flex justify-between items-start mb-4">
+                            <div>
+                              <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                                {ntb.ntb_type}
+                              </h3>
+                              <p className="text-gray-600 text-sm mb-2">
+                                {ntb.product_description}
+                              </p>
+                            </div>
+                            <Badge className={getStatusColor(ntb.status)}>
+                              {ntb.status}
+                            </Badge>
+                          </div>
+                          
+                          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm mb-4">
+                            <div>
+                              <span className="text-gray-500">Date:</span>
+                              <p className="font-medium">{ntb.date_of_incident}</p>
+                            </div>
+                            <div>
+                              <span className="text-gray-500">Country:</span>
+                              <p className="font-medium">{ntb.country_of_incident}</p>
+                            </div>
+                            <div>
+                              <span className="text-gray-500">Location:</span>
+                              <p className="font-medium">{ntb.location}</p>
+                            </div>
+                            <div>
+                              <span className="text-gray-500">Value Lost:</span>
+                              <p className="font-medium">${ntb.exact_value_loss}</p>
+                            </div>
                       </div>
-                      <h3 className="text-xl font-semibold text-gray-900 mb-4">
-                        {t("trackNTBHeading")}
-                      </h3>
-                      <p className="text-gray-600 mb-6">{t("trackNTBDesc")}</p>
+
+                          <div className="flex gap-2">
                       <Button
-                        className="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-6 cursor-pointer rounded-[9px] transition-all duration-200 group-hover:scale-105"
-                        size="lg"
-                        onClick={handleTrackButtonClick}
-                      >
-                        {t("trackReport")}
-                        <ArrowRight className="w-4 h-4 ml-2" />
+                              variant="outline"
+                              size="sm"
+                              className="flex items-center gap-2"
+                            >
+                              <Eye className="w-4 h-4" />
+                              View Details
                       </Button>
+                          </div>
                     </CardContent>
                   </Card>
+                    ))}
                 </div>
+                )}
               </div>
             )}
 
-            {/* Report Form */}
-            {mode === "report" && (
+            {/* New NTB Form */}
+            {mode === "new" && (
               <div className="space-y-6">
-                <Card className="border-[0.5px] shadow-sm bg-white/90 backdrop-blur-sm">
+                <Card className="border-[0.5px] shadow-[0_0_10px_rgba(0,0,0,0.1)]">
                   <CardHeader className="pb-6">
                     <div className="flex items-center gap-3">
                       <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
@@ -296,138 +388,279 @@ export default function NTB() {
                       </div>
                       <div>
                         <CardTitle className="text-xl text-gray-900">
-                          {t("reportNTBIssue")}
+                          New NTB Report
                         </CardTitle>
                         <CardDescription className="text-[14px]">
-                          {t("reportNTBIssueDesc")}
+                          Report a non-tariff barrier affecting your trade
                         </CardDescription>
                       </div>
                     </div>
                   </CardHeader>
                   <CardContent className="px-8 pb-8">
-                    {successData ? (
-                      <div className="text-center space-y-8">
-                        <div className="mx-auto w-24 h-24 bg-gradient-to-br from-green-400 to-green-600 rounded-full flex items-center justify-center shadow-lg">
-                          <CheckCircle2 className="w-12 h-12 text-white" />
-                        </div>
-                        <div>
-                          <h3 className="text-2xl font-bold text-gray-900 mb-3">
-                            {t("reportSubmittedSuccess")}
-                          </h3>
-                          <p className="text-gray-600 mb-6">
-                            {t("reportSubmittedDesc")}
-                          </p>
-                          <div className="bg-gray-50 rounded-2xl p-6 border border-gray-200">
-                            <p className="text-sm text-gray-600 mb-2">
-                              {t("trackingCode")}:
-                            </p>
-                            <Badge
-                              variant="secondary"
-                              className="text-xl px-6 py-3 font-mono bg-blue-100 text-blue-800 border-blue-200"
-                            >
-                              {successData.tracking_code}
-                            </Badge>
-                          </div>
-                        </div>
-                        <div className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
-                          <Button
-                            variant="outline"
-                            className="flex-1 py-3 rounded-[9px]"
-                            onClick={() => {
-                              navigator.clipboard.writeText(
-                                successData.tracking_code
-                              );
-                              toast.success("Tracking code copied!");
-                            }}
+                    <form onSubmit={handleSubmit} className="space-y-6">
+                      
+                      {/* Basic Information */}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-3">
+                          <Label className="text-sm font-medium text-gray-700">
+                            NTB Type *
+                          </Label>
+                          <Select
+                            value={form.ntb_type}
+                            onValueChange={(value) => handleChange("ntb_type", value)}
+                            required
                           >
-                            <ClipboardCheck className="w-4 h-4 mr-2" />
-                            {t("copyCode")}
-                          </Button>
-                          <Button
-                            className="flex-1 bg-blue-600 hover:bg-blue-700 py-3 rounded-xl"
-                            onClick={() => setMode("none")}
-                          >
-                            {t("backToHome")}
-                          </Button>
-                        </div>
-                      </div>
-                    ) : (
-                      <form onSubmit={handleReportSubmit} className="space-y-5">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div className="space-y-3">
-                            <Label
-                              htmlFor="reporter_name"
-                              className="text-sm font-medium text-gray-700 flex items-center gap-2"
-                            >
-                              <User className="w-4 h-4" />
-                              {t("yourName")}
-                            </Label>
-                            <Input
-                              id="reporter_name"
-                              placeholder={t("enterYourName")}
-                              value={form.reporter_name}
-                              onChange={(e) =>
-                                handleChange("reporter_name", e.target.value)
-                              }
-                              className="h-12 rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500"
-                              required
-                            />
-                          </div>
-                          <div className="space-y-3">
-                            <Label
-                              htmlFor="reporter_contact"
-                              className="text-sm font-medium text-gray-700 flex items-center gap-2"
-                            >
-                              <Phone className="w-4 h-4" />
-                              {t("contactNumber")}
-                            </Label>
-                            <Input
-                              id="reporter_contact"
-                              placeholder={t("enterContactNumber")}
-                              value={form.reporter_contact}
-                              onChange={(e) => {
-                                handleChange(
-                                  "reporter_contact",
-                                  e.target.value
-                                );
-                                if (phoneError) setPhoneError(null);
-                              }}
-                              className="h-12 rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500"
-                              required
-                            />
-                            {phoneError && (
-                              <div className="flex flex-row items-center gap-2 mt-1 text-red-600 text-sm">
-                                <AlertCircle className="w-4 h-4" /> {phoneError}
-                              </div>
-                            )}
-                          </div>
+                            <SelectTrigger className="h-12 rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500">
+                              <SelectValue placeholder="Select NTB type" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {NTB_TYPES.map((type) => (
+                                <SelectItem key={type} value={type}>
+                                  {type}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
                         </div>
 
                         <div className="space-y-3">
-                          <Label
-                            htmlFor="subject"
-                            className="text-sm font-medium text-gray-700"
-                          >
-                            {t("issueSubject")}
+                          <Label className="text-sm font-medium text-gray-700">
+                            Date of Incident *
                           </Label>
                           <Input
-                            id="subject"
-                            placeholder={t("e.g.,DelayInClearingCargoAtPort")}
-                            value={form.subject}
-                            onChange={(e) =>
-                              handleChange("subject", e.target.value)
-                            }
+                            type="date"
+                            value={form.date_of_incident}
+                            onChange={(e) => handleChange("date_of_incident", e.target.value)}
                             className="h-12 rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500"
                             required
                           />
                         </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-3">
+                          <Label className="text-sm font-medium text-gray-700">
+                            Status *
+                          </Label>
+                          <Select
+                            value={form.status}
+                            onValueChange={(value) => handleChange("status", value)}
+                            required
+                          >
+                            <SelectTrigger className="h-12 rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500">
+                              <SelectValue placeholder="Select status" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {STATUS_OPTIONS.map((status) => (
+                                <SelectItem key={status} value={status}>
+                                  {status}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
 
                         <div className="space-y-3">
-                          <Label
-                            htmlFor="description"
-                            className="text-sm font-medium text-gray-700"
+                          <Label className="text-sm font-medium text-gray-700">
+                            Country of Incident *
+                          </Label>
+                          <Select
+                            value={form.country_of_incident}
+                            onValueChange={(value) => handleChange("country_of_incident", value)}
+                            required
                           >
-                            {t("detailedDescription")}
+                            <SelectTrigger className="h-12 rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500">
+                              <SelectValue placeholder="Select country" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {COUNTRIES.map((country) => (
+                                <SelectItem key={country} value={country}>
+                                  {country}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
+
+                          <div className="space-y-3">
+                        <Label className="text-sm font-medium text-gray-700">
+                          Location *
+                            </Label>
+                            <Input
+                          placeholder="Enter specific location"
+                          value={form.location}
+                          onChange={(e) => handleChange("location", e.target.value)}
+                              className="h-12 rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+                              required
+                            />
+                          </div>
+
+                      {/* Product Information */}
+                          <div className="space-y-3">
+                        <Label className="text-sm font-medium text-gray-700">
+                          Product Description *
+                            </Label>
+                            <Input
+                          placeholder="Describe the product affected"
+                          value={form.product_description}
+                          onChange={(e) => handleChange("product_description", e.target.value)}
+                              className="h-12 rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+                              required
+                            />
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-3">
+                          <Label className="text-sm font-medium text-gray-700">
+                            HS Code
+                          </Label>
+                          <Input
+                            placeholder="Enter HS Code"
+                            value={form.hs_code}
+                            onChange={(e) => handleChange("hs_code", e.target.value)}
+                            className="h-12 rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+                          />
+                        </div>
+
+                        <div className="space-y-3">
+                          <Label className="text-sm font-medium text-gray-700">
+                            HS Description
+                          </Label>
+                          <Input
+                            placeholder="Enter HS Description"
+                            value={form.hs_description}
+                            onChange={(e) => handleChange("hs_description", e.target.value)}
+                            className="h-12 rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+                          />
+                        </div>
+                              </div>
+
+                      <div className="space-y-3">
+                        <Label className="text-sm font-medium text-gray-700">
+                          Cost/Value of Goods in USD *
+                        </Label>
+                        <Select
+                          value={form.cost_value_goods}
+                          onValueChange={(value) => handleChange("cost_value_goods", value)}
+                          required
+                        >
+                          <SelectTrigger className="h-12 rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500">
+                            <SelectValue placeholder="Select cost range" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {COST_RANGES.map((range) => (
+                              <SelectItem key={range} value={range}>
+                                {range}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                          </div>
+
+                      {/* Occurrence and Impact */}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-3">
+                          <Label className="text-sm font-medium text-gray-700">
+                            Occurrence *
+                          </Label>
+                          <Select
+                            value={form.occurrence}
+                            onValueChange={(value) => handleChange("occurrence", value)}
+                            required
+                          >
+                            <SelectTrigger className="h-12 rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500">
+                              <SelectValue placeholder="Select occurrence" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {OCCURRENCE_OPTIONS.map((occurrence) => (
+                                <SelectItem key={occurrence} value={occurrence}>
+                                  {occurrence}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+
+                        <div className="space-y-3">
+                          <Label className="text-sm font-medium text-gray-700">
+                            Time Lost *
+                          </Label>
+                          <Select
+                            value={form.time_lost}
+                            onValueChange={(value) => handleChange("time_lost", value)}
+                            required
+                          >
+                            <SelectTrigger className="h-12 rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500">
+                              <SelectValue placeholder="Select time lost" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {TIME_LOST_OPTIONS.map((time) => (
+                                <SelectItem key={time} value={time}>
+                                  {time}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
+
+                      {/* Financial Impact */}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-3">
+                          <Label className="text-sm font-medium text-gray-700">
+                            Money Lost Range *
+                          </Label>
+                          <Select
+                            value={form.money_lost}
+                            onValueChange={(value) => handleChange("money_lost", value)}
+                            required
+                          >
+                            <SelectTrigger className="h-12 rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500">
+                              <SelectValue placeholder="Select money lost range" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {MONEY_LOST_RANGES.map((range) => (
+                                <SelectItem key={range} value={range}>
+                                  {range}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+
+                        <div className="space-y-3">
+                          <Label className="text-sm font-medium text-gray-700">
+                            Exact Value of Loss ($) *
+                          </Label>
+                          <Input
+                            type="number"
+                            placeholder="Enter exact amount"
+                            value={form.exact_value_loss}
+                            onChange={(e) => handleChange("exact_value_loss", e.target.value)}
+                            className="h-12 rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+                            required
+                          />
+                        </div>
+                        </div>
+
+                        <div className="space-y-3">
+                        <Label className="text-sm font-medium text-gray-700">
+                          Description of How Loss Was Calculated *
+                        </Label>
+                        <Input
+                          placeholder="Explain how you calculated the loss"
+                          value={form.loss_calculation_description}
+                          onChange={(e) => handleChange("loss_calculation_description", e.target.value)}
+                          className="h-12 rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+                          required
+                        />
+                      </div>
+
+                      {/* Complaint Details */}
+                      <div className="space-y-3">
+                        <Label className="text-sm font-medium text-gray-700">
+                          Complaint Details & Description *
                           </Label>
                           <div className="border border-gray-200 rounded-xl bg-white overflow-hidden focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500">
                             <div className="flex gap-1 border-b border-gray-100 px-4 py-3 bg-gray-50">
@@ -488,338 +721,75 @@ export default function NTB() {
                           </div>
                         </div>
 
+                      {/* File Upload */}
                         <div className="space-y-3">
-                          <Label
-                            htmlFor="location"
-                            className="text-sm font-medium text-gray-700 flex items-center gap-2"
-                          >
-                            <MapPin className="w-4 h-4" />
-                            {t("location")}
+                        <Label className="text-sm font-medium text-gray-700">
+                          Attachment
                           </Label>
-                          <Select
-                            value={form.location}
-                            onValueChange={(value) =>
-                              handleChange("location", value)
-                            }
-                            required
+                        <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-blue-400 transition-colors">
+                          <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+                          <input
+                            type="file"
+                            onChange={handleFileChange}
+                            className="hidden"
+                            id="file-upload"
+                            accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                          />
+                          <label
+                            htmlFor="file-upload"
+                            className="cursor-pointer text-blue-600 hover:text-blue-700 font-medium"
                           >
-                            <SelectTrigger className="h-12 py-6 cursor-pointer w-full rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500">
-                              <SelectValue placeholder={t("selectRegion")} />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {TANZANIA_REGIONS.map((region) => (
-                                <SelectItem key={region} value={region}>
-                                  {region}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </div>
-
-                        <Separator className="my-8" />
-
-                        <div className="flex gap-4">
-                          <Button
-                            type="submit"
-                            className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 rounded-[9px] cursor-pointer h-12"
-                            disabled={isSubmitting}
-                          >
-                            {isSubmitting ? (
-                              <>
-                                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
-                                {t("submitting")}
-                              </>
-                            ) : (
-                              t("submitReport")
-                            )}
-                          </Button>
+                            {selectedFile ? selectedFile.name : "Click to upload file"}
+                          </label>
+                          {selectedFile && (
+                            <div className="mt-2 flex items-center justify-center gap-2">
+                              <span className="text-sm text-gray-600">
+                                {selectedFile.name}
+                              </span>
                           <Button
                             type="button"
-                            variant="outline"
-                            className="flex-1 border-gray-200 text-gray-700 hover:bg-gray-50 py-3 rounded-[9px] cursor-pointer h-12"
-                            onClick={() => setMode("none")}
-                            disabled={isSubmitting}
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => setSelectedFile(null)}
+                                className="text-red-600 hover:text-red-700"
                           >
-                            {t("cancel")}
+                                <Trash2 className="w-4 h-4" />
                           </Button>
+                            </div>
+                          )}
                         </div>
-                      </form>
-                    )}
-                  </CardContent>
-                </Card>
-              </div>
-            )}
+                      </div>
 
-            {/* Track Form */}
-            {mode === "track" && (
-              <div className="space-y-6">
-                <Card className="border-[0.5px] shadow-sm bg-white/90 backdrop-blur-sm">
-                  <CardHeader className="pb-6">
-                    <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
-                        <Search className="w-6 h-6 text-green-600" />
-                      </div>
-                      <div>
-                        <CardTitle className="text-2xl text-gray-900">
-                          {t("trackNTBReport")}
-                        </CardTitle>
-                        <CardDescription className="text-base">
-                          {t("trackNTBDesc")}
-                        </CardDescription>
-                      </div>
-                    </div>
-                  </CardHeader>
-                  <CardContent className="px-8 pb-8">
-                    <form onSubmit={handleTrackSubmit} className="space-y-6">
-                      <div className="space-y-3">
-                        <Label
-                          htmlFor="track_id"
-                          className="text-sm font-medium text-gray-700 flex items-center gap-2"
-                        >
-                          <Clock className="w-4 h-4" />
-                          {t("trackingCode")}
-                        </Label>
-                        <Input
-                          id="track_id"
-                          placeholder={t("e.g.,NTB-0001")}
-                          value={trackId}
-                          onChange={(e) => setTrackId(e.target.value)}
-                          className="h-12 rounded-[9px] border-gray-200 focus:border-green-500 focus:ring-green-500"
-                          required
-                        />
-                      </div>
+                      <Separator className="my-8" />
 
                       <div className="flex gap-4">
                         <Button
                           type="submit"
-                          className="flex-1 bg-green-600 hover:bg-green-700 text-white font-medium cursor-pointer py-3 rounded-[9px] h-12"
-                          disabled={isTracking}
+                          className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 rounded-[9px] cursor-pointer h-12"
+                          disabled={submitting}
                         >
-                          {isTracking ? (
+                          {submitting ? (
                             <>
                               <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
-                              {t("tracking")}
+                              Submitting...
                             </>
                           ) : (
-                            <>
-                              <Search className="w-4 h-4 mr-2" />
-                              {t("trackReport")}
-                            </>
+                            "Submit NTB Report"
                           )}
                         </Button>
                         <Button
                           type="button"
                           variant="outline"
-                          className="flex-1 border-gray-200 text-gray-700 cursor-pointer hover:bg-gray-50 py-3 rounded-[9px] h-12"
-                          onClick={() => setMode("none")}
+                          className="flex-1 border-gray-200 text-gray-700 hover:bg-gray-50 py-3 rounded-[9px] cursor-pointer h-12"
+                          onClick={() => setMode("list")}
+                          disabled={submitting}
                         >
-                          {t("cancel")}
+                          Cancel
                         </Button>
                       </div>
-
-                      {trackError && (
-                        <div className="flex items-center gap-3 p-4 bg-red-50 border border-red-200 rounded-xl">
-                          <AlertCircle className="w-5 h-5 text-red-500" />
-                          <span className="text-sm text-red-700">
-                            {trackError}
-                          </span>
-                        </div>
-                      )}
                     </form>
                   </CardContent>
                 </Card>
-
-                {/* Display result if found */}
-                {trackResult && trackResult.success && (
-                  <Card className="border-0 shadow-lg bg-white/90 backdrop-blur-sm">
-                    <CardHeader>
-                      <CardTitle className="text-xl text-gray-900">
-                        {t("reportDetails")}
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="px-8 pb-8 space-y-6 max-h-[60vh] overflow-y-auto">
-                      {trackResult.data?.reports?.map(
-                        (report: any, idx: number) => (
-                          <div key={idx} className="space-y-6">
-                            <div className="bg-gradient-to-br from-blue-50 to-blue-100/50 rounded-2xl p-6 border border-blue-200">
-                              <div className="space-y-4">
-                                <div>
-                                  <h4 className="text-xl font-semibold text-gray-900 mb-3">
-                                    {report.subject}
-                                  </h4>
-                                  <div
-                                    className="prose prose-sm max-w-none text-gray-700 leading-relaxed"
-                                    dangerouslySetInnerHTML={{
-                                      __html: report.description,
-                                    }}
-                                  />
-                                </div>
-
-                                <Separator />
-
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                                  <div className="flex items-center gap-2">
-                                    <MapPin className="w-4 h-4 text-gray-500" />
-                                    <span className="font-medium text-gray-700">
-                                      {t("location")}:
-                                    </span>
-                                    <span className="text-gray-600">
-                                      {report.location}
-                                    </span>
-                                  </div>
-                                  <div className="flex items-center gap-2">
-                                    <User className="w-4 h-4 text-gray-500" />
-                                    <span className="font-medium text-gray-700">
-                                      {t("reporter")}:
-                                    </span>
-                                    <span className="text-gray-600">
-                                      {report.reporter_name}
-                                    </span>
-                                  </div>
-                                  <div className="flex items-center gap-2">
-                                    <Phone className="w-4 h-4 text-gray-500" />
-                                    <span className="font-medium text-gray-700">
-                                      {t("contact")}:
-                                    </span>
-                                    <span className="text-gray-600">
-                                      {report.reporter_contact}
-                                    </span>
-                                  </div>
-                                  <div className="flex items-center gap-2">
-                                    <Clock className="w-4 h-4 text-gray-500" />
-                                    <span className="font-medium text-gray-700">
-                                      {t("trackingCode")}:
-                                    </span>
-                                    <Badge
-                                      variant="outline"
-                                      className="font-mono bg-blue-100 text-blue-800 border-blue-300"
-                                    >
-                                      {report.tracking_code}
-                                    </Badge>
-                                  </div>
-                                </div>
-
-                                <div className="flex items-center gap-2">
-                                  <span className="font-medium text-sm text-gray-700">
-                                    {t("status")}:
-                                  </span>
-                                  <Badge
-                                    variant="secondary"
-                                    className="bg-yellow-100 text-yellow-800 border-yellow-300"
-                                  >
-                                    {report.state || report.status}
-                                  </Badge>
-                                </div>
-                              </div>
-                            </div>
-
-                            {report.feedback_messages && (
-                              <div className="bg-gray-50 border border-gray-200 rounded-2xl p-6">
-                                <h5 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                                  <FileText className="w-4 h-4" />
-                                  {t("feedbackUpdates")}
-                                </h5>
-                                <div className="whitespace-pre-line text-sm text-gray-700 leading-relaxed bg-white p-4 rounded-xl border">
-                                  {report.feedback_messages}
-                                </div>
-                              </div>
-                            )}
-                          </div>
-                        )
-                      )}
-
-                      {/* Handle single report response */}
-                      {trackResult.data && !trackResult.data.reports && (
-                        <div className="space-y-6">
-                          <div className="bg-gradient-to-br from-blue-50 to-blue-100/50 rounded-2xl p-6 border border-blue-200">
-                            <div className="space-y-4">
-                              <div>
-                                <h4 className="text-xl font-semibold text-gray-900 mb-3">
-                                  {trackResult.data.subject}
-                                </h4>
-                                <div
-                                  className="prose prose-sm max-w-none text-gray-700 leading-relaxed"
-                                  dangerouslySetInnerHTML={{
-                                    __html: trackResult.data.description,
-                                  }}
-                                />
-                              </div>
-
-                              <Separator />
-
-                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                                <div className="flex items-center gap-2">
-                                  <MapPin className="w-4 h-4 text-gray-500" />
-                                  <span className="font-medium text-gray-700">
-                                    {t("location")}:
-                                  </span>
-                                  <span className="text-gray-600">
-                                    {trackResult.data.location}
-                                  </span>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                  <User className="w-4 h-4 text-gray-500" />
-                                  <span className="font-medium text-gray-700">
-                                    {t("reporter")}:
-                                  </span>
-                                  <span className="text-gray-600">
-                                    {trackResult.data.reporter_name}
-                                  </span>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                  <Phone className="w-4 h-4 text-gray-500" />
-                                  <span className="font-medium text-gray-700">
-                                    {t("contact")}:
-                                  </span>
-                                  <span className="text-gray-600">
-                                    {trackResult.data.reporter_contact}
-                                  </span>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                  <Clock className="w-4 h-4 text-gray-500" />
-                                  <span className="font-medium text-gray-700">
-                                    {t("trackingCode")}:
-                                  </span>
-                                  <Badge
-                                    variant="outline"
-                                    className="font-mono bg-blue-100 text-blue-800 border-blue-300"
-                                  >
-                                    {trackResult.data.tracking_code}
-                                  </Badge>
-                                </div>
-                              </div>
-
-                              <div className="flex items-center gap-2">
-                                <span className="font-medium text-sm text-gray-700">
-                                  {t("status")}:
-                                </span>
-                                <Badge
-                                  variant="secondary"
-                                  className="bg-yellow-100 text-yellow-800 border-yellow-300"
-                                >
-                                  {trackResult.data.state ||
-                                    trackResult.data.status}
-                                </Badge>
-                              </div>
-                            </div>
-                          </div>
-
-                          {trackResult.data.feedback_messages && (
-                            <div className="bg-gray-50 border border-gray-200 rounded-2xl p-6">
-                              <h5 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                                <FileText className="w-4 h-4" />
-                                {t("feedbackUpdates")}
-                              </h5>
-                              <div className="whitespace-pre-line text-sm text-gray-700 leading-relaxed bg-white p-4 rounded-xl border">
-                                {trackResult.data.feedback_messages}
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      )}
-                    </CardContent>
-                  </Card>
-                )}
               </div>
             )}
           </div>

@@ -82,38 +82,38 @@ export default function StatsBar() {
 
             {expanded && (
               <div className="w-full flex flex-col justify-center items-center text-center gap-1">
-                {/* Submit NTB Section */}
+                {/* View NTB List Section */}
                 <div className="w-full bg-white rounded-lg p-4 border-[0.5px] border-gray-200 mb-4">
                   <div className="flex items-center gap-1 mb-1">
                     <DocumentText size={18} color="#138abd" />
                     <h4 className="font-semibold text-gray-700 text-[13px]">
-                      {t("submitNTBHeading")}
+                      View NTB Reports
                     </h4>
                   </div>
                   <p className="text-gray-600 text-[10px] md:text-[13px] leading-relaxed mb-3 text-left">
-                    {t("submitNTB")}
+                    View all your submitted NTB reports and their current status.
                   </p>
-                  <div className="bg-yellow-50 border-[0.5px] border-yellow-200 rounded-lg p-3">
-                    <p className="text-yellow-800 text-[10px] md:text-[12px] text-left font-medium leading-relaxed">
-                      {t("saveTrackingTip")}
+                  <div className="bg-blue-50 border-[0.5px] border-blue-200 rounded-lg p-3">
+                    <p className="text-blue-800 text-[10px] md:text-[12px] text-left font-medium leading-relaxed">
+                      Track the progress of your reported non-tariff barriers.
                     </p>
                   </div>
                 </div>
 
-                {/* Track NTB Section */}
+                {/* Submit New NTB Section */}
                 <div className="w-full bg-white rounded-lg p-4 border-[0.5px] border-gray-200">
                   <div className="flex items-center gap-1 mb-1">
-                    <SearchNormal size={18} color="#059669" />
+                    <DocumentText size={18} color="#059669" />
                     <h4 className="font-semibold text-gray-700 text-[13px]">
-                      {t("trackNTBHeading")}
+                      Submit New NTB
                     </h4>
                   </div>
                   <p className="text-gray-600 text-[10px] md:text-[13px] leading-relaxed mb-3 text-left">
-                    {t("trackNTB")}
+                    Report a new non-tariff barrier affecting your trade activities.
                   </p>
                   <div className="bg-green-50 border-[0.5px] border-green-200 rounded-lg p-3">
                     <p className="text-green-800 text-[10px] md:text-[12px] text-left font-medium leading-relaxed">
-                      {t("useTrackingTip")}
+                      Provide detailed information about the barrier and its impact.
                     </p>
                   </div>
                 </div>

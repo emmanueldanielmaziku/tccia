@@ -56,6 +56,8 @@ interface ApplicationData {
   district_name: string;
   sector_id: number;
   sector_name: string;
+  subsector_id: number;
+  subsector_name: string;
   entry_fee: number;
   annual_fee: number;
   certificate_fee: number;
@@ -82,7 +84,8 @@ export default function MembershipApplication({
   const [downloading, setDownloading] = useState(false);
   const [copied, setCopied] = useState(false);
 
-  useEffect(() => {
+  
+  function fetchApplicationData() {
     if (!tin) return;
     setLoading(true);
     setError(null);
@@ -105,6 +108,10 @@ export default function MembershipApplication({
         onHasApplication?.(false);
         setLoading(false);
       });
+  }
+
+  useEffect(() => {
+    fetchApplicationData();
   }, [tin]);
 
   function formatNumber(num?: number) {
@@ -149,7 +156,7 @@ export default function MembershipApplication({
 
   if (loading) {
     return (
-      <div className="w-full max-w-5xl mx-auto mt-6 overflow-hidden rounded-2xl border border-blue-100 bg-white shadow-lg animate-pulse">
+      <div className="w-full max-w-5xl mx-auto mt-6 overflow-hidden rounded-2xl border border-blue-100 bg-white animate-pulse">
         {/* Header Skeleton */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-blue-50 px-6 py-5 border-b border-blue-100">
           <div className="flex items-start md:items-center gap-4">
@@ -252,7 +259,7 @@ export default function MembershipApplication({
   }
 
   return (
-    <div className="w-full max-w-5xl mx-auto mt-6 overflow-hidden rounded-2xl border border-blue-100 bg-white shadow-lg">
+    <div className="w-full max-w-5xl mx-auto mt-6 overflow-hidden rounded-2xl border border-blue-100 bg-white">
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-blue-50 px-6 py-5 border-b border-blue-100">
         <div className="flex items-start md:items-center gap-4">
@@ -276,72 +283,74 @@ export default function MembershipApplication({
           </div>
         </div>
 
-        <div className="flex flex-wrap justify-start md:justify-end gap-2 cursor-pointer">
-          <button
-            onClick={async () => {
-              if (data.state !== "paid") return;
-              setDownloading(true);
-              try {
-                const res = await fetch(`/api/proxy/certificate/${data.id}`);
-                if (!res.ok) throw new Error("Failed to download");
-                const blob = await res.blob();
-                const url = window.URL.createObjectURL(blob);
-                const a = document.createElement("a");
-                a.href = url;
-                a.download = `certificate_${data.id}.pdf`;
-                document.body.appendChild(a);
-                a.click();
-                a.remove();
-                window.URL.revokeObjectURL(url);
-              } catch {
-                alert("Failed to download certificate.");
-              }
-              setDownloading(false);
-            }}
-            className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg transition text-sm font-semibold cursor-pointer ${
-              data.state === "paid"
-                ? downloading
-                  ? "bg-blue-300 text-white cursor-not-allowed"
-                  : "bg-blue-600 text-white hover:bg-blue-700"
-                : "bg-gray-300 text-gray-500 cursor-not-allowed"
-            }`}
-            disabled={downloading || data.state !== "paid"}
-            title={data.state !== "paid" ? "Certificate is only available after payment." : downloading ? "Downloading..." : "Download Certificate"}
-          >
-            {downloading ? (
-              <>
-                <svg className="animate-spin h-5 w-5 text-white" viewBox="0 0 24 24">
-                  <circle
-                    className="opacity-25"
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="currentColor"
-                    strokeWidth="4"
-                    fill="none"
-                  />
-                  <path
-                    className="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
-                  />
-                </svg>
-                Downloading...
-              </>
-            ) : (
-              <>
-                <DocumentText size={20} />
-                Download Certificate
-              </>
-            )}
-          </button>
+        <div className={`flex flex-wrap justify-start md:justify-end gap-2 cursor-pointer`}>
+          {data.state !== "expired" && (
+            <button
+              onClick={async () => {
+                if (data.state !== "paid") return;
+                setDownloading(true);
+                try {
+                  const res = await fetch(`/api/proxy/certificate/${data.id}`);
+                  if (!res.ok) throw new Error("Failed to download");
+                  const blob = await res.blob();
+                  const url = window.URL.createObjectURL(blob);
+                  const a = document.createElement("a");
+                  a.href = url;
+                  a.download = `certificate_${data.id}.pdf`;
+                  document.body.appendChild(a);
+                  a.click();
+                  a.remove();
+                  window.URL.revokeObjectURL(url);
+                } catch {
+                  alert("Failed to download certificate.");
+                }
+                setDownloading(false);
+              }}
+              className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg transition text-sm font-semibold cursor-pointer  ${
+                data.state === "paid"
+                  ? downloading
+                    ? "bg-blue-300 text-white cursor-not-allowed"
+                    : "bg-blue-600 text-white hover:bg-blue-700"
+                  : "bg-gray-300 text-gray-500 cursor-not-allowed"
+              }`}
+              disabled={downloading || data.state !== "paid"}
+              title={data.state !== "paid" ? "Certificate is only available after payment." : downloading ? "Downloading..." : "Download Certificate"}
+            >
+              {downloading ? (
+                <>
+                  <svg className="animate-spin h-5 w-5 text-white" viewBox="0 0 24 24">
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                      fill="none"
+                    />
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                    />
+                  </svg>
+                  Downloading...
+                </>
+              ) : (
+                <>
+                  <DocumentText size={20} />
+                  Download Certificate
+                </>
+              )}
+            </button>
+          )}
           {data.state === "expired" && (
             <button
-              className="inline-flex items-center gap-2 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition text-sm font-semibold"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-orange-600 text-white rounded-[10px] hover:bg-orange-700 transition text-sm font-semibold cursor-pointer"
               onClick={() => setShowRenewForm(true)}
             >
               <Refresh size={20} />
-              Renew Membership
+              Change Membership
             </button>
           )}
         </div>
@@ -366,10 +375,14 @@ export default function MembershipApplication({
                 &times;
               </button>
               <MembershipApplicationForm
-                onSuccess={() => setShowRenewForm(false)}
-                submitLabel="Renew Membership"
+                onSuccess={() => {
+                  setShowRenewForm(false);
+                  fetchApplicationData();
+                }}
+                submitLabel="Change Membership"
                 action="renew"
                 membershipId={data.id}
+                existingData={data}
               />
             </div>
           </div>
@@ -406,12 +419,18 @@ export default function MembershipApplication({
           <div className="text-sm text-gray-700">Region: <strong>{data.region_name}</strong></div>
           <div className="text-sm text-gray-700">District: <strong>{data.district_name}</strong></div>
           <div className="text-sm text-gray-700">Sector: <strong>{data.sector_name}</strong></div>
+          <div className="text-sm text-gray-700">Subsector: <strong>{data.subsector_name}</strong></div>
         </div>
 
         {/* Invoice + TIN */}
         <div>
           <SectionHeader icon={<Receipt size={18} />} title="Invoice & Payment" />
           <div className="flex items-center gap-2 text-sm text-gray-700 mb-1">
+            <div> 
+              <span>
+                Services: 
+              </span>
+            </div>
             <span>Invoice Number:</span>
             {data.invoice_number ? (
               <>
