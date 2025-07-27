@@ -393,8 +393,9 @@ export default function NTB() {
                   <CardContent className="px-8 pb-8">
                     <form onSubmit={handleProfileSubmit} className="space-y-6">
                       
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="space-y-3">
+                      {/* Form Inputs Row */}
+                      <div className="flex flex-row gap-4 justify-between">
+                        <div className="space-y-2">
                           <Label className="text-sm font-medium text-gray-700">
                             Country of Residence *
                           </Label>
@@ -403,7 +404,7 @@ export default function NTB() {
                             onValueChange={(value) => handleProfileChange("country_of_residence", value)}
                             required
                           >
-                            <SelectTrigger className="h-12 rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500">
+                            <SelectTrigger className="h-10 w-[240px] rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500">
                               <SelectValue placeholder="Select country" />
                             </SelectTrigger>
                             <SelectContent>
@@ -416,7 +417,7 @@ export default function NTB() {
                           </Select>
                         </div>
 
-                        <div className="space-y-3">
+                        <div className="space-y-2">
                           <Label className="text-sm font-medium text-gray-700">
                             Operator Type *
                           </Label>
@@ -425,7 +426,7 @@ export default function NTB() {
                             onValueChange={(value) => handleProfileChange("operator_type", value)}
                             required
                           >
-                            <SelectTrigger className="h-12 rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500">
+                            <SelectTrigger className="h-10 rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500 w-[240px]">
                               <SelectValue placeholder="Select operator type" />
                             </SelectTrigger>
                             <SelectContent>
@@ -437,57 +438,57 @@ export default function NTB() {
                             </SelectContent>
                           </Select>
                         </div>
+
+                        <div className="space-y-2">
+                          <Label className="text-sm font-medium text-gray-700">
+                            Gender *
+                          </Label>
+                          <Select
+                            value={profileForm.gender}
+                            onValueChange={(value) => handleProfileChange("gender", value)}
+                            required
+                          >
+                            <SelectTrigger className="h-10 rounded-[9px] border-gray-200 w-[240px] focus:border-blue-500 focus:ring-blue-500">
+                              <SelectValue placeholder="Select gender" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {GENDER_OPTIONS.map((gender) => (
+                                <SelectItem key={gender} value={gender}>
+                                  {gender.charAt(0).toUpperCase() + gender.slice(1)}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
                       </div>
 
+                      {/* Conditional "Other" Input */}
                       {profileForm.operator_type === "other" && (
-                        <div className="space-y-3">
+                        <div className="space-y-2">
                           <Label className="text-sm font-medium text-gray-700">
                             Specify Other Operator Type *
                           </Label>
                           <Input
-                            placeholder="Please specify your operator type"
+                            placeholder="Specify type"
                             value={profileForm.operator_type_other}
                             onChange={(e) => handleProfileChange("operator_type_other", e.target.value)}
-                            className="h-12 rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+                            className="h-10 rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500 max-w-lg"
                             required
                           />
                         </div>
                       )}
 
-                      <div className="space-y-3">
-                        <Label className="text-sm font-medium text-gray-700">
-                          Gender *
-                        </Label>
-                        <Select
-                          value={profileForm.gender}
-                          onValueChange={(value) => handleProfileChange("gender", value)}
-                          required
-                        >
-                          <SelectTrigger className="h-12 rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500">
-                            <SelectValue placeholder="Select gender" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {GENDER_OPTIONS.map((gender) => (
-                              <SelectItem key={gender} value={gender}>
-                                {gender.charAt(0).toUpperCase() + gender.slice(1)}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-
-                      <Separator className="my-8" />
-
-                      <div className="flex gap-4">
+                      {/* Submit Button Row */}
+                      <div className="flex justify-end pt-4">
                         <Button
                           type="submit"
-                          className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 rounded-[9px] cursor-pointer h-12"
+                          className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-8 rounded-[9px] h-10 text-sm min-w-[160px] cursor-pointer"
                           disabled={submitting}
                         >
                           {submitting ? (
                             <>
                               <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
-                              Updating Profile...
+                              Updating...
                             </>
                           ) : (
                             "Complete Profile"

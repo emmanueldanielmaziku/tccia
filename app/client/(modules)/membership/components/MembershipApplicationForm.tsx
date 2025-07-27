@@ -450,7 +450,7 @@ export default function MembershipApplicationForm({
             <div className="flex flex-row items-center justify-between mb-4">
               <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
                 <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                Membership Details
+                Choose Membership Type
               </h3>
               <button
                 type="button"
@@ -703,10 +703,10 @@ export default function MembershipApplicationForm({
                       Fee Information:
                     </div>
                     <div className="text-xs text-green-700 space-y-1">
-                      <div>Annual Fee: {selectedSubcategory.annual_fee} TZS</div>
+                      {/* <div>Annual Fee: {selectedSubcategory.annual_fee} TZS</div>
                       {selectedSubcategory.certificate_fee && (
                         <div>Certificate Fee: {selectedSubcategory.certificate_fee} TZS</div>
-                      )}
+                      )} */}
                       {selectedSubcategory.total_fees && (
                         <div className="font-semibold">Total Fees: {selectedSubcategory.total_fees} TZS</div>
                       )}
