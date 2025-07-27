@@ -1,13 +1,16 @@
 import { useState, useEffect } from "react";
 
 interface UserProfile {
-  id?: number;
-  name?: string;
-  email?: string;
-  role?: string;
-  company?: string;
-  phone?: string;
-  state?: string;
+  id: number;
+  name: string;
+  role: string;
+  phone: string;
+  email: string;
+  country_of_residence: string;
+  operator_type: string;
+  operator_type_other: string;
+  gender: string;
+  state: string;
 }
 
 interface StoredUserData {
@@ -63,16 +66,31 @@ export function useUserProfile() {
       }
 
       if (result.success && result.data) {
+        // Ensure all fields are present with default values if missing
+        const userData: UserProfile = {
+          id: result.data.id || 0,
+          name: result.data.name || "",
+          role: result.data.role || "",
+          phone: result.data.phone || "",
+          email: result.data.email || "",
+          country_of_residence: result.data.country_of_residence || "",
+          operator_type: result.data.operator_type || "",
+          operator_type_other: result.data.operator_type_other || "",
+          gender: result.data.gender || "",
+          state: result.data.state || "",
+        };
+
         // Store data with timestamp
         const userDataWithTimestamp: StoredUserData = {
-          data: result.data,
+          data: userData,
           timestamp: Date.now(),
         };
+        
         localStorage.setItem(
           "userProfile",
           JSON.stringify(userDataWithTimestamp)
         );
-        setUserProfile(result.data);
+        setUserProfile(userData);
       } else {
         throw new Error("Invalid response from server");
       }

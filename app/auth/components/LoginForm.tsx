@@ -159,10 +159,11 @@ export default function LoginForm() {
         )}
       </button>
 
-      <div className="flex items-center space-x-4">
-        <span className="text-[14px] text-gray-700 font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+<div className="flex flex-row justify-between items-center">
+<div className="flex items-center space-x-4">
+        {/* <span className="text-[14px] text-gray-700 font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
           {tf("messages.noAccount")}
-        </span>
+        </span> */}
         <button
           type="button"
           className="text-[14px] text-blue-600 underline cursor-pointer"
@@ -172,9 +173,9 @@ export default function LoginForm() {
         </button>
       </div>
       <div className="flex items-center space-x-4">
-        <span className="text-[14px] text-gray-700 font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+        {/* <span className="text-[14px] text-gray-700 font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
           {tf("messages.forgotPassword")}
-        </span>
+        </span> */}
         <button
           type="button"
           className="text-[14px] text-red-600 underline cursor-pointer"
@@ -183,6 +184,7 @@ export default function LoginForm() {
           {t("common.resetPassword")}
         </button>
       </div>
+</div>
     </form>
   );
 }

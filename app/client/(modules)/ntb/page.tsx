@@ -44,9 +44,11 @@ import {
   Upload,
   Trash2,
   Eye,
+  UserCheck,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
+import { useUserProfile } from "../../../hooks/useUserProfile";
 
 const NTB_TYPES = [
   "Administrative issues",
@@ -126,13 +128,38 @@ const COUNTRIES = [
   "Other",
 ];
 
+const OPERATOR_TYPES = [
+  "exporter",
+  "importer",
+  "manufacturer",
+  "distributor",
+  "wholesaler",
+  "retailer",
+  "service_provider",
+  "consultant",
+  "other",
+];
+
+const GENDER_OPTIONS = [
+  "male",
+  "female",
+  "other",
+];
+
 export default function NTB() {
   const t = useTranslations("ntb");
-  const [mode, setMode] = useState<"list" | "new">("list");
+  const { userProfile, loading: profileLoading } = useUserProfile();
+  const [mode, setMode] = useState<"profile" | "list" | "new">("profile");
   const [ntbList, setNtbList] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [profileForm, setProfileForm] = useState({
+    country_of_residence: "",
+    operator_type: "",
+    operator_type_other: "",
+    gender: "",
+  });
   const [form, setForm] = useState({
     ntb_type: "",
     date_of_incident: "",
@@ -159,10 +186,29 @@ export default function NTB() {
     },
   });
 
-  // Fetch NTB list on component mount
+  // Check if profile is complete and set mode accordingly
   useEffect(() => {
-    fetchNTBList();
-  }, []);
+    if (!profileLoading && userProfile) {
+      const isProfileComplete = 
+        userProfile.country_of_residence && 
+        userProfile.operator_type && 
+        userProfile.gender;
+
+      if (isProfileComplete) {
+        setMode("list");
+        fetchNTBList();
+      } else {
+        setMode("profile");
+        // Pre-fill form with existing data
+        setProfileForm({
+          country_of_residence: userProfile.country_of_residence || "",
+          operator_type: userProfile.operator_type || "",
+          operator_type_other: userProfile.operator_type_other || "",
+          gender: userProfile.gender || "",
+        });
+      }
+    }
+  }, [userProfile, profileLoading]);
 
   const fetchNTBList = async () => {
     setLoading(true);
@@ -185,10 +231,44 @@ export default function NTB() {
     setForm((prev) => ({ ...prev, [field]: value }));
   };
 
+  const handleProfileChange = (field: string, value: string) => {
+    setProfileForm((prev) => ({ ...prev, [field]: value }));
+  };
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       setSelectedFile(file);
+    }
+  };
+
+  const handleProfileSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSubmitting(true);
+
+    try {
+      const response = await fetch('/api/user/update-profile', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(profileForm),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        toast.success('Profile updated successfully!');
+        setMode("list");
+        fetchNTBList();
+      } else {
+        toast.error(data.message || 'Failed to update profile');
+      }
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      toast.error('Failed to update profile');
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -269,6 +349,21 @@ export default function NTB() {
     }
   };
 
+  // Show loading state while profile is loading
+  if (profileLoading) {
+    return (
+      <main className="w-full h-[97vh] rounded-[14px] overflow-hidden bg-white border-[1px] border-gray-200 ml-2 shadow-sm relative">
+        <NavBar title={t("title")} />
+        <div className="flex items-center justify-center h-full">
+          <div className="text-center">
+            <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+            <p className="text-gray-600">Loading profile...</p>
+          </div>
+        </div>
+      </main>
+    );
+  }
+
   return (
     <main className="w-full h-[97vh] rounded-[14px] overflow-hidden bg-white border-[1px] border-gray-200 ml-2 shadow-sm relative">
       <NavBar title={t("title")} />
@@ -276,24 +371,155 @@ export default function NTB() {
         <div className="flex flex-col items-start flex-1 w-full overflow-y-auto max-h-[calc(97vh-80px)]">
           <div className="w-full max-w-4xl mx-auto mt-24 mb-8 px-6 pb-8">
             
-            {/* Header with New NTB Button */}
-            <div className="flex justify-between items-center mb-8">
-                  <div>
-                <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                  Non-Tariff Barriers (NTB)
-                    </h1>
-                <p className="text-gray-600">
-                  Track and report non-tariff barriers affecting your trade
-                </p>
+            {/* Profile Completion Form */}
+            {mode === "profile" && (
+              <div className="space-y-6">
+                <Card className="border-[0.5px] shadow-[0_0_0px_rgba(0,0,0,0.1)]">
+                  <CardHeader className="pb-6">
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
+                        <UserCheck className="w-6 h-6 text-blue-600" />
+                      </div>
+                      <div>
+                        <CardTitle className="text-xl text-gray-900">
+                          Complete Your Profile
+                        </CardTitle>
+                        <CardDescription className="text-[14px]">
+                          Please complete your profile information to access NTB features
+                        </CardDescription>
+                      </div>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="px-8 pb-8">
+                    <form onSubmit={handleProfileSubmit} className="space-y-6">
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-3">
+                          <Label className="text-sm font-medium text-gray-700">
+                            Country of Residence *
+                          </Label>
+                          <Select
+                            value={profileForm.country_of_residence}
+                            onValueChange={(value) => handleProfileChange("country_of_residence", value)}
+                            required
+                          >
+                            <SelectTrigger className="h-12 rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500">
+                              <SelectValue placeholder="Select country" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {COUNTRIES.map((country) => (
+                                <SelectItem key={country} value={country}>
+                                  {country}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+
+                        <div className="space-y-3">
+                          <Label className="text-sm font-medium text-gray-700">
+                            Operator Type *
+                          </Label>
+                          <Select
+                            value={profileForm.operator_type}
+                            onValueChange={(value) => handleProfileChange("operator_type", value)}
+                            required
+                          >
+                            <SelectTrigger className="h-12 rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500">
+                              <SelectValue placeholder="Select operator type" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {OPERATOR_TYPES.map((type) => (
+                                <SelectItem key={type} value={type}>
+                                  {type.charAt(0).toUpperCase() + type.slice(1).replace('_', ' ')}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
+
+                      {profileForm.operator_type === "other" && (
+                        <div className="space-y-3">
+                          <Label className="text-sm font-medium text-gray-700">
+                            Specify Other Operator Type *
+                          </Label>
+                          <Input
+                            placeholder="Please specify your operator type"
+                            value={profileForm.operator_type_other}
+                            onChange={(e) => handleProfileChange("operator_type_other", e.target.value)}
+                            className="h-12 rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+                            required
+                          />
+                        </div>
+                      )}
+
+                      <div className="space-y-3">
+                        <Label className="text-sm font-medium text-gray-700">
+                          Gender *
+                        </Label>
+                        <Select
+                          value={profileForm.gender}
+                          onValueChange={(value) => handleProfileChange("gender", value)}
+                          required
+                        >
+                          <SelectTrigger className="h-12 rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500">
+                            <SelectValue placeholder="Select gender" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {GENDER_OPTIONS.map((gender) => (
+                              <SelectItem key={gender} value={gender}>
+                                {gender.charAt(0).toUpperCase() + gender.slice(1)}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      <Separator className="my-8" />
+
+                      <div className="flex gap-4">
+                        <Button
+                          type="submit"
+                          className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 rounded-[9px] cursor-pointer h-12"
+                          disabled={submitting}
+                        >
+                          {submitting ? (
+                            <>
+                              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                              Updating Profile...
+                            </>
+                          ) : (
+                            "Complete Profile"
+                          )}
+                        </Button>
+                      </div>
+                    </form>
+                  </CardContent>
+                </Card>
               </div>
-              <Button
-                onClick={() => setMode('new')}
-                className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-md flex items-center gap-2 cursor-pointer"
-              >
-                <Plus className="w-4 h-4" />
-                New NTB Report
-              </Button>
-            </div>
+            )}
+
+            {/* Header with New NTB Button */}
+            {mode !== "profile" && (
+              <div className="flex justify-between items-center mb-8">
+                <div>
+                  <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                    Non-Tariff Barriers (NTB)
+                  </h1>
+                  <p className="text-gray-600">
+                    Track and report non-tariff barriers affecting your trade
+                  </p>
+                </div>
+                <Button
+                  onClick={() => setMode('new')}
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-md flex items-center gap-2 cursor-pointer"
+                >
+                  <Plus className="w-4 h-4" />
+                  New NTB Report
+                </Button>
+              </div>
+            )}
 
             {/* NTB List */}
             {mode === "list" && (
@@ -304,27 +530,27 @@ export default function NTB() {
                     <p className="text-gray-600">Loading NTB reports...</p>
                   </div>
                 ) : ntbList.length === 0 ? (
-                  <Card className="text-center py-12 shadow-[0_0_10px_rgba(0,0,0,0.1)]">
+                  <Card className="text-center py-12 shadow-[0_0_0px_rgba(0,0,0,0.1)]">
                     <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
                       <FileText className="w-8 h-8 text-gray-400" />
-                </div>
+                    </div>
                     <h3 className="text-xl font-semibold text-gray-900 mb-2">
                       No NTB Reports Found
-                      </h3>
-                      <p className="text-gray-600 mb-6">
+                    </h3>
+                    <p className="text-gray-600 mb-6">
                       You haven't submitted any NTB reports yet.
-                      </p>
-                      <Button
+                    </p>
+                    <Button
                       onClick={() => setMode('new')}
                       className="bg-blue-600 hover:bg-blue-700 text-white mx-auto cursor-pointer"
-                      >
+                    >
                       Submit Your First NTB Report
-                      </Button>
+                    </Button>
                   </Card>
                 ) : (
                   <div className="space-y-4">
                     {ntbList.map((ntb, index) => (
-                      <Card key={index} className="hover:shadow-md transition-shadow">
+                      <Card key={index} className="hover:shadow-md transition-shadow border-[0.5px] shadow-[0_0_0px_rgba(0,0,0,0.1)]">
                         <CardContent className="p-6">
                           <div className="flex justify-between items-start mb-4">
                             <div>
@@ -357,22 +583,22 @@ export default function NTB() {
                               <span className="text-gray-500">Value Lost:</span>
                               <p className="font-medium">${ntb.exact_value_loss}</p>
                             </div>
-                      </div>
+                          </div>
 
                           <div className="flex gap-2">
-                      <Button
+                            <Button
                               variant="outline"
                               size="sm"
                               className="flex items-center gap-2"
                             >
                               <Eye className="w-4 h-4" />
                               View Details
-                      </Button>
+                            </Button>
                           </div>
-                    </CardContent>
-                  </Card>
+                        </CardContent>
+                      </Card>
                     ))}
-                </div>
+                  </div>
                 )}
               </div>
             )}
@@ -380,7 +606,7 @@ export default function NTB() {
             {/* New NTB Form */}
             {mode === "new" && (
               <div className="space-y-6">
-                <Card className="border-[0.5px] shadow-[0_0_10px_rgba(0,0,0,0.1)]">
+                <Card className="border-[0.5px] shadow-[0_0_0px_rgba(0,0,0,0.1)]">
                   <CardHeader className="pb-6">
                     <div className="flex items-center gap-3">
                       <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
@@ -483,31 +709,31 @@ export default function NTB() {
                         </div>
                       </div>
 
-                          <div className="space-y-3">
+                      <div className="space-y-3">
                         <Label className="text-sm font-medium text-gray-700">
                           Location *
-                            </Label>
-                            <Input
+                        </Label>
+                        <Input
                           placeholder="Enter specific location"
                           value={form.location}
                           onChange={(e) => handleChange("location", e.target.value)}
-                              className="h-12 rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500"
-                              required
-                            />
-                          </div>
+                          className="h-12 rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+                          required
+                        />
+                      </div>
 
                       {/* Product Information */}
-                          <div className="space-y-3">
+                      <div className="space-y-3">
                         <Label className="text-sm font-medium text-gray-700">
                           Product Description *
-                            </Label>
-                            <Input
+                        </Label>
+                        <Input
                           placeholder="Describe the product affected"
                           value={form.product_description}
                           onChange={(e) => handleChange("product_description", e.target.value)}
-                              className="h-12 rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500"
-                              required
-                            />
+                          className="h-12 rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+                          required
+                        />
                       </div>
 
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -534,7 +760,7 @@ export default function NTB() {
                             className="h-12 rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500"
                           />
                         </div>
-                              </div>
+                      </div>
 
                       <div className="space-y-3">
                         <Label className="text-sm font-medium text-gray-700">
@@ -556,7 +782,7 @@ export default function NTB() {
                             ))}
                           </SelectContent>
                         </Select>
-                          </div>
+                      </div>
 
                       {/* Occurrence and Impact */}
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -642,9 +868,9 @@ export default function NTB() {
                             required
                           />
                         </div>
-                        </div>
+                      </div>
 
-                        <div className="space-y-3">
+                      <div className="space-y-3">
                         <Label className="text-sm font-medium text-gray-700">
                           Description of How Loss Was Calculated *
                         </Label>
@@ -661,71 +887,71 @@ export default function NTB() {
                       <div className="space-y-3">
                         <Label className="text-sm font-medium text-gray-700">
                           Complaint Details & Description *
-                          </Label>
-                          <div className="border border-gray-200 rounded-xl bg-white overflow-hidden focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500">
-                            <div className="flex gap-1 border-b border-gray-100 px-4 py-3 bg-gray-50">
-                              <Button
-                                type="button"
-                                variant="ghost"
-                                size="sm"
-                                onClick={() =>
-                                  editor?.chain().focus().toggleBold().run()
-                                }
-                                className={`h-8 w-8 p-0 rounded-[9px] ${
-                                  editor?.isActive("bold")
-                                    ? "bg-blue-100 text-blue-700"
-                                    : "hover:bg-gray-100"
-                                }`}
-                              >
-                                <Bold className="w-4 h-4" />
-                              </Button>
-                              <Button
-                                type="button"
-                                variant="ghost"
-                                size="sm"
-                                onClick={() =>
-                                  editor?.chain().focus().toggleItalic().run()
-                                }
-                                className={`h-8 w-8 p-0 rounded-lg ${
-                                  editor?.isActive("italic")
-                                    ? "bg-blue-100 text-blue-700"
-                                    : "hover:bg-gray-100"
-                                }`}
-                              >
-                                <Italic className="w-4 h-4" />
-                              </Button>
-                              <Button
-                                type="button"
-                                variant="ghost"
-                                size="sm"
-                                onClick={() =>
-                                  editor
-                                    ?.chain()
-                                    .focus()
-                                    .toggleBulletList()
-                                    .run()
-                                }
-                                className={`h-8 w-8 p-0 rounded-lg ${
-                                  editor?.isActive("bulletList")
-                                    ? "bg-blue-100 text-blue-700"
-                                    : "hover:bg-gray-100"
-                                }`}
-                              >
-                                <List className="w-4 h-4" />
-                              </Button>
-                            </div>
-                            <EditorContent
-                              editor={editor}
-                              className="min-h-[140px] px-4 py-3 focus:outline-none prose prose-sm max-w-none"
-                            />
+                        </Label>
+                        <div className="border border-gray-200 rounded-xl bg-white overflow-hidden focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500">
+                          <div className="flex gap-1 border-b border-gray-100 px-4 py-3 bg-gray-50">
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              onClick={() =>
+                                editor?.chain().focus().toggleBold().run()
+                              }
+                              className={`h-8 w-8 p-0 rounded-[9px] ${
+                                editor?.isActive("bold")
+                                  ? "bg-blue-100 text-blue-700"
+                                  : "hover:bg-gray-100"
+                              }`}
+                            >
+                              <Bold className="w-4 h-4" />
+                            </Button>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              onClick={() =>
+                                editor?.chain().focus().toggleItalic().run()
+                              }
+                              className={`h-8 w-8 p-0 rounded-lg ${
+                                editor?.isActive("italic")
+                                  ? "bg-blue-100 text-blue-700"
+                                  : "hover:bg-gray-100"
+                              }`}
+                            >
+                              <Italic className="w-4 h-4" />
+                            </Button>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              onClick={() =>
+                                editor
+                                  ?.chain()
+                                  .focus()
+                                  .toggleBulletList()
+                                  .run()
+                              }
+                              className={`h-8 w-8 p-0 rounded-lg ${
+                                editor?.isActive("bulletList")
+                                  ? "bg-blue-100 text-blue-700"
+                                  : "hover:bg-gray-100"
+                              }`}
+                            >
+                              <List className="w-4 h-4" />
+                            </Button>
                           </div>
+                          <EditorContent
+                            editor={editor}
+                            className="min-h-[140px] px-4 py-3 focus:outline-none prose prose-sm max-w-none"
+                          />
                         </div>
+                      </div>
 
                       {/* File Upload */}
-                        <div className="space-y-3">
+                      <div className="space-y-3">
                         <Label className="text-sm font-medium text-gray-700">
                           Attachment
-                          </Label>
+                        </Label>
                         <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-blue-400 transition-colors">
                           <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
                           <input
@@ -746,15 +972,15 @@ export default function NTB() {
                               <span className="text-sm text-gray-600">
                                 {selectedFile.name}
                               </span>
-                          <Button
-                            type="button"
+                              <Button
+                                type="button"
                                 variant="ghost"
                                 size="sm"
                                 onClick={() => setSelectedFile(null)}
                                 className="text-red-600 hover:text-red-700"
-                          >
+                              >
                                 <Trash2 className="w-4 h-4" />
-                          </Button>
+                              </Button>
                             </div>
                           )}
                         </div>

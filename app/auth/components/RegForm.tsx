@@ -67,7 +67,7 @@ const RegForm = () => {
   } = useForm<FormData>({
     resolver: zodResolver(schema),
     defaultValues: {
-      role: "",
+      role: "trader",
     },
     mode: "onChange",
   });
@@ -295,7 +295,7 @@ const RegForm = () => {
         )}
       </div>
 
-      <div className="relative flex flex-col gap-1 w-full">
+      <div className="relative gap-1 w-full hidden">
         <label htmlFor="role" className="text-gray-700 text-sm font-medium">
           {tf("labels.role")}
         </label>
