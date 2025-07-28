@@ -23,7 +23,7 @@ export async function POST(request: Request) {
     });
 
     const result = await response.json();
-
+    console.log(result);
     if (result.result?.error) {
       return NextResponse.json(
         {

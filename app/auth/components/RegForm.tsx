@@ -136,15 +136,27 @@ const RegForm = () => {
 
       if (result.result?.success) {
         // Store registration data in localStorage or state management if needed
-        localStorage.setItem(
-          "registration_id",
-          result.result.registration_id.toString()
-        );
-        localStorage.setItem("user_id", result.result.user_id.toString());
-        localStorage.setItem("user_name", result.result.name);
-        localStorage.setItem("user_role", result.result.role);
-        localStorage.setItem("user_email", result.result.email);
-        localStorage.setItem("registration_state", result.result.state);
+        if (result.result.registration_id) {
+          localStorage.setItem(
+            "registration_id",
+            result.result.registration_id.toString()
+          );
+        }
+        if (result.result.user_id) {
+          localStorage.setItem("user_id", result.result.user_id.toString());
+        }
+        if (result.result.name) {
+          localStorage.setItem("user_name", result.result.name);
+        }
+        if (result.result.role) {
+          localStorage.setItem("user_role", result.result.role);
+        }
+        if (result.result.email) {
+          localStorage.setItem("user_email", result.result.email);
+        }
+        if (result.result.registration_state) {
+          localStorage.setItem("registration_state", result.result.registration_state);
+        }
 
         setSuccess(tf("messages.registrationSuccess"));
         reset();

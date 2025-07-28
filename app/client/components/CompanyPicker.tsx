@@ -200,7 +200,7 @@ export default function CompanyPicker() {
         <div className="flex flex-row justify-start items-center gap-2">
           <Building size="23" color="gray" variant="Outline" />
           <div className="text-xl font-semibold text-gray-600">
-            Choose Company
+            Quick Menu (COO & NTB)
           </div>
         </div>
         <div className="text-gray-600">
