@@ -1,5 +1,6 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { usePathname } from "next/navigation";
 import {
   ArchiveBook,
   Box,
@@ -23,10 +24,28 @@ export default function SideBarMobile() {
   const { isMenuOpen } = useMenuState();
   const { alertState, toggleAlert } = useLogState();
   const { isMobile, toggleMobileView } = useMobileState();
-  const [selectedTab, setSelectedTab] = useState("Firm Management");
+  const pathname = usePathname();
+  const [selectedTab, setSelectedTab] = useState("");
   const [role, setRole] = useState("CEM");
   const t = useTranslations("sidebar");
   const ta = useTranslations("alerts");
+
+  // Function to get the active tab based on current pathname
+  const getActiveTabFromPathname = (currentPath: string) => {
+    if (currentPath.includes("/client/firm-management")) return "Firm Management";
+    if (currentPath.includes("/client/factory-verification")) return "Factory Verification";
+    if (currentPath.includes("/client/coo")) return "Certificate of Origin";
+    if (currentPath.includes("/client/membership")) return "Membership";
+    if (currentPath.includes("/client/ntb")) return "Non-Tariff Barrier";
+    if (currentPath.includes("/client/report")) return "Report a Problem";
+    return "Firm Management"; // Default fallback
+  };
+
+  // Set initial active tab based on current route
+  useEffect(() => {
+    const activeTab = getActiveTabFromPathname(pathname);
+    setSelectedTab(activeTab);
+  }, [pathname]);
 
   const menuItems = [
     {

@@ -185,7 +185,7 @@ export default function NTB() {
     extensions: [StarterKit],
     content: "",
     onUpdate: ({ editor }) => {
-      setForm(prev => ({ ...prev, complaint_details: editor.getHTML() }));
+      setForm(prev => ({ ...prev, complaint_details: editor.getText() }));
     },
   });
 
@@ -876,10 +876,9 @@ export default function NTB() {
                         <CardTitle className="text-lg">Complaint Details</CardTitle>
                       </CardHeader>
                       <CardContent>
-                        <div 
-                          className="prose prose-sm max-w-none"
-                          dangerouslySetInnerHTML={{ __html: selectedNtb.complaint_details }}
-                        />
+                        <div className="prose prose-sm max-w-none whitespace-pre-wrap">
+                          {selectedNtb.complaint_details}
+                        </div>
                       </CardContent>
                     </Card>
                   </div>
