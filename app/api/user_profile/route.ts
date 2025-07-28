@@ -18,11 +18,11 @@ export async function GET(request: NextRequest) {
     }
 
     const response = await fetch(
-      `https://tccia.kalen.co.tz/api/user/${uid.value}`,
+      `https://tccia.kalen.co.tz/api/user/me`,
       {
         method: "GET",
         headers: {
-          "Content-Type": "application/json",
+      
           Authorization: `Bearer ${token.value.trim()}`,
         },
       }
@@ -38,18 +38,9 @@ export async function GET(request: NextRequest) {
     }
 
     const result = await response.json();
-    console.log(result);
+    // console.log("User profile result:", result);
 
-    // Handle JSON-RPC response structure
-    if (result.jsonrpc && result.result) {
-      return NextResponse.json({
-        success: true,
-        data: result.result, 
-        message: "User profile fetched successfully",
-      });
-    }
-
-    // Fallback for non-JSON-RPC responses
+    // Return the direct response data
     return NextResponse.json({
       success: true,
       data: result,

@@ -9,6 +9,7 @@ import {
 } from "iconsax-reactjs";
 import useMenuState from "../services/MenuState";
 import useLangState from "@/app/services/LanguageState";
+import useLogState from "../services/LogoutState";
 import { useUserProfile } from "@/app/hooks/useUserProfile";
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
@@ -32,6 +33,7 @@ type NavBarProps = {
 export default function NavBar({ title }: NavBarProps) {
   const { isMenuOpen, toggleMenu } = useMenuState();
   const { language, toggleLanguage } = useLangState();
+  const { alertState, toggleAlert } = useLogState();
   const { userProfile, loading, refreshUserProfile } = useUserProfile();
   const [langDrop, toggleDropBox] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
@@ -202,7 +204,7 @@ export default function NavBar({ title }: NavBarProps) {
             <DropdownMenuItem onClick={() => refreshUserProfile()}>
               Refresh Profile
             </DropdownMenuItem>
-            <DropdownMenuItem className="text-red-600">
+            <DropdownMenuItem className="text-red-600" onClick={toggleAlert}>
               Sign Out
             </DropdownMenuItem>
           </DropdownMenuContent>

@@ -53,12 +53,12 @@ export function useUserProfile() {
     loadUserFromStorage();
   }, []);
 
-  const fetchUserProfile = async (userId: string = "7") => {
+  const fetchUserProfile = async () => {
     try {
       setLoading(true);
       setError(null);
 
-      const response = await fetch(`/api/user_profile?id=${userId}`);
+      const response = await fetch(`/api/user_profile`);
       const result = await response.json();
 
       if (!response.ok) {
@@ -118,8 +118,8 @@ export function useUserProfile() {
     localStorage.removeItem("userProfile");
   };
 
-  const refreshUserProfile = (userId: string = "7") => {
-    fetchUserProfile(userId);
+  const refreshUserProfile = () => {
+    fetchUserProfile();
   };
 
   return {

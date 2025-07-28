@@ -45,30 +45,33 @@ import {
   Trash2,
   Eye,
   UserCheck,
+  RefreshCw,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 import { useUserProfile } from "../../../hooks/useUserProfile";
 
-const NTB_TYPES = [
-  "Administrative issues",
-  "Import ban",
-  "Rule of origin Issues",
-  "Import Licensing",
-  "Length/Costly customs procedures",
-  "Poor testing/Inspection Facilities",
-  "Administrative fee & levies",
-  "Lack of clarity on border Procedures",
-  "Others",
-];
+// Dynamic NTB types will be fetched from API
+// const NTB_TYPES = [
+//   "Administrative issues",
+//   "Import ban", 
+//   "Rule of origin Issues",
+//   "Import Licensing",
+//   "Length/Costly customs procedures",
+//   "Poor testing/Inspection Facilities",
+//   "Administrative fee & levies",
+//   "Lack of clarity on border Procedures",
+//   "Others",
+// ];
 
-const STATUS_OPTIONS = [
-  "Pending",
-  "Under Review",
-  "In Progress",
-  "Resolved",
-  "Closed",
-];
+// STATUS_OPTIONS removed - status field not needed in form
+// const STATUS_OPTIONS = [
+//   "Pending",
+//   "Under Review", 
+//   "In Progress",
+//   "Resolved",
+//   "Closed",
+// ];
 
 const COST_RANGES = [
   "0 - 100",
@@ -129,31 +132,31 @@ const COUNTRIES = [
 ];
 
 const OPERATOR_TYPES = [
-  "exporter",
-  "importer",
-  "manufacturer",
-  "distributor",
-  "wholesaler",
-  "retailer",
-  "service_provider",
-  "consultant",
-  "other",
+  { value: "informal_trader", label: "Informal Trader" },
+  { value: "small_scale_trader", label: "Small Scale Trader" },
+  { value: "commercial_trader", label: "Commercial Trader" },
+  { value: "transporter", label: "Transporter" },
+  { value: "clearing_agent", label: "Clearing Agent" },
+  { value: "freight_forwarder", label: "Freight Forwarder" },
+  { value: "others", label: "Others" },
 ];
 
 const GENDER_OPTIONS = [
   "male",
   "female",
-  "other",
 ];
 
 export default function NTB() {
   const t = useTranslations("ntb");
-  const { userProfile, loading: profileLoading } = useUserProfile();
-  const [mode, setMode] = useState<"profile" | "list" | "new">("profile");
+  const { userProfile, loading: profileLoading, updateUserProfile } = useUserProfile();
+  const [mode, setMode] = useState<"profile" | "list" | "new" | "detail">("profile");
   const [ntbList, setNtbList] = useState<any[]>([]);
+  const [ntbTypes, setNtbTypes] = useState<{id: number, name: string, description: string}[]>([]);
+  const [selectedNtb, setSelectedNtb] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [detailLoading, setDetailLoading] = useState(false);
+  // const [selectedFile, setSelectedFile] = useState<File | null>(null); // Commented out - no file uploads
   const [profileForm, setProfileForm] = useState({
     country_of_residence: "",
     operator_type: "",
@@ -161,20 +164,20 @@ export default function NTB() {
     gender: "",
   });
   const [form, setForm] = useState({
-    ntb_type: "",
+    ntb_type_id: "",
     date_of_incident: "",
-    status: "",
+    // status: "", // Removed - not needed in form
     country_of_incident: "",
     location: "",
     complaint_details: "",
     product_description: "",
-    cost_value_goods: "",
+    cost_value_range: "",
     hs_code: "",
     hs_description: "",
     occurrence: "",
-    time_lost: "",
-    money_lost: "",
-    exact_value_loss: "",
+    time_lost_range: "",
+    money_lost_range: "",
+    exact_loss_value: "",
     loss_calculation_description: "",
   });
 
@@ -210,20 +213,85 @@ export default function NTB() {
     }
   }, [userProfile, profileLoading]);
 
+  // Fetch NTB types on component mount
+  useEffect(() => {
+    fetchNTBTypes();
+  }, []);
+
+  const fetchNTBTypes = async () => {
+    try {
+      const response = await fetch('/api/ntb/types');
+      const data = await response.json();
+      if (data.success) {
+        setNtbTypes(data.data || []);
+      } else {
+        console.error('Error fetching NTB types:', data.error);
+        // Use fallback types if API fails
+        setNtbTypes([
+          { id: 1, name: "Administrative issues", description: "Issues related to administrative procedures and bureaucracy" },
+          { id: 2, name: "Import ban", description: "Restrictions or prohibitions on importing certain goods" },
+          { id: 3, name: "Rule of origin Issues", description: "Problems related to determining the origin of goods" },
+          { id: 4, name: "Import Licensing", description: "Issues with import licensing requirements and procedures" },
+          { id: 5, name: "Length/Costly customs procedures", description: "Delays and excessive costs in customs clearance" },
+          { id: 6, name: "Poor testing/Inspection Facilities", description: "Inadequate testing and inspection infrastructure" },
+          { id: 7, name: "Administrative fee & levies", description: "Excessive or unclear administrative fees and charges" },
+          { id: 8, name: "Lack of clarity on border Procedures", description: "Unclear or inconsistent border crossing procedures" },
+          { id: 9, name: "Others", description: "Other types of non-tariff barriers not listed above" },
+        ]);
+      }
+    } catch (error) {
+      console.error('Error fetching NTB types:', error);
+      // Use fallback types if API fails
+      setNtbTypes([
+        { id: 1, name: "Administrative issues", description: "Issues related to administrative procedures and bureaucracy" },
+        { id: 2, name: "Import ban", description: "Restrictions or prohibitions on importing certain goods" },
+        { id: 3, name: "Rule of origin Issues", description: "Problems related to determining the origin of goods" },
+        { id: 4, name: "Import Licensing", description: "Issues with import licensing requirements and procedures" },
+        { id: 5, name: "Length/Costly customs procedures", description: "Delays and excessive costs in customs clearance" },
+        { id: 6, name: "Poor testing/Inspection Facilities", description: "Inadequate testing and inspection infrastructure" },
+        { id: 7, name: "Administrative fee & levies", description: "Excessive or unclear administrative fees and charges" },
+        { id: 8, name: "Lack of clarity on border Procedures", description: "Unclear or inconsistent border crossing procedures" },
+        { id: 9, name: "Others", description: "Other types of non-tariff barriers not listed above" },
+      ]);
+    }
+  };
+
   const fetchNTBList = async () => {
     setLoading(true);
     try {
-      // Replace with your actual API endpoint
       const response = await fetch('/api/ntb/list');
       const data = await response.json();
       if (data.success) {
         setNtbList(data.data || []);
+      } else {
+        console.error('Error fetching NTB list:', data.error);
+        toast.error(data.error || 'Failed to fetch NTB list');
       }
     } catch (error) {
       console.error('Error fetching NTB list:', error);
       toast.error('Failed to fetch NTB list');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchNTBDetails = async (ntbId: number) => {
+    setDetailLoading(true);
+    try {
+      const response = await fetch(`/api/ntb/${ntbId}`);
+      const data = await response.json();
+      if (data.success) {
+        setSelectedNtb(data.data);
+        setMode('detail');
+      } else {
+        console.error('Error fetching NTB details:', data.error);
+        toast.error(data.error || 'Failed to fetch NTB details');
+      }
+    } catch (error) {
+      console.error('Error fetching NTB details:', error);
+      toast.error('Failed to fetch NTB details');
+    } finally {
+      setDetailLoading(false);
     }
   };
 
@@ -235,15 +303,39 @@ export default function NTB() {
     setProfileForm((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setSelectedFile(file);
-    }
-  };
+  // Commented out - no file uploads
+  // const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   const file = e.target.files?.[0];
+  //   if (file) {
+  //     setSelectedFile(file);
+  //   }
+  // };
 
   const handleProfileSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validate required fields are not null or empty
+    if (!profileForm.country_of_residence || profileForm.country_of_residence.trim() === "") {
+      toast.error('Please select a country of residence');
+      return;
+    }
+    
+    if (!profileForm.operator_type || profileForm.operator_type.trim() === "") {
+      toast.error('Please select an operator type');
+      return;
+    }
+    
+    if (!profileForm.gender || profileForm.gender.trim() === "") {
+      toast.error('Please select a gender');
+      return;
+    }
+    
+    // If operator type is "others", validate the other field
+    if (profileForm.operator_type === "others" && (!profileForm.operator_type_other || profileForm.operator_type_other.trim() === "")) {
+      toast.error('Please specify the operator type');
+      return;
+    }
+
     setSubmitting(true);
 
     try {
@@ -257,12 +349,26 @@ export default function NTB() {
 
       const data = await response.json();
 
-      if (data.success) {
-        toast.success('Profile updated successfully!');
+      // Handle JSON-RPC response format
+      if (data.result && data.result.message) {
+        toast.success(data.result.message || 'Profile updated successfully!');
+        
+        // Update user profile in local storage with new data
+        if (userProfile) {
+          const updatedProfile = {
+            ...userProfile,
+            ...data.result.updated_fields
+          };
+          updateUserProfile(updatedProfile);
+        }
+        
+        // Switch to NTB list/form mode
         setMode("list");
         fetchNTBList();
+      } else if (data.error) {
+        toast.error(data.error.message || 'Failed to update profile');
       } else {
-        toast.error(data.message || 'Failed to update profile');
+        toast.error('Failed to update profile');
       }
     } catch (error) {
       console.error('Error updating profile:', error);
@@ -277,21 +383,30 @@ export default function NTB() {
     setSubmitting(true);
 
     try {
-      const formData = new FormData();
-      
-      // Add all form fields
-      Object.entries(form).forEach(([key, value]) => {
-        formData.append(key, value);
-      });
-
-      // Add file if selected
-      if (selectedFile) {
-        formData.append('attachment', selectedFile);
-      }
+      // Prepare the payload according to the expected format
+      const payload = {
+        ntb_type_id: parseInt(form.ntb_type_id),
+        date_of_incident: form.date_of_incident,
+        country_of_incident: form.country_of_incident,
+        location: form.location,
+        complaint_details: form.complaint_details,
+        product_description: form.product_description,
+        cost_value_range: form.cost_value_range,
+        occurrence: form.occurrence,
+        hs_code: form.hs_code,
+        hs_description: form.hs_description,
+        time_lost_range: form.time_lost_range,
+        money_lost_range: form.money_lost_range,
+        exact_loss_value: parseFloat(form.exact_loss_value),
+        loss_calculation_description: form.loss_calculation_description,
+      };
 
       const response = await fetch('/api/ntb/submit', {
         method: 'POST',
-        body: formData,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
       });
 
       const data = await response.json();
@@ -299,7 +414,7 @@ export default function NTB() {
       if (data.success) {
         toast.success('NTB submitted successfully!');
         setMode('list');
-        fetchNTBList(); // Refresh the list
+        fetchNTBList();
         resetForm();
       } else {
         toast.error(data.message || 'Failed to submit NTB');
@@ -314,36 +429,40 @@ export default function NTB() {
 
   const resetForm = () => {
     setForm({
-      ntb_type: "",
+      ntb_type_id: "",
       date_of_incident: "",
-      status: "",
+      // status: "", // Removed - not needed in form
       country_of_incident: "",
       location: "",
       complaint_details: "",
       product_description: "",
-      cost_value_goods: "",
+      cost_value_range: "",
       hs_code: "",
       hs_description: "",
       occurrence: "",
-      time_lost: "",
-      money_lost: "",
-      exact_value_loss: "",
+      time_lost_range: "",
+      money_lost_range: "",
+      exact_loss_value: "",
       loss_calculation_description: "",
     });
-    setSelectedFile(null);
+    // setSelectedFile(null); // Commented out - no file uploads
     editor?.commands.setContent('');
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status.toLowerCase()) {
+  const getStatusColor = (state: string) => {
+    switch (state.toLowerCase()) {
       case 'resolved':
         return 'bg-green-100 text-green-800 border-green-300';
+      case 'in_progress':
       case 'in progress':
         return 'bg-blue-100 text-blue-800 border-blue-300';
+      case 'under_review':
       case 'under review':
         return 'bg-yellow-100 text-yellow-800 border-yellow-300';
       case 'closed':
         return 'bg-gray-100 text-gray-800 border-gray-300';
+      case 'submitted':
+        return 'bg-blue-100 text-blue-800 border-blue-300';
       default:
         return 'bg-orange-100 text-orange-800 border-orange-300';
     }
@@ -431,8 +550,8 @@ export default function NTB() {
                             </SelectTrigger>
                             <SelectContent>
                               {OPERATOR_TYPES.map((type) => (
-                                <SelectItem key={type} value={type}>
-                                  {type.charAt(0).toUpperCase() + type.slice(1).replace('_', ' ')}
+                                <SelectItem key={type.value} value={type.value}>
+                                  {type.label}
                                 </SelectItem>
                               ))}
                             </SelectContent>
@@ -463,13 +582,13 @@ export default function NTB() {
                       </div>
 
                       {/* Conditional "Other" Input */}
-                      {profileForm.operator_type === "other" && (
+                      {profileForm.operator_type === "others" && (
                         <div className="space-y-2">
                           <Label className="text-sm font-medium text-gray-700">
-                            Specify Other Operator Type *
+                            Specify Type (e.g., Exporter) *
                           </Label>
                           <Input
-                            placeholder="Specify type"
+                            placeholder="e.g., Exporter, Agent, etc."
                             value={profileForm.operator_type_other}
                             onChange={(e) => handleProfileChange("operator_type_other", e.target.value)}
                             className="h-10 rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500 max-w-lg"
@@ -502,7 +621,7 @@ export default function NTB() {
             )}
 
             {/* Header with New NTB Button */}
-            {mode !== "profile" && (
+            {mode !== "profile" && mode !== "detail" && (
               <div className="flex justify-between items-center mb-8">
                 <div>
                   <h1 className="text-3xl font-bold text-gray-900 mb-2">
@@ -510,15 +629,31 @@ export default function NTB() {
                   </h1>
                   <p className="text-gray-600">
                     Track and report non-tariff barriers affecting your trade
+                    {ntbList.length > 0 && (
+                      <span className="ml-2 text-blue-600 font-medium">
+                        ({ntbList.length} report{ntbList.length !== 1 ? 's' : ''})
+                      </span>
+                    )}
                   </p>
                 </div>
-                <Button
-                  onClick={() => setMode('new')}
-                  className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-md flex items-center gap-2 cursor-pointer"
-                >
-                  <Plus className="w-4 h-4" />
-                  New NTB Report
-                </Button>
+                <div className="flex gap-3">
+                  <Button
+                    onClick={fetchNTBList}
+                    variant="outline"
+                    className="border-gray-200 text-gray-700 hover:bg-gray-50 px-4 py-3 rounded-md flex items-center gap-2 cursor-pointer"
+                    disabled={loading}
+                  >
+                    <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+                    Refresh
+                  </Button>
+                  <Button
+                    onClick={() => setMode('new')}
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-md flex items-center gap-2 cursor-pointer"
+                  >
+                    <Plus className="w-4 h-4" />
+                    New NTB Report
+                  </Button>
+                </div>
               </div>
             )}
 
@@ -550,26 +685,31 @@ export default function NTB() {
                   </Card>
                 ) : (
                   <div className="space-y-4">
-                    {ntbList.map((ntb, index) => (
-                      <Card key={index} className="hover:shadow-md transition-shadow border-[0.5px] shadow-[0_0_0px_rgba(0,0,0,0.1)]">
+                    {ntbList.map((ntb) => (
+                      <Card key={ntb.id} className="hover:shadow-md transition-shadow border-[0.5px] shadow-[0_0_0px_rgba(0,0,0,0.1)]">
                         <CardContent className="p-6">
                           <div className="flex justify-between items-start mb-4">
                             <div>
-                              <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                                {ntb.ntb_type}
-                              </h3>
-                              <p className="text-gray-600 text-sm mb-2">
-                                {ntb.product_description}
+                              <div className="flex items-center gap-2 mb-2">
+                                <h3 className="text-lg font-semibold text-gray-900">
+                                  {ntb.ntb_type}
+                                </h3>
+                                <span className="text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded">
+                                  {ntb.report_reference}
+                                </span>
+                              </div>
+                              <p className="text-gray-600 text-sm">
+                                Reported on {new Date(ntb.submission_date).toLocaleDateString()}
                               </p>
                             </div>
-                            <Badge className={getStatusColor(ntb.status)}>
-                              {ntb.status}
+                            <Badge className={getStatusColor(ntb.state)}>
+                              {ntb.state}
                             </Badge>
                           </div>
                           
                           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm mb-4">
                             <div>
-                              <span className="text-gray-500">Date:</span>
+                              <span className="text-gray-500">Incident Date:</span>
                               <p className="font-medium">{ntb.date_of_incident}</p>
                             </div>
                             <div>
@@ -581,16 +721,31 @@ export default function NTB() {
                               <p className="font-medium">{ntb.location}</p>
                             </div>
                             <div>
-                              <span className="text-gray-500">Value Lost:</span>
-                              <p className="font-medium">${ntb.exact_value_loss}</p>
+                              <span className="text-gray-500">Cost Range:</span>
+                              <p className="font-medium">{ntb.cost_value_range}</p>
                             </div>
+                          </div>
+                          
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm mb-4">
+                            <div>
+                              <span className="text-gray-500">Occurrence:</span>
+                              <p className="font-medium">{ntb.occurrence}</p>
+                            </div>
+                            {ntb.latest_feedback && (
+                              <div>
+                                <span className="text-gray-500">Latest Feedback:</span>
+                                <p className="font-medium">{ntb.latest_feedback}</p>
+                              </div>
+                            )}
                           </div>
 
                           <div className="flex gap-2">
                             <Button
                               variant="outline"
                               size="sm"
-                              className="flex items-center gap-2"
+                              className="flex items-center gap-2 cursor-pointer"
+                              onClick={() => fetchNTBDetails(ntb.id)}
+                              disabled={detailLoading}
                             >
                               <Eye className="w-4 h-4" />
                               View Details
@@ -601,6 +756,203 @@ export default function NTB() {
                     ))}
                   </div>
                 )}
+              </div>
+            )}
+
+            {/* NTB Detail View */}
+            {mode === "detail" && selectedNtb && (
+              <div className="space-y-6">
+                <div className="flex items-center gap-4 mb-6">
+                  <Button
+                    variant="outline"
+                    onClick={() => setMode('list')}
+                    className="flex items-center gap-2 cursor-pointer"
+                  >
+                    <ArrowRight className="w-4 h-4 rotate-180" />
+                    Back to List
+                  </Button>
+                  <div>
+                    <h2 className="text-2xl font-bold text-gray-900">{selectedNtb.report_reference}</h2>
+                    <p className="text-gray-600">NTB Report Details</p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                  {/* Main Content */}
+                  <div className="lg:col-span-2 space-y-6">
+                    {/* Basic Information */}
+                    <Card className="border-[0.5px] shadow-[0_0_0px_rgba(0,0,0,0.1)]">
+                      <CardHeader>
+                        <div className="flex justify-between items-center">
+                          <CardTitle className="text-lg">Basic Information</CardTitle>
+                          <Badge className={getStatusColor(selectedNtb.state)}>
+                            {selectedNtb.state}
+                          </Badge>
+                        </div>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div>
+                            <Label className="text-sm font-medium text-gray-500">NTB Type</Label>
+                            <p className="font-medium">{selectedNtb.ntb_type?.name || selectedNtb.ntb_type}</p>
+                          </div>
+                          <div>
+                            <Label className="text-sm font-medium text-gray-500">Date of Incident</Label>
+                            <p className="font-medium">{selectedNtb.date_of_incident}</p>
+                          </div>
+                          <div>
+                            <Label className="text-sm font-medium text-gray-500">Country</Label>
+                            <p className="font-medium">{selectedNtb.country_of_incident}</p>
+                          </div>
+                          <div>
+                            <Label className="text-sm font-medium text-gray-500">Location</Label>
+                            <p className="font-medium">{selectedNtb.location}</p>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    {/* Product Details */}
+                    <Card className="border-[0.5px] shadow-[0_0_0px_rgba(0,0,0,0.1)]">
+                      <CardHeader>
+                        <CardTitle className="text-lg">Product Information</CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                        <div>
+                          <Label className="text-sm font-medium text-gray-500">Product Description</Label>
+                          <p className="font-medium">{selectedNtb.product_description}</p>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div>
+                            <Label className="text-sm font-medium text-gray-500">HS Code</Label>
+                            <p className="font-medium">{selectedNtb.hs_code || 'Not specified'}</p>
+                          </div>
+                          <div>
+                            <Label className="text-sm font-medium text-gray-500">HS Description</Label>
+                            <p className="font-medium">{selectedNtb.hs_description || 'Not specified'}</p>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    {/* Impact Details */}
+                    <Card className="border-[0.5px] shadow-[0_0_0px_rgba(0,0,0,0.1)]">
+                      <CardHeader>
+                        <CardTitle className="text-lg">Impact Assessment</CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div>
+                            <Label className="text-sm font-medium text-gray-500">Cost Value Range</Label>
+                            <p className="font-medium">{selectedNtb.cost_value_range}</p>
+                          </div>
+                          <div>
+                            <Label className="text-sm font-medium text-gray-500">Exact Loss Value</Label>
+                            <p className="font-medium">${selectedNtb.exact_loss_value}</p>
+                          </div>
+                          <div>
+                            <Label className="text-sm font-medium text-gray-500">Time Lost Range</Label>
+                            <p className="font-medium">{selectedNtb.time_lost_range}</p>
+                          </div>
+                          <div>
+                            <Label className="text-sm font-medium text-gray-500">Money Lost Range</Label>
+                            <p className="font-medium">{selectedNtb.money_lost_range}</p>
+                          </div>
+                          <div>
+                            <Label className="text-sm font-medium text-gray-500">Occurrence</Label>
+                            <p className="font-medium">{selectedNtb.occurrence}</p>
+                          </div>
+                        </div>
+                        <div>
+                          <Label className="text-sm font-medium text-gray-500">Loss Calculation Description</Label>
+                          <p className="font-medium">{selectedNtb.loss_calculation_description}</p>
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    {/* Complaint Details */}
+                    <Card className="border-[0.5px] shadow-[0_0_0px_rgba(0,0,0,0.1)]">
+                      <CardHeader>
+                        <CardTitle className="text-lg">Complaint Details</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div 
+                          className="prose prose-sm max-w-none"
+                          dangerouslySetInnerHTML={{ __html: selectedNtb.complaint_details }}
+                        />
+                      </CardContent>
+                    </Card>
+                  </div>
+
+                  {/* Sidebar */}
+                  <div className="space-y-6">
+                    {/* Timeline */}
+                    <Card className="border-[0.5px] shadow-[0_0_0px_rgba(0,0,0,0.1)]">
+                      <CardHeader>
+                        <CardTitle className="text-lg">Timeline</CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                        <div>
+                          <Label className="text-sm font-medium text-gray-500">Submitted</Label>
+                          <p className="font-medium">{new Date(selectedNtb.submission_date).toLocaleString()}</p>
+                        </div>
+                        <div>
+                          <Label className="text-sm font-medium text-gray-500">Last Updated</Label>
+                          <p className="font-medium">{new Date(selectedNtb.last_updated).toLocaleString()}</p>
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    {/* Reporter Information */}
+                    {selectedNtb.reporter_info && (
+                      <Card className="border-[0.5px] shadow-[0_0_0px_rgba(0,0,0,0.1)]">
+                        <CardHeader>
+                          <CardTitle className="text-lg">Reporter Information</CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-3">
+                          <div>
+                            <Label className="text-sm font-medium text-gray-500">Name</Label>
+                            <p className="font-medium">{selectedNtb.reporter_info.name}</p>
+                          </div>
+                          <div>
+                            <Label className="text-sm font-medium text-gray-500">Email</Label>
+                            <p className="font-medium">{selectedNtb.reporter_info.email}</p>
+                          </div>
+                          {selectedNtb.reporter_info.phone && (
+                            <div>
+                              <Label className="text-sm font-medium text-gray-500">Phone</Label>
+                              <p className="font-medium">{selectedNtb.reporter_info.phone}</p>
+                            </div>
+                          )}
+                          <div>
+                            <Label className="text-sm font-medium text-gray-500">Country</Label>
+                            <p className="font-medium">{selectedNtb.reporter_info.country}</p>
+                          </div>
+                          <div>
+                            <Label className="text-sm font-medium text-gray-500">Operator Type</Label>
+                            <p className="font-medium capitalize">{selectedNtb.reporter_info.operator_type?.replace('_', ' ')}</p>
+                          </div>
+                          <div>
+                            <Label className="text-sm font-medium text-gray-500">Gender</Label>
+                            <p className="font-medium capitalize">{selectedNtb.reporter_info.gender}</p>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    )}
+
+                    {/* Feedback */}
+                    {selectedNtb.latest_feedback && (
+                      <Card className="border-[0.5px] shadow-[0_0_0px_rgba(0,0,0,0.1)]">
+                        <CardHeader>
+                          <CardTitle className="text-lg">Latest Feedback</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <p className="text-sm">{selectedNtb.latest_feedback}</p>
+                        </CardContent>
+                      </Card>
+                    )}
+                  </div>
+                </div>
               </div>
             )}
 
@@ -633,17 +985,17 @@ export default function NTB() {
                             NTB Type *
                           </Label>
                           <Select
-                            value={form.ntb_type}
-                            onValueChange={(value) => handleChange("ntb_type", value)}
+                            value={form.ntb_type_id}
+                            onValueChange={(value) => handleChange("ntb_type_id", value)}
                             required
                           >
                             <SelectTrigger className="h-12 rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500">
                               <SelectValue placeholder="Select NTB type" />
                             </SelectTrigger>
                             <SelectContent>
-                              {NTB_TYPES.map((type) => (
-                                <SelectItem key={type} value={type}>
-                                  {type}
+                              {ntbTypes.map((type) => (
+                                <SelectItem key={type.id} value={type.id.toString()} title={type.description}>
+                                  {type.name}
                                 </SelectItem>
                               ))}
                             </SelectContent>
@@ -664,50 +1016,26 @@ export default function NTB() {
                         </div>
                       </div>
 
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="space-y-3">
-                          <Label className="text-sm font-medium text-gray-700">
-                            Status *
-                          </Label>
-                          <Select
-                            value={form.status}
-                            onValueChange={(value) => handleChange("status", value)}
-                            required
-                          >
-                            <SelectTrigger className="h-12 rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500">
-                              <SelectValue placeholder="Select status" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {STATUS_OPTIONS.map((status) => (
-                                <SelectItem key={status} value={status}>
-                                  {status}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </div>
-
-                        <div className="space-y-3">
-                          <Label className="text-sm font-medium text-gray-700">
-                            Country of Incident *
-                          </Label>
-                          <Select
-                            value={form.country_of_incident}
-                            onValueChange={(value) => handleChange("country_of_incident", value)}
-                            required
-                          >
-                            <SelectTrigger className="h-12 rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500">
-                              <SelectValue placeholder="Select country" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {COUNTRIES.map((country) => (
-                                <SelectItem key={country} value={country}>
-                                  {country}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </div>
+                      <div className="space-y-3">
+                        <Label className="text-sm font-medium text-gray-700">
+                          Country of Incident *
+                        </Label>
+                        <Select
+                          value={form.country_of_incident}
+                          onValueChange={(value) => handleChange("country_of_incident", value)}
+                          required
+                        >
+                          <SelectTrigger className="h-12 rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500">
+                            <SelectValue placeholder="Select country" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {COUNTRIES.map((country) => (
+                              <SelectItem key={country} value={country}>
+                                {country}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                       </div>
 
                       <div className="space-y-3">
@@ -768,8 +1096,8 @@ export default function NTB() {
                           Cost/Value of Goods in USD *
                         </Label>
                         <Select
-                          value={form.cost_value_goods}
-                          onValueChange={(value) => handleChange("cost_value_goods", value)}
+                          value={form.cost_value_range}
+                          onValueChange={(value) => handleChange("cost_value_range", value)}
                           required
                         >
                           <SelectTrigger className="h-12 rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500">
@@ -814,8 +1142,8 @@ export default function NTB() {
                             Time Lost *
                           </Label>
                           <Select
-                            value={form.time_lost}
-                            onValueChange={(value) => handleChange("time_lost", value)}
+                            value={form.time_lost_range}
+                            onValueChange={(value) => handleChange("time_lost_range", value)}
                             required
                           >
                             <SelectTrigger className="h-12 rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500">
@@ -839,8 +1167,8 @@ export default function NTB() {
                             Money Lost Range *
                           </Label>
                           <Select
-                            value={form.money_lost}
-                            onValueChange={(value) => handleChange("money_lost", value)}
+                            value={form.money_lost_range}
+                            onValueChange={(value) => handleChange("money_lost_range", value)}
                             required
                           >
                             <SelectTrigger className="h-12 rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500">
@@ -863,8 +1191,8 @@ export default function NTB() {
                           <Input
                             type="number"
                             placeholder="Enter exact amount"
-                            value={form.exact_value_loss}
-                            onChange={(e) => handleChange("exact_value_loss", e.target.value)}
+                            value={form.exact_loss_value}
+                            onChange={(e) => handleChange("exact_loss_value", e.target.value)}
                             className="h-12 rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500"
                             required
                           />
@@ -948,8 +1276,8 @@ export default function NTB() {
                         </div>
                       </div>
 
-                      {/* File Upload */}
-                      <div className="space-y-3">
+                      {/* File Upload - Commented out */}
+                      {/* <div className="space-y-3">
                         <Label className="text-sm font-medium text-gray-700">
                           Attachment
                         </Label>
@@ -985,7 +1313,7 @@ export default function NTB() {
                             </div>
                           )}
                         </div>
-                      </div>
+                      </div> */}
 
                       <Separator className="my-8" />
 
