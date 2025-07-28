@@ -6,7 +6,7 @@ import LoginForm from "./components/LoginForm";
 import NavBar from "./components/NavBar";
 import RegForm from "./components/RegForm";
 import ResetPassword from "./components/ResetPassword";
-import NTBPortal from "./components/NTBPortal";
+import HelpDeskPortal from "./components/HelpDeskPortal";
 import {
   useActivateAccountState,
   useFormState,
@@ -20,18 +20,18 @@ export default function AuthLayout() {
   const { formType } = useFormState();
   const { formTypo } = useResetFormState();
   const { isActivated } = useActivateAccountState();
-  const { showNTB, setShowNTB } = useAuthLayoutState();
+  const { showHelpDesk, setShowHelpDesk } = useAuthLayoutState();
 
   const handleBackToAuth = () => {
-    setShowNTB(false);
+    setShowHelpDesk(false);
   };
 
   return (
     <main className="flex flex-col min-h-screen justify-between mx-auto overflow-x-hidden bg-gradient-to-br from-white via-gray-100 to-gray-200 bg-[url('/images/bgpattern.png')] bg-blend-overlay overla bg-cover bg-no-repeat bg-center">
       <NavBar />
       <div className="flex-1 flex items-center justify-center px-4 py-8">
-        {showNTB ? (
-          <NTBPortal onBack={handleBackToAuth} />
+        {showHelpDesk ? (
+          <HelpDeskPortal onBack={handleBackToAuth} />
         ) : (
           <div className="w-full flex flex-col justify-center items-center">
             <div className="flex flex-col items-center justify-center gap-4 mt-[120px] mb-4 max-w-[900px]">

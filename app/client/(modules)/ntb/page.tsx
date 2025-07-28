@@ -988,7 +988,7 @@ export default function NTB() {
                             onValueChange={(value) => handleChange("ntb_type_id", value)}
                             required
                           >
-                            <SelectTrigger className="h-12 rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500">
+                            <SelectTrigger className="h-12 w-[280px] rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500">
                               <SelectValue placeholder="Select NTB type" />
                             </SelectTrigger>
                             <SelectContent>
@@ -1024,7 +1024,7 @@ export default function NTB() {
                           onValueChange={(value) => handleChange("country_of_incident", value)}
                           required
                         >
-                          <SelectTrigger className="h-12 rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500">
+                          <SelectTrigger className="h-12 w-[280px] rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500">
                             <SelectValue placeholder="Select country" />
                           </SelectTrigger>
                           <SelectContent>
@@ -1099,7 +1099,7 @@ export default function NTB() {
                           onValueChange={(value) => handleChange("cost_value_range", value)}
                           required
                         >
-                          <SelectTrigger className="h-12 rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500">
+                          <SelectTrigger className="h-12 w-[280px] rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500">
                             <SelectValue placeholder="Select cost range" />
                           </SelectTrigger>
                           <SelectContent>
@@ -1123,7 +1123,7 @@ export default function NTB() {
                             onValueChange={(value) => handleChange("occurrence", value)}
                             required
                           >
-                            <SelectTrigger className="h-12 rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500">
+                            <SelectTrigger className="h-12 w-[280px] rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500">
                               <SelectValue placeholder="Select occurrence" />
                             </SelectTrigger>
                             <SelectContent>
@@ -1145,7 +1145,7 @@ export default function NTB() {
                             onValueChange={(value) => handleChange("time_lost_range", value)}
                             required
                           >
-                            <SelectTrigger className="h-12 rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500">
+                            <SelectTrigger className="h-12 w-[280px] rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500">
                               <SelectValue placeholder="Select time lost" />
                             </SelectTrigger>
                             <SelectContent>
@@ -1170,7 +1170,7 @@ export default function NTB() {
                             onValueChange={(value) => handleChange("money_lost_range", value)}
                             required
                           >
-                            <SelectTrigger className="h-12 rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500">
+                            <SelectTrigger className="h-12 w-[280px] rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500">
                               <SelectValue placeholder="Select money lost range" />
                             </SelectTrigger>
                             <SelectContent>

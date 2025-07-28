@@ -13,7 +13,7 @@ export default function NavBar() {
   const { formType, toggleFormType } = useFormState();
   const { language, toggleLanguage } = useLangState();
   const [langDrop, toggleDropBox] = useState(false);
-  const { setShowNTB } = useAuthLayoutState();
+  const { setShowHelpDesk } = useAuthLayoutState();
   const t = useTranslations();
   const tn = useTranslations("nav");
 
@@ -21,8 +21,9 @@ export default function NavBar() {
     setIsMenuOpen(!isMenuOpen);
   };
 
-  const handleNTBClick = () => {
-    setShowNTB(true);
+  const handleHelpClick = () => {
+    setShowHelpDesk(true);
+    setIsMenuOpen(false); // Close mobile menu
   };
 
   return (
@@ -40,25 +41,20 @@ export default function NavBar() {
         {/* Desktop Menu */}
         <ul className="hidden md:flex space-x-12">
           <li>
-            <a href="/auth/login" className="hover:text-blue-500">
+            <a href="https://tccia.or.tz/" className="hover:text-blue-500">
               {tn("home")}
             </a>
           </li>
     
           <li>
-            <a href="/auth/register" className="hover:text-blue-500">
+            <a href="https://tccia.or.tz/about-us/" className="hover:text-blue-500">
               {tn("about")}
             </a>
           </li>
           <li>
-            <button onClick={handleNTBClick} className="hover:text-blue-500">
-              Report NTB
-            </button>
-          </li>
-          <li>
-            <a href="/auth/register" className="hover:text-blue-500">
+            <button onClick={handleHelpClick} className="hover:text-blue-500">
               {tn("help")}
-            </a>
+            </button>
           </li>
         </ul>
       </div>
@@ -180,21 +176,14 @@ export default function NavBar() {
                 {tn("about")}
               </a>
             </li>
-            <li className="border-b border-gray-300 pb-2">
+
+            <li className="border-b border-transparent pb-2">
               <button
-                onClick={handleNTBClick}
+                onClick={handleHelpClick}
                 className="hover:text-blue-500 display-block text-left w-full"
               >
-                Report NTB
-              </button>
-            </li>
-            <li className="border-b border-transparent pb-2">
-              <a
-                href="/auth/register"
-                className="hover:text-blue-500 display-block"
-              >
                 {tn("help")}
-              </a>
+              </button>
             </li>
           </ul>
         </div>
