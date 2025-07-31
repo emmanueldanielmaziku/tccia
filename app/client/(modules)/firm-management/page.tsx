@@ -242,135 +242,104 @@ export default function FirmManagement() {
       <section className="flex lg:flex-row">
         <div className="flex flex-col items-start flex-1 h-[97vh] pt-18 w-full bg-transparent border-transparent border-[1px] rounded-xl">
           <div className="flex flex-col justify-start items-start mt-2 w-full h-[86vh] rounded-sm relative px-4 md:px-8 lg:px-16.5">
-            <div className="flex flex-col md:flex-row w-full justify-between items-start md:items-center gap-4 my-1">
+            <div className="flex flex-row justify-between items-center w-full gap-6 my-1">
               {tinformState ? (
                 <div className="font-semibold antialiased text-[18px] text-zinc-600">
                   Add New Firm
                 </div>
               ) : (
-                <div className="flex flex-row items-start md:items-center gap-4 w-full md:w-auto">
-                  <label className="flex justify-center items-center w-full md:w-auto">
-                    <input
-                      type="text"
-                      placeholder="Search firms..."
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      className="w-full md:w-auto border-[0.5px] border-zinc-300 focus:outline-2 focus:outline-blue-400 rounded-[9px] pl-8 pr-2.5 py-2 text-sm placeholder:text-sm"
-                    />
-                    <SearchNormal1
-                      size="18"
-                      color="gray"
-                      className="absolute left-6 md:left-19"
-                    />
-                  </label>
+                <>
+                  {/* Search and Filters Section */}
+                  <div className="flex flex-row gap-3">
+                    <label className="flex justify-center items-center w-full md:w-auto">
+                      <input
+                        type="text"
+                        placeholder="Search firms..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="w-full md:w-auto border-[0.5px] border-zinc-300 focus:outline-2 focus:outline-blue-400 rounded-[9px] pl-8 pr-2.5 py-2 text-sm placeholder:text-sm"
+                      />
+                      <SearchNormal1
+                        size="18"
+                        color="gray"
+                        className="absolute left-6 md:left-19"
+                      />
+                    </label>
 
-                  {/* Nationality Filter */}
-                  {/* <Select
-                    value={nationalityFilter}
-                    onValueChange={setNationalityFilter}
-                  >
-                    <SelectTrigger className="w-[140px] text-zinc-600">
-                      <SelectValue placeholder="Nationality" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectGroup>
-                        <SelectItem value="__all__">
-                          All Nationalities
-                        </SelectItem>
-                        {nationalityOptions.map((nat) => (
-                          <SelectItem key={nat} value={nat}>
-                            {nat}
-                          </SelectItem>
-                        ))}
-                      </SelectGroup>
-                    </SelectContent>
-                  </Select> */}
+                    {/* State Filter */}
+                    <Select value={stateFilter} onValueChange={setStateFilter}>
+                      <SelectTrigger className="w-[140px] text-zinc-600">
+                        <SelectValue placeholder="State" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectGroup>
+                          <SelectItem value="__all__">All States</SelectItem>
+                          {stateOptions.map((state) => (
+                            <SelectItem key={state} value={state}>
+                              {state}
+                            </SelectItem>
+                          ))}
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
 
-                  {/* Registration Type Filter */}
-                  {/* <Select
-                    value={registrationTypeFilter}
-                    onValueChange={setRegistrationTypeFilter}
-                  >
-                    <SelectTrigger className="w-[170px] text-zinc-600">
-                      <SelectValue placeholder="Registration Type" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectGroup>
-                        <SelectItem value="__all__">
-                          All Registration Types
-                        </SelectItem>
-                        {registrationTypeOptions.map((reg) => (
-                          <SelectItem key={reg} value={reg}>
-                            {reg}
-                          </SelectItem>
-                        ))}
-                      </SelectGroup>
-                    </SelectContent>
-                  </Select> */}
-
-                  {/* State Filter */}
-                  <Select value={stateFilter} onValueChange={setStateFilter}>
-                    <SelectTrigger className="w-[140px] text-zinc-600">
-                      <SelectValue placeholder="State" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectGroup>
-                        <SelectItem value="__all__">All States</SelectItem>
-                        {stateOptions.map((state) => (
-                          <SelectItem key={state} value={state}>
-                            {state}
-                          </SelectItem>
-                        ))}
-                      </SelectGroup>
-                    </SelectContent>
-                  </Select>
-
-                  {/* Sort */}
-                  <div className="flex items-center gap-2">
-                    <div className="relative w-full md:w-auto">
-                      <Select
-                        value={sortField}
-                        onValueChange={(value: "name" | "tin" | "state") => {
-                          setSortField(value);
-                          setCurrentPage(1);
-                        }}
-                      >
-                        <SelectTrigger className="w-full md:w-[140px] text-zinc-600">
-                          <SelectValue placeholder="Sort by" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectGroup>
-                            <SelectItem value="name">Name</SelectItem>
-                            <SelectItem value="tin">TIN</SelectItem>
-                            <SelectItem value="state">State</SelectItem>
-                          </SelectGroup>
-                        </SelectContent>
-                      </Select>
+                    {/* Sort */}
+                    <div className="flex items-center gap-2">
+                      <div className="relative w-full md:w-auto">
+                        <Select
+                          value={sortField}
+                          onValueChange={(value: "name" | "tin" | "state") => {
+                            setSortField(value);
+                            setCurrentPage(1);
+                          }}
+                        >
+                          <SelectTrigger className="w-full md:w-[140px] text-zinc-600">
+                            <SelectValue placeholder="Sort by" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectGroup>
+                              <SelectItem value="name">Name</SelectItem>
+                              <SelectItem value="tin">TIN</SelectItem>
+                              <SelectItem value="state">State</SelectItem>
+                            </SelectGroup>
+                          </SelectContent>
+                        </Select>
+                      </div>
                     </div>
-
-                    {/* Sort Direction Toggle */}
-                    {/* <button
-                      onClick={() => {
-                        setSortDirection(
-                          sortDirection === "asc" ? "desc" : "asc"
-                        );
-                        setCurrentPage(1);
-                      }}
-                      className="px-3 py-2 text-sm border border-zinc-300 rounded-[9px] hover:bg-gray-50 transition-colors"
-                      title={`Sort ${
-                        sortDirection === "asc" ? "Descending" : "Ascending"
-                      }`}
-                    >
-                      {sortDirection === "asc" ? "↑" : "↓"}
-                    </button> */}
                   </div>
-                </div>
+
+                  {/* Action Buttons Section */}
+                  <div className="flex flex-row gap-3">
+                    <button
+                      className={`flex flex-row h-[35px] gap-2 items-center justify-center bg-gray-200 hover:bg-gray-300 text-gray-700 text-sm rounded-[6px] cursor-pointer px-4 py-3 w-full md:w-auto border border-gray-300 ${
+                        refreshing ? "opacity-60 cursor-not-allowed" : ""
+                      }`}
+                      onClick={fetchCompanies}
+                      disabled={refreshing}
+                      title="Refresh companies list"
+                    >
+                      <Refresh
+                        size={18}
+                        color="#36568a"
+                        className={refreshing ? "animate-spin" : ""}
+                      />
+                      {refreshing ? "Refreshing..." : "Refresh"}
+                    </button>
+                    <button
+                      className="flex flex-row gap-3 justify-center items-center bg-blue-600 hover:bg-blue-500 text-white text-sm rounded-[6px] cursor-pointer px-5 h-[35px] w-full md:w-auto"
+                      onClick={() => toggleCompanyTinForm()}
+                    >
+                      <Add size={20} color="white" />
+                      New Firm
+                    </button>
+                  </div>
+                </>
               )}
 
-              {/* button */}
-              {tinformState ? (
+              {/* Close button for form state */}
+              {tinformState && (
                 <button
-                  className="flex flex-row gap-3 justify-between items-center bg-transparent hover:bg-red-100 text-red-500 text-sm rounded-[6px] border-[1px] border-red-500 cursor-pointer px-5 py-2 w-full md:w-auto"
+                  className="flex flex-row gap-3 justify-center items-center bg-transparent hover:bg-red-100 text-red-500 text-sm rounded-[6px] border-[1px] border-red-500 cursor-pointer px-5 py-2 w-full md:w-auto"
                   onClick={() => {
                     togglediscardBox(true);
                   }}
@@ -378,31 +347,6 @@ export default function FirmManagement() {
                   <CloseCircle size={20} color="red" />
                   Close
                 </button>
-              ) : (
-                <div className="flex flex-row gap-2">
-                  <button
-                    className={`flex flex-row gap-2 items-center bg-gray-200 hover:bg-gray-300 text-gray-700 text-sm rounded-[6px] cursor-pointer px-4 py-1.5 w-full md:w-auto border border-gray-300 ${
-                      refreshing ? "opacity-60 cursor-not-allowed" : ""
-                    }`}
-                    onClick={fetchCompanies}
-                    disabled={refreshing}
-                    title="Refresh companies list"
-                  >
-                    <Refresh
-                      size={18}
-                      color="#36568a"
-                      className={refreshing ? "animate-spin" : ""}
-                    />
-                    {refreshing ? "Refreshing..." : "Refresh"}
-                  </button>
-                  <button
-                    className="flex flex-row gap-3 justify-between items-center bg-blue-600 hover:bg-blue-500 text-white text-sm rounded-[6px] cursor-pointer px-5 py-1.5 w-full md:w-auto"
-                    onClick={() => toggleCompanyTinForm()}
-                  >
-                    <Add size={20} color="white" />
-                    New Firm
-                  </button>
-                </div>
               )}
             </div>
 

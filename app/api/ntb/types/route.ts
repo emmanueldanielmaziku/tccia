@@ -9,9 +9,7 @@ export async function GET() {
 
     const response = await fetch(apiUrl, {
       method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      // Removed Content-Type header as it causes 400 error from external API
     });
 
     console.log("Response status:", response.status);
