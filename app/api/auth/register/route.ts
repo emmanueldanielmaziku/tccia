@@ -9,7 +9,7 @@ export async function POST(request: Request) {
     const apiData = {
       name: `${body.firstName} ${body.lastName}`,
       phone: body.phone,
-      email: body.email,
+      email: body.email || undefined,
       password: body.password,
       role: body.role,
     };

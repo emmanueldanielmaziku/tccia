@@ -24,7 +24,7 @@ const Roles = {
 const schema = z.object({
   firstName: z.string().min(1, "First name is required"),
   lastName: z.string().min(1, "Last name is required"),
-  email: z.string().email("Invalid email address"),
+  email: z.string().email("Invalid email address").optional().or(z.literal("")),
   phone: z
     .string()
     .min(10, "Phone number must be at least 10 digits")
@@ -119,7 +119,7 @@ const RegForm = () => {
         body: JSON.stringify({
           firstName: data.firstName,
           lastName: data.lastName,
-          email: data.email,
+          email: data.email || undefined,
           phone: data.phone,
           password: data.password,
           role: roleValue,
@@ -150,6 +150,9 @@ const RegForm = () => {
         }
         if (result.result.role) {
           localStorage.setItem("user_role", result.result.role);
+        }
+        if (result.result.phone) {
+          localStorage.setItem("user_phone", result.result.phone);
         }
         if (result.result.email) {
           localStorage.setItem("user_email", result.result.email);
@@ -264,9 +267,11 @@ const RegForm = () => {
         </div>
       </div>
 
+
+
       <div className="relative flex flex-col gap-1 w-full">
         <label htmlFor="email" className="text-gray-700 text-sm font-medium">
-          {t("common.email")}
+          {t("common.email")} (Optional)
         </label>
         <input
           id="email"

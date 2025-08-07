@@ -213,7 +213,7 @@ export default function NTB() {
     }
   }, [userProfile, profileLoading]);
 
-  // Fetch NTB types on component mount
+
   useEffect(() => {
     fetchNTBTypes();
   }, []);
@@ -226,7 +226,7 @@ export default function NTB() {
         setNtbTypes(data.data || []);
       } else {
         console.error('Error fetching NTB types:', data.error);
-        // Use fallback types if API fails
+        
         setNtbTypes([
           { id: 1, name: "Administrative issues", description: "Issues related to administrative procedures and bureaucracy" },
           { id: 2, name: "Import ban", description: "Restrictions or prohibitions on importing certain goods" },
@@ -977,6 +977,70 @@ export default function NTB() {
                   <CardContent className="px-8 pb-8">
                     <form onSubmit={handleSubmit} className="space-y-6">
                       
+                      {/* Complaint Details - Start with Description */}
+                      <div className="space-y-3">
+                        <Label className="text-sm font-medium text-gray-700">
+                          Complaint Details & Description *
+                        </Label>
+                        <div className="border border-gray-200 rounded-xl bg-white overflow-hidden focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500">
+                          <div className="flex gap-1 border-b border-gray-100 px-4 py-3 bg-gray-50">
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              onClick={() =>
+                                editor?.chain().focus().toggleBold().run()
+                              }
+                              className={`h-8 w-8 p-0 rounded-[9px] ${
+                                editor?.isActive("bold")
+                                  ? "bg-blue-100 text-blue-700"
+                                  : "hover:bg-gray-100"
+                              }`}
+                            >
+                              <Bold className="w-4 h-4" />
+                            </Button>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              onClick={() =>
+                                editor?.chain().focus().toggleItalic().run()
+                              }
+                              className={`h-8 w-8 p-0 rounded-lg ${
+                                editor?.isActive("italic")
+                                  ? "bg-blue-100 text-blue-700"
+                                  : "hover:bg-gray-100"
+                              }`}
+                            >
+                              <Italic className="w-4 h-4" />
+                            </Button>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              onClick={() =>
+                                editor
+                                  ?.chain()
+                                  .focus()
+                                  .toggleBulletList()
+                                  .run()
+                              }
+                              className={`h-8 w-8 p-0 rounded-lg ${
+                                editor?.isActive("bulletList")
+                                  ? "bg-blue-100 text-blue-700"
+                                  : "hover:bg-gray-100"
+                              }`}
+                            >
+                              <List className="w-4 h-4" />
+                            </Button>
+                          </div>
+                          <EditorContent
+                            editor={editor}
+                            className="min-h-[140px] px-4 py-3 focus:outline-none prose prose-sm max-w-none"
+                          />
+                        </div>
+                      </div>
+
                       {/* Basic Information */}
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="space-y-3">
@@ -1090,17 +1154,17 @@ export default function NTB() {
                         </div>
                       </div>
 
+                      {/* Cost/Value of Goods - Now Optional */}
                       <div className="space-y-3">
                         <Label className="text-sm font-medium text-gray-700">
-                          Cost/Value of Goods in USD *
+                          Cost/Value of Goods in USD
                         </Label>
                         <Select
                           value={form.cost_value_range}
                           onValueChange={(value) => handleChange("cost_value_range", value)}
-                          required
                         >
                           <SelectTrigger className="h-12 w-[280px] rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500">
-                            <SelectValue placeholder="Select cost range" />
+                            <SelectValue placeholder="Select cost range (optional)" />
                           </SelectTrigger>
                           <SelectContent>
                             {COST_RANGES.map((range) => (
@@ -1209,70 +1273,6 @@ export default function NTB() {
                           className="h-12 rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500"
                           required
                         />
-                      </div>
-
-                      {/* Complaint Details */}
-                      <div className="space-y-3">
-                        <Label className="text-sm font-medium text-gray-700">
-                          Complaint Details & Description *
-                        </Label>
-                        <div className="border border-gray-200 rounded-xl bg-white overflow-hidden focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500">
-                          <div className="flex gap-1 border-b border-gray-100 px-4 py-3 bg-gray-50">
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              size="sm"
-                              onClick={() =>
-                                editor?.chain().focus().toggleBold().run()
-                              }
-                              className={`h-8 w-8 p-0 rounded-[9px] ${
-                                editor?.isActive("bold")
-                                  ? "bg-blue-100 text-blue-700"
-                                  : "hover:bg-gray-100"
-                              }`}
-                            >
-                              <Bold className="w-4 h-4" />
-                            </Button>
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              size="sm"
-                              onClick={() =>
-                                editor?.chain().focus().toggleItalic().run()
-                              }
-                              className={`h-8 w-8 p-0 rounded-lg ${
-                                editor?.isActive("italic")
-                                  ? "bg-blue-100 text-blue-700"
-                                  : "hover:bg-gray-100"
-                              }`}
-                            >
-                              <Italic className="w-4 h-4" />
-                            </Button>
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              size="sm"
-                              onClick={() =>
-                                editor
-                                  ?.chain()
-                                  .focus()
-                                  .toggleBulletList()
-                                  .run()
-                              }
-                              className={`h-8 w-8 p-0 rounded-lg ${
-                                editor?.isActive("bulletList")
-                                  ? "bg-blue-100 text-blue-700"
-                                  : "hover:bg-gray-100"
-                              }`}
-                            >
-                              <List className="w-4 h-4" />
-                            </Button>
-                          </div>
-                          <EditorContent
-                            editor={editor}
-                            className="min-h-[140px] px-4 py-3 focus:outline-none prose prose-sm max-w-none"
-                          />
-                        </div>
                       </div>
 
                       {/* File Upload - Commented out */}

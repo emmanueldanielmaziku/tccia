@@ -6,12 +6,15 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { MdVisibility, MdVisibilityOff } from "react-icons/md";
 import { useFormState, useResetFormState } from "../services/FormStates";
 import { useRouter } from "next/navigation";
-import { Sms } from "iconsax-reactjs";
+import { Call } from "iconsax-reactjs";
 import { useTranslations } from "next-intl";
 
 
 const schema = z.object({
-  login: z.string().email("Invalid email address"),
+  login: z
+    .string()
+    .min(10, "Phone number must be at least 10 digits")
+    .regex(/^[0-9]+$/, "Phone number must contain only digits"),
   password: z
     .string()
     .min(8, "Password must be at least 8 characters")
@@ -91,25 +94,27 @@ export default function LoginForm() {
       )}
 
       <div className="relative flex flex-col gap-1 w-full">
-        <label htmlFor="email" className="text-gray-700 text-sm font-medium">
-          {t("common.email")}
+        <label htmlFor="phone" className="text-gray-700 text-sm font-medium">
+          {tf("labels.phoneNumber")}
         </label>
         <input
-          type="email"
-          placeholder={tf("placeholders.enterEmail")}
+          type="tel"
+          placeholder={tf("placeholders.enterPhone")}
           {...register("login")}
           className="w-full px-6 py-2.5 pr-12 border border-zinc-300 bg-zinc-100 outline-blue-400 rounded-[8px] placeholder:text-zinc-400 placeholder:text-[15px]"
         />
-        <Sms size="20" color="#9F9FA9" className="absolute top-9.5 right-5" />
+        <Call size="20" color="#9F9FA9" className="absolute top-9.5 right-5" />
         {errors.login && (
           <p className="text-red-500 text-[12px] absolute left-0 top-[58px]">
-            {tf("validation.invalidEmail")}
+            {errors.login.type === "min"
+              ? tf("validation.phoneMinLength")
+              : tf("validation.phoneDigitsOnly")}
           </p>
         )}
       </div>
 
       <div className="relative flex flex-col gap-1 w-full">
-        <label htmlFor="email" className="text-gray-700 text-sm font-medium">
+        <label htmlFor="password" className="text-gray-700 text-sm font-medium">
           {t("common.password")}
         </label>
         <input
