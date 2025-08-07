@@ -25,12 +25,14 @@ import SideBarMobile from "./SideBar-Mobile";
 import Link from "next/link";
 import HSCodeWidget from "../(modules)/factory-verification/components/HSCodeWidget";
 import { createPortal } from "react-dom";
+import { useRouter } from "next/navigation";
 
 type NavBarProps = {
   title: string;
 };
 
 export default function NavBar({ title }: NavBarProps) {
+  const router = useRouter();
   const { isMenuOpen, toggleMenu } = useMenuState();
   const { language, toggleLanguage } = useLangState();
   const { alertState, toggleAlert } = useLogState();
@@ -201,6 +203,9 @@ export default function NavBar({ title }: NavBarProps) {
                 <ShieldTick size="14" color="#FF8A65" variant="Bold" />
               </div>
             </div>
+            <DropdownMenuItem onClick={() => router.push("/client/profile")}>
+              View Profile
+            </DropdownMenuItem>
             <DropdownMenuItem onClick={() => refreshUserProfile()}>
               Refresh Profile
             </DropdownMenuItem>

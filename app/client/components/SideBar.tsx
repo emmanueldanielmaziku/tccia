@@ -13,6 +13,7 @@ import {
   Setting2,
   UserTick,
   Lock,
+  User,
 } from "iconsax-reactjs";
 import useMenuState from "../services/MenuState";
 import Link from "next/link";
@@ -45,6 +46,7 @@ export default function SideBar() {
     if (currentPath.includes("/client/membership")) return "Membership";
     if (currentPath.includes("/client/ntb")) return "Non-Tariff Barrier";
     if (currentPath.includes("/client/report")) return "Help Desk";
+    if (currentPath.includes("/client/profile")) return "Profile";
     return "Firm Management"; // Default fallback
   };
 
@@ -124,6 +126,12 @@ export default function SideBar() {
       translationKey: "reportProblem",
       icon: Lifebuoy,
       route: "/client/report",
+    },
+    {
+      id: "Profile",
+      translationKey: "profile",
+      icon: User,
+      route: "/client/profile",
     }
   ];
 
@@ -159,9 +167,10 @@ export default function SideBar() {
               const isFirmManagement = item.id === "Firm Management";
               const isNTB = item.id === "Non-Tariff Barrier";
               const isHelpDesk = item.id === "Help Desk";
+              const isProfile = item.id === "Profile";
               // const isMembership = item.id === "Membership";
 
-              const isLocked = !companySelected && !isFirmManagement && !isNTB && !isHelpDesk;
+              const isLocked = !companySelected && !isFirmManagement && !isNTB && !isHelpDesk && !isProfile;
               if (
                 (role === "CEM" &&
                   [
@@ -173,6 +182,7 @@ export default function SideBar() {
                     "Membership",
                     "Non-Tariff Barrier",
                     "Help Desk",
+                    "Profile",
                   ].includes(item.id)) ||
                 (role === "CEO" &&
                   [
@@ -182,6 +192,7 @@ export default function SideBar() {
                     "Membership",
                     "Non-Tariff Barrier",
                     "Report a Problem",
+                    "Profile",
                   ].includes(item.id)) ||
                 (role === "CFAM" &&
                   [
@@ -189,12 +200,14 @@ export default function SideBar() {
                     "CFA Officers Management",
                     "Non-Tariff Barrier",
                     "Report a Problem",
+                    "Profile",
                   ].includes(item.id)) ||
                 (role === "CFAO" &&
                   [
                     "Certificate of Origin",
                     "Non-Tariff Barrier",
                     "Report a Problem",
+                    "Profile",
                   ].includes(item.id))
               ) {
                 return (

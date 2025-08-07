@@ -12,6 +12,7 @@ import {
   Profile2User,
   Setting2,
   UserTick,
+  User,
 } from "iconsax-reactjs";
 import useMenuState from "../services/MenuState";
 import Link from "next/link";
@@ -38,6 +39,7 @@ export default function SideBarMobile() {
     if (currentPath.includes("/client/membership")) return "Membership";
     if (currentPath.includes("/client/ntb")) return "Non-Tariff Barrier";
     if (currentPath.includes("/client/report")) return "Report a Problem";
+    if (currentPath.includes("/client/profile")) return "Profile";
     return "Firm Management"; // Default fallback
   };
 
@@ -105,6 +107,12 @@ export default function SideBarMobile() {
       icon: Lifebuoy,
       route: "/client/report",
     },
+    {
+      id: "Profile",
+      translationKey: "profile",
+      icon: User,
+      route: "/client/profile",
+    },
   ];
 
   const handleTabClick = (id: string) => {
@@ -144,6 +152,7 @@ export default function SideBarMobile() {
                 "Membership",
                 "Non-Tariff Barrier",
                 "Report a Problem",
+                "Profile",
               ].includes(item.id) ? (
                 <div key={item.id} className="w-full flex flex-col items-end">
                   <Link
@@ -186,6 +195,7 @@ export default function SideBarMobile() {
                   "Membership",
                   "Non-Tariff Barrier",
                   "Report a Problem",
+                  "Profile",
                 ].includes(item.id) ? (
                 <div key={item.id} className="w-full flex flex-col items-end">
                   <Link
@@ -226,6 +236,7 @@ export default function SideBarMobile() {
                   "CFA Officers Management",
                   "Non-Tariff Barrier",
                   "Report a Problem",
+                  "Profile",
                 ].includes(item.id) ? (
                 <div key={item.id} className="w-full flex flex-col items-end">
                   <Link
@@ -265,6 +276,7 @@ export default function SideBarMobile() {
                   "Certificate of Origin",
                   "Non-Tariff Barrier",
                   "Report a Problem",
+                  "Profile",
                 ].includes(item.id) ? (
                 <div key={item.id} className="w-full flex flex-col items-end">
                   <Link
