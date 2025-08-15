@@ -156,7 +156,7 @@ export default function NTB() {
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [detailLoading, setDetailLoading] = useState(false);
-  // const [selectedFile, setSelectedFile] = useState<File | null>(null); // Commented out - no file uploads
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [profileForm, setProfileForm] = useState({
     country_of_residence: "",
     operator_type: "",
@@ -303,13 +303,17 @@ export default function NTB() {
     setProfileForm((prev) => ({ ...prev, [field]: value }));
   };
 
-  // Commented out - no file uploads
-  // const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-  //   const file = e.target.files?.[0];
-  //   if (file) {
-  //     setSelectedFile(file);
-  //   }
-  // };
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      // Check file size (10MB limit)
+      if (file.size > 10 * 1024 * 1024) {
+        toast.error('File size must be less than 10MB');
+        return;
+      }
+      setSelectedFile(file);
+    }
+  };
 
   const handleProfileSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -384,7 +388,7 @@ export default function NTB() {
 
     try {
       // Prepare the payload according to the expected format
-      const payload = {
+      const payload: any = {
         ntb_type_id: parseInt(form.ntb_type_id),
         date_of_incident: form.date_of_incident,
         country_of_incident: form.country_of_incident,
@@ -399,14 +403,24 @@ export default function NTB() {
         money_lost_range: form.money_lost_range,
         exact_loss_value: parseFloat(form.exact_loss_value),
         loss_calculation_description: form.loss_calculation_description,
+        attachment: selectedFile,
       };
+
+      // Create FormData for file upload
+      const formData = new FormData();
+      
+      // Add all form fields
+      Object.keys(payload).forEach(key => {
+        if (key === 'attachment' && payload[key]) {
+          formData.append('attachment', payload[key]);
+        } else if (key !== 'attachment') {
+          formData.append(key, payload[key]);
+        }
+      });
 
       const response = await fetch('/api/ntb/submit', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(payload),
+        body: formData,
       });
 
       const data = await response.json();
@@ -445,7 +459,7 @@ export default function NTB() {
       exact_loss_value: "",
       loss_calculation_description: "",
     });
-    // setSelectedFile(null); // Commented out - no file uploads
+    setSelectedFile(null);
     editor?.commands.setContent('');
   };
 
@@ -1275,10 +1289,10 @@ export default function NTB() {
                         />
                       </div>
 
-                      {/* File Upload - Commented out */}
-                      {/* <div className="space-y-3">
+                      {/* File Upload */}
+                      <div className="space-y-3">
                         <Label className="text-sm font-medium text-gray-700">
-                          Attachment
+                          {t("attachment")}
                         </Label>
                         <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-blue-400 transition-colors">
                           <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
@@ -1293,7 +1307,7 @@ export default function NTB() {
                             htmlFor="file-upload"
                             className="cursor-pointer text-blue-600 hover:text-blue-700 font-medium"
                           >
-                            {selectedFile ? selectedFile.name : "Click to upload file"}
+                            {selectedFile ? selectedFile.name : t("clickToUpload")}
                           </label>
                           {selectedFile && (
                             <div className="mt-2 flex items-center justify-center gap-2">
@@ -1311,8 +1325,11 @@ export default function NTB() {
                               </Button>
                             </div>
                           )}
+                          <p className="text-xs text-gray-500 mt-2">
+                            {t("supportedFormats")} • {t("maxFileSize")}
+                          </p>
                         </div>
-                      </div> */}
+                      </div>
 
                       <Separator className="my-8" />
 

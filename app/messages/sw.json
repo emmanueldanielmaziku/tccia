@@ -190,7 +190,14 @@
       "title": "Unahitaji msaada?",
       "description": "Wasiliana nasi kwa msaada.",
       "contactButton": "Pata Msaada"
-    }
+    },
+    "attachment": "Kiambatanisho",
+    "uploadFile": "Pakia Faili",
+    "clickToUpload": "Bofya kupakia faili",
+    "fileUploaded": "Faili imepakiwa",
+    "removeFile": "Ondoa faili",
+    "supportedFormats": "Miundo inayoungwa mkono: PDF, DOC, DOCX, JPG, JPEG, PNG",
+    "maxFileSize": "Ukubwa wa juu wa faili: 10MB"
   },
   "helpdesk": {
     "title": "Dawati la Msaada",

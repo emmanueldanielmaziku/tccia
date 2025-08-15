@@ -239,6 +239,13 @@
       "title": "Need help?",
       "description": "Contact us for assistance.",
       "contactButton": "Contact Support"
-    }
+    },
+    "attachment": "Attachment",
+    "uploadFile": "Upload File",
+    "clickToUpload": "Click to upload file",
+    "fileUploaded": "File uploaded",
+    "removeFile": "Remove file",
+    "supportedFormats": "Supported formats: PDF, DOC, DOCX, JPG, JPEG, PNG",
+    "maxFileSize": "Maximum file size: 10MB"
   }
 }

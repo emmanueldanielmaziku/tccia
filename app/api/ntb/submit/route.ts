@@ -15,7 +15,18 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const body = await request.json();
+    // Handle FormData for file uploads
+    const formData = await request.formData();
+    const body: any = {};
+    
+    // Extract form fields
+    for (const [key, value] of formData.entries()) {
+      if (key === 'attachment') {
+        body[key] = value; // This will be the file
+      } else {
+        body[key] = value.toString();
+      }
+    }
 
     const {
       ntb_type_id,
@@ -55,7 +66,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const payload = {
+    const payload: any = {
       ntb_type_id,
       date_of_incident,
       country_of_incident,
@@ -72,17 +83,42 @@ export async function POST(request: NextRequest) {
       loss_calculation_description,
     };
 
+    // Add attachment if present
+    if (body.attachment) {
+      payload.attachment = body.attachment;
+    }
+
     console.log("NTB Submit Payload:", JSON.stringify(payload, null, 2));
+
+    // Create FormData for external API call if there's an attachment
+    let requestBody: string | FormData;
+    let headers: any = {
+      Authorization: `Bearer ${token.value.trim()}`,
+    };
+
+    if (payload.attachment) {
+      // If there's an attachment, use FormData
+      const externalFormData = new FormData();
+      Object.keys(payload).forEach(key => {
+        if (key === 'attachment') {
+          externalFormData.append('attachment', payload[key]);
+        } else {
+          externalFormData.append(key, payload[key]);
+        }
+      });
+      requestBody = externalFormData;
+    } else {
+      // If no attachment, use JSON
+      headers["Content-Type"] = "application/json";
+      requestBody = JSON.stringify(payload);
+    }
 
     const response = await fetch(
       `${API_BASE_URL}/api/ntb/create`,
       {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token.value.trim()}`,
-        },
-        body: JSON.stringify(payload),
+        headers,
+        body: requestBody,
       }
     );
 
