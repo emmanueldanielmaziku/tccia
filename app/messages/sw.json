@@ -40,6 +40,7 @@
       "firstName": "Jina la kwanza",
       "lastName": "Jina la familia",
       "phoneNumber": "Namba ya simu",
+      "emailOrPhone": "Barua pepe au Namba ya simu",
       "role": "Tafadhali chagua jukumu lako"
     },
     "placeholders": {
@@ -47,6 +48,7 @@
       "lastName": "Jina la familia",
       "enterEmail": "Weka anwani yako ya barua pepe",
       "enterPhone": "Weka namba yako ya simu",
+      "enterEmailOrPhone": "Weka barua pepe au namba yako ya simu",
       "selectRole": "Chagua jukumu lako",
       "enterPassword": "Weka nywila yako"
     },

@@ -40,6 +40,7 @@
       "firstName": "First name",
       "lastName": "Last name",
       "phoneNumber": "Phone number",
+      "emailOrPhone": "Email or Phone number",
       "role": "Please select your role"
     },
     "placeholders": {
@@ -47,6 +48,7 @@
       "lastName": "Last name",
       "enterEmail": "Enter your email address",
       "enterPhone": "Enter your phone number",
+      "enterEmailOrPhone": "Enter your email or phone number",
       "selectRole": "Select your role",
       "enterPassword": "Enter your password"
     },

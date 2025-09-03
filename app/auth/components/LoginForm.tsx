@@ -6,15 +6,26 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { MdVisibility, MdVisibilityOff } from "react-icons/md";
 import { useFormState, useResetFormState } from "../services/FormStates";
 import { useRouter } from "next/navigation";
-import { Call } from "iconsax-reactjs";
+import { Call, Sms } from "iconsax-reactjs";
 import { useTranslations } from "next-intl";
 
 
 const schema = z.object({
   login: z
     .string()
-    .min(10, "Phone number must be at least 10 digits")
-    .regex(/^[0-9]+$/, "Phone number must contain only digits"),
+    .min(1, "Email or phone number is required")
+    .refine(
+      (value) => {
+        // Check if it's a valid email
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        // Check if it's a valid phone number (10+ digits)
+        const phoneRegex = /^[0-9]{10,}$/;
+        return emailRegex.test(value) || phoneRegex.test(value);
+      },
+      {
+        message: "Please enter a valid email address or phone number",
+      }
+    ),
   password: z
     .string()
     .min(8, "Password must be at least 8 characters")
@@ -94,21 +105,19 @@ export default function LoginForm() {
       )}
 
       <div className="relative flex flex-col gap-1 w-full">
-        <label htmlFor="phone" className="text-gray-700 text-sm font-medium">
-          {tf("labels.phoneNumber")}
+        <label htmlFor="login" className="text-gray-700 text-sm font-medium">
+          {tf("labels.emailOrPhone")}
         </label>
         <input
-          type="tel"
-          placeholder={tf("placeholders.enterPhone")}
+          type="text"
+          placeholder={tf("placeholders.enterEmailOrPhone")}
           {...register("login")}
           className="w-full px-6 py-2.5 pr-12 border border-zinc-300 bg-zinc-100 outline-blue-400 rounded-[8px] placeholder:text-zinc-400 placeholder:text-[15px]"
         />
-        <Call size="20" color="#9F9FA9" className="absolute top-9.5 right-5" />
+        <Sms size="20" color="#9F9FA9" className="absolute top-9.5 right-5" />
         {errors.login && (
-          <p className="text-red-500 text-[12px] absolute left-0 top-[58px]">
-            {errors.login.type === "min"
-              ? tf("validation.phoneMinLength")
-              : tf("validation.phoneDigitsOnly")}
+          <p className="text-red-500 text-[12px] absolute left-0 top-[70px]">
+            {errors.login.message}
           </p>
         )}
       </div>
@@ -140,7 +149,7 @@ export default function LoginForm() {
           )}
         </button>
         {errors.password && (
-          <p className="text-red-500 text-[12px] absolute left-0 top-[58px]">
+          <p className="text-red-500 text-[12px] absolute left-0 top-[70px]">
             {errors.password.type === "min"
               ? tf("validation.passwordMinLength")
               : errors.password.type === "regex"
