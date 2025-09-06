@@ -43,6 +43,13 @@ export async function POST(request: NextRequest) {
       money_lost_range,
       exact_loss_value,
       loss_calculation_description,
+      // New optional location fields
+      latitude,
+      longitude,
+      location_type,
+      location_accuracy,
+      location_address,
+      google_place_id,
     } = body;
 
     // Validate required fields
@@ -53,12 +60,7 @@ export async function POST(request: NextRequest) {
       !location ||
       !complaint_details ||
       !product_description ||
-      !cost_value_range ||
-      !occurrence ||
-      !time_lost_range ||
-      !money_lost_range ||
-      exact_loss_value === undefined ||
-      !loss_calculation_description
+      !occurrence
     ) {
       return NextResponse.json(
         { error: "Missing required fields" },
@@ -73,48 +75,74 @@ export async function POST(request: NextRequest) {
       location,
       complaint_details,
       product_description,
-      cost_value_range,
       occurrence,
-      hs_code,
-      hs_description,
-      time_lost_range,
-      money_lost_range,
-      exact_loss_value,
-      loss_calculation_description,
     };
 
-    // Add attachment if present
-    if (body.attachment) {
-      payload.attachment = body.attachment;
+    // Add optional fields if present
+    if (cost_value_range) payload.cost_value_range = cost_value_range;
+    if (hs_code) payload.hs_code = hs_code;
+    if (hs_description) payload.hs_description = hs_description;
+    if (time_lost_range) payload.time_lost_range = time_lost_range;
+    if (money_lost_range) payload.money_lost_range = money_lost_range;
+    if (exact_loss_value) payload.exact_loss_value = exact_loss_value;
+    if (loss_calculation_description) payload.loss_calculation_description = loss_calculation_description;
+    
+    // Add optional location fields
+    if (latitude) payload.latitude = latitude;
+    if (longitude) payload.longitude = longitude;
+    if (location_type) payload.location_type = location_type;
+    if (location_accuracy) payload.location_accuracy = location_accuracy;
+    if (location_address) payload.location_address = location_address;
+    if (google_place_id) payload.google_place_id = google_place_id;
+
+    // Handle file attachments - separate by type
+    const documentFiles: File[] = [];
+    const imageFiles: File[] = [];
+    const videoFiles: File[] = [];
+
+    // Process file attachments
+    for (const [key, value] of formData.entries()) {
+      if (key.startsWith('document_files') && value instanceof File) {
+        documentFiles.push(value);
+      } else if (key.startsWith('image_files') && value instanceof File) {
+        imageFiles.push(value);
+      } else if (key.startsWith('video_files') && value instanceof File) {
+        videoFiles.push(value);
+      }
     }
 
     console.log("NTB Submit Payload:", JSON.stringify(payload, null, 2));
 
-    // Create FormData for external API call if there's an attachment
-    let requestBody: string | FormData;
+    // Create FormData for external API call
+    let requestBody: FormData;
     let headers: any = {
       Authorization: `Bearer ${token.value.trim()}`,
     };
 
-    if (payload.attachment) {
-      // If there's an attachment, use FormData
-      const externalFormData = new FormData();
-      Object.keys(payload).forEach(key => {
-        if (key === 'attachment') {
-          externalFormData.append('attachment', payload[key]);
-        } else {
-          externalFormData.append(key, payload[key]);
-        }
-      });
-      requestBody = externalFormData;
-    } else {
-      // If no attachment, use JSON
-      headers["Content-Type"] = "application/json";
-      requestBody = JSON.stringify(payload);
-    }
+    const externalFormData = new FormData();
+    
+    // Add all payload fields
+    Object.keys(payload).forEach(key => {
+      externalFormData.append(key, payload[key]);
+    });
+
+    // Add files by type
+    documentFiles.forEach((file, index) => {
+      externalFormData.append(`document_files`, file);
+    });
+    
+    imageFiles.forEach((file, index) => {
+      externalFormData.append(`image_files`, file);
+    });
+    
+    videoFiles.forEach((file, index) => {
+      externalFormData.append(`video_files`, file);
+    });
+
+    requestBody = externalFormData;
 
     const response = await fetch(
-      `${API_BASE_URL}/api/ntb/create`,
+      `${API_BASE_URL}/api/ntb/create-with-files`,
       {
         method: "POST",
         headers,

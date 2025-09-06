@@ -156,7 +156,17 @@ export default function NTB() {
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [detailLoading, setDetailLoading] = useState(false);
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [selectedFiles, setSelectedFiles] = useState<{
+    documents: File[];
+    images: File[];
+    videos: File[];
+  }>({
+    documents: [],
+    images: [],
+    videos: [],
+  });
+  const [locationPermission, setLocationPermission] = useState<'granted' | 'denied' | 'prompt' | 'loading'>('prompt');
+  const [isDetectingLocation, setIsDetectingLocation] = useState(false);
   const [profileForm, setProfileForm] = useState({
     country_of_residence: "",
     operator_type: "",
@@ -166,7 +176,6 @@ export default function NTB() {
   const [form, setForm] = useState({
     ntb_type_id: "",
     date_of_incident: "",
-    // status: "", // Removed - not needed in form
     country_of_incident: "",
     location: "",
     complaint_details: "",
@@ -179,6 +188,13 @@ export default function NTB() {
     money_lost_range: "",
     exact_loss_value: "",
     loss_calculation_description: "",
+    // New optional location fields
+    latitude: "",
+    longitude: "",
+    location_type: "",
+    location_accuracy: "",
+    location_address: "",
+    google_place_id: "",
   });
 
   const editor = useEditor({
@@ -217,6 +233,13 @@ export default function NTB() {
   useEffect(() => {
     fetchNTBTypes();
   }, []);
+
+  // Auto-detect location when form mode is 'new'
+  useEffect(() => {
+    if (mode === 'new' && locationPermission === 'prompt') {
+      requestLocationPermission();
+    }
+  }, [mode]);
 
   const fetchNTBTypes = async () => {
     try {
@@ -303,15 +326,140 @@ export default function NTB() {
     setProfileForm((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      // Check file size (10MB limit)
-      if (file.size > 10 * 1024 * 1024) {
-        toast.error('File size must be less than 10MB');
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, fileType: 'documents' | 'images' | 'videos') => {
+    const files = Array.from(e.target.files || []);
+    if (files.length > 0) {
+      // Check file sizes (10MB limit per file)
+      const oversizedFiles = files.filter(file => file.size > 10 * 1024 * 1024);
+      if (oversizedFiles.length > 0) {
+        toast.error('File size must be less than 10MB per file');
         return;
       }
-      setSelectedFile(file);
+      
+      setSelectedFiles(prev => ({
+        ...prev,
+        [fileType]: [...prev[fileType], ...files]
+      }));
+    }
+  };
+
+  const removeFile = (fileType: 'documents' | 'images' | 'videos', index: number) => {
+    setSelectedFiles(prev => ({
+      ...prev,
+      [fileType]: prev[fileType].filter((_, i) => i !== index)
+    }));
+  };
+
+  // Geolocation functions
+  const detectCurrentLocation = async () => {
+    if (!navigator.geolocation) {
+      toast.error('Geolocation is not supported by this browser');
+      return;
+    }
+
+    setIsDetectingLocation(true);
+    setLocationPermission('loading');
+
+    try {
+      const position = await new Promise<GeolocationPosition>((resolve, reject) => {
+        navigator.geolocation.getCurrentPosition(resolve, reject, {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 300000 // 5 minutes
+        });
+      });
+
+      const { latitude, longitude } = position.coords;
+      
+      // Update form with detected coordinates
+      setForm(prev => ({
+        ...prev,
+        latitude: latitude.toString(),
+        longitude: longitude.toString(),
+        location_accuracy: 'high',
+        location_type: 'border' // Default to border, user can change if needed
+      }));
+
+      // Try to get reverse geocoding for address and Google Place ID
+      try {
+        // First try Google Places API for more accurate results
+        const googleApiKey = "AIzaSyAwQoUQl28QtvKbkhb7epo6XXYo8zqpsEc";
+        
+        if (googleApiKey) {
+          const googleResponse = await fetch(
+            `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=${googleApiKey}`
+          );
+          
+          if (googleResponse.ok) {
+            const googleData = await googleResponse.json();
+            if (googleData.results && googleData.results.length > 0) {
+              const result = googleData.results[0];
+              setForm(prev => ({
+                ...prev,
+                location_address: result.formatted_address,
+                location: result.formatted_address.split(',')[0], // Use first part as main location
+                google_place_id: result.place_id
+              }));
+            }
+          } else {
+            console.log('Google Places API failed, falling back to BigDataCloud');
+            // Fall through to BigDataCloud
+          }
+        } else {
+          console.log('Google Maps API key not configured, using BigDataCloud');
+        }
+        
+          // Fallback to BigDataCloud if Google API fails or no key
+          const response = await fetch(
+            `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`
+          );
+          const data = await response.json();
+          
+          if (data.locality) {
+            setForm(prev => ({
+              ...prev,
+              location_address: `${data.locality}, ${data.principalSubdivision}, ${data.countryName}`,
+              location: `${data.locality}, ${data.principalSubdivision}` // Update main location too
+            }));
+          }
+      } catch (geocodeError) {
+        console.log('Reverse geocoding failed:', geocodeError);
+        // Still use the coordinates even if reverse geocoding fails
+      }
+
+      setLocationPermission('granted');
+      toast.success('Location detected successfully!');
+      
+    } catch (error: any) {
+      console.error('Geolocation error:', error);
+      setLocationPermission('denied');
+      
+      if (error.code === 1) {
+        toast.error('Location access denied. Please enable location permissions.');
+      } else if (error.code === 2) {
+        toast.error('Location unavailable. Please check your connection.');
+      } else if (error.code === 3) {
+        toast.error('Location request timed out. Please try again.');
+      } else {
+        toast.error('Failed to detect location. Please enter manually.');
+      }
+    } finally {
+      setIsDetectingLocation(false);
+    }
+  };
+
+  const requestLocationPermission = () => {
+    if (navigator.permissions) {
+      navigator.permissions.query({ name: 'geolocation' as PermissionName }).then((result) => {
+        setLocationPermission(result.state);
+        if (result.state === 'granted') {
+          detectCurrentLocation();
+        } else if (result.state === 'prompt') {
+          detectCurrentLocation();
+        }
+      });
+    } else {
+      detectCurrentLocation();
     }
   };
 
@@ -395,27 +543,43 @@ export default function NTB() {
         location: form.location,
         complaint_details: form.complaint_details,
         product_description: form.product_description,
-        cost_value_range: form.cost_value_range,
         occurrence: form.occurrence,
-        hs_code: form.hs_code,
-        hs_description: form.hs_description,
-        time_lost_range: form.time_lost_range,
-        money_lost_range: form.money_lost_range,
-        exact_loss_value: parseFloat(form.exact_loss_value),
-        loss_calculation_description: form.loss_calculation_description,
-        attachment: selectedFile,
       };
+
+      // Add optional fields if they have values
+      if (form.cost_value_range) payload.cost_value_range = form.cost_value_range;
+      if (form.hs_code) payload.hs_code = form.hs_code;
+      if (form.hs_description) payload.hs_description = form.hs_description;
+      if (form.time_lost_range) payload.time_lost_range = form.time_lost_range;
+      if (form.money_lost_range) payload.money_lost_range = form.money_lost_range;
+      if (form.exact_loss_value) payload.exact_loss_value = parseFloat(form.exact_loss_value);
+      if (form.loss_calculation_description) payload.loss_calculation_description = form.loss_calculation_description;
+      
+      // Add optional location fields
+      if (form.latitude) payload.latitude = form.latitude;
+      if (form.longitude) payload.longitude = form.longitude;
+      if (form.location_type) payload.location_type = form.location_type;
+      if (form.location_accuracy) payload.location_accuracy = form.location_accuracy;
+      if (form.location_address) payload.location_address = form.location_address;
+      if (form.google_place_id) payload.google_place_id = form.google_place_id;
 
       // Create FormData for file upload
       const formData = new FormData();
       
       // Add all form fields
       Object.keys(payload).forEach(key => {
-        if (key === 'attachment' && payload[key]) {
-          formData.append('attachment', payload[key]);
-        } else if (key !== 'attachment') {
-          formData.append(key, payload[key]);
-        }
+        formData.append(key, payload[key]);
+      });
+
+      // Add files by type
+      selectedFiles.documents.forEach(file => {
+        formData.append('document_files', file);
+      });
+      selectedFiles.images.forEach(file => {
+        formData.append('image_files', file);
+      });
+      selectedFiles.videos.forEach(file => {
+        formData.append('video_files', file);
       });
 
       const response = await fetch('/api/ntb/submit', {
@@ -445,7 +609,6 @@ export default function NTB() {
     setForm({
       ntb_type_id: "",
       date_of_incident: "",
-      // status: "", // Removed - not needed in form
       country_of_incident: "",
       location: "",
       complaint_details: "",
@@ -458,8 +621,20 @@ export default function NTB() {
       money_lost_range: "",
       exact_loss_value: "",
       loss_calculation_description: "",
+      // New optional location fields
+      latitude: "",
+      longitude: "",
+      location_type: "",
+      location_accuracy: "",
+      location_address: "",
+      google_place_id: "",
     });
-    setSelectedFile(null);
+    setSelectedFiles({
+      documents: [],
+      images: [],
+      videos: [],
+    });
+    setLocationPermission('prompt');
     editor?.commands.setContent('');
   };
 
@@ -1128,6 +1303,220 @@ export default function NTB() {
                         />
                       </div>
 
+                      {/* Optional Location Details */}
+                      <div className="space-y-4">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <h4 className="text-md font-medium text-gray-800 mb-1">Location Details</h4>
+                            <p className="text-sm text-gray-600">
+                              {locationPermission === 'granted' 
+                                ? 'Location automatically detected from your device'
+                                : 'Location will be automatically detected to help with investigation'
+                              }
+                            </p>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            {locationPermission === 'granted' && (
+                              <div className="flex items-center gap-1 text-green-600 text-sm">
+                                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                                <span>Auto-detected</span>
+                              </div>
+                            )}
+                            {locationPermission !== 'granted' && (
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                onClick={requestLocationPermission}
+                                disabled={isDetectingLocation}
+                                className="text-blue-600 border-blue-200 hover:bg-blue-50"
+                              >
+                                {isDetectingLocation ? (
+                                  <>
+                                    <div className="w-3 h-3 border border-blue-600 border-t-transparent rounded-full animate-spin mr-1" />
+                                    Detecting...
+                                  </>
+                                ) : (
+                                  <>
+                                    <MapPin className="w-3 h-3 mr-1" />
+                                    Detect Location
+                                  </>
+                                )}
+                              </Button>
+                            )}
+                            {locationPermission === 'granted' && (
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                onClick={() => {
+                                  setLocationPermission('prompt');
+                                  setForm(prev => ({
+                                    ...prev,
+                                    latitude: '',
+                                    longitude: '',
+                                    location_accuracy: '',
+                                    location_address: '',
+                                    google_place_id: ''
+                                  }));
+                                }}
+                                className="text-gray-600 border-gray-200 hover:bg-gray-50"
+                              >
+                                <Trash2 className="w-3 h-3 mr-1" />
+                                Reset Location
+                              </Button>
+                            )}
+                          </div>
+                        </div>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div className="space-y-3">
+                            <Label className="text-sm font-medium text-gray-700">
+                              Latitude
+                              {locationPermission === 'granted' && (
+                                <span className="text-xs text-green-600 ml-1">(Auto-detected)</span>
+                              )}
+                            </Label>
+                            <Input
+                              type="number"
+                              step="any"
+                              placeholder="e.g., -2.5467"
+                              value={form.latitude}
+                              onChange={(e) => handleChange("latitude", e.target.value)}
+                              readOnly={locationPermission === 'granted'}
+                              className={`h-12 rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500 ${
+                                locationPermission === 'granted' 
+                                  ? 'bg-gray-50 text-gray-700 cursor-not-allowed' 
+                                  : ''
+                              }`}
+                            />
+                          </div>
+
+                          <div className="space-y-3">
+                            <Label className="text-sm font-medium text-gray-700">
+                              Longitude
+                              {locationPermission === 'granted' && (
+                                <span className="text-xs text-green-600 ml-1">(Auto-detected)</span>
+                              )}
+                            </Label>
+                            <Input
+                              type="number"
+                              step="any"
+                              placeholder="e.g., 36.7833"
+                              value={form.longitude}
+                              onChange={(e) => handleChange("longitude", e.target.value)}
+                              readOnly={locationPermission === 'granted'}
+                              className={`h-12 rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500 ${
+                                locationPermission === 'granted' 
+                                  ? 'bg-gray-50 text-gray-700 cursor-not-allowed' 
+                                  : ''
+                              }`}
+                            />
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div className="space-y-3">
+                            <Label className="text-sm font-medium text-gray-700">
+                              Location Type
+                            </Label>
+                            <Select
+                              value={form.location_type}
+                              onValueChange={(value) => handleChange("location_type", value)}
+                            >
+                              <SelectTrigger className="h-12 rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500">
+                                <SelectValue placeholder="Select location type" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="border">Border Crossing</SelectItem>
+                                <SelectItem value="port">Port</SelectItem>
+                                <SelectItem value="airport">Airport</SelectItem>
+                                <SelectItem value="warehouse">Warehouse</SelectItem>
+                                <SelectItem value="office">Government Office</SelectItem>
+                                <SelectItem value="other">Other</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+
+                          <div className="space-y-3">
+                            <Label className="text-sm font-medium text-gray-700">
+                              Location Accuracy
+                              {locationPermission === 'granted' && (
+                                <span className="text-xs text-green-600 ml-1">(Auto-detected)</span>
+                              )}
+                            </Label>
+                            <Select
+                              value={form.location_accuracy}
+                              onValueChange={(value) => handleChange("location_accuracy", value)}
+                              disabled={locationPermission === 'granted'}
+                            >
+                              <SelectTrigger className={`h-12 rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500 ${
+                                locationPermission === 'granted' 
+                                  ? 'bg-gray-50 text-gray-700 cursor-not-allowed' 
+                                  : ''
+                              }`}>
+                                <SelectValue placeholder="Select accuracy level" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="high">High (Exact coordinates)</SelectItem>
+                                <SelectItem value="medium">Medium (General area)</SelectItem>
+                                <SelectItem value="low">Low (City/Region only)</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        </div>
+
+                        <div className="space-y-3">
+                          <Label className="text-sm font-medium text-gray-700">
+                            Full Address
+                            {locationPermission === 'granted' && (
+                              <span className="text-xs text-green-600 ml-1">(Auto-detected)</span>
+                            )}
+                          </Label>
+                          <Input
+                            placeholder="Enter complete address"
+                            value={form.location_address}
+                            onChange={(e) => handleChange("location_address", e.target.value)}
+                            readOnly={locationPermission === 'granted'}
+                            className={`h-12 rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500 ${
+                              locationPermission === 'granted' 
+                                ? 'bg-gray-50 text-gray-700 cursor-not-allowed' 
+                                : ''
+                            }`}
+                          />
+                        </div>
+
+                        <div className="space-y-3">
+                          <Label className="text-sm font-medium text-gray-700">
+                            Google Place ID
+                            {locationPermission === 'granted' && form.google_place_id && (
+                              <span className="text-xs text-green-600 ml-1">(Auto-detected)</span>
+                            )}
+                          </Label>
+                          <Input
+                            placeholder="Enter Google Place ID (optional)"
+                            value={form.google_place_id}
+                            onChange={(e) => handleChange("google_place_id", e.target.value)}
+                            readOnly={locationPermission === 'granted' && !!form.google_place_id}
+                            className={`h-12 rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500 ${
+                              locationPermission === 'granted' && form.google_place_id
+                                ? 'bg-gray-50 text-gray-700 cursor-not-allowed' 
+                                : ''
+                            }`}
+                          />
+                          {form.google_place_id && (
+                            <p className="text-xs text-gray-500">
+                              Place ID: {form.google_place_id}
+                            </p>
+                          )}
+                          {!form.google_place_id && locationPermission === 'granted' && (
+                            <p className="text-xs text-amber-600">
+                              Google Place ID not available. Configure NEXT_PUBLIC_GOOGLE_MAPS_API_KEY for enhanced location data.
+                            </p>
+                          )}
+                        </div>
+                      </div>
+
                       {/* Product Information */}
                       <div className="space-y-3">
                         <Label className="text-sm font-medium text-gray-700">
@@ -1168,10 +1557,10 @@ export default function NTB() {
                         </div>
                       </div>
 
-                      {/* Cost/Value of Goods - Now Optional */}
+                      {/* Cost/Value of Goods - Optional */}
                       <div className="space-y-3">
                         <Label className="text-sm font-medium text-gray-700">
-                          Cost/Value of Goods in USD
+                          Cost/Value of Goods in USD (Optional)
                         </Label>
                         <Select
                           value={form.cost_value_range}
@@ -1216,15 +1605,14 @@ export default function NTB() {
 
                         <div className="space-y-3">
                           <Label className="text-sm font-medium text-gray-700">
-                            Time Lost *
+                            Time Lost (Optional)
                           </Label>
                           <Select
                             value={form.time_lost_range}
                             onValueChange={(value) => handleChange("time_lost_range", value)}
-                            required
                           >
                             <SelectTrigger className="h-12 w-[280px] rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500">
-                              <SelectValue placeholder="Select time lost" />
+                              <SelectValue placeholder="Select time lost (optional)" />
                             </SelectTrigger>
                             <SelectContent>
                               {TIME_LOST_OPTIONS.map((time) => (
@@ -1237,97 +1625,207 @@ export default function NTB() {
                         </div>
                       </div>
 
-                      {/* Financial Impact */}
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="space-y-3">
-                          <Label className="text-sm font-medium text-gray-700">
-                            Money Lost Range *
-                          </Label>
-                          <Select
-                            value={form.money_lost_range}
-                            onValueChange={(value) => handleChange("money_lost_range", value)}
-                            required
-                          >
-                            <SelectTrigger className="h-12 w-[280px] rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500">
-                              <SelectValue placeholder="Select money lost range" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {MONEY_LOST_RANGES.map((range) => (
-                                <SelectItem key={range} value={range}>
-                                  {range}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
+                      {/* Financial Impact - Optional */}
+                      <div className="space-y-4">
+                        <div>
+                          <h4 className="text-md font-medium text-gray-800 mb-2">Financial Impact (Optional)</h4>
+                          <p className="text-sm text-gray-600 mb-4">
+                            Provide financial impact details if available
+                          </p>
+                        </div>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div className="space-y-3">
+                            <Label className="text-sm font-medium text-gray-700">
+                              Money Lost Range
+                            </Label>
+                            <Select
+                              value={form.money_lost_range}
+                              onValueChange={(value) => handleChange("money_lost_range", value)}
+                            >
+                              <SelectTrigger className="h-12 w-[280px] rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500">
+                                <SelectValue placeholder="Select money lost range (optional)" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {MONEY_LOST_RANGES.map((range) => (
+                                  <SelectItem key={range} value={range}>
+                                    {range}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+
+                          <div className="space-y-3">
+                            <Label className="text-sm font-medium text-gray-700">
+                              Exact Value of Loss ($)
+                            </Label>
+                            <Input
+                              type="number"
+                              step="0.01"
+                              placeholder="Enter exact amount (optional)"
+                              value={form.exact_loss_value}
+                              onChange={(e) => handleChange("exact_loss_value", e.target.value)}
+                              className="h-12 rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+                            />
+                          </div>
                         </div>
 
                         <div className="space-y-3">
                           <Label className="text-sm font-medium text-gray-700">
-                            Exact Value of Loss ($) *
+                            Description of How Loss Was Calculated
                           </Label>
                           <Input
-                            type="number"
-                            placeholder="Enter exact amount"
-                            value={form.exact_loss_value}
-                            onChange={(e) => handleChange("exact_loss_value", e.target.value)}
+                            placeholder="Explain how you calculated the loss (optional)"
+                            value={form.loss_calculation_description}
+                            onChange={(e) => handleChange("loss_calculation_description", e.target.value)}
                             className="h-12 rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500"
-                            required
                           />
                         </div>
                       </div>
 
-                      <div className="space-y-3">
-                        <Label className="text-sm font-medium text-gray-700">
-                          Description of How Loss Was Calculated *
-                        </Label>
-                        <Input
-                          placeholder="Explain how you calculated the loss"
-                          value={form.loss_calculation_description}
-                          onChange={(e) => handleChange("loss_calculation_description", e.target.value)}
-                          className="h-12 rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500"
-                          required
-                        />
-                      </div>
+                      {/* File Uploads */}
+                      <div className="space-y-6">
+                        <div>
+                          <h3 className="text-lg font-semibold text-gray-900 mb-4">File Attachments</h3>
+                          <p className="text-sm text-gray-600 mb-4">
+                            Upload supporting documents, images, or videos to strengthen your NTB report
+                          </p>
+                        </div>
 
-                      {/* File Upload */}
-                      <div className="space-y-3">
-                        <Label className="text-sm font-medium text-gray-700">
-                          {t("attachment")}
-                        </Label>
-                        <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-blue-400 transition-colors">
-                          <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-                          <input
-                            type="file"
-                            onChange={handleFileChange}
-                            className="hidden"
-                            id="file-upload"
-                            accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
-                          />
-                          <label
-                            htmlFor="file-upload"
-                            className="cursor-pointer text-blue-600 hover:text-blue-700 font-medium"
-                          >
-                            {selectedFile ? selectedFile.name : t("clickToUpload")}
-                          </label>
-                          {selectedFile && (
-                            <div className="mt-2 flex items-center justify-center gap-2">
-                              <span className="text-sm text-gray-600">
-                                {selectedFile.name}
-                              </span>
-                              <Button
-                                type="button"
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => setSelectedFile(null)}
-                                className="text-red-600 hover:text-red-700"
-                              >
-                                <Trash2 className="w-4 h-4" />
-                              </Button>
+                        {/* Document Files */}
+                        <div className="space-y-3">
+                          <Label className="text-sm font-medium text-gray-700">
+                            Document Files (PDF, DOC, DOCX)
+                          </Label>
+                          <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-blue-400 transition-colors">
+                            <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+                            <input
+                              type="file"
+                              onChange={(e) => handleFileChange(e, 'documents')}
+                              className="hidden"
+                              id="document-upload"
+                              accept=".pdf,.doc,.docx"
+                              multiple
+                            />
+                            <label
+                              htmlFor="document-upload"
+                              className="cursor-pointer text-blue-600 hover:text-blue-700 font-medium"
+                            >
+                              Upload Documents
+                            </label>
+                            <p className="text-xs text-gray-500 mt-2">
+                              PDF, DOC, DOCX • Max 10MB per file
+                            </p>
+                          </div>
+                          {selectedFiles.documents.length > 0 && (
+                            <div className="space-y-2">
+                              {selectedFiles.documents.map((file, index) => (
+                                <div key={index} className="flex items-center justify-between bg-gray-50 p-3 rounded-lg">
+                                  <span className="text-sm text-gray-700">{file.name}</span>
+                                  <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => removeFile('documents', index)}
+                                    className="text-red-600 hover:text-red-700"
+                                  >
+                                    <Trash2 className="w-4 h-4" />
+                                  </Button>
+                                </div>
+                              ))}
                             </div>
                           )}
-                          <p className="text-xs text-gray-500 mt-2">
-                            {t("supportedFormats")} • {t("maxFileSize")}
-                          </p>
+                        </div>
+
+                        {/* Image Files */}
+                        <div className="space-y-3">
+                          <Label className="text-sm font-medium text-gray-700">
+                            Image Files (JPG, PNG, GIF)
+                          </Label>
+                          <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-blue-400 transition-colors">
+                            <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+                            <input
+                              type="file"
+                              onChange={(e) => handleFileChange(e, 'images')}
+                              className="hidden"
+                              id="image-upload"
+                              accept=".jpg,.jpeg,.png,.gif"
+                              multiple
+                            />
+                            <label
+                              htmlFor="image-upload"
+                              className="cursor-pointer text-blue-600 hover:text-blue-700 font-medium"
+                            >
+                              Upload Images
+                            </label>
+                            <p className="text-xs text-gray-500 mt-2">
+                              JPG, PNG, GIF • Max 10MB per file
+                            </p>
+                          </div>
+                          {selectedFiles.images.length > 0 && (
+                            <div className="space-y-2">
+                              {selectedFiles.images.map((file, index) => (
+                                <div key={index} className="flex items-center justify-between bg-gray-50 p-3 rounded-lg">
+                                  <span className="text-sm text-gray-700">{file.name}</span>
+                                  <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => removeFile('images', index)}
+                                    className="text-red-600 hover:text-red-700"
+                                  >
+                                    <Trash2 className="w-4 h-4" />
+                                  </Button>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Video Files */}
+                        <div className="space-y-3">
+                          <Label className="text-sm font-medium text-gray-700">
+                            Video Files (MP4, MOV, AVI)
+                          </Label>
+                          <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-blue-400 transition-colors">
+                            <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+                            <input
+                              type="file"
+                              onChange={(e) => handleFileChange(e, 'videos')}
+                              className="hidden"
+                              id="video-upload"
+                              accept=".mp4,.mov,.avi"
+                              multiple
+                            />
+                            <label
+                              htmlFor="video-upload"
+                              className="cursor-pointer text-blue-600 hover:text-blue-700 font-medium"
+                            >
+                              Upload Videos
+                            </label>
+                            <p className="text-xs text-gray-500 mt-2">
+                              MP4, MOV, AVI • Max 10MB per file
+                            </p>
+                          </div>
+                          {selectedFiles.videos.length > 0 && (
+                            <div className="space-y-2">
+                              {selectedFiles.videos.map((file, index) => (
+                                <div key={index} className="flex items-center justify-between bg-gray-50 p-3 rounded-lg">
+                                  <span className="text-sm text-gray-700">{file.name}</span>
+                                  <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => removeFile('videos', index)}
+                                    className="text-red-600 hover:text-red-700"
+                                  >
+                                    <Trash2 className="w-4 h-4" />
+                                  </Button>
+                                </div>
+                              ))}
+                            </div>
+                          )}
                         </div>
                       </div>
 
