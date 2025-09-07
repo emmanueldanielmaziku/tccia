@@ -1166,8 +1166,69 @@ export default function NTB() {
                   <CardContent className="px-8 pb-8">
                     <form onSubmit={handleSubmit} className="space-y-6">
                       
-                      {/* Complaint Details - Start with Description */}
+                
+
+                      {/* Basic Information */}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-3">
+                          <Label className="text-sm font-medium text-gray-700">
+                            NTB Type *
+                          </Label>
+                          <Select
+                            value={form.ntb_type_id}
+                            onValueChange={(value) => handleChange("ntb_type_id", value)}
+                            required
+                          >
+                            <SelectTrigger className="h-12 w-[280px] rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500">
+                              <SelectValue placeholder="Select NTB type" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {ntbTypes.map((type) => (
+                                <SelectItem key={type.id} value={type.id.toString()} title={type.description}>
+                                  {type.name}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+
+                        <div className="space-y-3">
+                          <Label className="text-sm font-medium text-gray-700">
+                            Date of Incident *
+                          </Label>
+                          <Input
+                            type="date"
+                            value={form.date_of_incident}
+                            onChange={(e) => handleChange("date_of_incident", e.target.value)}
+                            className="h-12 rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+                            required
+                          />
+                        </div>
+                      </div>
+
                       <div className="space-y-3">
+                        <Label className="text-sm font-medium text-gray-700">
+                          Country of Incident *
+                        </Label>
+                        <Select
+                          value={form.country_of_incident}
+                          onValueChange={(value) => handleChange("country_of_incident", value)}
+                          required
+                        >
+                          <SelectTrigger className="h-12 w-[280px] rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500">
+                            <SelectValue placeholder="Select country" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {COUNTRIES.map((country) => (
+                              <SelectItem key={country} value={country}>
+                                {country}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+      {/* Complaint Details - Start with Description */}
+      <div className="space-y-3">
                         <Label className="text-sm font-medium text-gray-700">
                           Complaint Details & Description *
                         </Label>
@@ -1229,67 +1290,6 @@ export default function NTB() {
                           />
                         </div>
                       </div>
-
-                      {/* Basic Information */}
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="space-y-3">
-                          <Label className="text-sm font-medium text-gray-700">
-                            NTB Type *
-                          </Label>
-                          <Select
-                            value={form.ntb_type_id}
-                            onValueChange={(value) => handleChange("ntb_type_id", value)}
-                            required
-                          >
-                            <SelectTrigger className="h-12 w-[280px] rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500">
-                              <SelectValue placeholder="Select NTB type" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {ntbTypes.map((type) => (
-                                <SelectItem key={type.id} value={type.id.toString()} title={type.description}>
-                                  {type.name}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </div>
-
-                        <div className="space-y-3">
-                          <Label className="text-sm font-medium text-gray-700">
-                            Date of Incident *
-                          </Label>
-                          <Input
-                            type="date"
-                            value={form.date_of_incident}
-                            onChange={(e) => handleChange("date_of_incident", e.target.value)}
-                            className="h-12 rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500"
-                            required
-                          />
-                        </div>
-                      </div>
-
-                      <div className="space-y-3">
-                        <Label className="text-sm font-medium text-gray-700">
-                          Country of Incident *
-                        </Label>
-                        <Select
-                          value={form.country_of_incident}
-                          onValueChange={(value) => handleChange("country_of_incident", value)}
-                          required
-                        >
-                          <SelectTrigger className="h-12 w-[280px] rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500">
-                            <SelectValue placeholder="Select country" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {COUNTRIES.map((country) => (
-                              <SelectItem key={country} value={country}>
-                                {country}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-
                       <div className="space-y-3">
                         <Label className="text-sm font-medium text-gray-700">
                           Location *
@@ -1344,7 +1344,7 @@ export default function NTB() {
                                 )}
                               </Button>
                             )}
-                            {locationPermission === 'granted' && (
+                            {/* {locationPermission === 'granted' && (
                               <Button
                                 type="button"
                                 variant="outline"
@@ -1365,7 +1365,7 @@ export default function NTB() {
                                 <Trash2 className="w-3 h-3 mr-1" />
                                 Reset Location
                               </Button>
-                            )}
+                            )} */}
                           </div>
                         </div>
                         
@@ -1486,7 +1486,7 @@ export default function NTB() {
                           />
                         </div>
 
-                        <div className="space-y-3">
+                        <div className="space-y-3 hidden">
                           <Label className="text-sm font-medium text-gray-700">
                             Google Place ID
                             {locationPermission === 'granted' && form.google_place_id && (
