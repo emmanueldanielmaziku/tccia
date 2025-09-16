@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Select,
   SelectTrigger,
@@ -238,6 +239,13 @@ export default function NTB() {
   useEffect(() => {
     if (mode === 'new' && locationPermission === 'prompt') {
       requestLocationPermission();
+    }
+  }, [mode]);
+
+  // Auto-detect location on component mount for new forms
+  useEffect(() => {
+    if (mode === 'new' && !form.location) {
+      detectCurrentLocation();
     }
   }, [mode]);
 
@@ -641,6 +649,7 @@ export default function NTB() {
   const getStatusColor = (state: string) => {
     switch (state.toLowerCase()) {
       case 'resolved':
+      case 'done':
         return 'bg-green-100 text-green-800 border-green-300';
       case 'in_progress':
       case 'in progress':
@@ -655,6 +664,17 @@ export default function NTB() {
       default:
         return 'bg-orange-100 text-orange-800 border-orange-300';
     }
+  };
+
+  const formatStatus = (state: string) => {
+    // Map "done" to "resolved" for display
+    if (state.toLowerCase() === 'done') {
+      return 'Resolved';
+    }
+    // Capitalize first letter of each word
+    return state.split(' ').map(word => 
+      word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+    ).join(' ');
   };
 
   // Show loading state while profile is loading
@@ -732,6 +752,7 @@ export default function NTB() {
                           <Select
                             value={profileForm.operator_type}
                             onValueChange={(value) => handleProfileChange("operator_type", value)}
+                            
                             required
                           >
                             <SelectTrigger className="h-10 rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500 w-[240px]">
@@ -850,9 +871,58 @@ export default function NTB() {
             {mode === "list" && (
               <div className="space-y-6">
                 {loading ? (
-                  <div className="text-center py-12">
-                    <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-                    <p className="text-gray-600">Loading NTB reports...</p>
+                  <div className="space-y-4">
+                    {/* Skeleton Cards for NTB List */}
+                    {[...Array(3)].map((_, index) => (
+                      <Card key={index} className="border-[0.5px] shadow-[0_0_0px_rgba(0,0,0,0.1)]">
+                        <CardContent className="p-6">
+                          <div className="flex justify-between items-start mb-4">
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2 mb-2">
+                                <Skeleton className="h-6 w-32" />
+                                <Skeleton className="h-5 w-24" />
+                              </div>
+                              <Skeleton className="h-4 w-40" />
+                            </div>
+                            <Skeleton className="h-6 w-20 rounded-full" />
+                          </div>
+                          
+                          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm mb-4">
+                            <div>
+                              <Skeleton className="h-3 w-20 mb-1" />
+                              <Skeleton className="h-4 w-16" />
+                            </div>
+                            <div>
+                              <Skeleton className="h-3 w-16 mb-1" />
+                              <Skeleton className="h-4 w-20" />
+                            </div>
+                            <div>
+                              <Skeleton className="h-3 w-16 mb-1" />
+                              <Skeleton className="h-4 w-24" />
+                            </div>
+                            <div>
+                              <Skeleton className="h-3 w-20 mb-1" />
+                              <Skeleton className="h-4 w-18" />
+                            </div>
+                          </div>
+                          
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm mb-4">
+                            <div>
+                              <Skeleton className="h-3 w-20 mb-1" />
+                              <Skeleton className="h-4 w-24" />
+                            </div>
+                            <div>
+                              <Skeleton className="h-3 w-24 mb-1" />
+                              <Skeleton className="h-4 w-32" />
+                            </div>
+                          </div>
+
+                          <div className="flex gap-2">
+                            <Skeleton className="h-8 w-24" />
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
                   </div>
                 ) : ntbList.length === 0 ? (
                   <Card className="text-center py-12 shadow-[0_0_0px_rgba(0,0,0,0.1)]">
@@ -892,7 +962,7 @@ export default function NTB() {
                               </p>
                             </div>
                             <Badge className={getStatusColor(ntb.state)}>
-                              {ntb.state}
+                              {formatStatus(ntb.state)}
                             </Badge>
                           </div>
                           
@@ -975,7 +1045,7 @@ export default function NTB() {
                         <div className="flex justify-between items-center">
                           <CardTitle className="text-lg">Basic Information</CardTitle>
                           <Badge className={getStatusColor(selectedNtb.state)}>
-                            {selectedNtb.state}
+                            {formatStatus(selectedNtb.state)}
                           </Badge>
                         </div>
                       </CardHeader>
@@ -1206,26 +1276,50 @@ export default function NTB() {
                         </div>
                       </div>
 
-                      <div className="space-y-3">
-                        <Label className="text-sm font-medium text-gray-700">
-                          Country of Incident *
-                        </Label>
-                        <Select
-                          value={form.country_of_incident}
-                          onValueChange={(value) => handleChange("country_of_incident", value)}
-                          required
-                        >
-                          <SelectTrigger className="h-12 w-[280px] rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500">
-                            <SelectValue placeholder="Select country" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {COUNTRIES.map((country) => (
-                              <SelectItem key={country} value={country}>
-                                {country}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-3">
+                          <Label className="text-sm font-medium text-gray-700">
+                            Country of Incident *
+                          </Label>
+                          <Select
+                            value={form.country_of_incident}
+                            onValueChange={(value) => handleChange("country_of_incident", value)}
+                            required
+                          >
+                            <SelectTrigger className="h-12 rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500">
+                              <SelectValue placeholder="Select country" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {COUNTRIES.map((country) => (
+                                <SelectItem key={country} value={country}>
+                                  {country}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+
+                        <div className="space-y-3">
+                          <Label className="text-sm font-medium text-gray-700">
+                            Location of Incident
+                          </Label>
+                          <Select
+                            value={form.location_type}
+                            onValueChange={(value) => handleChange("location_type", value)}
+                          >
+                            <SelectTrigger className="h-12 rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500">
+                              <SelectValue placeholder="Select location type" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="border">Border Crossing</SelectItem>
+                              <SelectItem value="port">Port</SelectItem>
+                              <SelectItem value="airport">Airport</SelectItem>
+                              <SelectItem value="warehouse">Warehouse</SelectItem>
+                              <SelectItem value="office">Government Office</SelectItem>
+                              <SelectItem value="other">Other</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
                       </div>
       {/* Complaint Details - Start with Description */}
       <div className="space-y-3">
@@ -1290,21 +1384,17 @@ export default function NTB() {
                           />
                         </div>
                       </div>
-                      <div className="space-y-3">
-                        <Label className="text-sm font-medium text-gray-700">
-                          Location *
-                        </Label>
+                      {/* Location field hidden from user but still captured in background */}
+                      <div className="hidden">
                         <Input
-                          placeholder="Enter specific location"
                           value={form.location}
                           onChange={(e) => handleChange("location", e.target.value)}
-                          className="h-12 rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500"
                           required
                         />
                       </div>
 
-                      {/* Optional Location Details */}
-                      <div className="space-y-4">
+                      {/* Location Details - Auto-captured (Hidden from user but data still captured) */}
+                      <div className="hidden space-y-4">
                         <div className="flex items-center justify-between">
                           <div>
                             <h4 className="text-md font-medium text-gray-800 mb-1">Location Details</h4>
@@ -1415,55 +1505,31 @@ export default function NTB() {
                           </div>
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div className="space-y-3">
-                            <Label className="text-sm font-medium text-gray-700">
-                              Location Type
-                            </Label>
-                            <Select
-                              value={form.location_type}
-                              onValueChange={(value) => handleChange("location_type", value)}
-                            >
-                              <SelectTrigger className="h-12 rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500">
-                                <SelectValue placeholder="Select location type" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="border">Border Crossing</SelectItem>
-                                <SelectItem value="port">Port</SelectItem>
-                                <SelectItem value="airport">Airport</SelectItem>
-                                <SelectItem value="warehouse">Warehouse</SelectItem>
-                                <SelectItem value="office">Government Office</SelectItem>
-                                <SelectItem value="other">Other</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          </div>
-
-                          <div className="space-y-3">
-                            <Label className="text-sm font-medium text-gray-700">
-                              Location Accuracy
-                              {locationPermission === 'granted' && (
-                                <span className="text-xs text-green-600 ml-1">(Auto-detected)</span>
-                              )}
-                            </Label>
-                            <Select
-                              value={form.location_accuracy}
-                              onValueChange={(value) => handleChange("location_accuracy", value)}
-                              disabled={locationPermission === 'granted'}
-                            >
-                              <SelectTrigger className={`h-12 rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500 ${
-                                locationPermission === 'granted' 
-                                  ? 'bg-gray-50 text-gray-700 cursor-not-allowed' 
-                                  : ''
-                              }`}>
-                                <SelectValue placeholder="Select accuracy level" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="high">High (Exact coordinates)</SelectItem>
-                                <SelectItem value="medium">Medium (General area)</SelectItem>
-                                <SelectItem value="low">Low (City/Region only)</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          </div>
+                        <div className="space-y-3">
+                          <Label className="text-sm font-medium text-gray-700">
+                            Location Accuracy
+                            {locationPermission === 'granted' && (
+                              <span className="text-xs text-green-600 ml-1">(Auto-detected)</span>
+                            )}
+                          </Label>
+                          <Select
+                            value={form.location_accuracy}
+                            onValueChange={(value) => handleChange("location_accuracy", value)}
+                            disabled={locationPermission === 'granted'}
+                          >
+                            <SelectTrigger className={`h-12 rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500 ${
+                              locationPermission === 'granted' 
+                                ? 'bg-gray-50 text-gray-700 cursor-not-allowed' 
+                                : ''
+                            }`}>
+                              <SelectValue placeholder="Select accuracy level" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="high">High (Exact coordinates)</SelectItem>
+                              <SelectItem value="medium">Medium (General area)</SelectItem>
+                              <SelectItem value="low">Low (City/Region only)</SelectItem>
+                            </SelectContent>
+                          </Select>
                         </div>
 
                         <div className="space-y-3">

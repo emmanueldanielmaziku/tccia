@@ -201,10 +201,10 @@ export default function StatsBar() {
 
   return (
     <div
-      className={`transition-all duration-300 h-[97vh] md:flex hidden bg-gray-50 border-l-[1px] border-gray-200 pt-20 pb-6 overflow-y-auto ${
+      className={`transition-all duration-300 h-[97vh] md:flex hidden bg-gray-50 border-l-[1px] border-gray-200 pt-20 pb-6 overflow-y-auto flex-shrink-0 ${
         expanded
-          ? "flex-col w-full lg:w-[430px] px-4 md:px-6 lg:px-10"
-          : "flex-col-reverse w-[100px] px-2"
+          ? "flex-col w-full md:w-[430px] lg:w-[430px] xl:w-[430px] px-4 md:px-6 lg:px-10"
+          : "flex-col-reverse w-[100px] md:w-[100px] lg:w-[100px] xl:w-[100px] px-2"
       }`}
     >
       <CategoryNotebookModal

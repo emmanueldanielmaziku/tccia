@@ -33,14 +33,14 @@ export default function SideBarMobile() {
 
   // Function to get the active tab based on current pathname
   const getActiveTabFromPathname = (currentPath: string) => {
-    if (currentPath.includes("/client/firm-management")) return "Firm Management";
+    if (currentPath.includes("/client/firm-management")) return "Firm Registration";
     if (currentPath.includes("/client/factory-verification")) return "Factory Verification";
     if (currentPath.includes("/client/coo")) return "Certificate of Origin";
     if (currentPath.includes("/client/membership")) return "Membership";
     if (currentPath.includes("/client/ntb")) return "Non-Tariff Barrier";
     if (currentPath.includes("/client/report")) return "Report a Problem";
     if (currentPath.includes("/client/profile")) return "Profile";
-    return "Firm Management"; // Default fallback
+    return "Firm Registration"; // Default fallback
   };
 
   // Set initial active tab based on current route
@@ -51,7 +51,7 @@ export default function SideBarMobile() {
 
   const menuItems = [
     {
-      id: "Firm Management",
+      id: "Firm Registration",
       translationKey: "firmManagement",
       icon: Building,
       route: "/client/firm-management",
@@ -146,7 +146,7 @@ export default function SideBarMobile() {
               [
                 "Factory Verification",
                 "Certificate of Origin",
-                "Firm Management",
+                "Firm Registration",
                 "Employees Management",
                 "CFAs Management",
                 "Membership",
@@ -191,7 +191,7 @@ export default function SideBarMobile() {
                 [
                   "Factory Verification",
                   "Certificate of Origin",
-                  "Firm Management",
+                  "Firm Registration",
                   "Membership",
                   "Non-Tariff Barrier",
                   "Report a Problem",

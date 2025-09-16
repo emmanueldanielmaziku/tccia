@@ -9,6 +9,7 @@ import {
   Copy,
   DocumentText,
   Eye,
+  MoneyRecive,
   Printer,
   Refresh,
   SearchNormal1,
@@ -23,6 +24,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import COOForm from "./components/COOForm";
+import PaymentPopup from "./components/PaymentPopup";
 import { useRouter } from "next/navigation";
 
 import usePickerState from "../../services/PickerState";
@@ -31,6 +33,8 @@ export default function COO() {
   const [verificationForm, toggleForm] = useState(false);
   const [isNewCertificateModalOpen, setIsNewCertificateModalOpen] =
     useState(false);
+  const [isPaymentPopupOpen, setIsPaymentPopupOpen] = useState(false);
+  const [selectedCertificateForPayment, setSelectedCertificateForPayment] = useState<any>(null);
 
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
@@ -48,7 +52,6 @@ export default function COO() {
   const [cooTypeFilter, setCooTypeFilter] = useState("__all__");
 
 
-  const [orderByDate, setOrderByDate] = useState<"asc" | "desc">("desc");
 
   const certificateTypeMap: Record<string, string> = {
     OGAM0003CAC0008: "International",
@@ -249,11 +252,8 @@ export default function COO() {
     .sort((a, b) => {
       const dateA = a.submitted_date ? new Date(a.submitted_date) : new Date(0);
       const dateB = b.submitted_date ? new Date(b.submitted_date) : new Date(0);
-      if (orderByDate === "asc") {
-        return dateA.getTime() - dateB.getTime();
-      } else {
-        return dateB.getTime() - dateA.getTime();
-      }
+      // Default to newest first
+      return dateB.getTime() - dateA.getTime();
     });
 
   const totalPages = Math.ceil(filteredData.length / itemsPerPage);
@@ -299,6 +299,16 @@ export default function COO() {
     }
   };
 
+  const handlePayment = (certificate: any) => {
+    setSelectedCertificateForPayment(certificate);
+    setIsPaymentPopupOpen(true);
+  };
+
+  const handleClosePaymentPopup = () => {
+    setIsPaymentPopupOpen(false);
+    setSelectedCertificateForPayment(null);
+  };
+
   const submittedCount = certificateData.filter(
     (certificate) => certificate.message_info.status === "Submitted"
   ).length;
@@ -331,7 +341,7 @@ export default function COO() {
                       placeholder="Search Certificates..."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      className="w-full md:w-auto border-[0.5px] border-zinc-300 focus:outline-2 focus:outline-blue-400 rounded-[9px] pl-8 pr-2.5 py-2 text-sm placeholder:text-[13px]"
+                      className="w-full md:w-auto border-[0.5px] border-zinc-300 focus:outline-2 focus:outline-blue-400 rounded-[9px] pl-8 pr-2.5 py-[9px] text-sm placeholder:text-[13px]"
                     />
                     <SearchNormal1
                       size="18"
@@ -347,7 +357,7 @@ export default function COO() {
                         value={statusFilter}
                         onValueChange={setStatusFilter}
                       >
-                        <SelectTrigger className="w-full md:w-[140px] text-zinc-600">
+                        <SelectTrigger className="w-full md:w-[120px] text-zinc-600">
                           <SelectValue placeholder="All Status" />
                         </SelectTrigger>
                         <SelectContent>
@@ -367,7 +377,7 @@ export default function COO() {
                         onValueChange={setCooTypeFilter}
                         >
                           
-                        <SelectTrigger className="w-full md:w-[140px] text-zinc-600">
+                        <SelectTrigger className="w-full md:w-[120px] text-zinc-600">
                           <SelectValue placeholder="COO Type" />
                         </SelectTrigger>
                         <SelectContent>
@@ -383,25 +393,6 @@ export default function COO() {
                       </Select>
                     </div>
 
-                    {/* Date Sort */}
-                    <div className="relative w-full md:w-auto">
-                      <Select
-                        value={orderByDate}
-                        onValueChange={(value) =>
-                          setOrderByDate(value as "asc" | "desc")
-                        }
-                      >
-                        <SelectTrigger className="w-[120px] ml-2">
-                          <SelectValue placeholder="Order by date" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectGroup>
-                            <SelectItem value="desc">Newest</SelectItem>
-                            <SelectItem value="asc">Oldest</SelectItem>
-                          </SelectGroup>
-                        </SelectContent>
-                      </Select>
-                    </div>
                   </div>
                 </div>
               )}
@@ -420,7 +411,7 @@ export default function COO() {
               ) : (
                 <div className="flex flex-row gap-4 w-full md:w-auto">
                   <button
-                    className="flex flex-row gap-3 justify-between items-center border-[0.5px] border-gray-400 hover:bg-blue-100 text-gray-500 text-sm rounded-[7px] cursor-pointer px-5 py-1.5 w-full md:w-auto disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="flex flex-row gap-3 justify-between items-center border-[0.5px] border-gray-400 hover:bg-blue-100 text-gray-500 text-sm rounded-[7px] cursor-pointer px-5 py-[8px] w-full md:w-auto disabled:opacity-50 disabled:cursor-not-allowed"
                     onClick={handleRefresh}
                     disabled={isRefreshing}
                   >
@@ -434,11 +425,11 @@ export default function COO() {
                     {isRefreshing ? "Refreshing..." : "Refresh"}
                   </button>
                   <button
-                    className="flex flex-row gap-3 justify-between items-center border-[0.5px] border-blue-600 hover:bg-blue-100 text-blue-600 text-sm rounded-[7px] cursor-pointer px-3 py-1.5 w-full md:w-auto disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="flex flex-row gap-3 justify-between items-center bg-blue-600 hover:bg-blue-500 text-white text-sm rounded-[7px] cursor-pointer px-3 py-[8px] w-full md:w-auto disabled:opacity-50 disabled:cursor-not-allowed"
                     onClick={() => setIsNewCertificateModalOpen(true)}
                   >
-                    <Add size={20} color="#1376e8" />
-                    Apply
+                    <Add size={20} color="white" />
+                    Apply Certificate
                   </button>
                 </div>
               )}
@@ -521,7 +512,7 @@ export default function COO() {
                   paginatedData.map((certificate, index) => (
                     <div
                       key={index}
-                      className={`hover:bg-white bg-gray-50 flex flex-col transition-all duration-200 border-[0.5px] rounded-[10px] text-gray-700 border-zinc-200 shadow-sm hover:shadow-md mr-3`}
+                      className={`hover:bg-white bg-gray-50 flex flex-col transition-all duration-200 border-[0.5px] rounded-[10px] text-gray-700 border-zinc-200 shadow-sm hover:shadow-md mr-2`}
                     >
                       <div className="flex flex-row justify-between items-center border-b-[0.5px] border-zinc-200 px-6 py-3 gap-2">
                         <div className="font-semibold text-[15px]">{`${
@@ -619,10 +610,17 @@ export default function COO() {
                                 certificate.message_info.application_code_number
                               )
                             }
-                            className="px-4 md:px-5 py-1.5 text-[12px] rounded-[6px] flex flex-row justify-center items-center gap-2 bg-blue-500 text-white disabled:bg-gray-400 disabled:cursor-not-allowed cursor-pointer"
+                            className="px-4 md:px-5 py-1.5 text-[12px] rounded-[6px] flex flex-row justify-center items-center gap-2 bg-blue-500 text-white disabled:bg-gray-400 disabled:cursor-not-allowed cursor-pointer transition-colors duration-200"
                           >
                             <Printer size="16" color="white" />
                             Print
+                          </button>
+                          <button
+                            onClick={() => handlePayment(certificate)}
+                            className="px-4 md:px-5 py-1.5 text-[12px] rounded-[6px] flex flex-row justify-center items-center gap-2 bg-green-500 text-white hover:bg-green-600 cursor-pointer transition-colors duration-200"
+                          >
+                            <MoneyRecive size="16" color="white" />
+                            Pay
                           </button>
                         </div>
                       </div>
@@ -685,6 +683,11 @@ export default function COO() {
       <NewCertificateModal
         isOpen={isNewCertificateModalOpen}
         onClose={() => setIsNewCertificateModalOpen(false)}
+      />
+      <PaymentPopup
+        isOpen={isPaymentPopupOpen}
+        onClose={handleClosePaymentPopup}
+        certificateData={selectedCertificateForPayment}
       />
     </main>
   );

@@ -8,6 +8,8 @@ import { useFormState, useResetFormState } from "../services/FormStates";
 import { useRouter } from "next/navigation";
 import { Call, Sms } from "iconsax-reactjs";
 import { useTranslations } from "next-intl";
+import { useApiWithSessionHandling } from "../../hooks/useApiWithSessionHandling";
+import { handleSessionError } from "../../utils/sessionErrorHandler";
 
 
 const schema = z.object({
@@ -44,6 +46,7 @@ export default function LoginForm() {
   const { resetForm } = useResetFormState();
   const t = useTranslations();
   const tf = useTranslations("forms");
+  const { fetchWithSessionHandling } = useApiWithSessionHandling();
 
   const {
     register,
@@ -58,7 +61,7 @@ export default function LoginForm() {
     setError(null);
 
     try {
-      const response = await fetch("/api/auth/user_token", {
+      const response = await fetchWithSessionHandling("/api/auth/user_token", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -78,11 +81,16 @@ export default function LoginForm() {
         throw new Error(tf("messages.invalidResponse"));
       }
     } catch (error) {
+      // Handle session expired errors gracefully
+      if (handleSessionError(error)) {
+        setIsSubmitting(false);
+        return;
+      }
+      
       console.error("Login error:", error);
       setError(
         error instanceof Error ? error.message : tf("messages.loginFailed")
       );
-    } finally {
       setIsSubmitting(false);
     }
   };

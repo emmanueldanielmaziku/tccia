@@ -290,19 +290,39 @@ export default function MembershipApplication({
                 if (data.state !== "paid") return;
                 setDownloading(true);
                 try {
+                  console.log("Attempting to download certificate for ID:", data.id);
                   const res = await fetch(`/api/proxy/certificate/${data.id}`);
-                  if (!res.ok) throw new Error("Failed to download");
+                  console.log("Response status:", res.status);
+                  console.log("Response headers:", res.headers);
+                  
+                  if (!res.ok) {
+                    const errorText = await res.text();
+                    console.error("Download failed:", errorText);
+                    throw new Error(`Download failed: ${res.status} - ${errorText}`);
+                  }
+
+                  const contentType = res.headers.get('content-type');
+                  console.log("Content type:", contentType);
+                  
                   const blob = await res.blob();
+                  console.log("Blob size:", blob.size);
+                  
+                  if (blob.size === 0) {
+                    throw new Error("Downloaded file is empty");
+                  }
+                  
                   const url = window.URL.createObjectURL(blob);
                   const a = document.createElement("a");
                   a.href = url;
-                  a.download = `certificate_${data.id}.pdf`;
+                  a.download = `membership_certificate_${data.id}.pdf`;
                   document.body.appendChild(a);
                   a.click();
                   a.remove();
                   window.URL.revokeObjectURL(url);
-                } catch {
-                  alert("Failed to download certificate.");
+                  console.log("Download completed successfully");
+                } catch (error) {
+                  console.error("Certificate download error:", error);
+                  alert(`Failed to download certificate: ${error instanceof Error ? error.message : 'Unknown error'}`);
                 }
                 setDownloading(false);
               }}

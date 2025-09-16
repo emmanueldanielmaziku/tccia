@@ -18,12 +18,12 @@
     "home": "Home",
     "membership": "Membership Application",
     "about": "About Us",
-    "help": "Complaints"
+    "help": "Help Desk"
   },
   "sidebar": {
     "modules": "Modules",
     "dashboard": "Dashboard",
-    "firmManagement": "Firm Management",
+    "firmManagement": "Firm Registration",
     "factoryVerification": "Factory Verification",
     "cfaOfficersManagement": "CFA Officers Management",
     "cfasManagement": "CFAs Management",
@@ -31,7 +31,7 @@
     "certificateOfOrigin": "Certificate of Origin",
     "membership": "Membership",
     "nonTariffBarrier": "Non-Tariff Barrier",
-    "reportProblem": "Complaints",
+    "reportProblem": "Help Desk",
     "profile": "Profile",
     "settings": "Settings"
   },

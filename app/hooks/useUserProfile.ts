@@ -1,4 +1,6 @@
 import { useState, useEffect } from "react";
+import { useApiWithSessionHandling } from "./useApiWithSessionHandling";
+import { handleSessionError } from "../utils/sessionErrorHandler";
 
 interface UserProfile {
   id: number;
@@ -22,6 +24,7 @@ export function useUserProfile() {
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { fetchWithSessionHandling } = useApiWithSessionHandling();
 
   const isDataStale = (timestamp: number) => {
     const fiveMinutes = 5 * 60 * 1000;
@@ -58,7 +61,7 @@ export function useUserProfile() {
       setLoading(true);
       setError(null);
 
-      const response = await fetch(`/api/user_profile`);
+      const response = await fetchWithSessionHandling(`/api/user_profile`);
       const result = await response.json();
 
       if (!response.ok) {
@@ -95,11 +98,16 @@ export function useUserProfile() {
         throw new Error("Invalid response from server");
       }
     } catch (err) {
+      // Handle session expired errors gracefully
+      if (handleSessionError(err)) {
+        setLoading(false);
+        return;
+      }
+      
       console.error("Error fetching user profile:", err);
       setError(
         err instanceof Error ? err.message : "Failed to fetch user profile"
       );
-    } finally {
       setLoading(false);
     }
   };

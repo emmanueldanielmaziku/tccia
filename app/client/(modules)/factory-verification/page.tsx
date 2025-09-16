@@ -88,16 +88,11 @@ export default function FactoryVerification() {
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
-  const [hsCodeFilter, setHsCodeFilter] = useState("__all__");
   const [communityNameFilter, setCommunityNameFilter] = useState("__all__");
 
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 20;
 
-  const hsCodeOptions = useMemo(
-    () => [...new Set(products.map((p) => p.hs_code).filter(Boolean))],
-    [products]
-  );
   const communityNameOptions = useMemo(
     () => [...new Set(products.map((p) => p.community_name).filter(Boolean))],
     [products]
@@ -200,15 +195,12 @@ export default function FactoryVerification() {
       const matchesStatus =
         statusFilter === "all" ||
         product.state.toLowerCase() === statusFilter.toLowerCase();
-      const matchesHSCode =
-        hsCodeFilter === "__all__" ||
-        (product.hs_code || "").toLowerCase() === hsCodeFilter.toLowerCase();
       const matchesCommunity =
         communityNameFilter === "__all__" ||
         (product.community_name || "").toLowerCase() ===
           communityNameFilter.toLowerCase();
       return (
-        matchesSearch && matchesStatus && matchesHSCode && matchesCommunity
+        matchesSearch && matchesStatus && matchesCommunity
       );
     })
     .sort((a, b) => {
@@ -260,10 +252,10 @@ export default function FactoryVerification() {
   };
 
   return (
-    <main className="w-full h-[97vh] rounded-[14px] overflow-hidden bg-white border-[1px] border-gray-200 ml-2 shadow-sm relative">
+    <main className="w-full h-[97vh] rounded-[14px] overflow-hidden bg-white border-[1px] border-gray-200 shadow-sm relative">
       <NavBar title="Factory Verification" />
-      <section className="flex flex-row">
-        <div className="flex flex-col items-center flex-1 h-[97vh] pt-18 w-full bg-transparent border-transparent border-[1px] rounded-xl">
+      <section className="flex flex-row flex-1">
+        <div className="flex flex-col items-center flex-1 min-w-0 h-[97vh] pt-18 bg-transparent border-transparent border-[1px] rounded-xl">
           <div className="flex flex-col justify-between items-center mt-2 w-full h-[86vh] rounded-sm relative px-16.5">
             {/* Header */}
 
@@ -311,25 +303,6 @@ export default function FactoryVerification() {
                     </SelectContent>
                   </Select>
 
-                  {/* HS Code Filter */}
-                  <Select
-                    value={hsCodeFilter}
-                    onValueChange={(value) => setHsCodeFilter(value)}
-                  >
-                    <SelectTrigger className="w-[140px] py-4.5">
-                      <SelectValue placeholder="HS Code" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectGroup>
-                        <SelectItem value="__all__">All HS Codes</SelectItem>
-                        {hsCodeOptions.map((code) => (
-                          <SelectItem key={String(code)} value={String(code)}>
-                            {code}
-                          </SelectItem>
-                        ))}
-                      </SelectGroup>
-                    </SelectContent>
-                  </Select>
 
                   {/* Community Name Filter */}
                   <Select
@@ -351,43 +324,7 @@ export default function FactoryVerification() {
                     </SelectContent>
                   </Select>
 
-                  {/* Manufacturer Filter (if available) */}
-                  {/* <Select
-                    value={manufacturerFilter}
-                    onValueChange={(value) => setManufacturerFilter(value)}
-                  >
-                    <SelectTrigger className="w-[170px]">
-                      <SelectValue placeholder="Manufacturer" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectGroup>
-                        <SelectItem value="__all__">
-                          All Manufacturers
-                        </SelectItem>
-                        {manufacturerOptions.map((man) => (
-                          <SelectItem key={String(man)} value={String(man)}>
-                            {man}
-                          </SelectItem>
-                        ))}
-                      </SelectGroup>
-                    </SelectContent>
-                  </Select> */}
-
-                  {/* Sort Direction Toggle */}
-                  {/* <button
-                    onClick={() => {
-                      setSortDirection(
-                        sortDirection === "asc" ? "desc" : "asc"
-                      );
-                      setCurrentPage(1);
-                    }}
-                    className="px-3 py-2 text-sm border border-zinc-300 rounded-sm hover:bg-gray-50 transition-colors"
-                    title={Sort ${
-                      sortDirection === "asc" ? "Descending" : "Ascending"
-                    }}
-                  >
-                    {sortDirection === "asc" ? "↑" : "↓"}
-                  </button> */}
+       
                 </div>
               )}
 
@@ -403,9 +340,9 @@ export default function FactoryVerification() {
                   Close
                 </button>
               ) : (
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2">
                   <button
-                    className="flex flex-row gap-3 justify-between items-center bg-gray-100 hover:bg-gray-200 text-gray-600 text-sm rounded-[6px] cursor-pointer px-4 py-2 transition-colors"
+                    className="flex flex-row gap-3 justify-between items-center bg-gray-100 hover:bg-gray-200 text-gray-600 text-sm rounded-[6px] cursor-pointer px-3 py-2 transition-colors"
                     onClick={fetchProducts}
                     disabled={loading}
                   >
@@ -417,11 +354,11 @@ export default function FactoryVerification() {
                     {loading ? "Refreshing..." : "Refresh"}
                   </button>
                   <button
-                    className="flex flex-row gap-3 justify-between items-center bg-blue-600 hover:bg-blue-500 text-white text-sm rounded-[6px] cursor-pointer px-5 py-2"
+                    className="flex flex-row gap-3 justify-between items-center bg-blue-600 hover:bg-blue-500 text-white text-sm rounded-[6px] cursor-pointer px-3 py-2"
                     onClick={() => toggleForm(true)}
                   >
                     <Add size={20} color="white" />
-                    Add
+                    New Product
                   </button>
                 </div>
               )}

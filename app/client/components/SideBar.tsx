@@ -40,14 +40,14 @@ export default function SideBar() {
 
   // Function to get the active tab based on current pathname
   const getActiveTabFromPathname = (currentPath: string) => {
-    if (currentPath.includes("/client/firm-management")) return "Firm Management";
+    if (currentPath.includes("/client/firm-management")) return "Firm Registration";
     if (currentPath.includes("/client/factory-verification")) return "Factory Verification";
     if (currentPath.includes("/client/coo")) return "Certificate of Origin";
     if (currentPath.includes("/client/membership")) return "Membership";
     if (currentPath.includes("/client/ntb")) return "Non-Tariff Barrier";
     if (currentPath.includes("/client/report")) return "Help Desk";
     if (currentPath.includes("/client/profile")) return "Profile";
-    return "Firm Management"; // Default fallback
+    return "Firm Registration";
   };
 
   // Set initial active tab based on current route
@@ -71,7 +71,7 @@ export default function SideBar() {
 
   const menuItems = [
     {
-      id: "Firm Management",
+      id: "Firm Registration",
       translationKey: "firmManagement",
       icon: Building,
       route: "/client/firm-management",
@@ -142,8 +142,8 @@ export default function SideBar() {
   return (
     <div
       className={`bg-gray-50 h-full p-6 flex-col justify-between transition-all duration-300
-        md:flex hidden
-        ${isMenuOpen ? "md:w-[340px]" : "md:w-[120px]"}`}
+        md:flex hidden flex-shrink-0
+        ${isMenuOpen ? "md:w-[340px] lg:w-[340px] xl:w-[340px]" : "md:w-[120px] lg:w-[120px] xl:w-[120px]"}`}
     >
       <div className="flex flex-col">
         {/* Logo */}
@@ -164,7 +164,7 @@ export default function SideBar() {
           <h2 className="text-sm text-gray-500 mb-4">{t("modules")}</h2>
           <div className="flex flex-col gap-2.5">
             {menuItems.map((item) => {
-              const isFirmManagement = item.id === "Firm Management";
+              const isFirmManagement = item.id === "Firm Registration";
               const isNTB = item.id === "Non-Tariff Barrier";
               const isHelpDesk = item.id === "Help Desk";
               const isProfile = item.id === "Profile";
@@ -176,7 +176,7 @@ export default function SideBar() {
                   [
                     "Factory Verification",
                     "Certificate of Origin",
-                    "Firm Management",
+                    "Firm Registration",
                     // "Employees Management",
                     // "CFAs Management",
                     "Membership",
@@ -188,7 +188,7 @@ export default function SideBar() {
                   [
                     "Factory Verification",
                     "Certificate of Origin",
-                    "Firm Management",
+                    "Firm Registration",
                     "Membership",
                     "Non-Tariff Barrier",
                     "Report a Problem",

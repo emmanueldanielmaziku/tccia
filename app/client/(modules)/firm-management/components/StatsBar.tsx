@@ -103,10 +103,10 @@ export default function StatsBar({ stats }: { stats: StatsData }) {
     <div
       className={`transition-all duration-300 h-[97vh] md:flex hidden ${
         expanded ? "flex-col" : "flex-col-reverse"
-      } justify-between items-start bg-gray-50 border-l-[1px] border-gray-200 ${
+      } justify-between items-start bg-gray-50 border-l-[1px] border-gray-200 flex-shrink-0 ${
         expanded
-          ? "w-full lg:w-[430px] px-4 md:px-6 lg:px-10"
-          : "w-[100px] px-2"
+          ? "w-full md:w-[430px] lg:w-[430px] xl:w-[430px] px-4 md:px-6 lg:px-10"
+          : "w-[100px] md:w-[100px] lg:w-[100px] xl:w-[100px] px-2"
       } pt-20 pb-6 relative`}
     >
       <div className="w-full flex items-center justify-start">
