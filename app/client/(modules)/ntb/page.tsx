@@ -15,6 +15,12 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import {
   Select,
   SelectTrigger,
   SelectValue,
@@ -160,11 +166,9 @@ export default function NTB() {
   const [selectedFiles, setSelectedFiles] = useState<{
     documents: File[];
     images: File[];
-    videos: File[];
   }>({
     documents: [],
     images: [],
-    videos: [],
   });
   const [locationPermission, setLocationPermission] = useState<'granted' | 'denied' | 'prompt' | 'loading'>('prompt');
   const [isDetectingLocation, setIsDetectingLocation] = useState(false);
@@ -182,8 +186,6 @@ export default function NTB() {
     complaint_details: "",
     product_description: "",
     cost_value_range: "",
-    hs_code: "",
-    hs_description: "",
     occurrence: "",
     time_lost_range: "",
     money_lost_range: "",
@@ -334,7 +336,7 @@ export default function NTB() {
     setProfileForm((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, fileType: 'documents' | 'images' | 'videos') => {
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, fileType: 'documents' | 'images') => {
     const files = Array.from(e.target.files || []);
     if (files.length > 0) {
       // Check file sizes (10MB limit per file)
@@ -351,7 +353,7 @@ export default function NTB() {
     }
   };
 
-  const removeFile = (fileType: 'documents' | 'images' | 'videos', index: number) => {
+  const removeFile = (fileType: 'documents' | 'images', index: number) => {
     setSelectedFiles(prev => ({
       ...prev,
       [fileType]: prev[fileType].filter((_, i) => i !== index)
@@ -391,7 +393,7 @@ export default function NTB() {
       // Try to get reverse geocoding for address and Google Place ID
       try {
         // First try Google Places API for more accurate results
-        const googleApiKey = "AIzaSyAwQoUQl28QtvKbkhb7epo6XXYo8zqpsEc";
+        const googleApiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
         
         if (googleApiKey) {
           const googleResponse = await fetch(
@@ -556,8 +558,6 @@ export default function NTB() {
 
       // Add optional fields if they have values
       if (form.cost_value_range) payload.cost_value_range = form.cost_value_range;
-      if (form.hs_code) payload.hs_code = form.hs_code;
-      if (form.hs_description) payload.hs_description = form.hs_description;
       if (form.time_lost_range) payload.time_lost_range = form.time_lost_range;
       if (form.money_lost_range) payload.money_lost_range = form.money_lost_range;
       if (form.exact_loss_value) payload.exact_loss_value = parseFloat(form.exact_loss_value);
@@ -585,9 +585,6 @@ export default function NTB() {
       });
       selectedFiles.images.forEach(file => {
         formData.append('image_files', file);
-      });
-      selectedFiles.videos.forEach(file => {
-        formData.append('video_files', file);
       });
 
       const response = await fetch('/api/ntb/submit', {
@@ -622,8 +619,6 @@ export default function NTB() {
       complaint_details: "",
       product_description: "",
       cost_value_range: "",
-      hs_code: "",
-      hs_description: "",
       occurrence: "",
       time_lost_range: "",
       money_lost_range: "",
@@ -640,7 +635,6 @@ export default function NTB() {
     setSelectedFiles({
       documents: [],
       images: [],
-      videos: [],
     });
     setLocationPermission('prompt');
     editor?.commands.setContent('');
@@ -1080,16 +1074,6 @@ export default function NTB() {
                         <div>
                           <Label className="text-sm font-medium text-gray-500">Product Description</Label>
                           <p className="font-medium">{selectedNtb.product_description}</p>
-                        </div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div>
-                            <Label className="text-sm font-medium text-gray-500">HS Code</Label>
-                            <p className="font-medium">{selectedNtb.hs_code || 'Not specified'}</p>
-                          </div>
-                          <div>
-                            <Label className="text-sm font-medium text-gray-500">HS Description</Label>
-                            <p className="font-medium">{selectedNtb.hs_description || 'Not specified'}</p>
-                          </div>
                         </div>
                       </CardContent>
                     </Card>
@@ -1597,302 +1581,250 @@ export default function NTB() {
                         />
                       </div>
 
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="space-y-3">
-                          <Label className="text-sm font-medium text-gray-700">
-                            HS Code
-                          </Label>
-                          <Input
-                            placeholder="Enter HS Code"
-                            value={form.hs_code}
-                            onChange={(e) => handleChange("hs_code", e.target.value)}
-                            className="h-12 rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500"
-                          />
-                        </div>
 
-                        <div className="space-y-3">
-                          <Label className="text-sm font-medium text-gray-700">
-                            HS Description
-                          </Label>
-                          <Input
-                            placeholder="Enter HS Description"
-                            value={form.hs_description}
-                            onChange={(e) => handleChange("hs_description", e.target.value)}
-                            className="h-12 rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500"
-                          />
-                        </div>
-                      </div>
-
-                      {/* Cost/Value of Goods - Optional */}
+                      {/* Occurrence - Required Field */}
                       <div className="space-y-3">
                         <Label className="text-sm font-medium text-gray-700">
-                          Cost/Value of Goods in USD (Optional)
+                          Occurrence *
                         </Label>
                         <Select
-                          value={form.cost_value_range}
-                          onValueChange={(value) => handleChange("cost_value_range", value)}
+                          value={form.occurrence}
+                          onValueChange={(value) => handleChange("occurrence", value)}
+                          required
                         >
                           <SelectTrigger className="h-12 w-[280px] rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500">
-                            <SelectValue placeholder="Select cost range (optional)" />
+                            <SelectValue placeholder="Select occurrence" />
                           </SelectTrigger>
                           <SelectContent>
-                            {COST_RANGES.map((range) => (
-                              <SelectItem key={range} value={range}>
-                                {range}
+                            {OCCURRENCE_OPTIONS.map((occurrence) => (
+                              <SelectItem key={occurrence} value={occurrence}>
+                                {occurrence}
                               </SelectItem>
                             ))}
                           </SelectContent>
                         </Select>
                       </div>
 
-                      {/* Occurrence and Impact */}
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="space-y-3">
-                          <Label className="text-sm font-medium text-gray-700">
-                            Occurrence *
-                          </Label>
-                          <Select
-                            value={form.occurrence}
-                            onValueChange={(value) => handleChange("occurrence", value)}
-                            required
-                          >
-                            <SelectTrigger className="h-12 w-[280px] rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500">
-                              <SelectValue placeholder="Select occurrence" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {OCCURRENCE_OPTIONS.map((occurrence) => (
-                                <SelectItem key={occurrence} value={occurrence}>
-                                  {occurrence}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </div>
+                      {/* Optional Fields Accordion */}
+                      <Accordion type="single" collapsible className="w-full border-1 px-4 border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50">
+                        <AccordionItem value="optional-fields">
+                          <AccordionTrigger className="text-lg font-semibold text-gray-900 hover:no-underline">
+                            <div className="text-left">
+                              <div>Optional Fields</div>
+                              <div className="text-sm font-normal text-gray-500 mt-1">
+                                Tap to add additional optional informations
+                              </div>
+                            </div>
+                          </AccordionTrigger>
+                          <AccordionContent className="space-y-6 pt-4">
+                            {/* Cost/Value of Goods - Optional */}
+                            <div className="space-y-3">
+                              <Label className="text-sm font-medium text-gray-700">
+                                Cost/Value of Goods in USD (Optional)
+                              </Label>
+                              <Select
+                                value={form.cost_value_range}
+                                onValueChange={(value) => handleChange("cost_value_range", value)}
+                              >
+                                <SelectTrigger className="h-12 w-[280px] rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500">
+                                  <SelectValue placeholder="Select cost range (optional)" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {COST_RANGES.map((range) => (
+                                    <SelectItem key={range} value={range}>
+                                      {range}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            </div>
 
-                        <div className="space-y-3">
-                          <Label className="text-sm font-medium text-gray-700">
-                            Time Lost (Optional)
-                          </Label>
-                          <Select
-                            value={form.time_lost_range}
-                            onValueChange={(value) => handleChange("time_lost_range", value)}
-                          >
-                            <SelectTrigger className="h-12 w-[280px] rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500">
-                              <SelectValue placeholder="Select time lost (optional)" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {TIME_LOST_OPTIONS.map((time) => (
-                                <SelectItem key={time} value={time}>
-                                  {time}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </div>
-                      </div>
+                            {/* Time Lost - Optional */}
+                            <div className="space-y-3">
+                              <Label className="text-sm font-medium text-gray-700">
+                                Time Lost (Optional)
+                              </Label>
+                              <Select
+                                value={form.time_lost_range}
+                                onValueChange={(value) => handleChange("time_lost_range", value)}
+                              >
+                                <SelectTrigger className="h-12 w-[280px] rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500">
+                                  <SelectValue placeholder="Select time lost (optional)" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {TIME_LOST_OPTIONS.map((time) => (
+                                    <SelectItem key={time} value={time}>
+                                      {time}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            </div>
 
-                      {/* Financial Impact - Optional */}
-                      <div className="space-y-4">
-                        <div>
-                          <h4 className="text-md font-medium text-gray-800 mb-2">Financial Impact (Optional)</h4>
-                          <p className="text-sm text-gray-600 mb-4">
-                            Provide financial impact details if available
-                          </p>
-                        </div>
-                        
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div className="space-y-3">
-                            <Label className="text-sm font-medium text-gray-700">
-                              Money Lost Range
-                            </Label>
-                            <Select
-                              value={form.money_lost_range}
-                              onValueChange={(value) => handleChange("money_lost_range", value)}
-                            >
-                              <SelectTrigger className="h-12 w-[280px] rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500">
-                                <SelectValue placeholder="Select money lost range (optional)" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {MONEY_LOST_RANGES.map((range) => (
-                                  <SelectItem key={range} value={range}>
-                                    {range}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                          </div>
+                            {/* Financial Impact - Optional */}
+                            <div className="space-y-4">
+                              <div>
+                                <h4 className="text-md font-medium text-gray-800 mb-2">Financial Impact (Optional)</h4>
+                                <p className="text-sm text-gray-600 mb-4">
+                                  Provide financial impact details if available
+                                </p>
+                              </div>
+                              
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div className="space-y-3">
+                                  <Label className="text-sm font-medium text-gray-700">
+                                    Money Lost Range
+                                  </Label>
+                                  <Select
+                                    value={form.money_lost_range}
+                                    onValueChange={(value) => handleChange("money_lost_range", value)}
+                                  >
+                                    <SelectTrigger className="h-12 w-[280px] rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500">
+                                      <SelectValue placeholder="Select money lost range (optional)" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      {MONEY_LOST_RANGES.map((range) => (
+                                        <SelectItem key={range} value={range}>
+                                          {range}
+                                        </SelectItem>
+                                      ))}
+                                    </SelectContent>
+                                  </Select>
+                                </div>
 
-                          <div className="space-y-3">
-                            <Label className="text-sm font-medium text-gray-700">
-                              Exact Value of Loss ($)
-                            </Label>
-                            <Input
-                              type="number"
-                              step="0.01"
-                              placeholder="Enter exact amount (optional)"
-                              value={form.exact_loss_value}
-                              onChange={(e) => handleChange("exact_loss_value", e.target.value)}
-                              className="h-12 rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500"
-                            />
-                          </div>
-                        </div>
+                                <div className="space-y-3">
+                                  <Label className="text-sm font-medium text-gray-700">
+                                    Exact Value of Loss ($)
+                                  </Label>
+                                  <Input
+                                    type="number"
+                                    step="0.01"
+                                    placeholder="Enter exact amount (optional)"
+                                    value={form.exact_loss_value}
+                                    onChange={(e) => handleChange("exact_loss_value", e.target.value)}
+                                    className="h-12 rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+                                  />
+                                </div>
+                              </div>
 
-                        <div className="space-y-3">
-                          <Label className="text-sm font-medium text-gray-700">
-                            Description of How Loss Was Calculated
-                          </Label>
-                          <Input
-                            placeholder="Explain how you calculated the loss (optional)"
-                            value={form.loss_calculation_description}
-                            onChange={(e) => handleChange("loss_calculation_description", e.target.value)}
-                            className="h-12 rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500"
-                          />
-                        </div>
-                      </div>
+                              <div className="space-y-3">
+                                <Label className="text-sm font-medium text-gray-700">
+                                  Description of How Loss Was Calculated
+                                </Label>
+                                <Input
+                                  placeholder="Explain how you calculated the loss (optional)"
+                                  value={form.loss_calculation_description}
+                                  onChange={(e) => handleChange("loss_calculation_description", e.target.value)}
+                                  className="h-12 rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+                                />
+                              </div>
+                            </div>
+                          </AccordionContent>
+                        </AccordionItem>
+                      </Accordion>
 
                       {/* File Uploads */}
                       <div className="space-y-6">
                         <div>
                           <h3 className="text-lg font-semibold text-gray-900 mb-4">File Attachments</h3>
                           <p className="text-sm text-gray-600 mb-4">
-                            Upload supporting documents, images, or videos to strengthen your NTB report
+                            Upload supporting documents and images to strengthen your NTB report
                           </p>
                         </div>
 
-                        {/* Document Files */}
-                        <div className="space-y-3">
-                          <Label className="text-sm font-medium text-gray-700">
-                            Document Files (PDF, DOC, DOCX)
-                          </Label>
-                          <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-blue-400 transition-colors">
-                            <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-                            <input
-                              type="file"
-                              onChange={(e) => handleFileChange(e, 'documents')}
-                              className="hidden"
-                              id="document-upload"
-                              accept=".pdf,.doc,.docx"
-                              multiple
-                            />
-                            <label
-                              htmlFor="document-upload"
-                              className="cursor-pointer text-blue-600 hover:text-blue-700 font-medium"
-                            >
-                              Upload Documents
-                            </label>
-                            <p className="text-xs text-gray-500 mt-2">
-                              PDF, DOC, DOCX • Max 10MB per file
-                            </p>
-                          </div>
-                          {selectedFiles.documents.length > 0 && (
-                            <div className="space-y-2">
-                              {selectedFiles.documents.map((file, index) => (
-                                <div key={index} className="flex items-center justify-between bg-gray-50 p-3 rounded-lg">
-                                  <span className="text-sm text-gray-700">{file.name}</span>
-                                  <Button
-                                    type="button"
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={() => removeFile('documents', index)}
-                                    className="text-red-600 hover:text-red-700"
-                                  >
-                                    <Trash2 className="w-4 h-4" />
-                                  </Button>
-                                </div>
-                              ))}
+                        {/* File Upload Widgets in Row */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                          {/* Document Files */}
+                          <div className="space-y-3">
+                            <Label className="text-sm font-medium text-gray-700">
+                              Document Files (PDF, DOC, DOCX)
+                            </Label>
+                            <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-blue-400 transition-colors">
+                              <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+                              <input
+                                type="file"
+                                onChange={(e) => handleFileChange(e, 'documents')}
+                                className="hidden"
+                                id="document-upload"
+                                accept=".pdf,.doc,.docx"
+                                multiple
+                              />
+                              <label
+                                htmlFor="document-upload"
+                                className="cursor-pointer text-blue-600 hover:text-blue-700 font-medium"
+                              >
+                                Upload Documents
+                              </label>
+                              <p className="text-xs text-gray-500 mt-2">
+                                PDF, DOC, DOCX • Max 10MB per file
+                              </p>
                             </div>
-                          )}
+                            {selectedFiles.documents.length > 0 && (
+                              <div className="space-y-2">
+                                {selectedFiles.documents.map((file, index) => (
+                                  <div key={index} className="flex items-center justify-between bg-gray-50 p-3 rounded-lg">
+                                    <span className="text-sm text-gray-700">{file.name}</span>
+                                    <Button
+                                      type="button"
+                                      variant="ghost"
+                                      size="sm"
+                                      onClick={() => removeFile('documents', index)}
+                                      className="text-red-600 hover:text-red-700"
+                                    >
+                                      <Trash2 className="w-4 h-4" />
+                                    </Button>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Image Files */}
+                          <div className="space-y-3">
+                            <Label className="text-sm font-medium text-gray-700">
+                              Image Files (JPG, PNG, GIF)
+                            </Label>
+                            <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-blue-400 transition-colors">
+                              <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+                              <input
+                                type="file"
+                                onChange={(e) => handleFileChange(e, 'images')}
+                                className="hidden"
+                                id="image-upload"
+                                accept=".jpg,.jpeg,.png,.gif"
+                                multiple
+                              />
+                              <label
+                                htmlFor="image-upload"
+                                className="cursor-pointer text-blue-600 hover:text-blue-700 font-medium"
+                              >
+                                Upload Images
+                              </label>
+                              <p className="text-xs text-gray-500 mt-2">
+                                JPG, PNG, GIF • Max 10MB per file
+                              </p>
+                            </div>
+                            {selectedFiles.images.length > 0 && (
+                              <div className="space-y-2">
+                                {selectedFiles.images.map((file, index) => (
+                                  <div key={index} className="flex items-center justify-between bg-gray-50 p-3 rounded-lg">
+                                    <span className="text-sm text-gray-700">{file.name}</span>
+                                    <Button
+                                      type="button"
+                                      variant="ghost"
+                                      size="sm"
+                                      onClick={() => removeFile('images', index)}
+                                      className="text-red-600 hover:text-red-700"
+                                    >
+                                      <Trash2 className="w-4 h-4" />
+                                    </Button>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                          </div>
                         </div>
 
-                        {/* Image Files */}
-                        <div className="space-y-3">
-                          <Label className="text-sm font-medium text-gray-700">
-                            Image Files (JPG, PNG, GIF)
-                          </Label>
-                          <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-blue-400 transition-colors">
-                            <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-                            <input
-                              type="file"
-                              onChange={(e) => handleFileChange(e, 'images')}
-                              className="hidden"
-                              id="image-upload"
-                              accept=".jpg,.jpeg,.png,.gif"
-                              multiple
-                            />
-                            <label
-                              htmlFor="image-upload"
-                              className="cursor-pointer text-blue-600 hover:text-blue-700 font-medium"
-                            >
-                              Upload Images
-                            </label>
-                            <p className="text-xs text-gray-500 mt-2">
-                              JPG, PNG, GIF • Max 10MB per file
-                            </p>
-                          </div>
-                          {selectedFiles.images.length > 0 && (
-                            <div className="space-y-2">
-                              {selectedFiles.images.map((file, index) => (
-                                <div key={index} className="flex items-center justify-between bg-gray-50 p-3 rounded-lg">
-                                  <span className="text-sm text-gray-700">{file.name}</span>
-                                  <Button
-                                    type="button"
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={() => removeFile('images', index)}
-                                    className="text-red-600 hover:text-red-700"
-                                  >
-                                    <Trash2 className="w-4 h-4" />
-                                  </Button>
-                                </div>
-                              ))}
-                            </div>
-                          )}
-                        </div>
-
-                        {/* Video Files */}
-                        <div className="space-y-3">
-                          <Label className="text-sm font-medium text-gray-700">
-                            Video Files (MP4, MOV, AVI)
-                          </Label>
-                          <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-blue-400 transition-colors">
-                            <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-                            <input
-                              type="file"
-                              onChange={(e) => handleFileChange(e, 'videos')}
-                              className="hidden"
-                              id="video-upload"
-                              accept=".mp4,.mov,.avi"
-                              multiple
-                            />
-                            <label
-                              htmlFor="video-upload"
-                              className="cursor-pointer text-blue-600 hover:text-blue-700 font-medium"
-                            >
-                              Upload Videos
-                            </label>
-                            <p className="text-xs text-gray-500 mt-2">
-                              MP4, MOV, AVI • Max 10MB per file
-                            </p>
-                          </div>
-                          {selectedFiles.videos.length > 0 && (
-                            <div className="space-y-2">
-                              {selectedFiles.videos.map((file, index) => (
-                                <div key={index} className="flex items-center justify-between bg-gray-50 p-3 rounded-lg">
-                                  <span className="text-sm text-gray-700">{file.name}</span>
-                                  <Button
-                                    type="button"
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={() => removeFile('videos', index)}
-                                    className="text-red-600 hover:text-red-700"
-                                  >
-                                    <Trash2 className="w-4 h-4" />
-                                  </Button>
-                                </div>
-                              ))}
-                            </div>
-                          )}
-                        </div>
                       </div>
 
                       <Separator className="my-8" />
