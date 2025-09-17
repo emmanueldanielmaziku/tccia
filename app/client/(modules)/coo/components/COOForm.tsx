@@ -9,6 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { DocumentDownload, DocumentText } from "iconsax-reactjs";
 
 interface COOFormProps {
   certificateData?: any;
@@ -578,46 +579,45 @@ export default function COOForm({ certificateData }: COOFormProps) {
             })()}
 
             {/* Attachments Information */}
-            {(() => {
-              const att = attachment[0] || {};
-              return (
-                <div className="flex flex-col gap-4">
-                  <h4 className="text-[14px] font-medium text-gray-600">
-                    Attachment Details
-                  </h4>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <input
-                      type="text"
-                      value={safeValue(att.document_type)}
-                      disabled
-                      className="w-full px-4 py-2.5 border border-zinc-200 bg-gray-50 rounded-[8px] text-gray-600"
-                      placeholder="Document Type"
-                    />
-                    <input
-                      type="text"
-                      value={safeValue(att.document_name)}
-                      disabled
-                      className="w-full px-4 py-2.5 border border-zinc-200 bg-gray-50 rounded-[8px] text-gray-600"
-                      placeholder="Document Name"
-                    />
-                    <input
-                      type="text"
-                      value={safeValue(att.file_size)}
-                      disabled
-                      className="w-full px-4 py-2.5 border border-zinc-200 bg-gray-50 rounded-[8px] text-gray-600"
-                      placeholder="File Size"
-                    />
-                    <input
-                      type="text"
-                      value={safeValue(att.upload_date)}
-                      disabled
-                      className="w-full px-4 py-2.5 border border-zinc-200 bg-gray-50 rounded-[8px] text-gray-600"
-                      placeholder="Upload Date"
-                    />
-                  </div>
+            {attachment && attachment.length > 0 && (
+              <div className="flex flex-col gap-4">
+                <h4 className="text-[14px] font-medium text-gray-600 flex items-center gap-2">
+                  <DocumentText size={16} color="#4B5563" />
+                  Attachments ({attachment.length})
+                </h4>
+                <div className="grid grid-cols-1 gap-3">
+                  {attachment.map((att: any, index: number) => (
+                    <div
+                      key={index}
+                      className="flex flex-row items-center justify-between p-4 border border-zinc-200 bg-gray-50 rounded-[8px] hover:bg-gray-100 transition-colors"
+                    >
+                      <div className="flex flex-row items-center gap-3">
+                        <div className="bg-blue-100 p-2 rounded-md">
+                          <DocumentText size={20} color="#3B82F6" />
+                        </div>
+                        <div className="flex flex-col gap-1">
+                          <div className="text-sm font-medium text-gray-700">
+                            Attachment #{safeValue(att.attachment_serial_number)}
+                          </div>
+                          <div className="text-xs text-gray-500">
+                            Type Code: {safeValue(att.attachment_type_code)}
+                          </div>
+                        </div>
+                      </div>
+                      {att.attachment_link && (
+                        <button
+                          onClick={() => window.open(att.attachment_link, '_blank')}
+                          className="px-3 py-1.5 text-xs bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors cursor-pointer flex items-center gap-1"
+                        >
+                          <DocumentDownload size={14} color="white" />
+                          Download
+                        </button>
+                      )}
+                    </div>
+                  ))}
                 </div>
-              );
-            })()}
+              </div>
+            )}
           </div>
         </div>
       </form>

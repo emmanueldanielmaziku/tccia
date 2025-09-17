@@ -425,11 +425,11 @@ export default function COO() {
                     {isRefreshing ? "Refreshing..." : "Refresh"}
                   </button>
                   <button
-                    className="flex flex-row gap-3 justify-between items-center bg-blue-600 hover:bg-blue-500 text-white text-sm rounded-[7px] cursor-pointer px-3 py-[8px] w-full md:w-auto disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="flex flex-row gap-2 justify-between items-center bg-blue-600 hover:bg-blue-500 text-white text-sm rounded-[7px] cursor-pointer px-2 py-[8px] w-full md:w-auto disabled:opacity-50 disabled:cursor-not-allowed"
                     onClick={() => setIsNewCertificateModalOpen(true)}
                   >
                     <Add size={20} color="white" />
-                    Apply Certificate
+                    New Certificate
                   </button>
                 </div>
               )}
