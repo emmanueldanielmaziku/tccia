@@ -54,7 +54,7 @@ export async function POST(request: Request) {
       method: "POST",
       headers: {
         Authorization: `Bearer ${token.value.trim()}`,
-        // "Content-Type": "application/json",
+      
       },
       body: JSON.stringify(payload),
     });

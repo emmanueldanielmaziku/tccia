@@ -364,7 +364,7 @@ export default function MembershipApplication({
               )}
             </button>
           )}
-          {data.state === "expired" && (
+          {/* {data.state === "expired" && (
             <button
               className="inline-flex items-center gap-2 px-4 py-2 bg-orange-600 text-white rounded-[10px] hover:bg-orange-700 transition text-sm font-semibold cursor-pointer"
               onClick={() => setShowRenewForm(true)}
@@ -372,7 +372,7 @@ export default function MembershipApplication({
               <Refresh size={20} />
               Change Membership
             </button>
-          )}
+          )} */}
         </div>
       </div>
 
