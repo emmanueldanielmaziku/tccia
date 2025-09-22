@@ -70,12 +70,16 @@ export default function LoginForm() {
       });
 
       const result = await response.json();
+      console.log("Login response:", result);
 
       if (!response.ok || result.result?.error) {
-        throw new Error(result.result?.error || tf("messages.loginFailed"));
+        const errorMessage = result.result?.error || tf("messages.loginFailed");
+        console.log("Login error:", errorMessage);
+        throw new Error(errorMessage);
       }
 
       if (result.result?.token) {
+        setIsSubmitting(false);
         router.push("/client/firm-management");
       } else {
         throw new Error(tf("messages.invalidResponse"));
@@ -88,9 +92,10 @@ export default function LoginForm() {
       }
       
       console.error("Login error:", error);
-      setError(
-        error instanceof Error ? error.message : tf("messages.loginFailed")
-      );
+      const errorMessage = error instanceof Error ? error.message : tf("messages.loginFailed");
+      console.log("Setting error message:", errorMessage);
+      setError(errorMessage);
+    } finally {
       setIsSubmitting(false);
     }
   };
@@ -107,8 +112,9 @@ export default function LoginForm() {
       </div>
 
       {error && (
-        <div className="flex flex-row items-center space-x-4 border border-red-500 bg-red-100 rounded-[8px] p-4 w-full">
-          <p className="text-red-500 text-[15px] font-semibold">{error}</p>
+        <div className="flex flex-row items-center space-x-4 border-2 border-red-500 bg-red-50 rounded-[8px] p-4 w-full animate-pulse">
+          <div className="w-4 h-4 bg-red-500 rounded-full flex-shrink-0"></div>
+          <p className="text-red-600 text-[15px] font-semibold">{error}</p>
         </div>
       )}
 

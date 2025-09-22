@@ -6,6 +6,7 @@ import LoginForm from "./components/LoginForm";
 import NavBar from "./components/NavBar";
 import RegForm from "./components/RegForm";
 import ResetPassword from "./components/ResetPassword";
+import NewPassword from "./components/NewPassword";
 import HelpDeskPortal from "./components/HelpDeskPortal";
 import {
   useActivateAccountState,
@@ -13,9 +14,13 @@ import {
   useResetFormState,
 } from "./services/FormStates";
 import { useAuthLayoutState } from "./services/AuthLayoutState";
+import { useSearchParams } from "next/navigation";
+import { Suspense } from "react";
 
-export default function AuthLayout() {
+function AuthContent() {
   const words = `"Private Sector, the Engine of Growth"`;
+  const searchParams = useSearchParams();
+  const resetToken = searchParams.get('token');
 
   const { formType } = useFormState();
   const { formTypo } = useResetFormState();
@@ -42,6 +47,8 @@ export default function AuthLayout() {
             </div>
             {isActivated ? (
               <ActivateAccount />
+            ) : resetToken ? (
+              <NewPassword token={resetToken} />
             ) : formTypo === "reset" ? (
               <ResetPassword />
             ) : formType === "register" ? (
@@ -54,5 +61,13 @@ export default function AuthLayout() {
       </div>
       <FooterBar />
     </main>
+  );
+}
+
+export default function AuthLayout() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <AuthContent />
+    </Suspense>
   );
 }

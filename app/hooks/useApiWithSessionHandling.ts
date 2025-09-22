@@ -26,14 +26,55 @@ export function useApiWithSessionHandling() {
       const response = await fetch(url, options);
       
       // Check for session expiration (403 Forbidden or 401 Unauthorized)
-      if (response.status === 403 || response.status === 401) {
-        if (!hasShownPopup.current) {
-          hasShownPopup.current = true;
-          setIsSessionExpired(true);
-          showSessionExpired();
+      // But exclude authentication endpoints where 401 is expected for login failures
+      if ((response.status === 403 || response.status === 401) && 
+          !url.includes('/api/auth/user_token') &&
+          !url.includes('/api/request-password-reset') &&
+          !url.includes('/api/reset-password')) {
+        
+        // Enhanced authentication error detection
+        try {
+          const clonedResponse = response.clone();
+          const responseData = await clonedResponse.json();
+          
+          // Check for various authentication error patterns
+          const isAuthError = (
+            // Standard jsonrpc error format
+            (responseData.result?.error && responseData.result.error.toLowerCase().includes('token')) ||
+            (responseData.result?.error && responseData.result.error.toLowerCase().includes('unauthorized')) ||
+            (responseData.result?.error && responseData.result.error.toLowerCase().includes('authentication')) ||
+            // Direct error format
+            (responseData.error?.code === 'AUTHENTICATION_FAILED') ||
+            (responseData.error?.message && responseData.error.message.toLowerCase().includes('token')) ||
+            (responseData.error?.error_details && responseData.error.error_details.toLowerCase().includes('token')) ||
+            // Simple status check for 401/403
+            response.status === 401 || response.status === 403
+          );
+          
+          if (isAuthError && !hasShownPopup.current) {
+            console.log("🔴 useApiWithSessionHandling: Authentication error detected", {
+              status: response.status,
+              url: url,
+              errorData: responseData
+            });
+            hasShownPopup.current = true;
+            setIsSessionExpired(true);
+            showSessionExpired();
+            return Promise.reject(new Error("SESSION_EXPIRED"));
+          }
+        } catch (jsonError) {
+          // If response is not JSON, fall back to status code check
+          if (!hasShownPopup.current) {
+            console.log("🔴 useApiWithSessionHandling: Session expired detected (status-based)", {
+              status: response.status,
+              url: url
+            });
+            hasShownPopup.current = true;
+            setIsSessionExpired(true);
+            showSessionExpired();
+            return Promise.reject(new Error("SESSION_EXPIRED"));
+          }
         }
-        // Return a rejected promise instead of throwing to avoid console errors
-        return Promise.reject(new Error("SESSION_EXPIRED"));
       }
       
       return response;

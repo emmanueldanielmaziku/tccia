@@ -2,9 +2,17 @@ import { useState, useEffect } from "react";
 import { useApiWithSessionHandling } from "./useApiWithSessionHandling";
 import { handleSessionError } from "../utils/sessionErrorHandler";
 
+interface Branch {
+  id: number;
+  name: string;
+  code: string;
+  description: string;
+}
+
 interface UserProfile {
   id: number;
   name: string;
+  login: string;
   role: string;
   phone: string;
   email: string;
@@ -13,6 +21,13 @@ interface UserProfile {
   operator_type_other: string;
   gender: string;
   state: string;
+  user_type: string;
+  active: boolean;
+  registration_date: string;
+  branches: Branch[];
+  branch_count: number;
+  groups: string[];
+  has_branch_access: boolean;
 }
 
 interface StoredUserData {
@@ -68,11 +83,13 @@ export function useUserProfile() {
         throw new Error(result.error || "Failed to fetch user profile");
       }
 
-      if (result.success && result.data) {
+      // Handle response format from /api/user_profile
+      if (result.success && result.data && result.data.id) {
         // Ensure all fields are present with default values if missing
         const userData: UserProfile = {
           id: result.data.id || 0,
           name: result.data.name || "",
+          login: result.data.login || "",
           role: result.data.role || "",
           phone: result.data.phone || "",
           email: result.data.email || "",
@@ -81,6 +98,13 @@ export function useUserProfile() {
           operator_type_other: result.data.operator_type_other || "",
           gender: result.data.gender || "",
           state: result.data.state || "",
+          user_type: result.data.user_type || "",
+          active: result.data.active || false,
+          registration_date: result.data.registration_date || "",
+          branches: result.data.branches || [],
+          branch_count: result.data.branch_count || 0,
+          groups: result.data.groups || [],
+          has_branch_access: result.data.has_branch_access || false,
         };
 
         // Store data with timestamp
@@ -94,6 +118,7 @@ export function useUserProfile() {
           JSON.stringify(userDataWithTimestamp)
         );
         setUserProfile(userData);
+        setLoading(false);
       } else {
         throw new Error("Invalid response from server");
       }

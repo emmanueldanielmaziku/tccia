@@ -5,6 +5,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import Image from "next/image";
 import { MdEmail } from "react-icons/md";
 import { useResetFormState } from "../services/FormStates";
+import { useState } from "react";
+import { useApiWithSessionHandling } from "@/app/hooks/useApiWithSessionHandling";
 
 // Validation schema 
 const schema = z.object({
@@ -15,6 +17,11 @@ type FormData = z.infer<typeof schema>;
 
 export default function ResetPassword() {
   const { resetForm } = useResetFormState();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [message, setMessage] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const { fetchWithSessionHandling } = useApiWithSessionHandling();
+  
   const {
     register,
     handleSubmit,
@@ -23,8 +30,32 @@ export default function ResetPassword() {
     resolver: zodResolver(schema),
   });
 
-  const onSubmit = (data: FormData) => {
-    console.log("Form Data:", data);
+  const onSubmit = async (data: FormData) => {
+    setIsSubmitting(true);
+    setError(null);
+    setMessage(null);
+
+    try {
+      const response = await fetchWithSessionHandling("/api/request-password-reset", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok || result.result?.error) {
+        throw new Error(result.result?.error || "Failed to send reset email");
+      }
+
+      setMessage("Password reset email sent! Please check your inbox.");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to send reset email");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
     
@@ -66,11 +97,27 @@ export default function ResetPassword() {
           </p>
         )}
       </div>
+      
+      {/* Success Message */}
+      {message && (
+        <div className="p-3 bg-green-50 border border-green-200 rounded-[8px] text-green-700 text-[14px]">
+          {message}
+        </div>
+      )}
+      
+      {/* Error Message */}
+      {error && (
+        <div className="p-3 bg-red-50 border border-red-200 rounded-[8px] text-red-700 text-[14px]">
+          {error}
+        </div>
+      )}
+      
       <button
         type="submit"
-        className="bg-blue-500 text-white px-6 py-3.5 rounded-[8px] text-[15px] hover:bg-blue-600 cursor-pointer"
+        disabled={isSubmitting}
+        className="bg-blue-500 text-white px-6 py-3.5 rounded-[8px] text-[15px] hover:bg-blue-600 cursor-pointer disabled:bg-gray-400 disabled:cursor-not-allowed"
       >
-        Resest Password
+        {isSubmitting ? "Sending..." : "Reset Password"}
       </button>
       <div className="flex items-center space-x-4">
         <span className="text-[14px] text-gray-700 font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">

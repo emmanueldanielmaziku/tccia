@@ -24,7 +24,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import COOForm from "./components/COOForm";
-import PaymentPopup from "./components/PaymentPopup";
+// import PaymentPopup from "./components/PaymentPopup"; // No longer needed - redirecting to external payment gateway
 import { useRouter } from "next/navigation";
 
 import usePickerState from "../../services/PickerState";
@@ -33,8 +33,8 @@ export default function COO() {
   const [verificationForm, toggleForm] = useState(false);
   const [isNewCertificateModalOpen, setIsNewCertificateModalOpen] =
     useState(false);
-  const [isPaymentPopupOpen, setIsPaymentPopupOpen] = useState(false);
-  const [selectedCertificateForPayment, setSelectedCertificateForPayment] = useState<any>(null);
+  // const [isPaymentPopupOpen, setIsPaymentPopupOpen] = useState(false); // No longer needed
+  // const [selectedCertificateForPayment, setSelectedCertificateForPayment] = useState<any>(null); // No longer needed
 
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
@@ -300,14 +300,14 @@ export default function COO() {
   };
 
   const handlePayment = (certificate: any) => {
-    setSelectedCertificateForPayment(certificate);
-    setIsPaymentPopupOpen(true);
+    // Redirect to CRDB payment gateway
+    window.open('https://crdb-payment.vercel.app', '_blank');
   };
 
-  const handleClosePaymentPopup = () => {
-    setIsPaymentPopupOpen(false);
-    setSelectedCertificateForPayment(null);
-  };
+  // const handleClosePaymentPopup = () => {
+  //   setIsPaymentPopupOpen(false);
+  //   setSelectedCertificateForPayment(null);
+  // }; // No longer needed
 
   const submittedCount = certificateData.filter(
     (certificate) => certificate.message_info.status === "Submitted"
@@ -684,11 +684,7 @@ export default function COO() {
         isOpen={isNewCertificateModalOpen}
         onClose={() => setIsNewCertificateModalOpen(false)}
       />
-      <PaymentPopup
-        isOpen={isPaymentPopupOpen}
-        onClose={handleClosePaymentPopup}
-        certificateData={selectedCertificateForPayment}
-      />
+      {/* PaymentPopup component removed - now redirecting to external payment gateway */}
     </main>
   );
 }
