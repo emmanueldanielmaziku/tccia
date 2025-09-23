@@ -345,11 +345,15 @@ function PreviewWidget({
   onClose,
   formData,
   getValidFormData,
+  onFormClose,
+  onRefreshList,
 }: {
   open: boolean;
   onClose: () => void;
   formData: FormData;
   getValidFormData: () => FormData;
+  onFormClose?: () => void;
+  onRefreshList?: () => void;
 }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -423,7 +427,10 @@ function PreviewWidget({
         setTimeout(() => {
           onClose();
           setSubmitSuccess(false);
-        }, 3000);
+          // Close the form and refresh the list
+          if (onFormClose) onFormClose();
+          if (onRefreshList) onRefreshList();
+        }, 2000); // Reduced from 3000 to 2000 for better UX
       } else {
         setSubmitError(result.error || "Failed to submit application");
       }
@@ -732,7 +739,13 @@ function PreviewWidget({
   );
 }
 
-export default function FactoryVerificationForm() {
+export default function FactoryVerificationForm({
+  onFormClose,
+  onRefreshList,
+}: {
+  onFormClose?: () => void;
+  onRefreshList?: () => void;
+} = {}) {
   const [formData, setFormData] = useState<FormData>({
     products: [
       {
@@ -1106,6 +1119,8 @@ export default function FactoryVerificationForm() {
         onClose={() => togglePreview(false)}
         formData={getValidFormData()}
         getValidFormData={getValidFormData}
+        onFormClose={onFormClose}
+        onRefreshList={onRefreshList}
       />
 
       <HSCodeWidget open={open} onClose={() => setOpen(false)} />

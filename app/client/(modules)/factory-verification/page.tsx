@@ -11,6 +11,7 @@ import {
   SearchNormal1,
   Refresh,
   Box,
+  More2,
 } from "iconsax-reactjs";
 import AlertBox from "../factory-verification/components/AlertBox";
 import {
@@ -85,6 +86,10 @@ export default function FactoryVerification() {
   const [isEmpty, setIsEmpty] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
+  const [showActionModal, setShowActionModal] = useState(false);
+  const [disputeComments, setDisputeComments] = useState("");
+  const [isSubmittingAction, setIsSubmittingAction] = useState(false);
+  const [showDisputeForm, setShowDisputeForm] = useState(false);
   const [sortField, setSortField] = useState<"sn" | "product" | "status">("sn");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
   const [searchQuery, setSearchQuery] = useState("");
@@ -249,7 +254,95 @@ export default function FactoryVerification() {
 
   const handleViewDetails = (product: Product) => {
     setSelectedProduct(product);
-    setShowDetailModal(true);
+    setShowActionModal(true);
+  };
+
+  const handleAcceptReport = async () => {
+    if (!selectedProduct) return;
+    
+    setIsSubmittingAction(true);
+    try {
+      const selectedCompany = localStorage.getItem("selectedCompany");
+      if (!selectedCompany) {
+        alert("No company selected. Please select a company first.");
+        return;
+      }
+      
+      const { company_tin } = JSON.parse(selectedCompany);
+      
+      const response = await fetch("/api/factory-verification/accept-report", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          factory_verification_id: selectedProduct.verification_id,
+          company_tin: company_tin,
+        }),
+      });
+
+      const result = await response.json();
+      
+      if (result.success) {
+        alert("Report accepted successfully!");
+        setShowActionModal(false);
+        fetchProducts(); // Refresh the list
+      } else {
+        alert(result.error || "Failed to accept report");
+      }
+    } catch (error) {
+      console.error("Error accepting report:", error);
+      alert("Network error occurred. Please try again.");
+    } finally {
+      setIsSubmittingAction(false);
+    }
+  };
+
+  const handleDisputeReport = async () => {
+    if (!selectedProduct || !disputeComments.trim()) {
+      alert("Please provide dispute comments");
+      return;
+    }
+    
+    setIsSubmittingAction(true);
+    try {
+      const selectedCompany = localStorage.getItem("selectedCompany");
+      if (!selectedCompany) {
+        alert("No company selected. Please select a company first.");
+        return;
+      }
+      
+      const { company_tin } = JSON.parse(selectedCompany);
+      
+      const response = await fetch("/api/factory-verification/dispute-report", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          factory_verification_id: selectedProduct.verification_id,
+          company_tin: company_tin,
+          dispute_comments: disputeComments.trim(),
+        }),
+      });
+
+      const result = await response.json();
+      
+      if (result.success) {
+        alert("Report disputed successfully!");
+        setShowActionModal(false);
+        setDisputeComments("");
+        setShowDisputeForm(false);
+        fetchProducts(); // Refresh the list
+      } else {
+        alert(result.error || "Failed to dispute report");
+      }
+    } catch (error) {
+      console.error("Error disputing report:", error);
+      alert("Network error occurred. Please try again.");
+    } finally {
+      setIsSubmittingAction(false);
+    }
   };
 
   return (
@@ -366,7 +459,10 @@ export default function FactoryVerification() {
             </div>
             {/* Main */}
             {verificationForm ? (
-              <FactoryVerificationForm />
+              <FactoryVerificationForm 
+                onFormClose={() => toggleForm(false)}
+                onRefreshList={fetchProducts}
+              />
             ) : (
               <div className="w-full mt-5 rounded-md border-[0.5px] overflow-hidden overflow-y-auto h-[100%]">
                 {loading ? (
@@ -392,6 +488,9 @@ export default function FactoryVerification() {
                           </th>
                           <th className="px-4 py-5 text-left text-gray-700">
                             State
+                          </th>
+                          <th className="px-4 py-5 text-center text-gray-700">
+                            Actions
                           </th>
                           {/* <th className="px-4 py-5 text-left text-gray-700">
                             Report file
@@ -422,6 +521,9 @@ export default function FactoryVerification() {
                             </td>
                             <td className="px-4 py-4">
                               <div className="h-4 w-12 bg-gray-200 rounded animate-pulse"></div>
+                            </td>
+                            <td className="px-4 py-4 text-center">
+                              <div className="h-4 w-4 bg-gray-200 rounded animate-pulse mx-auto"></div>
                             </td>
                             {/* <td className="px-4 py-4">
                               <div className="h-4 w-20 bg-gray-200 rounded animate-pulse"></div>
@@ -502,6 +604,9 @@ export default function FactoryVerification() {
                         <th className="px-4 py-5 text-left text-gray-700">
                           State
                         </th>
+                        <th className="px-4 py-5 text-center text-gray-700">
+                          Actions
+                        </th>
                       </tr>
                     </thead>
                     <tbody>
@@ -531,6 +636,15 @@ export default function FactoryVerification() {
                                 product.verification_state as keyof typeof stateLabels
                               ] || product.verification_state}
                             </span>
+                          </td>
+                          <td className="px-4 py-4 text-center">
+                            <button
+                              onClick={() => handleViewDetails(product)}
+                              className="p-2 hover:bg-gray-200 rounded-full transition-colors"
+                              title="View actions"
+                            >
+                              <MoreCircle size={18} color="#6B7280" className="cursor-pointer" />
+                            </button>
                           </td>
                         </tr>
                       ))}
@@ -605,6 +719,119 @@ export default function FactoryVerification() {
           cancelText="Cancel"
           confirmText="Confirm"
         />
+      )}
+
+      {/* Action Modal */}
+      {showActionModal && selectedProduct && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-[3px]">
+          <div className="relative w-full max-w-md bg-white rounded-xl shadow-2xl p-6 mx-4">
+            {/* Header */}
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-semibold text-gray-800">
+                Factory Verification Actions
+              </h2>
+              <button
+                onClick={() => {
+                  setShowActionModal(false);
+                  setDisputeComments("");
+                  setShowDisputeForm(false);
+                }}
+                className="p-1 hover:bg-gray-100 rounded-full transition-colors"
+              >
+                <CloseCircle size={20} color="#6B7280" />
+              </button>
+            </div>
+
+            {/* Product Info */}
+            <div className="mb-6 p-4 bg-gray-50 rounded-lg">
+              <h3 className="font-medium text-gray-800 mb-2">Product Details</h3>
+              <div className="space-y-1 text-sm text-gray-600">
+                <div><span className="font-medium">Product:</span> {selectedProduct.product_name}</div>
+                <div><span className="font-medium">HS Code:</span> {selectedProduct.hs_code}</div>
+                <div><span className="font-medium">Reference:</span> {selectedProduct.verification_reference}</div>
+                <div><span className="font-medium">Status:</span> 
+                  <span className={`ml-1 px-2 py-1 rounded-full text-xs font-medium ${getStatusBadgeClass(selectedProduct.verification_state)}`}>
+                    {stateLabels[selectedProduct.verification_state as keyof typeof stateLabels] || selectedProduct.verification_state}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Dispute Comments Section - Only show when dispute form is active */}
+            {showDisputeForm && (
+              <div className="mb-6">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Dispute Comments (required for dispute)
+                </label>
+                <textarea
+                  value={disputeComments}
+                  onChange={(e) => setDisputeComments(e.target.value)}
+                  placeholder="Enter your dispute comments here..."
+                  rows={4}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none text-sm"
+                />
+              </div>
+            )}
+
+            {/* Action Buttons - Column Layout */}
+            <div className="space-y-3">
+              {!showDisputeForm ? (
+                <>
+                  <button
+                    onClick={handleAcceptReport}
+                    disabled={isSubmittingAction}
+                    className="w-full px-4 py-3 bg-green-600 text-white text-sm font-medium rounded-md hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {isSubmittingAction ? (
+                      <div className="flex items-center justify-center gap-2">
+                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                        Accepting...
+                      </div>
+                    ) : (
+                      "Accept Report"
+                    )}
+                  </button>
+                  
+                  <button
+                    onClick={() => setShowDisputeForm(true)}
+                    disabled={isSubmittingAction}
+                    className="w-full px-4 py-3 bg-red-600 text-white text-sm font-medium rounded-md hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    Dispute Report
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button
+                    onClick={() => {
+                      setShowDisputeForm(false);
+                      setDisputeComments("");
+                    }}
+                    disabled={isSubmittingAction}
+                    className="w-full px-4 py-3 bg-gray-500 text-white text-sm font-medium rounded-md hover:bg-gray-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    Cancel
+                  </button>
+                  
+                  <button
+                    onClick={handleDisputeReport}
+                    disabled={isSubmittingAction || !disputeComments.trim()}
+                    className="w-full px-4 py-3 bg-red-600 text-white text-sm font-medium rounded-md hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {isSubmittingAction ? (
+                      <div className="flex items-center justify-center gap-2">
+                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                        Submitting...
+                      </div>
+                    ) : (
+                      "Submit Dispute"
+                    )}
+                  </button>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
       )}
     </main>
   );
