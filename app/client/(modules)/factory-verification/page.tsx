@@ -780,7 +780,7 @@ export default function FactoryVerification() {
                   <button
                     onClick={handleAcceptReport}
                     disabled={isSubmittingAction}
-                    className="w-full px-4 py-3 bg-green-600 text-white text-sm font-medium rounded-md hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full px-4 py-3 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 cursor-pointer transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {isSubmittingAction ? (
                       <div className="flex items-center justify-center gap-2">
@@ -795,7 +795,7 @@ export default function FactoryVerification() {
                   <button
                     onClick={() => setShowDisputeForm(true)}
                     disabled={isSubmittingAction}
-                    className="w-full px-4 py-3 bg-red-600 text-white text-sm font-medium rounded-md hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full px-4 py-3 bg-red-600 text-white text-sm font-medium rounded-md cursor-pointer hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     Dispute Report
                   </button>
