@@ -46,7 +46,6 @@ import {
   Eye,
   EyeOff,
   Settings,
-  Camera,
   Plus,
 } from "lucide-react";
 import { toast } from "sonner";
@@ -122,8 +121,6 @@ export default function ProfilePage() {
     confirm_password: "",
   });
 
-  // Profile picture state
-  const [profilePicture, setProfilePicture] = useState<string | null>(null);
 
   useEffect(() => {
     if (userProfile) {
@@ -168,35 +165,6 @@ export default function ProfilePage() {
     setShowPasswords(prev => ({ ...prev, [field]: !prev[field] }));
   };
 
-  const handleProfilePictureChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      if (file.size > 5 * 1024 * 1024) {
-        toast.error("File size must be less than 5MB");
-        return;
-      }
-      
-      if (!file.type.startsWith('image/')) {
-        toast.error("Please select an image file");
-        return;
-      }
-
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        setProfilePicture(e.target?.result as string);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
-  const getInitials = (name: string) => {
-    return name
-      .split(' ')
-      .map(word => word.charAt(0))
-      .join('')
-      .toUpperCase()
-      .slice(0, 2);
-  };
 
   const handleSavePersonalInfo = async () => {
     setSubmitting(true);
@@ -366,34 +334,10 @@ export default function ProfilePage() {
           {/* Profile Overview Card */}
           <div className="bg-white rounded-lg border border-gray-200 p-6 mb-6">
             <div className="flex items-center gap-6">
-              {/* Profile Picture */}
-              <div className="relative">
-                <div className="w-20 h-20 rounded-full overflow-hidden bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white text-xl font-semibold">
-                  {profilePicture ? (
-                    <img 
-                      src={profilePicture} 
-                      alt="Profile" 
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    getInitials(userProfile?.name || "User")
-                  )}
+              {/* Profile Icon */}
+              <div className="w-20 h-20 rounded-full bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center">
+                <User className="w-10 h-10 text-white" />
                 </div>
-                <div className="absolute -bottom-1 -right-1">
-                  <label htmlFor="profile-picture" className="cursor-pointer">
-                    <div className="w-6 h-6 bg-gray-600 rounded-full flex items-center justify-center">
-                      <Camera className="w-3 h-3 text-white" />
-                    </div>
-                  </label>
-                  <input
-                    id="profile-picture"
-                    type="file"
-                    accept="image/*"
-                    onChange={handleProfilePictureChange}
-                    className="hidden"
-                  />
-                </div>
-              </div>
 
               {/* Profile Info */}
               <div className="flex-1">
@@ -407,14 +351,6 @@ export default function ProfilePage() {
                   {userProfile?.country_of_residence || "Location not specified"} • Member since {userProfile?.registration_date ? new Date(userProfile.registration_date).getFullYear() : "N/A"}
                 </p>
                   </div>
-
-              {/* Status Badge */}
-                      <Badge 
-                        variant={userProfile?.state === "active" ? "default" : "destructive"}
-                className="px-3 py-1"
-                      >
-                        {userProfile?.state || "Unknown"}
-                      </Badge>
                     </div>
                   </div>
 
@@ -568,14 +504,6 @@ export default function ProfilePage() {
                 </p>
               </div>
               <div className="space-y-1">
-                <Label className="text-sm font-medium text-gray-500">Status</Label>
-                <p className="text-gray-900">
-                  <Badge variant={userProfile?.active ? "default" : "destructive"}>
-                    {userProfile?.active ? "Active" : "Inactive"}
-                  </Badge>
-                </p>
-              </div>
-              <div className="space-y-1">
                 <Label className="text-sm font-medium text-gray-500">Branch Access</Label>
                 <p className="text-gray-900">
                   {userProfile?.has_branch_access ? `Yes (${userProfile?.branch_count || 0} branches)` : "No"}
@@ -672,7 +600,7 @@ export default function ProfilePage() {
                     </Button>
                   </DialogTrigger>
                   <DialogContent className="sm:max-w-[500px]">
-                    {passwordChangeSuccess ? (
+                    {true ? (
                       // Success state with countdown
                       <>
                         <DialogHeader>
@@ -697,7 +625,7 @@ export default function ProfilePage() {
                         <DialogFooter>
                           <Button 
                             onClick={() => router.push("/auth")} 
-                            className="w-full bg-blue-500 hover:bg-blue-600"
+                            className="w-full bg-blue-500 hover:bg-blue-600 py-2"
                           >
                             Go to Login Now
                           </Button>

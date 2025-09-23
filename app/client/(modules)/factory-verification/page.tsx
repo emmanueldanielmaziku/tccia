@@ -39,7 +39,7 @@ interface Product {
 }
 
 const stateLabels = {
-  draft: "Draft",
+  draft: "Submitted",
   submitted: "Submitted",
   under_review: "Under Review",
   awaiting_director: "Awaiting Director",
@@ -59,6 +59,7 @@ const getStatusBadgeClass = (status: string) => {
     case "report_accepted":
       return "bg-green-100 text-green-700";
     case "pending":
+    case "draft":
     case "submitted":
     case "under_review":
     case "awaiting_director":
@@ -579,10 +580,15 @@ export default function FactoryVerification() {
         <ProgressTracker
           stats={{
             total: products.length,
-            submitted: products.filter((p) => p.state === "under_review")
-              .length,
-            approved: products.filter((p) => p.state === "report_accepted")
-              .length,
+            submitted: products.filter((p) => {
+              // Count all states that are NOT approved/done as pending
+              const approvedStates = ["approved", "report_accepted", "finalized"];
+              return !approvedStates.includes(p.verification_state.toLowerCase());
+            }).length,
+            approved: products.filter((p) => {
+              const approvedStates = ["approved", "report_accepted", "finalized"];
+              return approvedStates.includes(p.verification_state.toLowerCase());
+            }).length,
           }}
           onCompanyChange={fetchProducts}
         />
