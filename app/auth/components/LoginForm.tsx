@@ -6,7 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { MdVisibility, MdVisibilityOff } from "react-icons/md";
 import { useFormState, useResetFormState } from "../services/FormStates";
 import { useRouter } from "next/navigation";
-import { Call, Sms } from "iconsax-reactjs";
+import { Call, InfoCircle, Sms } from "iconsax-reactjs";
 import { useTranslations } from "next-intl";
 import { useApiWithSessionHandling } from "../../hooks/useApiWithSessionHandling";
 import { handleSessionError } from "../../utils/sessionErrorHandler";
@@ -103,7 +103,7 @@ export default function LoginForm() {
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
-      className="mt-12 md:mt-[50px] flex flex-col space-y-5 w-full md:w-[480px] border p-6 rounded-[12px] shadow-sm bg-gray-50"
+      className="mt-12 md:mt-[30px] flex flex-col space-y-5 w-full md:w-[480px] border p-6 rounded-[12px] shadow-sm bg-gray-50"
     >
       <div className="w-full flex flex-row justify-between items-center space-x-4">
         <div className="text-gray-700 font-semibold text-[16px] md:text-2xl">
@@ -112,8 +112,8 @@ export default function LoginForm() {
       </div>
 
       {error && (
-        <div className="flex flex-row items-center space-x-4 border-2 border-red-500 bg-red-50 rounded-[8px] p-4 w-full animate-pulse">
-          <div className="w-4 h-4 bg-red-500 rounded-full flex-shrink-0"></div>
+        <div className="flex flex-row items-center space-x-4 border-2 border-red-500 bg-red-50 rounded-[8px] p-3 w-full animate-pulse">
+          <InfoCircle size="20" color="red" />
           <p className="text-red-600 text-[15px] font-semibold">{error}</p>
         </div>
       )}

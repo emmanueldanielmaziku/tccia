@@ -18,6 +18,7 @@ import {
   Refresh,
   Copy,
   TickCircle,
+  MoneyRecive,
 } from "iconsax-reactjs";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -129,6 +130,11 @@ export default function MembershipApplication({
       minute: "2-digit",
     });
   }
+
+  const handlePayment = () => {
+    // Redirect to CRDB payment gateway
+    window.open('https://crdb-payment.vercel.app', '_blank');
+  };
 
   const statusColorMap: Record<string, string> = {
     draft: "bg-gray-200 text-gray-700",
@@ -364,6 +370,19 @@ export default function MembershipApplication({
               )}
             </button>
           )}
+          
+          {/* Payment Button - Only show when certificate has expired or status is waiting for payment */}
+          {(data.state === "expired" || data.state === "waiting_payment") && (
+            <button
+              onClick={handlePayment}
+              className="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition text-sm font-semibold cursor-pointer"
+              title="Make Payment"
+            >
+              <MoneyRecive size={20} />
+              Pay
+            </button>
+          )}
+          
           {/* {data.state === "expired" && (
             <button
               className="inline-flex items-center gap-2 px-4 py-2 bg-orange-600 text-white rounded-[10px] hover:bg-orange-700 transition text-sm font-semibold cursor-pointer"
