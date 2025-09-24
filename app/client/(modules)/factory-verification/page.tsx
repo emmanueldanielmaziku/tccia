@@ -640,10 +640,19 @@ export default function FactoryVerification() {
                           <td className="px-4 py-4 text-center">
                             <button
                               onClick={() => handleViewDetails(product)}
-                              className="p-2 hover:bg-gray-200 rounded-full transition-colors"
-                              title="View actions"
+                              disabled={product.verification_state !== "inspection_done"}
+                              className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
+                                product.verification_state === "inspection_done"
+                                  ? "bg-blue-600 text-white hover:bg-blue-700 cursor-pointer"
+                                  : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                              }`}
+                              title={
+                                product.verification_state === "inspection_done"
+                                  ? "Review inspection report"
+                                  : "Review not available for this status"
+                              }
                             >
-                              <MoreCircle size={18} color="#6B7280" className="cursor-pointer" />
+                              Review
                             </button>
                           </td>
                         </tr>
