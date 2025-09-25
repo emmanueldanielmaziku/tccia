@@ -241,7 +241,7 @@ export default function FirmManagement() {
       {/* Content */}
       <section className="flex lg:flex-row flex-1">
         <div className="flex flex-col items-start flex-1 min-w-0 h-[97vh] pt-18 bg-transparent border-transparent border-[1px] rounded-xl">
-          <div className="flex flex-col justify-start items-start mt-2 w-full h-[86vh] rounded-sm relative px-4 md:px-8 lg:px-16.5">
+          <div className="flex flex-col justify-start items-start mt-2 w-full h-[86vh] rounded-sm relative px-4 md:px-8 lg:px-16">
             <div className="flex flex-row justify-between items-center w-full gap-6 my-1">
               {tinformState ? (
                 <div className="font-semibold antialiased text-[18px] text-zinc-600">

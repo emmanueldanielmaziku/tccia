@@ -478,9 +478,6 @@ export default function FactoryVerification() {
                             Product
                           </th>
                           <th className="px-4 py-5 text-left text-gray-700">
-                            HS Code
-                          </th>
-                          <th className="px-4 py-5 text-left text-gray-700">
                             Trade Region
                           </th>
                           <th className="px-4 py-5 text-left text-gray-700">
@@ -509,9 +506,6 @@ export default function FactoryVerification() {
                             </td>
                             <td className="px-4 py-4">
                               <div className="h-4 w-32 bg-gray-200 rounded animate-pulse"></div>
-                            </td>
-                            <td className="px-4 py-4">
-                              <div className="h-4 w-12 bg-gray-200 rounded animate-pulse"></div>
                             </td>
                             <td className="px-4 py-4">
                               <div className="h-4 w-12 bg-gray-200 rounded animate-pulse"></div>
@@ -593,9 +587,6 @@ export default function FactoryVerification() {
                           Product Name
                         </th>
                         <th className="px-4 py-5 text-left text-gray-700">
-                          HS Code
-                        </th>
-                        <th className="px-4 py-5 text-left text-gray-700">
                           Trade Region
                         </th>
                         <th className="px-4 py-5 text-left text-gray-700">
@@ -619,7 +610,6 @@ export default function FactoryVerification() {
                         >
                           <td className="px-4 py-4">{product.sn}</td>
                           <td className="px-4 py-4">{product.product_name}</td>
-                          <td className="px-4 py-4">{product.hs_code}</td>
                           <td className="px-4 py-4">
                             {product.community_name || "-"}
                           </td>
@@ -652,7 +642,7 @@ export default function FactoryVerification() {
                                   : "Review not available for this status"
                               }
                             >
-                              Review
+                              Review Report
                             </button>
                           </td>
                         </tr>
@@ -756,7 +746,6 @@ export default function FactoryVerification() {
               <h3 className="font-medium text-gray-800 mb-2">Product Details</h3>
               <div className="space-y-1 text-sm text-gray-600">
                 <div><span className="font-medium">Product:</span> {selectedProduct.product_name}</div>
-                <div><span className="font-medium">HS Code:</span> {selectedProduct.hs_code}</div>
                 <div><span className="font-medium">Reference:</span> {selectedProduct.verification_reference}</div>
                 <div><span className="font-medium">Status:</span> 
                   <span className={`ml-1 px-2 py-1 rounded-full text-xs font-medium ${getStatusBadgeClass(selectedProduct.verification_state)}`}>
