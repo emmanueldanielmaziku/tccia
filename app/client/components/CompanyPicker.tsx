@@ -66,60 +66,60 @@ export default function CompanyPicker() {
   const [error, setError] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
 
-  useEffect(() => {
-    const fetchCompanies = async () => {
-      try {
-        setIsLoading(true);
-        setError(null);
+  const fetchCompanies = async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
 
-        const response = await fetch("/api/companies/list", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        });
+      const response = await fetch("/api/companies/list", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
 
-        const data: ApiResponse = await response.json();
+      const data: ApiResponse = await response.json();
 
-        if (response.status === 401 || response.status === 403) {
-          router.push("/auth");
-          return;
-        }
-
-        if (!response.ok) {
-          throw new Error(
-            data.error?.message || data.message || "Failed to fetch companies"
-          );
-        }
-
-        if (data.status === "success" && data.data?.companies) {
-          setCompanies(data.data.companies);
-
-          const storedCompany = localStorage.getItem("selectedCompany");
-          if (storedCompany) {
-            const parsedCompany = JSON.parse(storedCompany);
-            if (
-              data.data.companies.some(
-                (c) => c.company_tin === parsedCompany.company_tin
-              )
-            ) {
-              setSelectedCompany(parsedCompany.company_tin);
-            }
-          }
-        } else {
-          setCompanies([]);
-          setError(data.error?.message || data.message || "No companies found");
-        }
-      } catch (error) {
-        console.error("Error fetching companies:", error);
-        setError(
-          error instanceof Error ? error.message : "Failed to fetch companies"
-        );
-      } finally {
-        setIsLoading(false);
+      if (response.status === 401 || response.status === 403) {
+        router.push("/auth");
+        return;
       }
-    };
 
+      if (!response.ok) {
+        throw new Error(
+          data.error?.message || data.message || "Failed to fetch companies"
+        );
+      }
+
+      if (data.status === "success" && data.data?.companies) {
+        setCompanies(data.data.companies);
+
+        const storedCompany = localStorage.getItem("selectedCompany");
+        if (storedCompany) {
+          const parsedCompany = JSON.parse(storedCompany);
+          if (
+            data.data.companies.some(
+              (c) => c.company_tin === parsedCompany.company_tin
+            )
+          ) {
+            setSelectedCompany(parsedCompany.company_tin);
+          }
+        }
+      } else {
+        setCompanies([]);
+        setError(data.error?.message || data.message || "No companies found");
+      }
+    } catch (error) {
+      console.error("Error fetching companies:", error);
+      setError(
+        error instanceof Error ? error.message : "Failed to fetch companies"
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
     fetchCompanies();
   }, [router]);
 
@@ -132,8 +132,19 @@ export default function CompanyPicker() {
         }
       }
     };
+
+    const onCompanyRegistered = () => {
+      // Refresh the companies list when a new company is registered
+      fetchCompanies();
+    };
+
     window.addEventListener("storage", onStorage);
-    return () => window.removeEventListener("storage", onStorage);
+    window.addEventListener("COMPANY_REGISTERED_EVENT", onCompanyRegistered);
+    
+    return () => {
+      window.removeEventListener("storage", onStorage);
+      window.removeEventListener("COMPANY_REGISTERED_EVENT", onCompanyRegistered);
+    };
   }, []);
 
   const handleCompanySelect = (value: string) => {
@@ -304,7 +315,7 @@ export default function CompanyPicker() {
                 disabled={isLoading}
                 className="border-[1px] border-blue-600 bg-blue-500 text-white flex-1 rounded-[7px] py-3 cursor-pointer hover:bg-blue-600 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Register
+                Register Company
               </button>
             )}
           </div>

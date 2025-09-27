@@ -106,6 +106,24 @@ function PreviewWidget({
       if (apiResult.status === "success") {
         setShowSuccess(true);
         setOtpError(undefined);
+        
+        // Auto-select the newly registered company
+        if (apiResult.data) {
+          const newCompany = apiResult.data;
+          const companySession = {
+            id: newCompany.id,
+            company_tin: newCompany.company_tin,
+            company_name: newCompany.company_name,
+            company_nationality_code: newCompany.company_nationality_code,
+            company_registration_type_code: newCompany.company_registration_type_code,
+            company_email: newCompany.company_email,
+            company_telephone_number: newCompany.company_telephone_number,
+          };
+          localStorage.setItem("selectedCompany", JSON.stringify(companySession));
+          window.dispatchEvent(new Event("COMPANY_CHANGE_EVENT"));
+          window.dispatchEvent(new Event("COMPANY_REGISTERED_EVENT"));
+        }
+        
         setTimeout(() => {
           onConfirm(otp);
         }, 2000);
@@ -402,7 +420,7 @@ export default function FirmRegForm({
                 onChange={(e) => handleInputChange(e.target.value)}
                 className={`w-full px-6 py-3.5 pr-12 border ${
                   error ? "border-red-500" : "border-zinc-300"
-                } bg-zinc-100 outline-blue-400 rounded-[8px] placeholder:text-zinc-400 text-zinc-500 placeholder:text-[15px]`}
+                } bg-zinc-100 outline-none rounded-[8px] placeholder:text-zinc-400 text-zinc-500 placeholder:text-[15px]`}
                 disabled={isLoading}
               />
               <TextBlock
