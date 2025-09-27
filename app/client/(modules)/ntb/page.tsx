@@ -1306,8 +1306,8 @@ export default function NTB() {
                           </Select>
                         </div>
                       </div>
-      {/* Complaint Details - Start with Description */}
-      <div className="space-y-3">
+                      {/* Complaint Details - Start with Description */}
+                      <div className="space-y-3">
                         <Label className="text-sm font-medium text-gray-700">
                           Complaint Details & Description *
                         </Label>
