@@ -20,6 +20,17 @@ const Roles = {
   },
 } as const;
 
+// Custom password validation function
+const validatePassword = (password: string): string | undefined => {
+  if (!password) return "Password is required";
+  if (password.length < 8) return "Password must be at least 8 characters";
+  if (!/[a-z]/.test(password)) return "Password must contain at least one lowercase letter";
+  if (!/[A-Z]/.test(password)) return "Password must contain at least one uppercase letter";
+  if (!/[0-9]/.test(password)) return "Password must contain at least one number";
+  if (!/[^a-zA-Z0-9]/.test(password)) return "Password must contain at least one special character";
+  return undefined;
+};
+
 // Enhanced validation schema
 const schema = z.object({
   firstName: z.string().min(1, "First name is required"),
@@ -30,16 +41,15 @@ const schema = z.object({
     .min(10, "Phone number must be at least 10 digits")
     .regex(/^[0-9]+$/, "Phone number must contain only digits"),
   role: z.string().min(1, "Please select a role"),
-  password: z
-    .string()
-    .min(8, "Password must be at least 8 characters")
-    .regex(/[a-z]/, "Password must contain at least one lowercase letter")
-    .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
-    .regex(/[0-9]/, "Password must contain at least one number")
-    .regex(
-      /[^a-zA-Z0-9]/,
-      "Password must contain at least one special character"
-    ),
+  password: z.string().superRefine((password, ctx) => {
+    const error = validatePassword(password);
+    if (error) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: error,
+      });
+    }
+  }),
 });
 
 type FormData = z.infer<typeof schema>;
@@ -388,11 +398,7 @@ const RegForm = () => {
         </button>
         {errors.password && (
           <p className="text-red-500 text-[11px]">
-            {errors.password.type === "min"
-              ? tf("validation.passwordMinLength")
-              : errors.password.type === "regex"
-              ? tf("validation.passwordComplexity")
-              : tf("validation.passwordRequired")}
+            {errors.password.message}
           </p>
         )}
       </div>

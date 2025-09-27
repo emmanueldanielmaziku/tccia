@@ -8,14 +8,29 @@ import Image from "next/image";
 import { useApiWithSessionHandling } from "@/app/hooks/useApiWithSessionHandling";
 import { useResetFormState } from "../services/FormStates";
 
+// Custom password validation function
+const validatePassword = (password: string): string | undefined => {
+  if (!password) return "Password is required";
+  if (password.length < 8) return "Password must be at least 8 characters";
+  if (!/[a-z]/.test(password)) return "Password must contain at least one lowercase letter";
+  if (!/[A-Z]/.test(password)) return "Password must contain at least one uppercase letter";
+  if (!/[0-9]/.test(password)) return "Password must contain at least one number";
+  if (!/[^a-zA-Z0-9]/.test(password)) return "Password must contain at least one special character";
+  return undefined;
+};
+
 // Validation schema 
 const schema = z.object({
-  new_password: z
-    .string()
-    .min(8, "Password must be at least 8 characters")
-    .regex(/[a-zA-Z]/, "Password must contain letters")
-    .regex(/[0-9]/, "Password must contain numbers"),
-  confirm_password: z.string(),
+  new_password: z.string().superRefine((password, ctx) => {
+    const error = validatePassword(password);
+    if (error) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: error,
+      });
+    }
+  }),
+  confirm_password: z.string().min(1, "Please confirm your password"),
 }).refine((data) => data.new_password === data.confirm_password, {
   message: "Passwords do not match",
   path: ["confirm_password"],
@@ -43,6 +58,7 @@ export default function NewPassword({ token }: NewPasswordProps) {
     formState: { errors },
   } = useForm<FormData>({
     resolver: zodResolver(schema),
+    mode: "onChange",
   });
 
   const onSubmit = async (data: FormData) => {
