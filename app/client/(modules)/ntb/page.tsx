@@ -1295,10 +1295,11 @@ export default function NTB() {
                               <SelectValue placeholder="Select location type" />
                             </SelectTrigger>
                             <SelectContent>
-                              <SelectItem value="border">Border Crossing</SelectItem>
-                              <SelectItem value="port">Port</SelectItem>
-                              <SelectItem value="airport">Airport</SelectItem>
-                              <SelectItem value="warehouse">Warehouse</SelectItem>
+                              <SelectItem value="point">Exact Location</SelectItem>
+                              <SelectItem value="area">General Area</SelectItem>
+                              <SelectItem value="border">Border/Crossing Point</SelectItem>
+                              <SelectItem value="port">Port/Airport</SelectItem>
+                              <SelectItem value="warehouse">Warehouse/Storage</SelectItem>
                               <SelectItem value="office">Government Office</SelectItem>
                               <SelectItem value="other">Other</SelectItem>
                             </SelectContent>
