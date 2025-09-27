@@ -127,6 +127,17 @@ export default function MembershipApplicationForm({
   ]);
   const [forceShowErrors, setForceShowErrors] = useState(false);
 
+  // Phone number validation - only allow numbers
+  const handlePhoneInput = (value: string) => {
+    // Remove any non-numeric characters except + at the beginning
+    const cleanedValue = value.replace(/[^\d+]/g, '');
+    // Ensure + can only be at the beginning
+    if (cleanedValue.includes('+') && cleanedValue.indexOf('+') !== 0) {
+      return cleanedValue.replace(/\+/g, '');
+    }
+    return cleanedValue;
+  };
+
   // Fetch dropdown data
   useEffect(() => {
     fetch("/api/membership/regions")
@@ -799,8 +810,10 @@ export default function MembershipApplicationForm({
                           placeholder="Enter phone number"
                           value={d.phone}
                           onChange={(e) =>
-                            handleDirectorChange(i, "phone", e.target.value)
+                            handleDirectorChange(i, "phone", handlePhoneInput(e.target.value))
                           }
+                          inputMode="tel"
+                          pattern="[0-9+]*"
                           onBlur={() =>
                             setTouchedDirectors((prev) => {
                               const arr = [...prev];
@@ -972,8 +985,10 @@ export default function MembershipApplicationForm({
                           placeholder="Enter phone number"
                           value={c.phone}
                           onChange={(e) =>
-                            handleContactChange(i, "phone", e.target.value)
+                            handleContactChange(i, "phone", handlePhoneInput(e.target.value))
                           }
+                          inputMode="tel"
+                          pattern="[0-9+]*"
                           onBlur={() =>
                             setTouchedContacts((prev) => {
                               const arr = [...prev];
@@ -1203,7 +1218,7 @@ export default function MembershipApplicationForm({
                 onClick={() => setShowPreview(false)}
                 disabled={loading}
               >
-                Edit Application
+                Close
               </Button>
               <Button onClick={handleSubmit} disabled={loading}>
                 {loading

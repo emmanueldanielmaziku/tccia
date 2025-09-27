@@ -15,6 +15,10 @@ export async function GET(request: Request) {
       console.log("[ProductMaster] Outgoing GET:", apiUrl);
       const response = await fetch(apiUrl, {
         method: "GET",
+        headers: {
+          // Explicitly avoid sending Content-Type header for GET requests
+          // The external API rejects GET requests with Content-Type headers
+        },
       });
       const data = await response.json();
       if (!response.ok) {
