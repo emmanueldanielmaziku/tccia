@@ -152,7 +152,7 @@ function ProductAutocomplete({
           }
           className={`w-full px-6 py-2 pr-12 border ${
             error ? "border-red-500" : "border-zinc-300"
-          } bg-zinc-100 outline-blue-400 rounded-[8px] placeholder:text-zinc-400 text-zinc-500 placeholder:text-[15px]`}
+          } bg-zinc-100 focus:outline-none rounded-[8px] placeholder:text-zinc-400 text-zinc-500 placeholder:text-[15px]`}
         />
         {isLoading ? (
           <span className="absolute top-3 right-5">
@@ -281,7 +281,7 @@ function ManufacturerAutocomplete({
           }
           className={`w-full px-6 py-2 pr-12 border ${
             error ? "border-red-500" : "border-zinc-300"
-          } bg-zinc-100 outline-blue-400 rounded-[8px] placeholder:text-zinc-400 text-zinc-500 placeholder:text-[15px]`}
+          } bg-zinc-100 focus:outline-none rounded-[8px] placeholder:text-zinc-400 text-zinc-500 placeholder:text-[15px]`}
         />
         {loading ? (
           <span className="absolute top-3 right-5">
@@ -903,6 +903,17 @@ export default function FactoryVerificationForm({
     return /^\d{7,15}$/.test(phone.replace(/\D/g, ""));
   }
 
+  // Phone number validation - only allow numbers
+  const handlePhoneInput = (value: string) => {
+    // Remove any non-numeric characters except + at the beginning
+    const cleanedValue = value.replace(/[^\d+]/g, '');
+    // Ensure + can only be at the beginning
+    if (cleanedValue.includes('+') && cleanedValue.indexOf('+') !== 0) {
+      return cleanedValue.replace(/\+/g, '');
+    }
+    return cleanedValue;
+  };
+
   const validateApplicantFields = (formData: FormData) => {
     const errors: any = {};
     if (!formData.applicant_name.trim()) {
@@ -1143,7 +1154,7 @@ export default function FactoryVerificationForm({
                 onChange={(e) =>
                   setFormData({ ...formData, applicant_name: e.target.value })
                 }
-                className="w-full px-3 py-2 border text-sm border-zinc-300 bg-white outline-blue-400 rounded-md placeholder:text-zinc-400 text-zinc-500"
+                className="w-full px-3 py-2 border text-sm border-zinc-300 bg-white rounded-md placeholder:text-zinc-400 text-zinc-500 focus:outline-none"
               />
               {errors.applicant_name && (
                 <p className="text-red-500 text-xs mt-1">
@@ -1156,13 +1167,15 @@ export default function FactoryVerificationForm({
                 Applicant Phone
               </label>
               <input
-                type="text"
+                type="tel"
                 placeholder="Enter applicant phone"
                 value={formData.applicant_phone}
                 onChange={(e) =>
-                  setFormData({ ...formData, applicant_phone: e.target.value })
+                  setFormData({ ...formData, applicant_phone: handlePhoneInput(e.target.value) })
                 }
-                className="w-full px-3 py-2 border text-sm border-zinc-300 bg-white outline-blue-400 rounded-md placeholder:text-zinc-400 text-zinc-500"
+                className="w-full px-3 py-2 border text-sm border-zinc-300 bg-white rounded-md placeholder:text-zinc-400 text-zinc-500 focus:outline-none"
+                inputMode="tel"
+                pattern="[0-9+]*"
               />
               {errors.applicant_phone && (
                 <p className="text-red-500 text-xs mt-1">
@@ -1181,7 +1194,7 @@ export default function FactoryVerificationForm({
                 onChange={(e) =>
                   setFormData({ ...formData, applicant_email: e.target.value })
                 }
-                className="w-full px-3 py-2 border text-sm border-zinc-300 bg-white outline-blue-400 rounded-md placeholder:text-zinc-400 text-zinc-500"
+                className="w-full px-3 py-2 border text-sm border-zinc-300 bg-white rounded-md placeholder:text-zinc-400 text-zinc-500 focus:outline-none"
               />
               {errors.applicant_email && (
                 <p className="text-red-500 text-xs mt-1">
@@ -1309,7 +1322,7 @@ export default function FactoryVerificationForm({
                       errors.products[idx]?.name
                         ? "border-red-500"
                         : "border-zinc-300"
-                    } bg-white outline-blue-400 rounded-md placeholder:text-zinc-400 text-zinc-500`}
+                    } bg-white focus:outline-none rounded-md placeholder:text-zinc-400 text-zinc-500`}
                     readOnly
                   />
                   {errors.products[idx]?.name && (
@@ -1334,7 +1347,7 @@ export default function FactoryVerificationForm({
                       errors.products[idx]?.product_category
                         ? "border-red-500"
                         : "border-zinc-300"
-                    } bg-white outline-blue-400 rounded-md placeholder:text-zinc-400 text-zinc-500`}
+                    } bg-white focus:outline-none rounded-md placeholder:text-zinc-400 text-zinc-500`}
                     readOnly
                   />
                   {errors.products[idx]?.product_category && (
@@ -1359,7 +1372,7 @@ export default function FactoryVerificationForm({
                       errors.products[idx]?.unity_of_measure
                         ? "border-red-500"
                         : "border-zinc-300"
-                    } bg-white outline-blue-400 rounded-md placeholder:text-zinc-400 text-zinc-500`}
+                    } bg-white focus:outline-none rounded-md placeholder:text-zinc-400 text-zinc-500`}
                     readOnly
                   />
                   {errors.products[idx]?.unity_of_measure && (
@@ -1385,7 +1398,7 @@ export default function FactoryVerificationForm({
                     errors.products[idx]?.description
                       ? "border-red-500"
                       : "border-zinc-300"
-                  } bg-white outline-blue-400 rounded-md placeholder:text-zinc-400 text-zinc-500 px-3 py-2 resize-none`}
+                  } bg-white focus:outline-none rounded-md placeholder:text-zinc-400 text-zinc-500 px-3 py-2 resize-none`}
                 ></textarea>
                 {errors.products[idx]?.description && (
                   <p className="text-red-500 text-xs mt-1">
