@@ -33,6 +33,7 @@ export default function NewPassword({ token }: NewPasswordProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [isPasswordChanged, setIsPasswordChanged] = useState(false);
   const { fetchWithSessionHandling } = useApiWithSessionHandling();
   const { resetForm } = useResetFormState();
 
@@ -69,6 +70,7 @@ export default function NewPassword({ token }: NewPasswordProps) {
       }
 
       setMessage("Password reset successfully! You can now login with your new password.");
+      setIsPasswordChanged(true);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to reset password");
     } finally {
@@ -100,47 +102,51 @@ export default function NewPassword({ token }: NewPasswordProps) {
         />
       </div>
 
-      <div className="relative w-full">
-        <input
-          type={showPassword ? "text" : "password"}
-          placeholder="New password"
-          {...register("new_password")}
-          className="w-full px-6 py-3.5 pr-12 border border-zinc-300 bg-zinc-100 outline-blue-400 rounded-[8px] placeholder:text-zinc-400 placeholder:text-[15px]"
-        />
-        <button
-          type="button"
-          className="absolute right-4 top-1/2 transform -translate-y-1/2 text-zinc-400 cursor-pointer"
-          onClick={() => setShowPassword((prev) => !prev)}
-        >
-          {showPassword ? <MdVisibilityOff /> : <MdVisibility />}
-        </button>
-        {errors.new_password && (
-          <p className="text-red-500 text-[12px] absolute left-0 top-[58px]">
-            {errors.new_password.message}
-          </p>
-        )}
-      </div>
+      {!isPasswordChanged && (
+        <>
+          <div className="relative w-full">
+            <input
+              type={showPassword ? "text" : "password"}
+              placeholder="New password"
+              {...register("new_password")}
+              className="w-full px-6 py-3.5 pr-12 border border-zinc-300 bg-zinc-100 outline-blue-400 rounded-[8px] placeholder:text-zinc-400 placeholder:text-[15px]"
+            />
+            <button
+              type="button"
+              className="absolute right-4 top-1/2 transform -translate-y-1/2 text-zinc-400 cursor-pointer"
+              onClick={() => setShowPassword((prev) => !prev)}
+            >
+              {showPassword ? <MdVisibilityOff /> : <MdVisibility />}
+            </button>
+            {errors.new_password && (
+              <p className="text-red-500 text-[12px] absolute left-0 top-[58px]">
+                {errors.new_password.message}
+              </p>
+            )}
+          </div>
 
-      <div className="relative w-full">
-        <input
-          type={showConfirm ? "text" : "password"}
-          placeholder="Confirm password"
-          {...register("confirm_password")}
-          className="w-full px-6 py-3.5 pr-12 border border-zinc-300 bg-zinc-100 outline-blue-400 rounded-[8px] placeholder:text-zinc-400 placeholder:text-[15px]"
-        />
-        <button
-          type="button"
-          className="absolute right-4 top-1/2 transform -translate-y-1/2 text-zinc-400 cursor-pointer"
-          onClick={() => setShowConfirm((state) => !state)}
-        >
-          {showConfirm ? <MdVisibilityOff /> : <MdVisibility />}
-        </button>
-        {errors.confirm_password && (
-          <p className="text-red-500 text-[12px] absolute left-0 top-[58px]">
-            {errors.confirm_password.message}
-          </p>
-        )}
-      </div>
+          <div className="relative w-full">
+            <input
+              type={showConfirm ? "text" : "password"}
+              placeholder="Confirm password"
+              {...register("confirm_password")}
+              className="w-full px-6 py-3.5 pr-12 border border-zinc-300 bg-zinc-100 outline-blue-400 rounded-[8px] placeholder:text-zinc-400 placeholder:text-[15px]"
+            />
+            <button
+              type="button"
+              className="absolute right-4 top-1/2 transform -translate-y-1/2 text-zinc-400 cursor-pointer"
+              onClick={() => setShowConfirm((state) => !state)}
+            >
+              {showConfirm ? <MdVisibilityOff /> : <MdVisibility />}
+            </button>
+            {errors.confirm_password && (
+              <p className="text-red-500 text-[12px] absolute left-0 top-[58px]">
+                {errors.confirm_password.message}
+              </p>
+            )}
+          </div>
+        </>
+      )}
       
       {/* Success Message */}
       {message && (
@@ -156,25 +162,37 @@ export default function NewPassword({ token }: NewPasswordProps) {
         </div>
       )}
       
-      <button
-        type="submit"
-        disabled={isSubmitting}
-        className="bg-blue-500 text-white px-6 py-3.5 rounded-[8px] text-[15px] hover:bg-blue-600 cursor-pointer disabled:bg-gray-400 disabled:cursor-not-allowed"
-      >
-        {isSubmitting ? "Updating..." : "Update Password"}
-      </button>
-      
-      <div className="flex items-center space-x-4">
-        <span className="text-[14px] text-gray-700 font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-          Remember your password?
-        </span>
-        <span
-          className="text-[14px] text-blue-600 underline cursor-pointer"
-          onClick={resetForm}
+      {!isPasswordChanged ? (
+        <button
+          type="submit"
+          disabled={isSubmitting}
+          className="bg-blue-500 text-white px-6 py-3.5 rounded-[8px] text-[15px] hover:bg-blue-600 cursor-pointer disabled:bg-gray-400 disabled:cursor-not-allowed"
         >
-          Go back to login
-        </span>
-      </div>
+          {isSubmitting ? "Updating..." : "Update Password"}
+        </button>
+      ) : (
+        <button
+          type="button"
+          onClick={() => window.location.href = '/'}
+          className="bg-blue-500 text-white px-6 py-3.5 rounded-[8px] text-[15px] hover:bg-blue-600 cursor-pointer"
+        >
+          Login with new password
+        </button>
+      )}
+      
+      {!isPasswordChanged && (
+        <div className="flex items-center space-x-4">
+          {/* <span className="text-[14px] text-gray-700 font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+            Remember your password?
+          </span> */}
+          <span
+            className="text-[14px] text-blue-600 underline cursor-pointer"
+            onClick={() => window.location.href = '/'}
+          >
+            Go back to login
+          </span>
+        </div>
+      )}
     </form>
   );
 }
