@@ -40,13 +40,19 @@ export async function POST(request: Request) {
     console.log("Disputing factory verification report:", payload);
 
     const apiUrl = `${API_BASE_URL}/api/factory_verification/dispute_report`;
+    
+    // Create form data instead of JSON
+    const formData = new FormData();
+    formData.append('factory_verification_id', factory_verification_id.toString());
+    formData.append('company_tin', company_tin);
+    formData.append('dispute_comments', dispute_comments);
+    
     const response = await fetch(apiUrl, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${token.value.trim()}`,
-        "Content-Type": "application/json",
       },
-      body: JSON.stringify(payload),
+      body: formData,
     });
 
     console.log("API response status:", response.status);

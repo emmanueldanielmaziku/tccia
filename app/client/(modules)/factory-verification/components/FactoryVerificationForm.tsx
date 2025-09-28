@@ -979,7 +979,7 @@ export default function FactoryVerificationForm({
     value: string | number
   ) => {
     const updatedFormData = { ...formData };
-    if (field === "company_id" || field === "manager_id") {
+    if (field === "company_id" || field === "manager_id" || field === "product_id") {
       (updatedFormData.products[idx] as any)[field] = value as number;
     } else {
       (updatedFormData.products[idx] as any)[field] = value as string;
@@ -1067,7 +1067,7 @@ export default function FactoryVerificationForm({
   const getValidFormData = (): FormData => {
     return {
       products: formData.products.map((product) => ({
-        product_id: product.product_id || 1,
+        product_id: product.product_id, // Keep original product_id if exists, don't default to 1
         name: product.name.trim(),
         hs_code: product.hs_code.trim(),
         description: product.description.trim(),
@@ -1294,7 +1294,7 @@ export default function FactoryVerificationForm({
                       handleInputChange(
                         idx,
                         "product_id",
-                        selectedProduct.id ?? ""
+                        selectedProduct.id ?? 0
                       );
                     }}
                     placeholder="Search HS Code..."

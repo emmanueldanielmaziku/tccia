@@ -42,7 +42,7 @@ export async function POST(request: Request) {
         : null,
       products: formData.products.map((product: any) => ({
         manufacturer_id: product.manufacturer_id,
-        product_name_id: product.product_id || 1,
+        product_name_id: product.product_name_id,
         description: product.description,
       })),
     };
@@ -58,6 +58,7 @@ export async function POST(request: Request) {
       },
       body: JSON.stringify(payload),
     });
+    
     console.log("Body sent to API:", payload);
     console.log("API response status:", response.status);
 

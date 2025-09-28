@@ -67,9 +67,10 @@ const getStatusBadgeClass = (status: string) => {
       return "bg-orange-100 text-orange-700";
     case "rejected":
       return "bg-red-100 text-red-700";
+    case "report_disputed":
+      return "bg-red-100 text-red-700";
     case "inspection_scheduled":
     case "inspection_done":
-    case "report_disputed":
     case "finalized":
       return "bg-blue-100 text-blue-700";
     default:
@@ -90,6 +91,7 @@ export default function FactoryVerification() {
   const [disputeComments, setDisputeComments] = useState("");
   const [isSubmittingAction, setIsSubmittingAction] = useState(false);
   const [showDisputeForm, setShowDisputeForm] = useState(false);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [sortField, setSortField] = useState<"sn" | "product" | "status">("sn");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
   const [searchQuery, setSearchQuery] = useState("");
@@ -283,10 +285,12 @@ export default function FactoryVerification() {
 
       const result = await response.json();
       
-      if (result.success) {
-        alert("Report accepted successfully!");
+      if (result.status === "success") {
+        setSuccessMessage("Report accepted successfully!");
         setShowActionModal(false);
         fetchProducts(); // Refresh the list
+        // Clear success message after 3 seconds
+        setTimeout(() => setSuccessMessage(null), 3000);
       } else {
         alert(result.error || "Failed to accept report");
       }
@@ -328,12 +332,14 @@ export default function FactoryVerification() {
 
       const result = await response.json();
       
-      if (result.success) {
-        alert("Report disputed successfully!");
+      if (result.status === "success") {
+        setSuccessMessage("Report disputed successfully!");
         setShowActionModal(false);
         setDisputeComments("");
         setShowDisputeForm(false);
         fetchProducts(); // Refresh the list
+        // Clear success message after 3 seconds
+        setTimeout(() => setSuccessMessage(null), 3000);
       } else {
         alert(result.error || "Failed to dispute report");
       }
@@ -706,6 +712,28 @@ export default function FactoryVerification() {
           onCompanyChange={fetchProducts}
         />
       </section>
+
+      {/* Success Message Toast */}
+      {successMessage && (
+        <div className="fixed top-4 right-4 z-50 animate-fadeIn">
+          <div className="bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg flex items-center gap-3">
+            <div className="w-5 h-5 bg-white rounded-full flex items-center justify-center">
+              <svg className="w-3 h-3 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+            </div>
+            <span className="font-medium">{successMessage}</span>
+            <button
+              onClick={() => setSuccessMessage(null)}
+              className="ml-2 hover:bg-green-600 rounded-full p-1 transition-colors"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      )}
       {discardBoxState && (
         <AlertBox
           title="Are you sure?"
@@ -747,6 +775,8 @@ export default function FactoryVerification() {
               <div className="space-y-1 text-sm text-gray-600">
                 <div><span className="font-medium">Product:</span> {selectedProduct.product_name}</div>
                 <div><span className="font-medium">Reference:</span> {selectedProduct.verification_reference}</div>
+                <div><span className="font-medium">Region Details:</span> {selectedProduct.community_name || "-"}</div>
+                <div><span className="font-medium">Criterion:</span> {selectedProduct.community_short_code || "-"}</div>
                 <div><span className="font-medium">Status:</span> 
                   <span className={`ml-1 px-2 py-1 rounded-full text-xs font-medium ${getStatusBadgeClass(selectedProduct.verification_state)}`}>
                     {stateLabels[selectedProduct.verification_state as keyof typeof stateLabels] || selectedProduct.verification_state}
