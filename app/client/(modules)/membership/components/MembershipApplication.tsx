@@ -459,9 +459,6 @@ export default function MembershipApplication({
                   fetchApplicationData();
                 }}
                 submitLabel="Change Membership"
-                action="renew"
-                membershipId={data.id}
-                existingData={data}
               />
             </div>
           </div>
