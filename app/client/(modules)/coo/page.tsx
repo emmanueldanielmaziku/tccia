@@ -647,23 +647,30 @@ export default function COO() {
                             <Printer size="16" color="white" />
                             Print
                           </button>
-                          <button
-                            onClick={() => handlePayment(certificate)}
-                            disabled={paymentLoading[certificate.message_info.control_number]}
-                            className="px-4 md:px-5 py-1.5 text-[12px] rounded-[6px] flex flex-row justify-center items-center gap-2 bg-green-500 text-white hover:bg-green-600 cursor-pointer transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                          >
-                            {paymentLoading[certificate.message_info.control_number] ? (
-                              <>
-                                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                                Processing...
-                              </>
-                            ) : (
-                              <>
-                                <MoneyRecive size="16" color="white" />
-                                Pay
-                              </>
-                            )}
-                          </button>
+                          {certificate.message_info.control_number && certificate.message_info.control_number !== "-" ? (
+                            <button
+                              onClick={() => handlePayment(certificate)}
+                              disabled={paymentLoading[certificate.message_info.control_number]}
+                              className="px-4 md:px-5 py-1.5 text-[12px] rounded-[6px] flex flex-row justify-center items-center gap-2 bg-green-500 text-white hover:bg-green-600 cursor-pointer transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                              {paymentLoading[certificate.message_info.control_number] ? (
+                                <>
+                                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                                  Processing...
+                                </>
+                              ) : (
+                                <>
+                                  <MoneyRecive size="16" color="white" />
+                                  Pay
+                                </>
+                              )}
+                            </button>
+                          ) : (
+                            <div className="px-4 md:px-5 py-1.5 text-[12px] rounded-[6px] flex flex-row justify-center items-center gap-2 bg-gray-300 text-gray-500 cursor-not-allowed">
+                              <MoneyRecive size="16" color="#9CA3AF" />
+                              Invoice Pending
+                            </div>
+                          )}
                         </div>
                       </div>
 
