@@ -81,15 +81,9 @@ interface Person {
 export default function MembershipApplicationForm({
   onSuccess,
   submitLabel,
-  action = "apply",
-  membershipId,
-  existingData,
 }: {
   onSuccess?: () => void;
   submitLabel?: string;
-  action?: "apply" | "renew";
-  membershipId?: number;
-  existingData?: any;
 }) {
   // Dropdown data
   const [regions, setRegions] = useState<Region[]>([]);
@@ -153,15 +147,6 @@ export default function MembershipApplicationForm({
       .then((data) => setCategories(data?.data?.categories || []));
   }, []);
 
-  // Pre-populate form data when renewing with existing data
-  useEffect(() => {
-    if (action === "renew" && existingData) {
-      setCategoryId(existingData.category_id?.toString() || "");
-      setSubcategoryId(existingData.subcategory_id?.toString() || "");
-      setDirectors(existingData.directors || [{ name: "", phone: "", email: "" }]);
-      setContacts(existingData.contacts || [{ name: "", phone: "", email: "" }]);
-    }
-  }, [action, existingData]);
 
   // Filtered lists
   const selectedRegion = regions.find((r) => r.id === Number(regionId));
@@ -171,8 +156,6 @@ export default function MembershipApplicationForm({
   const selectedCategory = categories.find((c) => c.id === Number(categoryId));
   const subcategories = selectedCategory?.subcategories || [];
 
-  // Check if fields should be disabled (read-only) for renew action
-  const isRenewMode = action === "renew";
 
   // Get selected subcategory and its services
   const selectedSubcategory = subcategories.find((s) => s.id === Number(subcategoryId));
@@ -240,13 +223,11 @@ export default function MembershipApplicationForm({
   const validateForm = () => {
     const errors: any = {};
 
-    // Only validate region, district, sector, subsector for new applications (not renew mode)
-    if (!isRenewMode) {
-      if (!regionId) errors.regionId = "Region is required.";
-      if (!districtId) errors.districtId = "District is required.";
-      if (!sectorId) errors.sectorId = "Sector is required.";
-      if (!subsectorId) errors.subsectorId = "Subsector is required.";
-    }
+    // Validate region, district, sector, subsector
+    if (!regionId) errors.regionId = "Region is required.";
+    if (!districtId) errors.districtId = "District is required.";
+    if (!sectorId) errors.sectorId = "Sector is required.";
+    if (!subsectorId) errors.subsectorId = "Subsector is required.";
 
     if (!categoryId) errors.categoryId = "Category is required.";
     if (!subcategoryId) errors.subcategoryId = "Subcategory is required.";
@@ -302,44 +283,35 @@ export default function MembershipApplicationForm({
     setSuccessMsg(null);
 
     try {
-      // Get company_tin from localStorage (only for apply)
+      // Get company_tin from localStorage
       let company_tin = "";
-      if (action === "apply") {
-        try {
-          const stored = localStorage.getItem("selectedCompany");
-          if (stored) {
-            const parsed = JSON.parse(stored);
-            company_tin = parsed.company_tin || "";
-          }
-        } catch {}
-        if (!company_tin) {
-          setErrorMsg("No company selected. Please select a company first.");
-          setLoading(false);
-          return;
+      try {
+        const stored = localStorage.getItem("selectedCompany");
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          company_tin = parsed.company_tin || "";
         }
+      } catch {}
+      if (!company_tin) {
+        setErrorMsg("No company selected. Please select a company first.");
+        setLoading(false);
+        return;
       }
 
       // Build request body
-      const requestBody: any = {
+      const requestBody = {
         category_id: Number(categoryId),
         subcategory_id: Number(subcategoryId),
         directors,
         contacts,
+        company_tin,
+        region_id: Number(regionId),
+        district_id: Number(districtId),
+        sector_id: Number(sectorId),
+        subsector_id: Number(subsectorId),
       };
-      
-      // Add region, district, sector, and subsector IDs if they exist
-      if (regionId) requestBody.region_id = Number(regionId);
-      if (districtId) requestBody.district_id = Number(districtId);
-      if (sectorId) requestBody.sector_id = Number(sectorId);
-      if (subsectorId) requestBody.subsector_id = Number(subsectorId);
-      if (action === "apply") {
-        requestBody.company_tin = company_tin;
-      }
-      if (action === "renew" && membershipId) {
-        requestBody.membership_id = membershipId;
-      }
 
-      const res = await fetch(`/api/membership/${action}`, {
+      const res = await fetch(`/api/membership/apply`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(requestBody),
@@ -392,16 +364,10 @@ export default function MembershipApplicationForm({
         }
         let msg = "";
         if (resultData) {
-          if (action === "renew") {
-            msg = `🎉 <span class='font-bold text-green-700'>Membership Renewal Submitted!</span><br />Your renewal application <span class='font-semibold text-blue-700'>#${appNum}</span> was received and is now <span class='uppercase font-semibold text-blue-700'>${state.replace(/_/g, " ")}</span>.<br />You will be notified once it is processed.`;
-          } else {
-            msg = `🎉 <span class='font-bold text-green-700'>Membership Application Submitted!</span><br />Your application <span class='font-semibold text-blue-700'>#${appNum}</span> was received and is now <span class='uppercase font-semibold text-blue-700'>${state.replace(/_/g, " ")}</span>.<br />You will be notified once it is processed.`;
-          }
+          msg = `🎉 <span class='font-bold text-green-700'>Membership Application Submitted!</span><br />Your application <span class='font-semibold text-blue-700'>#${appNum}</span> was received and is now <span class='uppercase font-semibold text-blue-700'>${state.replace(/_/g, " ")}</span>.<br />You will be notified once it is processed.`;
         } else {
           // No data, fallback to backend message
-          msg = message || (action === "renew"
-            ? "Membership renewal application submitted successfully."
-            : "Membership application submitted successfully.");
+          msg = message || "Membership application submitted successfully.";
         }
         setSuccessMsg(msg);
         setShowPreview(false);
@@ -474,8 +440,6 @@ export default function MembershipApplicationForm({
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {!isRenewMode && (
-                <>
                   <div className="flex flex-col gap-2">
                     <label className="text-sm text-gray-600 font-medium">
                       Region
@@ -585,8 +549,6 @@ export default function MembershipApplicationForm({
                       <p className="text-red-500 text-xs">{fieldErrors.subsectorId}</p>
                     )}
                   </div>
-                </>
-              )}
 
               <div className="flex flex-col gap-2">
                 <label className="text-sm text-gray-600 font-medium">
@@ -648,88 +610,8 @@ export default function MembershipApplicationForm({
             </div>
           </div>
 
-          {/* Services Information Widget - Only show in renew mode */}
-          {isRenewMode && selectedSubcategory && (
-            <div className="bg-blue-50 rounded-lg p-6 border border-blue-200">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                  <Book size={20} className="text-blue-600" />
-                </div>
-                <div>
-                  <h3 className="text-lg font-semibold text-blue-800">
-                    Services Information
-                  </h3>
-                  <p className="text-sm text-blue-600">
-                    Changing your category will update your available services
-                  </p>
-                </div>
-              </div>
-              
-              <div className="bg-white rounded-lg p-4 border border-blue-100">
-                <div className="flex items-center justify-between mb-3">
-                  <h4 className="font-semibold text-gray-800">
-                    Selected Category: {selectedCategory?.name}
-                  </h4>
-                  <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full">
-                    {selectedSubcategory?.name}
-                  </span>
-                </div>
-                
-                <div className="mb-3">
-                  <p className="text-sm text-gray-600 mb-2">
-                    <strong>Note:</strong> By changing your category and subcategory, you will gain access to new services and may lose access to some current services.
-                  </p>
-                </div>
 
-                {selectedSubcategory?.services && selectedSubcategory.services.length > 0 ? (
-                  <div>
-                    <h5 className="font-medium text-gray-700 mb-2">Available Services:</h5>
-                    <div className="space-y-2">
-                      {selectedSubcategory.services.map((service: any) => (
-                        <div key={service.id} className="flex items-start gap-2 p-2 bg-gray-50 rounded border">
-                          <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
-                          <div className="flex-1">
-                            <div className="font-medium text-sm text-gray-800">
-                              {service.name}
-                            </div>
-                            {service.description && (
-                              <div className="text-xs text-gray-600 mt-1">
-                                {service.description}
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                ) : (
-                  <div className="text-sm text-gray-500 italic">
-                    No services available for this subcategory.
-                  </div>
-                )}
-
-                {selectedSubcategory?.annual_fee && (
-                  <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded">
-                    <div className="text-sm font-medium text-green-800 mb-1">
-                      Fee Information:
-                    </div>
-                    <div className="text-xs text-green-700 space-y-1">
-                      {/* <div>Annual Fee: {selectedSubcategory.annual_fee} TZS</div>
-                      {selectedSubcategory.certificate_fee && (
-                        <div>Certificate Fee: {selectedSubcategory.certificate_fee} TZS</div>
-                      )} */}
-                      {selectedSubcategory.total_fees && (
-                        <div className="font-semibold">Total Fees: {selectedSubcategory.total_fees} TZS</div>
-                      )}
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-
-          {/* Directors Section - Hidden in renew mode */}
-          {!isRenewMode && (
+          {/* Directors Section */}
             <div className="bg-gray-50 rounded-lg p-6 border border-gray-200">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
@@ -901,10 +783,8 @@ export default function MembershipApplicationForm({
                 ))}
               </div>
             </div>
-          )}
 
-          {/* Contacts Section - Hidden in renew mode */}
-          {!isRenewMode && (
+          {/* Contacts Section */}
             <div className="bg-gray-50 rounded-lg p-6 border border-gray-200">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
@@ -1076,17 +956,23 @@ export default function MembershipApplicationForm({
                 ))}
               </div>
             </div>
-          )}
         </div>
 
         {/* Submit Button */}
         <div className="w-full flex items-center justify-end mt-6 pt-4 border-t border-gray-200">
           <button
             type="submit"
-            className="px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-sm font-medium text-[13px] transition-colors disabled:opacity-50"
+            className="px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-sm font-medium text-[13px] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             disabled={loading}
           >
-            Preview Application
+            {loading ? (
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                Processing...
+              </div>
+            ) : (
+              "Preview Application"
+            )}
           </button>
         </div>
       </form>
@@ -1125,34 +1011,30 @@ export default function MembershipApplicationForm({
                   Membership Details
                 </h3>
                 <div className="grid grid-cols-2 gap-4 text-sm">
-                  {!isRenewMode && (
-                    <>
-                      <div>
-                        <span className="text-gray-600">Region:</span>{" "}
-                        <span className="font-medium">
-                          {regions.find((r) => r.id === Number(regionId))?.name || "-"}
-                        </span>
-                      </div>
-                      <div>
-                        <span className="text-gray-600">District:</span>{" "}
-                        <span className="font-medium">
-                          {districts.find((d) => d.id === Number(districtId))?.name || "-"}
-                        </span>
-                      </div>
-                      <div>
-                        <span className="text-gray-600">Sector:</span>{" "}
-                        <span className="font-medium">
-                          {sectors.find((s) => s.id === Number(sectorId))?.name || "-"}
-                        </span>
-                      </div>
-                      <div>
-                        <span className="text-gray-600">Subsector:</span>{" "}
-                        <span className="font-medium">
-                          {subsectors.find((s) => s.id === Number(subsectorId))?.name || "-"}
-                        </span>
-                      </div>
-                    </>
-                  )}
+                  <div>
+                    <span className="text-gray-600">Region:</span>{" "}
+                    <span className="font-medium">
+                      {regions.find((r) => r.id === Number(regionId))?.name || "-"}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-gray-600">District:</span>{" "}
+                    <span className="font-medium">
+                      {districts.find((d) => d.id === Number(districtId))?.name || "-"}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-gray-600">Sector:</span>{" "}
+                    <span className="font-medium">
+                      {sectors.find((s) => s.id === Number(sectorId))?.name || "-"}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-gray-600">Subsector:</span>{" "}
+                    <span className="font-medium">
+                      {subsectors.find((s) => s.id === Number(subsectorId))?.name || "-"}
+                    </span>
+                  </div>
                   <div>
                     <span className="text-gray-600">Category:</span>{" "}
                     <span className="font-medium">
@@ -1220,10 +1102,19 @@ export default function MembershipApplicationForm({
               >
                 Close
               </Button>
-              <Button onClick={handleSubmit} disabled={loading}>
-                {loading
-                  ? "Submitting..."
-                  : submitLabel || "Submit Application"}
+              <Button 
+                onClick={handleSubmit} 
+                disabled={loading}
+                className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-6 py-2 rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {loading ? (
+                  <div className="flex items-center gap-2">
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    Submitting...
+                  </div>
+                ) : (
+                  submitLabel || "Submit Application"
+                )}
               </Button>
             </div>
           </div>
@@ -1250,7 +1141,7 @@ export default function MembershipApplicationForm({
           <div className="flex flex-col items-center justify-center py-6">
             <CheckCircle size={48} className="text-green-600 mb-3" />
             <div className="text-center text-base font-medium text-gray-800 mb-4">
-              {action === "renew" ? "Membership Renewal Submitted Successfully!" : "Membership Application Submitted Successfully!"}
+              Membership Application Submitted Successfully!
             </div>
             <Button
               className="px-6 py-2 bg-green-600 hover:bg-green-700 text-white font-medium"

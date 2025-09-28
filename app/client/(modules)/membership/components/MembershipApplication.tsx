@@ -84,6 +84,7 @@ export default function MembershipApplication({
   const [showRenewForm, setShowRenewForm] = useState(false);
   const [downloading, setDownloading] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [paymentLoading, setPaymentLoading] = useState(false);
 
   
   function fetchApplicationData() {
@@ -131,9 +132,38 @@ export default function MembershipApplication({
     });
   }
 
-  const handlePayment = () => {
-    // Redirect to CRDB payment gateway
-    window.open('https://crdb-payment.vercel.app', '_blank');
+  const handlePayment = async () => {
+    const invoiceNumber = data?.invoice_number;
+    
+    if (!invoiceNumber) {
+      alert("Invoice number not found. Cannot process payment.");
+      return;
+    }
+
+    setPaymentLoading(true);
+
+    try {
+      console.log("Fetching checksum for invoice:", invoiceNumber);
+      
+      const response = await fetch(`/api/checksum?invoice_number=${encodeURIComponent(invoiceNumber)}`);
+      const result = await response.json();
+
+      if (result.status === "success" && result.data?.checksum) {
+        // Redirect to CRDB payment gateway with checksum
+        const paymentUrl = `https://crdb-gateway.vercel.app/${result.data.checksum}`;
+        console.log("Redirecting to payment gateway:", paymentUrl);
+        window.open(paymentUrl, '_blank');
+      } else {
+        const errorMessage = result.error || "Failed to fetch payment details. Please try again.";
+        alert(errorMessage);
+        console.error("Checksum fetch failed:", result);
+      }
+    } catch (error) {
+      console.error("Payment error:", error);
+      alert("An error occurred while processing payment. Please try again.");
+    } finally {
+      setPaymentLoading(false);
+    }
   };
 
   const statusColorMap: Record<string, string> = {
@@ -375,11 +405,21 @@ export default function MembershipApplication({
           {(data.state === "expired" || data.state === "waiting_payment") && (
             <button
               onClick={handlePayment}
-              className="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition text-sm font-semibold cursor-pointer"
+              disabled={paymentLoading}
+              className="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition text-sm font-semibold cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
               title="Make Payment"
             >
-              <MoneyRecive size={20} />
-              Pay
+              {paymentLoading ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  Processing...
+                </>
+              ) : (
+                <>
+                  <MoneyRecive size={20} />
+                  Pay
+                </>
+              )}
             </button>
           )}
           

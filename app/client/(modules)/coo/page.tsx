@@ -45,6 +45,7 @@ export default function COO() {
   const [certificateData, setCertificateData] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [paymentLoading, setPaymentLoading] = useState<{[key: string]: boolean}>({});
   const { togglePicker, hidePicker } = usePickerState();
   const itemsPerPage = 20;
   const router = useRouter();
@@ -299,9 +300,40 @@ export default function COO() {
     }
   };
 
-  const handlePayment = (certificate: any) => {
-    // Redirect to CRDB payment gateway
-    window.open('https://crdb-payment.vercel.app', '_blank');
+  const handlePayment = async (certificate: any) => {
+    const invoiceNumber = certificate.message_info.control_number;
+    
+    if (!invoiceNumber) {
+      alert("Invoice number not found. Cannot process payment.");
+      return;
+    }
+
+    // Set loading state for this specific certificate
+    setPaymentLoading(prev => ({ ...prev, [invoiceNumber]: true }));
+
+    try {
+      console.log("Fetching checksum for invoice:", invoiceNumber);
+      
+      const response = await fetch(`/api/checksum?invoice_number=${encodeURIComponent(invoiceNumber)}`);
+      const result = await response.json();
+
+      if (result.status === "success" && result.data?.checksum) {
+        // Redirect to CRDB payment gateway with checksum
+        const paymentUrl = `https://crdb-gateway.vercel.app/${result.data.checksum}`;
+        console.log("Redirecting to payment gateway:", paymentUrl);
+        window.open(paymentUrl, '_blank');
+      } else {
+        const errorMessage = result.error || "Failed to fetch payment details. Please try again.";
+        alert(errorMessage);
+        console.error("Checksum fetch failed:", result);
+      }
+    } catch (error) {
+      console.error("Payment error:", error);
+      alert("An error occurred while processing payment. Please try again.");
+    } finally {
+      // Clear loading state
+      setPaymentLoading(prev => ({ ...prev, [invoiceNumber]: false }));
+    }
   };
 
   // const handleClosePaymentPopup = () => {
@@ -617,10 +649,20 @@ export default function COO() {
                           </button>
                           <button
                             onClick={() => handlePayment(certificate)}
-                            className="px-4 md:px-5 py-1.5 text-[12px] rounded-[6px] flex flex-row justify-center items-center gap-2 bg-green-500 text-white hover:bg-green-600 cursor-pointer transition-colors duration-200"
+                            disabled={paymentLoading[certificate.message_info.control_number]}
+                            className="px-4 md:px-5 py-1.5 text-[12px] rounded-[6px] flex flex-row justify-center items-center gap-2 bg-green-500 text-white hover:bg-green-600 cursor-pointer transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                           >
-                            <MoneyRecive size="16" color="white" />
-                            Pay
+                            {paymentLoading[certificate.message_info.control_number] ? (
+                              <>
+                                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                                Processing...
+                              </>
+                            ) : (
+                              <>
+                                <MoneyRecive size="16" color="white" />
+                                Pay
+                              </>
+                            )}
                           </button>
                         </div>
                       </div>
