@@ -278,11 +278,11 @@ function PreviewWidget({
                     }}
                     placeholder="Enter 6-digit OTP"
                     className={`w-full px-4 py-2 border ${
-                      otpError ? "border-red-500" : "border-gray-300"
+                      otpError ? "border-blue-500" : "border-gray-300"
                     } rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500`}
                   />
                   {otpError && (
-                    <p className="text-red-500 text-sm mt-1">{otpError}</p>
+                    <p className="text-blue-500 text-sm mt-1">{otpError}</p>
                   )}
                 </div>
               </div>
@@ -438,7 +438,7 @@ export default function FirmRegForm({
                 value={companyTin}
                 onChange={(e) => handleInputChange(e.target.value)}
                 className={`w-full px-6 py-3.5 pr-12 border ${
-                  error ? "border-red-500" : "border-zinc-300"
+                  error ? "border-blue-500" : "border-zinc-300"
                 } bg-zinc-100 outline-none rounded-[8px] placeholder:text-zinc-400 text-zinc-500 placeholder:text-[15px]`}
                 disabled={isLoading}
               />
@@ -447,7 +447,7 @@ export default function FirmRegForm({
                 color="#9F9FA9"
                 className="absolute top-13 right-5"
               />
-              {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
+              {error && <p className="text-blue-500 text-sm mt-1">{error}</p>}
             </div>
           </div>
         </div>
