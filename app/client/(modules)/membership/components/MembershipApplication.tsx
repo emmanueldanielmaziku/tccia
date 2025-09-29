@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { retryFetch } from "../../../utils/retryFetch";
+import { retryFetch } from "@/app/utils/retryFetch";
 import {
   InfoCircle,
   DocumentText,
