@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { z } from "zod";
 import { TextBlock, TickCircle } from "iconsax-reactjs";
 import usetinFormState from "../../../services/companytinformState";
-import { retryFetch } from "../../../utils/retryFetch";
+import { retryFetch } from "@/app/utils/retryFetch";
 
 const companySchema = z.object({
   companyTin: z.string().min(6, "Company TIN is Invalid"),

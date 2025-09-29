@@ -301,7 +301,7 @@ export default function COO() {
   };
 
   const handlePayment = async (certificate: any) => {
-    const invoiceNumber = certificate.message_info.control_number;
+    const invoiceNumber = certificate.invoice?.[0]?.invoice_number;
     
     if (!invoiceNumber) {
       alert("Invoice number not found. Cannot process payment.");
@@ -592,13 +592,13 @@ export default function COO() {
                                 Invoice number:
                               </span>
                               <span className="text-[13px] font-medium text-gray-800">
-                                {certificate.message_info.control_number}
+                                {certificate.invoice?.[0]?.invoice_number || 'N/A'}
                               </span>
                            
                               <button
                                 onClick={() =>
                                   copyToClipboard(
-                                    certificate.message_info.control_number
+                                    certificate.invoice?.[0]?.invoice_number || ''
                                   )
                                 }
                                 className="p-1 hover:bg-gray-100 rounded cursor-pointer transition-colors duration-200"
@@ -647,13 +647,13 @@ export default function COO() {
                             <Printer size="16" color="white" />
                             Print
                           </button>
-                          {certificate.message_info.control_number && certificate.message_info.control_number !== "-" ? (
+                          {certificate.invoice?.[0]?.invoice_number ? (
                             <button
                               onClick={() => handlePayment(certificate)}
-                              disabled={paymentLoading[certificate.message_info.control_number]}
+                              disabled={paymentLoading[certificate.invoice[0].invoice_number]}
                               className="px-4 md:px-5 py-1.5 text-[12px] rounded-[6px] flex flex-row justify-center items-center gap-2 bg-green-500 text-white hover:bg-green-600 cursor-pointer transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                             >
-                              {paymentLoading[certificate.message_info.control_number] ? (
+                              {paymentLoading[certificate.invoice[0].invoice_number] ? (
                                 <>
                                   <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                                   Processing...
