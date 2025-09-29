@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { z } from "zod";
 import { TextBlock, TickCircle } from "iconsax-reactjs";
 import usetinFormState from "../../../services/companytinformState";
+import { retryFetch } from "../../../utils/retryFetch";
 
 const companySchema = z.object({
   companyTin: z.string().min(6, "Company TIN is Invalid"),
@@ -333,8 +334,10 @@ export default function FirmRegForm({
 
   const fetchCompanyData = async (tin: string) => {
     setIsLoading(true);
+    setError(undefined);
+    
     try {
-      const response = await fetch("/api/auth/firm-registration/submit-tin", {
+      const response = await retryFetch("/api/auth/firm-registration/submit-tin", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -342,6 +345,16 @@ export default function FirmRegForm({
         body: JSON.stringify({
           company_tin: tin,
         }),
+      }, {
+        maxRetries: 2,
+        retryDelay: 2000,
+        timeout: 10000,
+        onRetry: (retryCount, maxRetries) => {
+          setError(`Request timed out. Retrying... (${retryCount}/${maxRetries})`);
+        },
+        onTimeout: () => {
+          setError("Request timed out after multiple attempts. Please check your connection and try again.");
+        }
       });
 
       const result = await response.json();
@@ -350,6 +363,7 @@ export default function FirmRegForm({
       if (result.result?.status === "success") {
         setCompanyData(result.result.data);
         togglePreview(true);
+        setError(undefined); // Clear any previous errors
       } else if (result.result?.status === "error") {
         if (result.result.error?.message) {
           setError(result.result.error.message);
@@ -363,7 +377,12 @@ export default function FirmRegForm({
       }
     } catch (error) {
       console.error("Error fetching company data:", error);
-      setError("Failed to fetch company data. Please try again.");
+      
+      if (error instanceof Error && error.message.includes("timed out")) {
+        // Error message already set by onTimeout callback
+      } else {
+        setError("Failed to fetch company data. Please try again.");
+      }
     } finally {
       setIsLoading(false);
     }

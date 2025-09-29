@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { retryFetch } from "../../../utils/retryFetch";
 import {
   InfoCircle,
   DocumentText,
@@ -87,29 +88,47 @@ export default function MembershipApplication({
   const [paymentLoading, setPaymentLoading] = useState(false);
 
   
-  function fetchApplicationData() {
+  async function fetchApplicationData() {
     if (!tin) return;
+    
     setLoading(true);
     setError(null);
     setData(null);
 
-    fetch(`/api/membership/application/${tin}`)
-      .then((res) => res.json())
-      .then((res) => {
-        if (res.success && res.data) {
-          setData(res.data);
-          onHasApplication?.(true);
-        } else {
-          setError(res.message || "No membership application found.");
-          onHasApplication?.(false);
+    try {
+      const response = await retryFetch(`/api/membership/application/${tin}`, {}, {
+        maxRetries: 2,
+        retryDelay: 2000,
+        timeout: 10000,
+        onRetry: (retryCount, maxRetries) => {
+          setError(`Request timed out. Retrying... (${retryCount}/${maxRetries})`);
+        },
+        onTimeout: () => {
+          setError("Request timed out after multiple attempts. Please check your connection and try again.");
         }
-        setLoading(false);
-      })
-      .catch(() => {
-        setError("Failed to fetch application.");
-        onHasApplication?.(false);
-        setLoading(false);
       });
+
+      const res = await response.json();
+      
+      if (res.success && res.data) {
+        setData(res.data);
+        onHasApplication?.(true);
+      } else {
+        setError(res.message || "No membership application found.");
+        onHasApplication?.(false);
+      }
+    } catch (error) {
+      console.error("Error fetching application data:", error);
+      
+      if (error instanceof Error && error.message.includes("timed out")) {
+        // Error message already set by onTimeout callback
+      } else {
+        setError("Failed to fetch application.");
+      }
+      onHasApplication?.(false);
+    } finally {
+      setLoading(false);
+    }
   }
 
   useEffect(() => {
