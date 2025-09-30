@@ -412,8 +412,8 @@ export default function MembershipApplicationForm({
 
   return (
     <div className="flex flex-col w-full h-full bg-white">
-      <form onSubmit={handlePreview} className="flex flex-col w-full pb-8">
-        <div className="flex flex-col gap-6 overflow-hidden overflow-y-auto h-[720px] pr-3">
+      <form onSubmit={handlePreview} className="flex flex-col w-full pb-4">
+        <div className="flex flex-col gap-6 overflow-hidden overflow-y-auto h-[670px] pr-3">
           {/* Header */}
           {/* <div className="flex flex-row justify-between items-center border-b border-gray-200 pb-4">
             <div className="text-2xl font-bold text-gray-800">
@@ -959,7 +959,7 @@ export default function MembershipApplicationForm({
         </div>
 
         {/* Submit Button */}
-        <div className="w-full flex items-center justify-end mt-6 pt-4 border-t border-gray-200">
+        <div className="w-full flex items-center justify-end mt-6 pt-2 border-t border-gray-200">
           <button
             type="submit"
             className="px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-sm font-medium text-[13px] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
@@ -1105,7 +1105,7 @@ export default function MembershipApplicationForm({
               <Button 
                 onClick={handleSubmit} 
                 disabled={loading}
-                className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-6 py-2 rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-6 py-1 rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loading ? (
                   <div className="flex items-center gap-2">
