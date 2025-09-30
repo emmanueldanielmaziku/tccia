@@ -242,7 +242,7 @@ export default function FirmManagement() {
       <section className="flex lg:flex-row flex-1">
         <div className="flex flex-col items-start flex-1 min-w-0 h-[97vh] pt-18 bg-transparent border-transparent border-[1px] rounded-xl">
           <div className="flex flex-col justify-start items-start mt-2 w-full h-[86vh] rounded-sm relative px-4 md:px-8 lg:px-16">
-            <div className="flex flex-row justify-between items-center w-full gap-6 my-1">
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center w-full gap-4 sm:gap-6 my-1">
               {tinformState ? (
                 <div className="font-semibold antialiased text-[18px] text-zinc-600">
                   Add New Firm
@@ -250,68 +250,70 @@ export default function FirmManagement() {
               ) : (
                 <>
                   {/* Search and Filters Section */}
-                  <div className="flex flex-row gap-3">
-                    <label className="flex justify-center items-center w-full md:w-auto">
+                  <div className="flex flex-col sm:flex-row gap-3 w-full">
+                    <label className="flex justify-center items-center w-full relative">
                       <input
                         type="text"
                         placeholder="Search firms..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="w-full md:w-auto border-[0.5px] border-zinc-300 focus:outline-2 focus:outline-blue-400 rounded-[9px] pl-8 pr-2.5 py-2 text-sm placeholder:text-sm"
+                        className="w-full border-[0.5px] border-zinc-300 focus:outline-2 focus:outline-blue-400 rounded-[9px] pl-8 pr-2.5 py-2 text-sm placeholder:text-sm"
                       />
                       <SearchNormal1
                         size="18"
                         color="gray"
-                        className="absolute left-6 md:left-19"
+                        className="absolute left-3"
                       />
                     </label>
 
-                    {/* State Filter */}
-                    <Select value={stateFilter} onValueChange={setStateFilter}>
-                      <SelectTrigger className="w-[140px] text-zinc-600">
-                        <SelectValue placeholder="State" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectGroup>
-                          <SelectItem value="__all__">All States</SelectItem>
-                          {stateOptions.map((state) => (
-                            <SelectItem key={state} value={state}>
-                              {state}
-                            </SelectItem>
-                          ))}
-                        </SelectGroup>
-                      </SelectContent>
-                    </Select>
+                    <div className="flex flex-row gap-2 sm:gap-3 w-full sm:w-auto">
+                      {/* State Filter */}
+                      <Select value={stateFilter} onValueChange={setStateFilter}>
+                        <SelectTrigger className="w-full sm:w-[140px] text-zinc-600 text-sm">
+                          <SelectValue placeholder="State" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectGroup>
+                            <SelectItem value="__all__">All States</SelectItem>
+                            {stateOptions.map((state) => (
+                              <SelectItem key={state} value={state}>
+                                {state}
+                              </SelectItem>
+                            ))}
+                          </SelectGroup>
+                        </SelectContent>
+                      </Select>
 
-                    {/* Sort */}
-                    <div className="flex items-center gap-2">
-                      <div className="relative w-full md:w-auto">
-                        <Select
-                          value={sortField}
-                          onValueChange={(value: "name" | "tin" | "state") => {
-                            setSortField(value);
-                            setCurrentPage(1);
-                          }}
-                        >
-                          <SelectTrigger className="w-full md:w-[140px] text-zinc-600">
-                            <SelectValue placeholder="Sort by" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectGroup>
-                              <SelectItem value="name">Name</SelectItem>
-                              <SelectItem value="tin">TIN</SelectItem>
-                              <SelectItem value="state">State</SelectItem>
-                            </SelectGroup>
-                          </SelectContent>
-                        </Select>
+                      {/* Sort */}
+                      <div className="flex items-center w-full sm:w-auto">
+                        <div className="relative w-full">
+                          <Select
+                            value={sortField}
+                            onValueChange={(value: "name" | "tin" | "state") => {
+                              setSortField(value);
+                              setCurrentPage(1);
+                            }}
+                          >
+                            <SelectTrigger className="w-full sm:w-[140px] text-zinc-600 text-sm">
+                              <SelectValue placeholder="Sort by" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectGroup>
+                                <SelectItem value="name">Name</SelectItem>
+                                <SelectItem value="tin">TIN</SelectItem>
+                                <SelectItem value="state">State</SelectItem>
+                              </SelectGroup>
+                            </SelectContent>
+                          </Select>
+                        </div>
                       </div>
                     </div>
                   </div>
 
                   {/* Action Buttons Section */}
-                  <div className="flex flex-row gap-3">
+                  <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 w-full sm:w-auto">
                     <button
-                      className={`flex flex-row h-[35px] gap-2 items-center justify-center bg-gray-200 hover:bg-gray-300 text-gray-700 text-sm rounded-[6px] cursor-pointer px-4 py-3 w-full md:w-auto border border-gray-300 ${
+                      className={`flex flex-row h-[35px] gap-2 items-center justify-center bg-gray-200 hover:bg-gray-300 text-gray-700 text-sm rounded-[6px] cursor-pointer px-3 sm:px-4 py-2 sm:py-3 w-full sm:w-auto border border-gray-300 ${
                         refreshing ? "opacity-60 cursor-not-allowed" : ""
                       }`}
                       onClick={fetchCompanies}
@@ -319,18 +321,20 @@ export default function FirmManagement() {
                       title="Refresh companies list"
                     >
                       <Refresh
-                        size={18}
+                        size={16}
+                        className={`sm:w-[18px] sm:h-[18px] ${refreshing ? "animate-spin" : ""}`}
                         color="#36568a"
-                        className={refreshing ? "animate-spin" : ""}
                       />
-                      {refreshing ? "Refreshing..." : "Refresh"}
+                      <span className="hidden sm:inline">{refreshing ? "Refreshing..." : "Refresh"}</span>
+                      <span className="sm:hidden">{refreshing ? "..." : "↻"}</span>
                     </button>
                     <button
-                      className="flex flex-row gap-3 justify-center items-center bg-blue-600 hover:bg-blue-500 text-white text-sm rounded-[6px] cursor-pointer px-5 h-[35px] w-full md:w-auto"
+                      className="flex flex-row gap-2 sm:gap-3 justify-center items-center bg-blue-600 hover:bg-blue-500 text-white text-sm rounded-[6px] cursor-pointer px-3 sm:px-5 h-[35px] w-full sm:w-auto"
                       onClick={() => toggleCompanyTinForm()}
                     >
-                      <Add size={20} color="white" />
-                      New Firm
+                      <Add size={18} className="sm:w-5 sm:h-5" color="white" />
+                      <span className="hidden sm:inline">New Firm</span>
+                      <span className="sm:hidden">Add</span>
                     </button>
                   </div>
                 </>
@@ -358,29 +362,29 @@ export default function FirmManagement() {
                     key={idx}
                     className="animate-pulse bg-gray-100 flex flex-col border-[0.5px] rounded-[7px] border-zinc-300 shadow-sm"
                   >
-                    <div className="flex flex-col md:flex-row justify-between items-start md:items-center border-b-[0.5] border-zinc-200 p-5 gap-2">
-                      <div className="h-5 w-32 bg-gray-300 rounded mb-2" />
-                      <div className="h-6 w-20 bg-gray-300 rounded" />
+                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b-[0.5] border-zinc-200 p-4 gap-2">
+                      <div className="h-4 sm:h-5 w-32 bg-gray-300 rounded mb-2" />
+                      <div className="h-5 sm:h-6 w-20 bg-gray-300 rounded" />
                     </div>
-                    <div className="flex flex-col md:flex-row items-start md:items-center p-5 gap-3 bg-gray-50">
-                      <div className="border-[0.5px] bg-blue-50 border-blue-200 py-4 rounded-[12px] px-4 flex items-center">
-                        <div className="h-9 w-9 bg-gray-300 rounded-full" />
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center p-3 sm:p-4 gap-3 bg-gray-50">
+                      <div className="border-[0.5px] bg-blue-50 border-blue-200 py-2 sm:py-3 md:py-4 rounded-[12px] px-2 sm:px-3 md:px-4 flex items-center">
+                        <div className="h-6 w-6 sm:h-8 sm:w-8 bg-gray-300 rounded-full" />
                       </div>
                       <div className="w-full flex flex-col gap-1 justify-start">
-                        <div className="h-4 w-40 bg-gray-300 rounded" />
-                        <div className="h-3 w-32 bg-gray-200 rounded" />
-                        <div className="h-3 w-24 bg-gray-200 rounded" />
+                        <div className="h-3 sm:h-4 w-40 bg-gray-300 rounded" />
+                        <div className="h-2 sm:h-3 w-32 bg-gray-200 rounded" />
+                        <div className="h-2 sm:h-3 w-24 bg-gray-200 rounded" />
                       </div>
                     </div>
                     <div>
-                      <div className="flex flex-col gap-3 px-5 pb-5 bg-gray-50 rounded-b-md">
-                        <div className="flex flex-col md:flex-row w-full justify-between items-start md:items-center gap-2">
-                          <div className="h-4 w-32 bg-gray-200 rounded" />
-                          <div className="h-4 w-10 bg-gray-200 rounded" />
+                      <div className="flex flex-col gap-3 px-3 sm:px-4 pb-3 sm:pb-4 bg-gray-50 rounded-b-md">
+                        <div className="flex flex-row w-full justify-between items-center gap-2">
+                          <div className="h-3 sm:h-4 w-32 bg-gray-200 rounded" />
+                          <div className="h-3 sm:h-4 w-10 bg-gray-200 rounded" />
                         </div>
-                        <div className="flex flex-col md:flex-row w-full justify-between items-start md:items-center gap-2">
-                          <div className="h-4 w-48 bg-gray-200 rounded" />
-                          <div className="h-4 w-10 bg-gray-200 rounded" />
+                        <div className="flex flex-row w-full justify-between items-center gap-2">
+                          <div className="h-3 sm:h-4 w-48 bg-gray-200 rounded" />
+                          <div className="h-3 sm:h-4 w-10 bg-gray-200 rounded" />
                         </div>
                       </div>
                     </div>
@@ -419,12 +423,12 @@ export default function FirmManagement() {
                     className="hover:bg-white bg-gray-100 flex flex-col transition-colors border-[0.5px] rounded-[7px] text-gray-700 border-zinc-300 shadow-sm"
                   >
                     {/* Header */}
-                    <div className="flex flex-row justify-between items-center border-b-[0.5px] border-zinc-200 p-4 gap-2">
-                      <div className="font-semibold text-base sm:text-lg">{`${
+                    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center border-b-[0.5px] border-zinc-200 p-4 gap-2">
+                      <div className="font-semibold text-base sm:text-lg break-words">{`${
                         index + 1
                       }. ${firm.company_name}`}</div>
                       <div
-                        className={`border-[0.5px] text-xs sm:text-sm rounded-[30px] px-3 py-1 mt-2 sm:mt-0 ${
+                        className={`border-[0.5px] text-xs sm:text-sm rounded-[30px] px-3 py-1 self-start sm:self-auto ${
                           firm.state == "approved"
                             ? "bg-green-100 border-green-300 text-green-600"
                             : "bg-red-100 border-red-300 text-red-600"
@@ -435,32 +439,32 @@ export default function FirmManagement() {
                       </div>
                     </div>
                     {/* Company Info */}
-                    <div className="flex flex-col sm:flex-row items-start sm:items-center p-4 gap-3 bg-gray-50">
-                      <div className="border-[0.5px] bg-blue-50 border-blue-200 py-3 sm:py-4 rounded-[12px] px-3 sm:px-4 flex items-center self-start">
-                        <Building variant="Bulk" size={32} color="#138abd" />
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center p-3 sm:p-4 gap-3 bg-gray-50">
+                      <div className="border-[0.5px] bg-blue-50 border-blue-200 py-2 sm:py-3 md:py-4 rounded-[12px] px-2 sm:px-3 md:px-4 flex items-center self-start">
+                        <Building variant="Bulk" size={24} className="sm:w-8 sm:h-8" color="#138abd" />
                       </div>
-                      <div className="w-full flex flex-col gap-1 justify-start">
-                        <div className="font-semibold text-base">
+                      <div className="w-full flex flex-col gap-1 justify-start min-w-0">
+                        <div className="font-semibold text-sm sm:text-base break-words">
                           {firm.company_name}
                         </div>
-                        <div className="text-sm break-words">
+                        <div className="text-xs sm:text-sm break-words text-gray-600">
                           {firm.company_physical_address}
                         </div>
-                        <div className="text-blue-600 text-sm break-all">
+                        <div className="text-blue-600 text-xs sm:text-sm break-all font-mono">
                           {firm.company_tin}
                         </div>
                       </div>
                     </div>
                     {/* Stats */}
                     <div>
-                      <div className="flex flex-col gap-3 px-4 pb-4 bg-gray-50 rounded-b-md">
+                      <div className="flex flex-col gap-3 px-3 sm:px-4 pb-3 sm:pb-4 bg-gray-50 rounded-b-md">
                         <div className="flex flex-row w-full justify-between items-center gap-2">
-                          <div className="flex flex-row justify-start items-center gap-1">
-                            <Box size={18} color="#36568a" />
-                            <span className="text-[14px]">Total Products</span>
+                          <div className="flex flex-row justify-start items-center gap-1 min-w-0 flex-1">
+                            <Box size={16} className="sm:w-[18px] sm:h-[18px] flex-shrink-0" color="#36568a" />
+                            <span className="text-xs sm:text-sm truncate">Total Products</span>
                           </div>
-                          <div className="hidden sm:block flex-1 mx-4 border-t border-dashed border-zinc-400 h-0" />
-                          <div className="text-sm">
+                          <div className="hidden sm:block flex-1 mx-2 sm:mx-4 border-t border-dashed border-zinc-400 h-0" />
+                          <div className="text-xs sm:text-sm font-semibold text-gray-700 flex-shrink-0">
                             {productCounts[firm.company_tin] !== undefined ? (
                               productCounts[firm.company_tin]
                             ) : (
@@ -469,14 +473,14 @@ export default function FirmManagement() {
                           </div>
                         </div>
                         <div className="flex flex-row w-full justify-between items-center gap-2">
-                          <div className="flex flex-row justify-start items-center gap-1">
-                            <ArchiveBook size={18} color="#36568a" />
-                            <span className="text-[14px]">
+                          <div className="flex flex-row justify-start items-center gap-1 min-w-0 flex-1">
+                            <ArchiveBook size={16} className="sm:w-[18px] sm:h-[18px] flex-shrink-0" color="#36568a" />
+                            <span className="text-xs sm:text-sm truncate">
                               Total Certificates of Origin
                             </span>
                           </div>
-                          <div className="hidden sm:block flex-1 mx-4 border-t border-dashed border-zinc-400 h-0" />
-                          <div className="text-sm">
+                          <div className="hidden sm:block flex-1 mx-2 sm:mx-4 border-t border-dashed border-zinc-400 h-0" />
+                          <div className="text-xs sm:text-sm font-semibold text-gray-700 flex-shrink-0">
                             {certificateCounts[firm.company_tin] !==
                             undefined ? (
                               certificateCounts[firm.company_tin]
@@ -494,33 +498,35 @@ export default function FirmManagement() {
 
             {/* Pagination */}
             {tinformState ? null : (
-              <div className="flex flex-col md:flex-row justify-between items-center gap-4 mt-4 bg-white/35 backdrop-blur-md w-full p-4">
-                <span className="text-gray-600">
+              <div className="flex flex-col sm:flex-row justify-between items-center gap-3 sm:gap-4 mt-4 bg-white/35 backdrop-blur-md w-full p-3 sm:p-4">
+                <span className="text-sm sm:text-base text-gray-600 order-2 sm:order-1">
                   Page {currentPage} of {totalPages}
                 </span>
 
-                <div className="flex flex-row justify-between items-center gap-4 md:gap-8">
+                <div className="flex flex-row justify-between items-center gap-3 sm:gap-4 sm:gap-8 order-1 sm:order-2">
                   <button
                     onClick={handlePreviousPage}
                     disabled={currentPage === 1}
-                    className={`px-4 md:px-6 py-1.5 text-sm rounded ${
+                    className={`px-3 sm:px-4 md:px-6 py-1.5 text-xs sm:text-sm rounded ${
                       currentPage === 1
                         ? "bg-gray-200 text-gray-400 cursor-not-allowed"
                         : "bg-blue-500 text-white hover:bg-blue-600 cursor-pointer"
                     }`}
                   >
-                    Previous
+                    <span className="hidden sm:inline">Previous</span>
+                    <span className="sm:hidden">←</span>
                   </button>
                   <button
                     onClick={handleNextPage}
                     disabled={currentPage === totalPages}
-                    className={`px-4 md:px-6 py-1.5 text-sm rounded ${
+                    className={`px-3 sm:px-4 md:px-6 py-1.5 text-xs sm:text-sm rounded ${
                       currentPage === totalPages
                         ? "bg-gray-200 text-gray-500 cursor-not-allowed"
                         : "bg-blue-500 text-white hover:bg-blue-600 cursor-pointer"
                     }`}
                   >
-                    Next
+                    <span className="hidden sm:inline">Next</span>
+                    <span className="sm:hidden">→</span>
                   </button>
                 </div>
               </div>

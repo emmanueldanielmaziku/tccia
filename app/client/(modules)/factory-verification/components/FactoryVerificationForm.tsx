@@ -150,42 +150,42 @@ function ProductAutocomplete({
           onFocus={() =>
             search.trim() !== "" && setShowSuggestions(suggestions.length > 0)
           }
-          className={`w-full px-6 py-2 pr-12 border ${
+          className={`w-full px-4 sm:px-6 py-2 pr-10 sm:pr-12 border ${
             error ? "border-red-500" : "border-zinc-300"
-          } bg-zinc-100 focus:outline-none rounded-[8px] placeholder:text-zinc-400 text-zinc-500 placeholder:text-[15px]`}
+          } bg-zinc-100 focus:outline-none rounded-[8px] placeholder:text-zinc-400 text-zinc-500 placeholder:text-sm sm:placeholder:text-[15px] text-sm sm:text-base`}
         />
         {isLoading ? (
-          <span className="absolute top-3 right-5">
-            <span className="inline-block w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></span>
+          <span className="absolute top-2.5 sm:top-3 right-3 sm:right-5">
+            <span className="inline-block w-3 h-3 sm:w-4 sm:h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></span>
           </span>
         ) : (
           <SearchNormal1
-            size="20"
+            size="18"
+            className="absolute top-2.5 sm:top-3 right-3 sm:right-5 sm:w-5 sm:h-5"
             color="#9F9FA9"
-            className="absolute top-3 right-5"
           />
         )}
       </div>
       {showSuggestions && (
-        <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
+        <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-48 sm:max-h-60 overflow-y-auto">
           {isLoading ? (
-            <div className="px-4 py-2 text-gray-500">Loading...</div>
+            <div className="px-3 sm:px-4 py-2 text-gray-500 text-sm">Loading...</div>
           ) : suggestions.length > 0 ? (
             suggestions.map((product, index) => (
               <div
                 key={index}
-                className="px-4 py-2 hover:bg-gray-100 cursor-pointer border-b border-gray-100 last:border-b-0"
+                className="px-3 sm:px-4 py-2 hover:bg-gray-100 cursor-pointer border-b border-gray-100 last:border-b-0"
                 onClick={() => handleSuggestionClick(product)}
               >
-                <div className="font-medium text-gray-700">{product.name}</div>
-                <div className="text-sm text-gray-500">
+                <div className="font-medium text-gray-700 text-sm sm:text-base break-words">{product.name}</div>
+                <div className="text-xs sm:text-sm text-gray-500 break-words">
                   HS: {product.hs_code} | {product.product_category} |{" "}
                   {product.unity_of_measure}
                 </div>
               </div>
             ))
           ) : (
-            <div className="px-4 py-2 text-gray-500">No products found</div>
+            <div className="px-3 sm:px-4 py-2 text-gray-500 text-sm">No products found</div>
           )}
         </div>
       )}
@@ -279,43 +279,43 @@ function ManufacturerAutocomplete({
           onFocus={() =>
             search.trim() !== "" && setShowSuggestions(suggestions.length > 0)
           }
-          className={`w-full px-6 py-2 pr-12 border ${
+          className={`w-full px-4 sm:px-6 py-2 pr-10 sm:pr-12 border ${
             error ? "border-red-500" : "border-zinc-300"
-          } bg-zinc-100 focus:outline-none rounded-[8px] placeholder:text-zinc-400 text-zinc-500 placeholder:text-[15px]`}
+          } bg-zinc-100 focus:outline-none rounded-[8px] placeholder:text-zinc-400 text-zinc-500 placeholder:text-sm sm:placeholder:text-[15px] text-sm sm:text-base`}
         />
         {loading ? (
-          <span className="absolute top-3 right-5">
-            <span className="inline-block w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></span>
+          <span className="absolute top-2.5 sm:top-3 right-3 sm:right-5">
+            <span className="inline-block w-3 h-3 sm:w-4 sm:h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></span>
           </span>
         ) : (
           <SearchNormal1
-            size="20"
+            size="18"
+            className="absolute top-2.5 sm:top-3 right-3 sm:right-5 sm:w-5 sm:h-5"
             color="#9F9FA9"
-            className="absolute top-3 right-5"
           />
         )}
       </div>
       {showSuggestions && (
-        <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
+        <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-48 sm:max-h-60 overflow-y-auto">
           {loading ? (
-            <div className="px-4 py-2 text-gray-500">Loading...</div>
+            <div className="px-3 sm:px-4 py-2 text-gray-500 text-sm">Loading...</div>
           ) : suggestions.length > 0 ? (
             suggestions.map((manufacturer, index) => (
               <div
                 key={manufacturer.id || index}
-                className="px-4 py-2 hover:bg-gray-100 cursor-pointer border-b border-gray-100 last:border-b-0"
+                className="px-3 sm:px-4 py-2 hover:bg-gray-100 cursor-pointer border-b border-gray-100 last:border-b-0"
                 onClick={() => handleSuggestionClick(manufacturer)}
               >
-                <div className="font-medium text-gray-700">
+                <div className="font-medium text-gray-700 text-sm sm:text-base break-words">
                   {manufacturer.company_name}
                 </div>
-                <div className="text-sm text-gray-500">
+                <div className="text-xs sm:text-sm text-gray-500 break-words">
                   {manufacturer.company_tin} | {manufacturer.company_email}
                 </div>
               </div>
             ))
           ) : (
-            <div className="px-4 py-2 text-gray-500">
+            <div className="px-3 sm:px-4 py-2 text-gray-500 text-sm">
               No manufacturers found
             </div>
           )}
@@ -519,55 +519,55 @@ function PreviewWidget({
       aria-modal="true"
       role="dialog"
     >
-      <div className="relative w-full max-w-7xl h-[90vh] flex flex-col bg-white rounded-xl shadow-2xl animate-fadeIn">
+      <div className="relative w-full max-w-7xl h-[90vh] flex flex-col bg-white rounded-xl shadow-2xl animate-fadeIn mx-2 sm:mx-4">
         {/* Header */}
-        <div className="flex-shrink-0 border-b border-gray-200 p-6">
-          <div className="flex justify-between items-center">
+        <div className="flex-shrink-0 border-b border-gray-200 p-4 sm:p-6">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-0">
             <div className="flex-1 min-w-0">
-              <h2 className="text-2xl font-bold text-gray-800">
+              <h2 className="text-lg sm:text-2xl font-bold text-gray-800">
                 Factory Verification Application
               </h2>
-              <p className="text-gray-600 mt-1">
+              <p className="text-sm sm:text-base text-gray-600 mt-1">
                 Review your application before submission
               </p>
             </div>
             <button
               onClick={onClose}
               disabled={isSubmitting}
-              className="flex items-center gap-2 px-4 py-2 text-blue-600 font-medium hover:bg-blue-50 rounded-lg transition-colors disabled:opacity-50 flex-shrink-0"
+              className="flex items-center gap-2 px-3 sm:px-4 py-2 text-blue-600 font-medium hover:bg-blue-50 rounded-lg transition-colors disabled:opacity-50 flex-shrink-0 w-full sm:w-auto justify-center sm:justify-start"
               aria-label="Close preview"
             >
-              <CloseCircle size={20} />
-              Edit Application
+              <CloseCircle size={18} className="sm:w-5 sm:h-5" />
+              <span className="text-sm sm:text-base">Edit Application</span>
             </button>
           </div>
         </div>
 
         {/* Content */}
-        <div className="flex-1 overflow-hidden flex">
+        <div className="flex-1 overflow-hidden flex flex-col lg:flex-row">
           {/* Left Panel - Application & Applicant Details */}
-          <div className="w-1/3 border-r border-gray-200 p-6 overflow-y-auto min-w-0">
+          <div className="w-full lg:w-1/3 border-b lg:border-b-0 lg:border-r border-gray-200 p-4 sm:p-6 overflow-y-auto min-w-0">
             <div className="space-y-6">
               {/* Applicant Information */}
-              <div className="bg-blue-50 rounded-lg p-4">
-                <h3 className="text-lg font-semibold text-blue-800 mb-3 flex items-center gap-2">
+              <div className="bg-blue-50 rounded-lg p-3 sm:p-4">
+                <h3 className="text-base sm:text-lg font-semibold text-blue-800 mb-3 flex items-center gap-2">
                   <div className="w-2 h-2 bg-blue-500 rounded-full flex-shrink-0"></div>
                   Applicant Information
                 </h3>
-                <div className="space-y-2 text-sm">
-                  <div>
+                <div className="space-y-2 text-xs sm:text-sm">
+                  <div className="break-words">
                     <span className="text-gray-600">Name:</span>{" "}
                     <span className="font-medium text-gray-800">
                       {formData.applicant_name}
                     </span>
                   </div>
-                  <div>
+                  <div className="break-words">
                     <span className="text-gray-600">Phone:</span>{" "}
                     <span className="font-medium text-gray-800">
                       {formData.applicant_phone}
                     </span>
                   </div>
-                  <div>
+                  <div className="break-words">
                     <span className="text-gray-600">Email:</span>{" "}
                     <span className="font-medium text-gray-800">
                       {formData.applicant_email}
@@ -576,13 +576,13 @@ function PreviewWidget({
                 </div>
               </div>
               {/* Inspection Date */}
-              <div className="bg-gray-100 rounded-lg p-4">
-                <h3 className="text-lg font-semibold text-gray-800 mb-3 flex items-center gap-2">
+              <div className="bg-gray-100 rounded-lg p-3 sm:p-4">
+                <h3 className="text-base sm:text-lg font-semibold text-gray-800 mb-3 flex items-center gap-2">
                   <div className="w-2 h-2 bg-gray-500 rounded-full flex-shrink-0"></div>
                   Inspection Details
                 </h3>
-                <div className="space-y-2 text-sm">
-                  <div>
+                <div className="space-y-2 text-xs sm:text-sm">
+                  <div className="break-words">
                     <span className="text-gray-600">
                       Suggested Inspection Date:
                     </span>{" "}
@@ -603,10 +603,10 @@ function PreviewWidget({
           <div className="flex-1 overflow-y-auto min-w-0">
             <div className="h-full flex flex-col">
               {/* Header */}
-              <div className="flex-shrink-0 p-4 border-b border-gray-200 bg-gray-50">
-                <div className="flex justify-between items-center">
+              <div className="flex-shrink-0 p-3 sm:p-4 border-b border-gray-200 bg-gray-50">
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 sm:gap-0">
                   <div className="min-w-0 flex-1">
-                    <h3 className="text-lg font-semibold text-gray-800">
+                    <h3 className="text-base sm:text-lg font-semibold text-gray-800">
                       Products for Verification
                     </h3>
                     <p className="text-gray-600 text-xs mt-1">
@@ -623,16 +623,16 @@ function PreviewWidget({
               </div>
               {/* Product Details (summary only) */}
               <div className="flex-1 overflow-y-auto">
-                <div className="min-h-full space-y-6 p-4">
+                <div className="min-h-full space-y-4 sm:space-y-6 p-3 sm:p-4">
                   {formData.products.map((product, idx) => (
                     <div
                       key={idx}
-                      className="border border-gray-200 rounded-lg p-4 bg-white shadow-sm"
+                      className="border border-gray-200 rounded-lg p-3 sm:p-4 bg-white shadow-sm"
                     >
-                      <div className="font-semibold text-blue-700 mb-2">
+                      <div className="font-semibold text-blue-700 mb-2 text-sm sm:text-base">
                         Product #{idx + 1}
                       </div>
-                      <div className="grid grid-cols-2 gap-x-6 gap-y-2 text-sm">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-3 sm:gap-x-6 gap-y-2 text-xs sm:text-sm">
                         <div>
                           <span className="text-gray-600">Name:</span>{" "}
                           <span className="font-medium">{product.name}</span>
@@ -695,21 +695,21 @@ function PreviewWidget({
         </div>
 
         {/* Footer */}
-        <div className="flex-shrink-0 border-t border-gray-200 p-6 bg-gray-50">
-          <div className="flex justify-between items-center">
-            <div className="text-sm text-gray-600">
+        <div className="flex-shrink-0 border-t border-gray-200 p-4 sm:p-6 bg-gray-50">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-0">
+            <div className="text-xs sm:text-sm text-gray-600">
               Total Products:{" "}
               <span className="font-semibold text-gray-800">
                 {formData.products.length}
               </span>
             </div>
 
-            <div className="flex items-center gap-4">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4 w-full sm:w-auto">
               {/* Error Message */}
               {submitError && (
                 <div className="flex items-center gap-2 px-3 py-2 bg-red-50 border border-red-200 rounded-lg">
                   <div className="w-2 h-2 bg-red-500 rounded-full"></div>
-                  <span className="text-red-600 text-sm">{submitError}</span>
+                  <span className="text-red-600 text-xs sm:text-sm">{submitError}</span>
                 </div>
               )}
 
@@ -717,17 +717,17 @@ function PreviewWidget({
               <button
                 onClick={handleSubmit}
                 disabled={isSubmitting}
-                className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex items-center justify-center gap-2 px-4 sm:px-6 py-2 sm:py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed w-full sm:w-auto"
               >
                 {isSubmitting ? (
                   <>
-                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                    Submitting...
+                    <div className="w-3 h-3 sm:w-4 sm:h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    <span className="text-xs sm:text-sm">Submitting...</span>
                   </>
                 ) : (
                   <>
-                    <div className="w-4 h-4 bg-white rounded-full"></div>
-                    Submit Application
+                    <div className="w-3 h-3 sm:w-4 sm:h-4 bg-white rounded-full"></div>
+                    <span className="text-xs sm:text-sm">Submit Application</span>
                   </>
                 )}
               </button>
@@ -1142,7 +1142,7 @@ export default function FactoryVerificationForm({
       >
         <div className="flex flex-col gap-4 overflow-hidden overflow-y-auto h-[700px] pr-3">
           {/* Applicant Information */}
-          <div className="flex flex-row gap-6 mb-2">
+          <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 mb-2">
             <div className="flex flex-col flex-1">
               <label className="text-sm text-gray-600 mb-1">
                 Applicant Name
@@ -1205,11 +1205,11 @@ export default function FactoryVerificationForm({
           </div>
 
           {/* Header with Date Picker */}
-          <div className="flex flex-row justify-between items-center border-b border-gray-200 pb-4">
-            <div className="text-lg font-semibold text-gray-700">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-gray-200 pb-4 gap-4 sm:gap-0">
+            <div className="text-base sm:text-lg font-semibold text-gray-700">
               Factory Verification Application
             </div>
-            <div className="flex flex-col items-end gap-2">
+            <div className="flex flex-col items-start sm:items-end gap-2 w-full sm:w-auto">
               <div className="text-sm text-gray-600">
                 Expected Inspection Date
               </div>
@@ -1218,7 +1218,7 @@ export default function FactoryVerificationForm({
                 onChange={handleDateChange}
                 error={errors.expected_inspection_date}
                 placeholder="Select date"
-                className="w-full py-4"
+                className="w-full sm:w-auto py-2 sm:py-4"
               />
               {errors.expected_inspection_date && (
                 <p className="text-red-500 text-xs">
@@ -1259,11 +1259,11 @@ export default function FactoryVerificationForm({
                 />
               </div>
               <div className="relative w-full">
-                <div className="text-sm text-gray-600 mb-1 flex flex-row items-center justify-between">
-                  Product HS Code
+                <div className="text-sm text-gray-600 mb-1 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
+                  <span>Product HS Code</span>
                   <button
                     type="button"
-                    className="bg-blue-500 hover:bg-blue-600 flex flex-row gap-2 items-center border-1 border-blue-500 rounded-[5px] px-3 py-1 mb-1 cursor-pointer"
+                    className="bg-blue-500 hover:bg-blue-600 flex flex-row gap-2 items-center border-1 border-blue-500 rounded-[5px] px-3 py-1 cursor-pointer self-start sm:self-auto"
                     onClick={() => setOpen(true)}
                   >
                     <Book size="16" color="white" />
@@ -1308,7 +1308,7 @@ export default function FactoryVerificationForm({
                 )}
               </div>
 
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                 <div className="flex flex-col">
                   <div className="text-sm text-gray-600 mb-1">Product name</div>
                   <input
@@ -1357,7 +1357,7 @@ export default function FactoryVerificationForm({
                   )}
                 </div>
 
-                <div className="flex flex-col">
+                <div className="flex flex-col sm:col-span-2 lg:col-span-1">
                   <div className="text-sm text-gray-600 mb-1">
                     Unity of Measure
                   </div>
@@ -1411,10 +1411,10 @@ export default function FactoryVerificationForm({
                 <button
                   type="button"
                   onClick={() => handleRemoveProduct(idx)}
-                  className="flex flex-row cursor-pointer justify-center items-center gap-2 absolute top-2 right-2 text-red-500 text-xs hover:text-red-700 bg-red-50 px-2 py-1 rounded"
+                  className="flex flex-row cursor-pointer justify-center items-center gap-2 absolute top-2 right-2 text-red-500 text-xs hover:text-red-700 bg-red-50 px-2 py-1 rounded z-10"
                   aria-label="Remove product"
                 >
-                  <span>Remove</span>
+                  <span className="hidden sm:inline">Remove</span>
                   <CloseCircle size={14} color="#ef4444" />
                 </button>
               )}
@@ -1433,10 +1433,10 @@ export default function FactoryVerificationForm({
           </div>
         </div>
 
-        <div className="w-full flex items-center justify-end mt-4">
+        <div className="w-full flex items-center justify-center sm:justify-end mt-4">
           <button
             type="submit"
-            className="px-8 py-2 bg-blue-500 text-white rounded-[7px] hover:bg-blue-600 cursor-pointer text-sm font-medium"
+            className="w-full sm:w-auto px-6 sm:px-8 py-2 bg-blue-500 text-white rounded-[7px] hover:bg-blue-600 cursor-pointer text-sm font-medium"
           >
             Submit Form
           </button>

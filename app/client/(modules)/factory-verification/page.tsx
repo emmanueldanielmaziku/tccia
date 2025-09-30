@@ -356,75 +356,74 @@ export default function FactoryVerification() {
       <NavBar title="Factory Verification" />
       <section className="flex flex-row flex-1">
         <div className="flex flex-col items-center flex-1 min-w-0 h-[97vh] pt-18 bg-transparent border-transparent border-[1px] rounded-xl">
-          <div className="flex flex-col justify-between items-center mt-2 w-full h-[86vh] rounded-sm relative px-16.5">
+          <div className="flex flex-col justify-between items-center mt-2 w-full h-[86vh] rounded-sm relative px-4 md:px-8 lg:px-16">
             {/* Header */}
 
-            <div className="flex flex-row w-full justify-between items-center my-1">
+            <div className="flex flex-row w-full justify-between items-center my-1 gap-4">
               {verificationForm ? (
                 <div className="font-semibold antialiased text-[18px] text-zinc-600">
                   Application Form
                 </div>
               ) : (
-                <div className="flex items-center gap-4">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 w-full sm:w-auto">
                   {/* Search Input */}
-                  <label className="flex justify-center items-center">
+                  <label className="flex justify-center items-center w-full sm:w-auto relative">
                     <input
                       type="text"
                       placeholder="Search products..."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      className="border-[0.5px] border-zinc-300 focus:outline-2 focus:outline-blue-400 rounded-[10px] pl-8 pr-2.5 py-2 text-sm placeholder:text-sm"
+                      className="w-full sm:w-auto border-[0.5px] border-zinc-300 focus:outline-2 focus:outline-blue-400 rounded-[10px] pl-8 pr-2.5 py-2 text-sm placeholder:text-sm"
                     />
                     <SearchNormal1
                       size="18"
                       color="gray"
-                      className="absolute left-19"
+                      className="absolute left-3"
                     />
                   </label>
 
-                  {/* Status Filter */}
-                  <Select
-                    value={statusFilter}
-                    onValueChange={(value) => {
-                      setStatusFilter(value);
-                      setCurrentPage(1);
-                    }}
-                  >
-                    <SelectTrigger className="w-[120px] py-4.5">
-                      <SelectValue placeholder="Select status" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectGroup>
-                        <SelectItem value="all">All Status</SelectItem>
-                        <SelectItem value="pending">Pending</SelectItem>
-                        <SelectItem value="verified">Verified</SelectItem>
-                        <SelectItem value="rejected">Rejected</SelectItem>
-                      </SelectGroup>
-                    </SelectContent>
-                  </Select>
+                  <div className="flex flex-row gap-2 sm:gap-4 w-full sm:w-auto">
+                    {/* Status Filter */}
+                    <Select
+                      value={statusFilter}
+                      onValueChange={(value) => {
+                        setStatusFilter(value);
+                        setCurrentPage(1);
+                      }}
+                    >
+                      <SelectTrigger className="w-full sm:w-[120px] py-2 sm:py-4.5 text-sm">
+                        <SelectValue placeholder="Status" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectGroup>
+                          <SelectItem value="all">All Status</SelectItem>
+                          <SelectItem value="pending">Pending</SelectItem>
+                          <SelectItem value="verified">Verified</SelectItem>
+                          <SelectItem value="rejected">Rejected</SelectItem>
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
 
-
-                  {/* Community Name Filter */}
-                  <Select
-                    value={communityNameFilter}
-                    onValueChange={(value) => setCommunityNameFilter(value)}
-                  >
-                    <SelectTrigger className="w-[170px] py-4.5">
-                      <SelectValue placeholder="Community Name" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectGroup>
-                        <SelectItem value="__all__">All Communities</SelectItem>
-                        {communityNameOptions.map((name) => (
-                          <SelectItem key={String(name)} value={String(name)}>
-                            {name}
-                          </SelectItem>
-                        ))}
-                      </SelectGroup>
-                    </SelectContent>
-                  </Select>
-
-       
+                    {/* Community Name Filter */}
+                    <Select
+                      value={communityNameFilter}
+                      onValueChange={(value) => setCommunityNameFilter(value)}
+                    >
+                      <SelectTrigger className="w-full sm:w-[170px] py-2 sm:py-4.5 text-sm">
+                        <SelectValue placeholder="Community" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectGroup>
+                          <SelectItem value="__all__">All Communities</SelectItem>
+                          {communityNameOptions.map((name) => (
+                            <SelectItem key={String(name)} value={String(name)}>
+                              {name}
+                            </SelectItem>
+                          ))}
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
               )}
 
@@ -440,25 +439,27 @@ export default function FactoryVerification() {
                   Close
                 </button>
               ) : (
-                <div className="flex items-center gap-2">
+                <div className="flex flex-col sm:flex-row items-center gap-2 w-full sm:w-auto">
                   <button
-                    className="flex flex-row gap-3 justify-between items-center bg-gray-100 hover:bg-gray-200 text-gray-600 text-sm rounded-[6px] cursor-pointer px-3 py-2 transition-colors"
+                    className="flex flex-row gap-2 sm:gap-3 justify-center items-center bg-gray-100 hover:bg-gray-200 text-gray-600 text-sm rounded-[6px] cursor-pointer px-3 py-2 transition-colors w-full sm:w-auto"
                     onClick={fetchProducts}
                     disabled={loading}
                   >
                     <Refresh
-                      size={18}
+                      size={16}
+                      className={`sm:w-[18px] sm:h-[18px] ${loading ? "animate-spin" : ""}`}
                       color={loading ? "#9CA3AF" : "#4B5563"}
-                      className={loading ? "animate-spin" : ""}
                     />
-                    {loading ? "Refreshing..." : "Refresh"}
+                    <span className="hidden sm:inline">{loading ? "Refreshing..." : "Refresh"}</span>
+                    <span className="sm:hidden">{loading ? "..." : "↻"}</span>
                   </button>
                   <button
-                    className="flex flex-row gap-3 justify-between items-center bg-blue-600 hover:bg-blue-500 text-white text-sm rounded-[6px] cursor-pointer px-3 py-2"
+                    className="flex flex-row gap-2 sm:gap-3 justify-center items-center bg-blue-600 hover:bg-blue-500 text-white text-sm rounded-[6px] cursor-pointer px-3 py-2 w-full sm:w-auto"
                     onClick={() => toggleForm(true)}
                   >
-                    <Add size={20} color="white" />
-                    New Product
+                    <Add size={18} className="sm:w-5 sm:h-5" color="white" />
+                    <span className="hidden sm:inline">New Product</span>
+                    <span className="sm:hidden">Add</span>
                   </button>
                 </div>
               )}
@@ -580,81 +581,152 @@ export default function FactoryVerification() {
                     </button>
                   </div>
                 ) : (
-                  <table className="w-full text-sm">
-                    <thead className="bg-gray-200">
-                      <tr>
-                        <th
-                          className="px-4 py-5 text-left text-gray-700 cursor-pointer hover:bg-gray-300 transition-colors"
-                          onClick={() => handleSort("sn")}
-                        >
-                          S/N
-                        </th>
-                        <th className="px-4 py-5 text-left text-gray-700">
-                          Product Name
-                        </th>
-                        <th className="px-4 py-5 text-left text-gray-700">
-                          Trade Region
-                        </th>
-                        <th className="px-4 py-5 text-left text-gray-700">
-                          Creterion
-                        </th>
-                        <th className="px-4 py-5 text-left text-gray-700">
-                          State
-                        </th>
-                        <th className="px-4 py-5 text-center text-gray-700">
-                          Actions
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {paginatedData.map((product, index) => (
-                        <tr
-                          key={product.id}
-                          className={`hover:bg-gray-100 transition-colors border-t-[0.5px] rounded-[12px] text-gray-700 border-zinc-200 ${
-                            index % 2 === 0 ? "bg-white" : "bg-gray-white"
-                          }`}
-                        >
-                          <td className="px-4 py-4">{product.sn}</td>
-                          <td className="px-4 py-4">{product.product_name}</td>
-                          <td className="px-4 py-4">
-                            {product.community_name || "-"}
-                          </td>
-                          <td className="px-4 py-4">
-                            {product.community_short_code || "-"}
-                          </td>
-                          <td className="px-4 py-4">
-                            <span
-                              className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusBadgeClass(
-                                product.verification_state
-                              )}`}
+                  <>
+                    {/* Desktop Table View */}
+                    <div className="hidden md:block w-full">
+                      <table className="w-full text-sm">
+                        <thead className="bg-gray-200">
+                          <tr>
+                            <th
+                              className="px-4 py-5 text-left text-gray-700 cursor-pointer hover:bg-gray-300 transition-colors"
+                              onClick={() => handleSort("sn")}
                             >
-                              {stateLabels[
-                                product.verification_state as keyof typeof stateLabels
-                              ] || product.verification_state}
-                            </span>
-                          </td>
-                          <td className="px-4 py-4 text-center">
-                            <button
-                              onClick={() => handleViewDetails(product)}
-                              disabled={product.verification_state !== "inspection_done"}
-                              className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
-                                product.verification_state === "inspection_done"
-                                  ? "bg-blue-600 text-white hover:bg-blue-700 cursor-pointer"
-                                  : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                              S/N
+                            </th>
+                            <th className="px-4 py-5 text-left text-gray-700">
+                              Product Name
+                            </th>
+                            <th className="px-4 py-5 text-left text-gray-700">
+                              Trade Region
+                            </th>
+                            <th className="px-4 py-5 text-left text-gray-700">
+                              Creterion
+                            </th>
+                            <th className="px-4 py-5 text-left text-gray-700">
+                              State
+                            </th>
+                            <th className="px-4 py-5 text-center text-gray-700">
+                              Actions
+                            </th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {paginatedData.map((product, index) => (
+                            <tr
+                              key={product.id}
+                              className={`hover:bg-gray-100 transition-colors border-t-[0.5px] rounded-[12px] text-gray-700 border-zinc-200 ${
+                                index % 2 === 0 ? "bg-white" : "bg-gray-white"
                               }`}
-                              title={
-                                product.verification_state === "inspection_done"
-                                  ? "Review inspection report"
-                                  : "Review not available for this status"
-                              }
                             >
-                              Review Report
-                            </button>
-                          </td>
-                        </tr>
+                              <td className="px-4 py-4">{product.sn}</td>
+                              <td className="px-4 py-4">{product.product_name}</td>
+                              <td className="px-4 py-4">
+                                {product.community_name || "-"}
+                              </td>
+                              <td className="px-4 py-4">
+                                {product.community_short_code || "-"}
+                              </td>
+                              <td className="px-4 py-4">
+                                <span
+                                  className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusBadgeClass(
+                                    product.verification_state
+                                  )}`}
+                                >
+                                  {stateLabels[
+                                    product.verification_state as keyof typeof stateLabels
+                                  ] || product.verification_state}
+                                </span>
+                              </td>
+                              <td className="px-4 py-4 text-center">
+                                <button
+                                  onClick={() => handleViewDetails(product)}
+                                  disabled={product.verification_state !== "inspection_done"}
+                                  className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
+                                    product.verification_state === "inspection_done"
+                                      ? "bg-blue-600 text-white hover:bg-blue-700 cursor-pointer"
+                                      : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                                  }`}
+                                  title={
+                                    product.verification_state === "inspection_done"
+                                      ? "Review inspection report"
+                                      : "Review not available for this status"
+                                  }
+                                >
+                                  Review Report
+                                </button>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+
+                    {/* Mobile Card View */}
+                    <div className="md:hidden w-full space-y-3">
+                      {paginatedData.map((product, index) => (
+                        <div
+                          key={product.id}
+                          className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow"
+                        >
+                          <div className="flex flex-col space-y-3">
+                            {/* Header with S/N and Status */}
+                            <div className="flex justify-between items-start">
+                              <div className="flex items-center gap-2">
+                                <span className="text-sm font-medium text-gray-500">#{product.sn}</span>
+                                <span
+                                  className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusBadgeClass(
+                                    product.verification_state
+                                  )}`}
+                                >
+                                  {stateLabels[
+                                    product.verification_state as keyof typeof stateLabels
+                                  ] || product.verification_state}
+                                </span>
+                              </div>
+                            </div>
+
+                            {/* Product Name */}
+                            <div>
+                              <h3 className="font-medium text-gray-900 text-sm mb-1">Product Name</h3>
+                              <p className="text-gray-700 text-sm break-words">{product.product_name}</p>
+                            </div>
+
+                            {/* Trade Region */}
+                            <div>
+                              <h4 className="font-medium text-gray-900 text-sm mb-1">Trade Region</h4>
+                              <p className="text-gray-600 text-sm">{product.community_name || "-"}</p>
+                            </div>
+
+                            {/* Criterion */}
+                            <div>
+                              <h4 className="font-medium text-gray-900 text-sm mb-1">Criterion</h4>
+                              <p className="text-gray-600 text-sm">{product.community_short_code || "-"}</p>
+                            </div>
+
+                            {/* Action Button */}
+                            <div className="pt-2 border-t border-gray-100">
+                              <button
+                                onClick={() => handleViewDetails(product)}
+                                disabled={product.verification_state !== "inspection_done"}
+                                className={`w-full px-3 py-2 text-xs font-medium rounded-md transition-colors ${
+                                  product.verification_state === "inspection_done"
+                                    ? "bg-blue-600 text-white hover:bg-blue-700 cursor-pointer"
+                                    : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                                }`}
+                                title={
+                                  product.verification_state === "inspection_done"
+                                    ? "Review inspection report"
+                                    : "Review not available for this status"
+                                }
+                              >
+                                Review Report
+                              </button>
+                            </div>
+                          </div>
+                        </div>
                       ))}
-                    </tbody>
-                  </table>
+                    </div>
+                  </>
                 )}
               </div>
             )}
@@ -662,33 +734,35 @@ export default function FactoryVerification() {
             {/* Pagination */}
 
             {verificationForm ? null : (
-              <div className="flex justify-between items-center mt-4 bg-white/35 backdrop-blur-md w-full">
-                <span className="text-gray-600">
+              <div className="flex flex-col sm:flex-row justify-between items-center mt-4 bg-white/35 backdrop-blur-md w-full p-3 sm:p-4 gap-3 sm:gap-0">
+                <span className="text-sm sm:text-base text-gray-600 order-2 sm:order-1">
                   Page {currentPage} of {totalPages}
                 </span>
 
-                <div className="flex flex-row justify-between items-center gap-8">
+                <div className="flex flex-row justify-between items-center gap-3 sm:gap-8 order-1 sm:order-2">
                   <button
                     onClick={handlePreviousPage}
                     disabled={currentPage === 1}
-                    className={`px-6 py-1.5 text-sm rounded ${
+                    className={`px-3 sm:px-6 py-1.5 text-xs sm:text-sm rounded ${
                       currentPage === 1
                         ? "bg-gray-200 text-gray-400 cursor-not-allowed"
                         : "bg-blue-500 text-white hover:bg-blue-600 cursor-pointer"
                     }`}
                   >
-                    Previous
+                    <span className="hidden sm:inline">Previous</span>
+                    <span className="sm:hidden">←</span>
                   </button>
                   <button
                     onClick={handleNextPage}
                     disabled={currentPage === totalPages}
-                    className={`px-6 py-1.5 text-sm rounded ${
+                    className={`px-3 sm:px-6 py-1.5 text-xs sm:text-sm rounded ${
                       currentPage === totalPages
                         ? "bg-gray-200 text-gray-500 cursor-not-allowed"
                         : "bg-blue-500 text-white hover:bg-blue-600 cursor-pointer"
                     }`}
                   >
-                    Next
+                    <span className="hidden sm:inline">Next</span>
+                    <span className="sm:hidden">→</span>
                   </button>
                 </div>
               </div>
@@ -750,11 +824,11 @@ export default function FactoryVerification() {
 
       {/* Action Modal */}
       {showActionModal && selectedProduct && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-[3px]">
-          <div className="relative w-full max-w-md bg-white rounded-xl shadow-2xl p-6 mx-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-[3px] p-4">
+          <div className="relative w-full max-w-md bg-white rounded-xl shadow-2xl p-4 sm:p-6 mx-2 sm:mx-4 max-h-[90vh] overflow-y-auto">
             {/* Header */}
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-semibold text-gray-800">
+              <h2 className="text-lg sm:text-xl font-semibold text-gray-800 pr-2">
                 Factory Verification Actions
               </h2>
               <button
@@ -763,22 +837,35 @@ export default function FactoryVerification() {
                   setDisputeComments("");
                   setShowDisputeForm(false);
                 }}
-                className="p-1 hover:bg-gray-100 rounded-full transition-colors"
+                className="p-1 hover:bg-gray-100 rounded-full transition-colors flex-shrink-0"
               >
                 <CloseCircle size={20} color="#6B7280" />
               </button>
             </div>
 
             {/* Product Info */}
-            <div className="mb-6 p-4 bg-gray-50 rounded-lg">
-              <h3 className="font-medium text-gray-800 mb-2">Product Details</h3>
-              <div className="space-y-1 text-sm text-gray-600">
-                <div><span className="font-medium">Product:</span> {selectedProduct.product_name}</div>
-                <div><span className="font-medium">Reference:</span> {selectedProduct.verification_reference}</div>
-                <div><span className="font-medium">Region Details:</span> {selectedProduct.community_name || "-"}</div>
-                <div><span className="font-medium">Criterion:</span> {selectedProduct.community_short_code || "-"}</div>
-                <div><span className="font-medium">Status:</span> 
-                  <span className={`ml-1 px-2 py-1 rounded-full text-xs font-medium ${getStatusBadgeClass(selectedProduct.verification_state)}`}>
+            <div className="mb-6 p-3 sm:p-4 bg-gray-50 rounded-lg">
+              <h3 className="font-medium text-gray-800 mb-2 text-sm sm:text-base">Product Details</h3>
+              <div className="space-y-2 text-xs sm:text-sm text-gray-600">
+                <div className="break-words">
+                  <span className="font-medium">Product:</span> 
+                  <span className="ml-1">{selectedProduct.product_name}</span>
+                </div>
+                <div className="break-words">
+                  <span className="font-medium">Reference:</span> 
+                  <span className="ml-1">{selectedProduct.verification_reference}</span>
+                </div>
+                <div className="break-words">
+                  <span className="font-medium">Region Details:</span> 
+                  <span className="ml-1">{selectedProduct.community_name || "-"}</span>
+                </div>
+                <div className="break-words">
+                  <span className="font-medium">Criterion:</span> 
+                  <span className="ml-1">{selectedProduct.community_short_code || "-"}</span>
+                </div>
+                <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
+                  <span className="font-medium">Status:</span> 
+                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusBadgeClass(selectedProduct.verification_state)}`}>
                     {stateLabels[selectedProduct.verification_state as keyof typeof stateLabels] || selectedProduct.verification_state}
                   </span>
                 </div>
@@ -788,32 +875,32 @@ export default function FactoryVerification() {
             {/* Dispute Comments Section - Only show when dispute form is active */}
             {showDisputeForm && (
               <div className="mb-6">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
                   Dispute Comments (required for dispute)
                 </label>
                 <textarea
                   value={disputeComments}
                   onChange={(e) => setDisputeComments(e.target.value)}
                   placeholder="Enter your dispute comments here..."
-                  rows={4}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none text-sm"
+                  rows={3}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none text-xs sm:text-sm"
                 />
               </div>
             )}
 
             {/* Action Buttons - Column Layout */}
-            <div className="space-y-3">
+            <div className="space-y-2 sm:space-y-3">
               {!showDisputeForm ? (
                 <>
                   <button
                     onClick={handleAcceptReport}
                     disabled={isSubmittingAction}
-                    className="w-full px-4 py-3 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 cursor-pointer transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-blue-600 text-white text-xs sm:text-sm font-medium rounded-md hover:bg-blue-700 cursor-pointer transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {isSubmittingAction ? (
                       <div className="flex items-center justify-center gap-2">
-                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                        Accepting...
+                        <div className="w-3 h-3 sm:w-4 sm:h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                        <span className="text-xs sm:text-sm">Accepting...</span>
                       </div>
                     ) : (
                       "Accept Report"
@@ -823,7 +910,7 @@ export default function FactoryVerification() {
                   <button
                     onClick={() => setShowDisputeForm(true)}
                     disabled={isSubmittingAction}
-                    className="w-full px-4 py-3 bg-red-600 text-white text-sm font-medium rounded-md cursor-pointer hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-red-600 text-white text-xs sm:text-sm font-medium rounded-md cursor-pointer hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     Dispute Report
                   </button>
@@ -836,7 +923,7 @@ export default function FactoryVerification() {
                       setDisputeComments("");
                     }}
                     disabled={isSubmittingAction}
-                    className="w-full px-4 py-3 bg-gray-500 text-white text-sm font-medium rounded-md hover:bg-gray-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-gray-500 text-white text-xs sm:text-sm font-medium rounded-md hover:bg-gray-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     Cancel
                   </button>
@@ -844,12 +931,12 @@ export default function FactoryVerification() {
                   <button
                     onClick={handleDisputeReport}
                     disabled={isSubmittingAction || !disputeComments.trim()}
-                    className="w-full px-4 py-3 bg-red-600 text-white text-sm font-medium rounded-md hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-red-600 text-white text-xs sm:text-sm font-medium rounded-md hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {isSubmittingAction ? (
                       <div className="flex items-center justify-center gap-2">
-                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                        Submitting...
+                        <div className="w-3 h-3 sm:w-4 sm:h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                        <span className="text-xs sm:text-sm">Submitting...</span>
                       </div>
                     ) : (
                       "Submit Dispute"
