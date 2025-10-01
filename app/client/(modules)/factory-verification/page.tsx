@@ -95,7 +95,6 @@ export default function FactoryVerification() {
   const [sortField, setSortField] = useState<"sn" | "product" | "status">("sn");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
   const [searchQuery, setSearchQuery] = useState("");
-  const [statusFilter, setStatusFilter] = useState("all");
   const [communityNameFilter, setCommunityNameFilter] = useState("__all__");
 
   const [currentPage, setCurrentPage] = useState(1);
@@ -200,15 +199,12 @@ export default function FactoryVerification() {
         (product.hs_code || "")
           .toLowerCase()
           .includes(searchQuery.toLowerCase());
-      const matchesStatus =
-        statusFilter === "all" ||
-        product.state.toLowerCase() === statusFilter.toLowerCase();
       const matchesCommunity =
         communityNameFilter === "__all__" ||
         (product.community_name || "").toLowerCase() ===
           communityNameFilter.toLowerCase();
       return (
-        matchesSearch && matchesStatus && matchesCommunity
+        matchesSearch && matchesCommunity
       );
     })
     .sort((a, b) => {
@@ -356,74 +352,51 @@ export default function FactoryVerification() {
       <NavBar title="Factory Verification" />
       <section className="flex flex-row flex-1">
         <div className="flex flex-col items-center flex-1 min-w-0 h-[97vh] pt-18 bg-transparent border-transparent border-[1px] rounded-xl">
-          <div className="flex flex-col justify-between items-center mt-2 w-full h-[86vh] rounded-sm relative px-4 md:px-8 lg:px-16">
+          <div className="flex flex-col justify-between items-center mt-2 w-full h-[86vh] rounded-sm relative px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16">
             {/* Header */}
 
-            <div className="flex flex-row w-full justify-between items-center my-1 gap-4">
+            <div className="flex flex-row w-full justify-between items-center my-1 gap-2 lg:gap-4">
               {verificationForm ? (
-                <div className="font-semibold antialiased text-[18px] text-zinc-600">
+                <div className="font-semibold antialiased text-base lg:text-[18px] text-zinc-600">
                   Application Form
                 </div>
               ) : (
-                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 w-full sm:w-auto">
+                <div className="flex flex-col lg:flex-row items-start lg:items-center gap-2 lg:gap-3 w-full lg:w-auto">
                   {/* Search Input */}
-                  <label className="flex justify-center items-center w-full sm:w-auto relative">
+                  <label className="flex justify-center items-center w-full lg:w-auto relative">
                     <input
                       type="text"
                       placeholder="Search products..."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      className="w-full sm:w-auto border-[0.5px] border-zinc-300 focus:outline-2 focus:outline-blue-400 rounded-[10px] pl-8 pr-2.5 py-2 text-sm placeholder:text-sm"
+                      className="w-full lg:w-auto border-[0.5px] border-zinc-300 focus:outline-2 focus:outline-blue-400 rounded-[10px] pl-6 lg:pl-8 pr-2.5 py-1.5 lg:py-2 text-sm placeholder:text-sm"
                     />
                     <SearchNormal1
-                      size="18"
+                      size="16"
+                      className="absolute left-2 lg:left-3 lg:w-[18px] lg:h-[18px]"
                       color="gray"
-                      className="absolute left-3"
                     />
                   </label>
 
-                  <div className="flex flex-row gap-2 sm:gap-4 w-full sm:w-auto">
-                    {/* Status Filter */}
-                    <Select
-                      value={statusFilter}
-                      onValueChange={(value) => {
-                        setStatusFilter(value);
-                        setCurrentPage(1);
-                      }}
-                    >
-                      <SelectTrigger className="w-full sm:w-[120px] py-2 sm:py-4.5 text-sm">
-                        <SelectValue placeholder="Status" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectGroup>
-                          <SelectItem value="all">All Status</SelectItem>
-                          <SelectItem value="pending">Pending</SelectItem>
-                          <SelectItem value="verified">Verified</SelectItem>
-                          <SelectItem value="rejected">Rejected</SelectItem>
-                        </SelectGroup>
-                      </SelectContent>
-                    </Select>
-
-                    {/* Community Name Filter */}
-                    <Select
-                      value={communityNameFilter}
-                      onValueChange={(value) => setCommunityNameFilter(value)}
-                    >
-                      <SelectTrigger className="w-full sm:w-[170px] py-2 sm:py-4.5 text-sm">
-                        <SelectValue placeholder="Community" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectGroup>
-                          <SelectItem value="__all__">All Communities</SelectItem>
-                          {communityNameOptions.map((name) => (
-                            <SelectItem key={String(name)} value={String(name)}>
-                              {name}
-                            </SelectItem>
-                          ))}
-                        </SelectGroup>
-                      </SelectContent>
-                    </Select>
-                  </div>
+                  {/* Community Name Filter */}
+                  <Select
+                    value={communityNameFilter}
+                    onValueChange={(value) => setCommunityNameFilter(value)}
+                  >
+                    <SelectTrigger className="w-full lg:w-[170px] py-1.5 lg:py-2 text-sm">
+                      <SelectValue placeholder="Community" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectGroup>
+                        <SelectItem value="__all__">All Communities</SelectItem>
+                        {communityNameOptions.map((name) => (
+                          <SelectItem key={String(name)} value={String(name)}>
+                            {name}
+                          </SelectItem>
+                        ))}
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
                 </div>
               )}
 
@@ -439,27 +412,27 @@ export default function FactoryVerification() {
                   Close
                 </button>
               ) : (
-                <div className="flex flex-col sm:flex-row items-center gap-2 w-full sm:w-auto">
+                <div className="flex flex-col lg:flex-row items-center gap-2 w-full lg:w-auto">
                   <button
-                    className="flex flex-row gap-2 sm:gap-3 justify-center items-center bg-gray-100 hover:bg-gray-200 text-gray-600 text-sm rounded-[6px] cursor-pointer px-3 py-2 transition-colors w-full sm:w-auto"
+                    className="flex flex-row gap-2 lg:gap-3 justify-center items-center bg-gray-100 hover:bg-gray-200 text-gray-600 text-sm rounded-[6px] cursor-pointer px-3 py-1.5 lg:py-2 transition-colors w-full lg:w-auto"
                     onClick={fetchProducts}
                     disabled={loading}
                   >
                     <Refresh
                       size={16}
-                      className={`sm:w-[18px] sm:h-[18px] ${loading ? "animate-spin" : ""}`}
+                      className={`lg:w-[18px] lg:h-[18px] ${loading ? "animate-spin" : ""}`}
                       color={loading ? "#9CA3AF" : "#4B5563"}
                     />
-                    <span className="hidden sm:inline">{loading ? "Refreshing..." : "Refresh"}</span>
-                    <span className="sm:hidden">{loading ? "..." : "↻"}</span>
+                    <span className="hidden lg:inline">{loading ? "Refreshing..." : "Refresh"}</span>
+                    <span className="lg:hidden">{loading ? "..." : "↻"}</span>
                   </button>
                   <button
-                    className="flex flex-row gap-2 sm:gap-3 justify-center items-center bg-blue-600 hover:bg-blue-500 text-white text-sm rounded-[6px] cursor-pointer px-3 py-2 w-full sm:w-auto"
+                    className="flex flex-row gap-2 lg:gap-3 justify-center items-center bg-blue-600 hover:bg-blue-500 text-white text-sm rounded-[6px] cursor-pointer px-3 py-1.5 lg:py-2 w-full lg:w-auto"
                     onClick={() => toggleForm(true)}
                   >
-                    <Add size={18} className="sm:w-5 sm:h-5" color="white" />
-                    <span className="hidden sm:inline">New Product</span>
-                    <span className="sm:hidden">Add</span>
+                    <Add size={16} className="lg:w-5 lg:h-5" color="white" />
+                    <span className="hidden lg:inline">New Product</span>
+                    <span className="lg:hidden">Add</span>
                   </button>
                 </div>
               )}
@@ -734,35 +707,35 @@ export default function FactoryVerification() {
             {/* Pagination */}
 
             {verificationForm ? null : (
-              <div className="flex flex-col sm:flex-row justify-between items-center mt-4 bg-white/35 backdrop-blur-md w-full p-3 sm:p-4 gap-3 sm:gap-0">
-                <span className="text-sm sm:text-base text-gray-600 order-2 sm:order-1">
+              <div className="flex flex-col lg:flex-row justify-between items-center mt-4 bg-white/35 backdrop-blur-md w-full p-3 lg:p-4 gap-3 lg:gap-0">
+                <span className="text-sm lg:text-base text-gray-600 order-2 lg:order-1">
                   Page {currentPage} of {totalPages}
                 </span>
 
-                <div className="flex flex-row justify-between items-center gap-3 sm:gap-8 order-1 sm:order-2">
+                <div className="flex flex-row justify-between items-center gap-3 lg:gap-8 order-1 lg:order-2">
                   <button
                     onClick={handlePreviousPage}
                     disabled={currentPage === 1}
-                    className={`px-3 sm:px-6 py-1.5 text-xs sm:text-sm rounded ${
+                    className={`px-3 lg:px-6 py-1.5 text-xs lg:text-sm rounded ${
                       currentPage === 1
                         ? "bg-gray-200 text-gray-400 cursor-not-allowed"
                         : "bg-blue-500 text-white hover:bg-blue-600 cursor-pointer"
                     }`}
                   >
-                    <span className="hidden sm:inline">Previous</span>
-                    <span className="sm:hidden">←</span>
+                    <span className="hidden lg:inline">Previous</span>
+                    <span className="lg:hidden">←</span>
                   </button>
                   <button
                     onClick={handleNextPage}
                     disabled={currentPage === totalPages}
-                    className={`px-3 sm:px-6 py-1.5 text-xs sm:text-sm rounded ${
+                    className={`px-3 lg:px-6 py-1.5 text-xs lg:text-sm rounded ${
                       currentPage === totalPages
                         ? "bg-gray-200 text-gray-500 cursor-not-allowed"
                         : "bg-blue-500 text-white hover:bg-blue-600 cursor-pointer"
                     }`}
                   >
-                    <span className="hidden sm:inline">Next</span>
-                    <span className="sm:hidden">→</span>
+                    <span className="hidden lg:inline">Next</span>
+                    <span className="lg:hidden">→</span>
                   </button>
                 </div>
               </div>

@@ -47,7 +47,7 @@ export default function FirmManagement() {
   const [discardBoxState, togglediscardBox] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
-  const [sortField, setSortField] = useState<"name" | "tin" | "state">("name");
+  const [sortField, setSortField] = useState<"name" | "tin" | "state">("tin");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 20;
@@ -241,73 +241,47 @@ export default function FirmManagement() {
       {/* Content */}
       <section className="flex lg:flex-row flex-1">
         <div className="flex flex-col items-start flex-1 min-w-0 h-[97vh] pt-18 bg-transparent border-transparent border-[1px] rounded-xl">
-          <div className="flex flex-col justify-start items-start mt-2 w-full h-[86vh] rounded-sm relative px-4 md:px-8 lg:px-16">
-            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center w-full gap-4 sm:gap-6 my-1">
+          <div className="flex flex-col justify-start items-start mt-2 w-full h-[86vh] rounded-sm relative px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16">
+            <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center w-full gap-4 lg:gap-6 my-1">
               {tinformState ? (
-                <div className="font-semibold antialiased text-[18px] text-zinc-600">
+                <div className="font-semibold antialiased text-base lg:text-[18px] text-zinc-600">
                   Add New Firm
                 </div>
               ) : (
                 <>
                   {/* Search and Filters Section */}
-                  <div className="flex flex-col sm:flex-row gap-3 w-full">
-                    <label className="flex justify-center items-center w-full relative">
+                  <div className="flex flex-col lg:flex-row gap-2 lg:gap-2 w-full lg:w-auto">
+                    <label className="flex justify-center items-center w-full lg:w-auto relative">
                       <input
                         type="text"
                         placeholder="Search firms..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="w-full border-[0.5px] border-zinc-300 focus:outline-2 focus:outline-blue-400 rounded-[9px] pl-8 pr-2.5 py-2 text-sm placeholder:text-sm"
+                        className="w-full lg:w-auto border-[0.5px] border-zinc-300 focus:outline-2 focus:outline-blue-400 rounded-[9px] pl-6 lg:pl-8 pr-2.5 py-1.5 lg:py-2 text-sm placeholder:text-sm"
                       />
                       <SearchNormal1
-                        size="18"
+                        size="16"
+                        className="absolute left-2 lg:left-3 lg:w-[18px] lg:h-[18px]"
                         color="gray"
-                        className="absolute left-3"
                       />
                     </label>
 
-                    <div className="flex flex-row gap-2 sm:gap-3 w-full sm:w-auto">
-                      {/* State Filter */}
-                      <Select value={stateFilter} onValueChange={setStateFilter}>
-                        <SelectTrigger className="w-full sm:w-[140px] text-zinc-600 text-sm">
-                          <SelectValue placeholder="State" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectGroup>
-                            <SelectItem value="__all__">All States</SelectItem>
-                            {stateOptions.map((state) => (
-                              <SelectItem key={state} value={state}>
-                                {state}
-                              </SelectItem>
-                            ))}
-                          </SelectGroup>
-                        </SelectContent>
-                      </Select>
-
-                      {/* Sort */}
-                      <div className="flex items-center w-full sm:w-auto">
-                        <div className="relative w-full">
-                          <Select
-                            value={sortField}
-                            onValueChange={(value: "name" | "tin" | "state") => {
-                              setSortField(value);
-                              setCurrentPage(1);
-                            }}
-                          >
-                            <SelectTrigger className="w-full sm:w-[140px] text-zinc-600 text-sm">
-                              <SelectValue placeholder="Sort by" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectGroup>
-                                <SelectItem value="name">Name</SelectItem>
-                                <SelectItem value="tin">TIN</SelectItem>
-                                <SelectItem value="state">State</SelectItem>
-                              </SelectGroup>
-                            </SelectContent>
-                          </Select>
-                        </div>
-                      </div>
-                    </div>
+                    {/* State Filter */}
+                    <Select value={stateFilter} onValueChange={setStateFilter}>
+                      <SelectTrigger className="w-full lg:w-[140px] text-zinc-600 text-sm py-1.5 lg:py-2">
+                        <SelectValue placeholder="State" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectGroup>
+                          <SelectItem value="__all__">All States</SelectItem>
+                          {stateOptions.map((state) => (
+                            <SelectItem key={state} value={state}>
+                              {state}
+                            </SelectItem>
+                          ))}
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
                   </div>
 
                   {/* Action Buttons Section */}
@@ -333,8 +307,8 @@ export default function FirmManagement() {
                       onClick={() => toggleCompanyTinForm()}
                     >
                       <Add size={18} className="sm:w-5 sm:h-5" color="white" />
-                      <span className="hidden sm:inline">New Firm</span>
-                      <span className="sm:hidden">Add</span>
+                      <span className="hidden sm:inline">Add Company</span>
+                      <span className="sm:hidden">Add Company</span>
                     </button>
                   </div>
                 </>

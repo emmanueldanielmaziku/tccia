@@ -1137,10 +1137,10 @@ export default function FactoryVerificationForm({
       <HSCodeWidget open={open} onClose={() => setOpen(false)} />
 
       <form
-        className="flex flex-col w-full pb-10 mt-5"
+        className="flex flex-col w-full mt-5 mb-15 flex-1 overflow-hidden"
         onSubmit={handlePreview}
       >
-        <div className="flex flex-col gap-4 overflow-hidden overflow-y-auto h-[700px] pr-3">
+        <div className="flex flex-col gap-4 overflow-y-auto pr-3 pb-6 flex-1">
           {/* Applicant Information */}
           <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 mb-2">
             <div className="flex flex-col flex-1">
@@ -1431,15 +1431,15 @@ export default function FactoryVerificationForm({
               Add another product
             </button>
           </div>
-        </div>
 
-        <div className="w-full flex items-center justify-center sm:justify-end mt-4">
-          <button
-            type="submit"
-            className="w-full sm:w-auto px-6 sm:px-8 py-2 bg-blue-500 text-white rounded-[7px] hover:bg-blue-600 cursor-pointer text-sm font-medium"
-          >
-            Submit Form
-          </button>
+          <div className="w-full flex items-center justify-center sm:justify-end mt-4">
+            <button
+              type="submit"
+              className="w-full sm:w-auto px-8 sm:px-12 py-3 bg-blue-500 text-white rounded-[7px] hover:bg-blue-600 cursor-pointer text-base font-medium"
+            >
+              Submit Form
+            </button>
+          </div>
         </div>
       </form>
     </div>
