@@ -210,14 +210,14 @@ const RegForm = () => {
       {/* Error and Success Messages */}
       {error && (
         <div className="flex flex-row items-center space-x-2 sm:space-x-4 border border-red-500 bg-red-100 rounded-[6px] sm:rounded-[8px] p-2 sm:p-4 w-full">
-          <Call size="18" className="sm:w-[22px] sm:h-[22px]" color="#9F9FA9" className="absolute top-11 sm:top-13 right-3 sm:right-5" />
+          <Call size="18" className="sm:w-[22px] sm:h-[22px] absolute top-11 sm:top-13 right-3 sm:right-5" color="#9F9FA9" />
           <p className="text-red-500 text-xs sm:text-[15px] font-semibold">{error}</p>
         </div>
       )}
 
       {success && (
         <div className="flex flex-row items-center space-x-2 sm:space-x-4 border border-green-500 bg-green-100 rounded-[6px] sm:rounded-[8px] p-2 sm:p-4 w-full">
-          <Call size="18" className="sm:w-[22px] sm:h-[22px]" color="#9F9FA9" className="absolute top-11 sm:top-13 right-3 sm:right-5" />
+          <Call size="18" className="sm:w-[22px] sm:h-[22px] absolute top-11 sm:top-13 right-3 sm:right-5" color="#9F9FA9" />
           <p className="text-green-500 text-xs sm:text-[15px] font-semibold">{success}</p>
         </div>
       )}
@@ -291,7 +291,7 @@ const RegForm = () => {
           className="w-full px-4 sm:px-5 py-2 sm:py-2.5 pr-10 sm:pr-12 border border-zinc-300 bg-zinc-100 outline-blue-400 rounded-[6px] sm:rounded-[8px] placeholder:text-zinc-400 placeholder:text-xs sm:placeholder:text-[15px]"
           autoComplete="email"
         />
-        <Sms size="16" className="sm:w-5 sm:h-5" color="#9F9FA9" className="absolute top-8 sm:top-9.5 right-3 sm:right-5" />
+            <Sms size="16" className="sm:w-5 sm:h-5 absolute top-8 sm:top-9.5 right-3 sm:right-5" color="#9F9FA9" />
 
         {errors.email && (
           <p className="text-red-500 text-[10px] sm:text-[11px]">
@@ -312,7 +312,7 @@ const RegForm = () => {
           className="w-full px-4 sm:px-5 py-2 sm:py-2.5 pr-10 sm:pr-12 border border-zinc-300 bg-zinc-100 outline-blue-400 rounded-[6px] sm:rounded-[8px] placeholder:text-zinc-400 placeholder:text-xs sm:placeholder:text-[15px]"
           autoComplete="tel"
         />
-        <Call size="16" className="sm:w-5 sm:h-5" color="#9F9FA9" className="absolute top-8 sm:top-9.5 right-3 sm:right-5" />
+            <Call size="16" className="sm:w-5 sm:h-5 absolute top-8 sm:top-9.5 right-3 sm:right-5" color="#9F9FA9" />
         {errors.phone && (
           <p className="text-red-500 text-[10px] sm:text-[11px]">
             {errors.phone.type === "min"
