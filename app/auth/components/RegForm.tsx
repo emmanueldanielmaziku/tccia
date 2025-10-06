@@ -199,26 +199,26 @@ const RegForm = () => {
   return (
     <form
       onSubmit={handleSubmit(onSubmit, onError)}
-      className="flex flex-col space-y-3 w-full md:w-[480px] mb-20 border p-6 rounded-[15px] shadow-sm bg-gray-50"
+      className="flex flex-col space-y-3 w-full md:w-[480px] mb-16 sm:mb-20 border p-4 sm:p-6 rounded-[12px] sm:rounded-[15px] shadow-sm bg-gray-50"
     >
       <div className="w-full flex flex-row justify-between items-center space-x-4">
-        <div className="text-gray-700 font-semibold text-[16px] md:text-2xl">
+        <div className="text-gray-700 font-semibold text-sm sm:text-[16px] md:text-2xl">
           {t("common.createAccount")}
         </div>
       </div>
 
       {/* Error and Success Messages */}
       {error && (
-        <div className="flex flex-row items-center space-x-4 border border-red-500 bg-red-100 rounded-[8px] p-4 w-full">
-          <Call size="22" color="#9F9FA9" className="absolute top-13 right-5" />
-          <p className="text-red-500 text-[15px] font-semibold">{error}</p>
+        <div className="flex flex-row items-center space-x-2 sm:space-x-4 border border-red-500 bg-red-100 rounded-[6px] sm:rounded-[8px] p-2 sm:p-4 w-full">
+          <Call size="18" className="sm:w-[22px] sm:h-[22px]" color="#9F9FA9" className="absolute top-11 sm:top-13 right-3 sm:right-5" />
+          <p className="text-red-500 text-xs sm:text-[15px] font-semibold">{error}</p>
         </div>
       )}
 
       {success && (
-        <div className="flex flex-row items-center space-x-4 border border-green-500 bg-green-100 rounded-[8px] p-4 w-full">
-          <Call size="22" color="#9F9FA9" className="absolute top-13 right-5" />
-          <p className="text-green-500 text-[15px] font-semibold">{success}</p>
+        <div className="flex flex-row items-center space-x-2 sm:space-x-4 border border-green-500 bg-green-100 rounded-[6px] sm:rounded-[8px] p-2 sm:p-4 w-full">
+          <Call size="18" className="sm:w-[22px] sm:h-[22px]" color="#9F9FA9" className="absolute top-11 sm:top-13 right-3 sm:right-5" />
+          <p className="text-green-500 text-xs sm:text-[15px] font-semibold">{success}</p>
         </div>
       )}
 
@@ -280,7 +280,7 @@ const RegForm = () => {
 
 
       <div className="relative flex flex-col gap-1 w-full">
-        <label htmlFor="email" className="text-gray-700 text-sm font-medium">
+        <label htmlFor="email" className="text-gray-700 text-xs sm:text-sm font-medium">
           {t("common.email")} (Optional)
         </label>
         <input
@@ -288,20 +288,20 @@ const RegForm = () => {
           type="email"
           placeholder={tf("placeholders.enterEmail")}
           {...register("email")}
-          className="w-full px-5 py-2.5 pr-12 border border-zinc-300 bg-zinc-100 outline-blue-400 rounded-[8px] placeholder:text-zinc-400 placeholder:text-[15px]"
+          className="w-full px-4 sm:px-5 py-2 sm:py-2.5 pr-10 sm:pr-12 border border-zinc-300 bg-zinc-100 outline-blue-400 rounded-[6px] sm:rounded-[8px] placeholder:text-zinc-400 placeholder:text-xs sm:placeholder:text-[15px]"
           autoComplete="email"
         />
-        <Sms size="20" color="#9F9FA9" className="absolute top-9.5 right-5" />
+        <Sms size="16" className="sm:w-5 sm:h-5" color="#9F9FA9" className="absolute top-8 sm:top-9.5 right-3 sm:right-5" />
 
         {errors.email && (
-          <p className="text-red-500 text-[11px]">
+          <p className="text-red-500 text-[10px] sm:text-[11px]">
             {tf("validation.invalidEmail")}
           </p>
         )}
       </div>
 
       <div className="relative flex flex-col gap-1 w-full">
-        <label htmlFor="phone" className="text-gray-700 text-sm font-medium">
+        <label htmlFor="phone" className="text-gray-700 text-xs sm:text-sm font-medium">
           {tf("labels.phoneNumber")}
         </label>
         <input
@@ -309,12 +309,12 @@ const RegForm = () => {
           type="tel"
           placeholder={tf("placeholders.enterPhone")}
           {...register("phone")}
-          className="w-full px-5 py-2.5 pr-12 border border-zinc-300 bg-zinc-100 outline-blue-400 rounded-[8px] placeholder:text-zinc-400 placeholder:text-[15px]"
+          className="w-full px-4 sm:px-5 py-2 sm:py-2.5 pr-10 sm:pr-12 border border-zinc-300 bg-zinc-100 outline-blue-400 rounded-[6px] sm:rounded-[8px] placeholder:text-zinc-400 placeholder:text-xs sm:placeholder:text-[15px]"
           autoComplete="tel"
         />
-        <Call size="20" color="#9F9FA9" className="absolute top-9.5 right-5" />
+        <Call size="16" className="sm:w-5 sm:h-5" color="#9F9FA9" className="absolute top-8 sm:top-9.5 right-3 sm:right-5" />
         {errors.phone && (
-          <p className="text-red-500 text-[11px]">
+          <p className="text-red-500 text-[10px] sm:text-[11px]">
             {errors.phone.type === "min"
               ? tf("validation.phoneMinLength")
               : tf("validation.phoneDigitsOnly")}
@@ -369,7 +369,7 @@ const RegForm = () => {
       </div>
 
       <div className="relative flex flex-col gap-1 w-full">
-        <label htmlFor="password" className="text-gray-700 text-sm font-medium">
+        <label htmlFor="password" className="text-gray-700 text-xs sm:text-sm font-medium">
           {t("common.password")}
         </label>
         <input
@@ -377,7 +377,7 @@ const RegForm = () => {
           type={isPasswordVisible ? "text" : "password"}
           placeholder={tf("placeholders.enterPassword")}
           {...register("password")}
-          className="w-full px-5 py-2.5 pr-12 border border-zinc-300 bg-zinc-100 outline-blue-400 rounded-[8px] placeholder:text-zinc-400 placeholder:text-[15px]"
+          className="w-full px-4 sm:px-5 py-2 sm:py-2.5 pr-10 sm:pr-12 border border-zinc-300 bg-zinc-100 outline-blue-400 rounded-[6px] sm:rounded-[8px] placeholder:text-zinc-400 placeholder:text-xs sm:placeholder:text-[15px]"
           autoComplete="new-password"
         />
         <button
@@ -388,16 +388,16 @@ const RegForm = () => {
               ? tf("buttons.hidePassword")
               : tf("buttons.showPassword")
           }
-          className="absolute top-9.5 right-5 text-zinc-400"
+          className="absolute top-8 sm:top-9.5 right-3 sm:right-5 text-zinc-400"
         >
           {isPasswordVisible ? (
-            <MdVisibilityOff className="w-5 h-5 cursor-pointer" />
+            <MdVisibilityOff className="w-4 h-4 sm:w-5 sm:h-5 cursor-pointer" />
           ) : (
-            <MdVisibility className="w-5 h-5 cursor-pointer" />
+            <MdVisibility className="w-4 h-4 sm:w-5 sm:h-5 cursor-pointer" />
           )}
         </button>
         {errors.password && (
-          <p className="text-red-500 text-[11px]">
+          <p className="text-red-500 text-[10px] sm:text-[11px]">
             {errors.password.message}
           </p>
         )}
@@ -406,24 +406,24 @@ const RegForm = () => {
       <button
         type="submit"
         disabled={isSubmitting}
-        className="bg-blue-500 text-white px-6 py-2.5 rounded-[8px] text-[15px] hover:bg-blue-600 cursor-pointer flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
+        className="bg-blue-500 text-white px-4 sm:px-6 py-2 sm:py-2.5 rounded-[6px] sm:rounded-[8px] text-xs sm:text-[15px] hover:bg-blue-600 cursor-pointer flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
       >
         {isSubmitting ? (
           <div className="flex items-center justify-center">
-            <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+            <div className="w-4 h-4 sm:w-5 sm:h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
           </div>
         ) : (
           tf("buttons.register")
         )}
       </button>
 
-      <div className="flex items-center space-x-4">
-        <span className="text-[14px] text-gray-700 font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+      <div className="flex items-center space-x-2 sm:space-x-4">
+        <span className="text-[12px] sm:text-[14px] text-gray-700 font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
           {tf("messages.haveAccount")}
         </span>
         <button
           type="button"
-          className="text-[14px] text-blue-600 underline cursor-pointer"
+          className="text-[12px] sm:text-[14px] text-blue-600 underline cursor-pointer"
           onClick={toggleFormType}
         >
           {t("common.login")}

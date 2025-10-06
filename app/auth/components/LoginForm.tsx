@@ -103,48 +103,48 @@ export default function LoginForm() {
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
-      className="mt-12 md:mt-[30px] flex flex-col space-y-5 w-full md:w-[480px] border p-6 rounded-[12px] shadow-sm bg-gray-50"
+      className="mt-8 sm:mt-12 md:mt-[30px] flex flex-col space-y-4 sm:space-y-5 w-full md:w-[480px] border p-4 sm:p-6 rounded-[10px] sm:rounded-[12px] shadow-sm bg-gray-50"
     >
       <div className="w-full flex flex-row justify-between items-center space-x-4">
-        <div className="text-gray-700 font-semibold text-[16px] md:text-2xl">
+        <div className="text-gray-700 font-semibold text-sm sm:text-[16px] md:text-2xl">
           {t("common.welcome")}
         </div>
       </div>
 
       {error && (
-        <div className="flex flex-row items-center space-x-4 border-2 border-red-500 bg-red-50 rounded-[8px] p-3 w-full animate-pulse">
-          <InfoCircle size="20" color="red" />
-          <p className="text-red-600 text-[15px] font-semibold">{error}</p>
+        <div className="flex flex-row items-center space-x-2 sm:space-x-4 border-2 border-red-500 bg-red-50 rounded-[6px] sm:rounded-[8px] p-2 sm:p-3 w-full animate-pulse">
+          <InfoCircle size="16" className="sm:w-5 sm:h-5" color="red" />
+          <p className="text-red-600 text-xs sm:text-[15px] font-semibold">{error}</p>
         </div>
       )}
 
       <div className="relative flex flex-col gap-1 w-full">
-        <label htmlFor="login" className="text-gray-700 text-sm font-medium">
+        <label htmlFor="login" className="text-gray-700 text-xs sm:text-sm font-medium">
           {tf("labels.emailOrPhone")}
         </label>
         <input
           type="text"
           placeholder={tf("placeholders.enterEmailOrPhone")}
           {...register("login")}
-          className="w-full px-6 py-2.5 pr-12 border border-zinc-300 bg-zinc-100 outline-blue-400 rounded-[8px] placeholder:text-zinc-400 placeholder:text-[15px]"
+          className="w-full px-4 sm:px-6 py-2 sm:py-2.5 pr-10 sm:pr-12 border border-zinc-300 bg-zinc-100 outline-blue-400 rounded-[6px] sm:rounded-[8px] placeholder:text-zinc-400 placeholder:text-xs sm:placeholder:text-[15px]"
         />
-        <Sms size="20" color="#9F9FA9" className="absolute top-9.5 right-5" />
+        <Sms size="16" color="#9F9FA9" className="absolute top-8 sm:top-9.5 right-3 sm:right-5" />
         {errors.login && (
-          <p className="text-red-500 text-[12px] absolute left-0 top-[70px]">
+          <p className="text-red-500 text-[10px] sm:text-[12px] absolute left-0 top-[60px] sm:top-[70px]">
             {errors.login.message}
           </p>
         )}
       </div>
 
       <div className="relative flex flex-col gap-1 w-full">
-        <label htmlFor="password" className="text-gray-700 text-sm font-medium">
+        <label htmlFor="password" className="text-gray-700 text-xs sm:text-sm font-medium">
           {t("common.password")}
         </label>
         <input
           type={isPasswordVisible ? "text" : "password"}
           placeholder={tf("placeholders.enterPassword")}
           {...register("password")}
-          className="w-full px-6 py-2.5 pr-12 border border-zinc-300 bg-zinc-100 outline-blue-400 rounded-[8px] placeholder:text-zinc-400 placeholder:text-[15px]"
+          className="w-full px-4 sm:px-6 py-2 sm:py-2.5 pr-10 sm:pr-12 border border-zinc-300 bg-zinc-100 outline-blue-400 rounded-[6px] sm:rounded-[8px] placeholder:text-zinc-400 placeholder:text-xs sm:placeholder:text-[15px]"
         />
         <button
           type="button"
@@ -154,16 +154,16 @@ export default function LoginForm() {
               ? tf("buttons.hidePassword")
               : tf("buttons.showPassword")
           }
-          className="absolute top-9.5 right-5 text-zinc-400"
+          className="absolute top-8 sm:top-9.5 right-3 sm:right-5 text-zinc-400"
         >
           {isPasswordVisible ? (
-            <MdVisibilityOff className="w-5 h-5 cursor-pointer" />
+            <MdVisibilityOff className="w-4 h-4 sm:w-5 sm:h-5 cursor-pointer" />
           ) : (
-            <MdVisibility className="w-5 h-5 cursor-pointer" />
+            <MdVisibility className="w-4 h-4 sm:w-5 sm:h-5 cursor-pointer" />
           )}
         </button>
         {errors.password && (
-          <p className="text-red-500 text-[12px] absolute left-0 top-[70px]">
+          <p className="text-red-500 text-[10px] sm:text-[12px] absolute left-0 top-[60px] sm:top-[70px]">
             {errors.password.type === "min"
               ? tf("validation.passwordMinLength")
               : errors.password.type === "regex"
@@ -176,37 +176,31 @@ export default function LoginForm() {
       <button
         type="submit"
         disabled={isSubmitting}
-        className="bg-blue-500 text-white px-6 py-2.5 rounded-[8px] text-[15px] hover:bg-blue-600 cursor-pointer flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
+        className="bg-blue-500 text-white px-4 sm:px-6 py-2 sm:py-2.5 rounded-[6px] sm:rounded-[8px] text-xs sm:text-[15px] hover:bg-blue-600 cursor-pointer flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
       >
         {isSubmitting ? (
           <div className="flex items-center justify-center">
-            <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+            <div className="w-4 h-4 sm:w-5 sm:h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
           </div>
         ) : (
           t("common.login")
         )}
       </button>
 
-<div className="flex flex-row justify-between items-center">
-<div className="flex items-center space-x-4">
-        {/* <span className="text-[14px] text-gray-700 font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-          {tf("messages.noAccount")}
-        </span> */}
+<div className="flex flex-col sm:flex-row justify-between items-center gap-2 sm:gap-0">
+<div className="flex items-center space-x-2 sm:space-x-4">
         <button
           type="button"
-          className="text-[14px] text-blue-600 underline cursor-pointer"
+          className="text-[12px] sm:text-[14px] text-blue-600 underline cursor-pointer"
           onClick={toggleFormType}
         >
           {t("common.createAccount")}
         </button>
       </div>
-      <div className="flex items-center space-x-4">
-        {/* <span className="text-[14px] text-gray-700 font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-          {tf("messages.forgotPassword")}
-        </span> */}
+      <div className="flex items-center space-x-2 sm:space-x-4">
         <button
           type="button"
-          className="text-[14px] text-red-600 underline cursor-pointer"
+          className="text-[12px] sm:text-[14px] text-red-600 underline cursor-pointer"
           onClick={resetForm}
         >
           {t("common.resetPassword")}
