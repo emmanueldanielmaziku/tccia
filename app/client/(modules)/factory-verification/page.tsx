@@ -50,7 +50,7 @@ const stateLabels = {
   inspection_scheduled: "Inspection Scheduled",
   inspection_done: "Inspection Done",
   report_disputed: "Report Disputed",
-  report_accepted: "Report Accepted",
+  report_accepted: "Waiting for approval",
   finalized: "Finalized",
 };
 
@@ -58,13 +58,13 @@ const getStatusBadgeClass = (status: string) => {
   switch (status.toLowerCase()) {
     case "approved":
     case "verified":
-    case "report_accepted":
       return "bg-green-100 text-green-700";
     case "pending":
     case "draft":
     case "submitted":
     case "under_review":
     case "awaiting_director":
+    case "report_accepted":
       return "bg-orange-100 text-orange-700";
     case "rejected":
       return "bg-red-100 text-red-700";
@@ -615,20 +615,20 @@ export default function FactoryVerification() {
                               <td className="px-2 lg:px-4 py-3 lg:py-4 text-center">
                                 <button
                                   onClick={() => handleViewDetails(product)}
-                                  disabled={product.verification_state !== "inspection_done"}
+                                  disabled={!["inspection_done", "report_accepted", "awaiting_director", "approved"].includes(product.verification_state)}
                                   className={`px-2 lg:px-3 py-1 lg:py-1.5 text-xs font-medium rounded-md transition-colors ${
-                                    product.verification_state === "inspection_done"
+                                    ["inspection_done", "report_accepted", "awaiting_director", "approved"].includes(product.verification_state)
                                       ? "bg-blue-600 text-white hover:bg-blue-700 cursor-pointer"
                                       : "bg-gray-300 text-gray-500 cursor-not-allowed"
                                   }`}
                                   title={
-                                    product.verification_state === "inspection_done"
+                                    ["inspection_done", "report_accepted", "awaiting_director", "approved"].includes(product.verification_state)
                                       ? "Review inspection report"
                                       : "Review not available for this status"
                                   }
                                 >
-                                  <span className="hidden lg:inline">Review Report</span>
-                                  <span className="lg:hidden">Review</span>
+                                  <span className="hidden lg:inline">View Report</span>
+                                  <span className="lg:hidden">View</span>
                                 </button>
                               </td>
                             </tr>
@@ -683,14 +683,14 @@ export default function FactoryVerification() {
                             <div className="pt-2 border-t border-gray-100">
                               <button
                                 onClick={() => handleViewDetails(product)}
-                                disabled={product.verification_state !== "inspection_done"}
+                                disabled={!["inspection_done", "report_accepted", "awaiting_director", "approved"].includes(product.verification_state)}
                                 className={`w-full px-3 py-2 text-xs font-medium rounded-md transition-colors ${
-                                  product.verification_state === "inspection_done"
+                                  ["inspection_done", "report_accepted", "awaiting_director", "approved"].includes(product.verification_state)
                                     ? "bg-blue-600 text-white hover:bg-blue-700 cursor-pointer"
                                     : "bg-gray-300 text-gray-500 cursor-not-allowed"
                                 }`}
                                 title={
-                                  product.verification_state === "inspection_done"
+                                  ["inspection_done", "report_accepted", "awaiting_director", "approved"].includes(product.verification_state)
                                     ? "Review inspection report"
                                     : "Review not available for this status"
                                 }
@@ -752,11 +752,11 @@ export default function FactoryVerification() {
               total: products.length,
               submitted: products.filter((p) => {
                 // Count all states that are NOT approved/done as pending
-                const approvedStates = ["approved", "report_accepted", "finalized"];
+                const approvedStates = ["approved", "finalized"];
                 return !approvedStates.includes(p.verification_state.toLowerCase());
               }).length,
               approved: products.filter((p) => {
-                const approvedStates = ["approved", "report_accepted", "finalized"];
+                const approvedStates = ["approved", "finalized"];
                 return approvedStates.includes(p.verification_state.toLowerCase());
               }).length,
             }}
@@ -807,7 +807,7 @@ export default function FactoryVerification() {
             {/* Header */}
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-lg sm:text-xl font-semibold text-gray-800 pr-2">
-                Factory Verification Actions
+                Factory Verification Report
               </h2>
               <button
                 onClick={() => {
@@ -868,7 +868,18 @@ export default function FactoryVerification() {
 
             {/* Action Buttons - Column Layout */}
             <div className="space-y-2 sm:space-y-3">
-              {!showDisputeForm ? (
+              {["report_accepted", "awaiting_director", "approved"].includes(selectedProduct.verification_state) ? (
+                <div className="text-center py-4">
+                  <p className="text-sm text-gray-600">
+                    {selectedProduct.verification_state === "report_accepted" 
+                      ? "Report has been accepted and is waiting for final approval."
+                      : selectedProduct.verification_state === "awaiting_director"
+                      ? "Report is awaiting director approval."
+                      : "Report has been approved and completed."
+                    }
+                  </p>
+                </div>
+              ) : !showDisputeForm ? (
                 <>
                   <button
                     onClick={handleAcceptReport}
