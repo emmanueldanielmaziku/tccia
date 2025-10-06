@@ -451,7 +451,6 @@ export default function COO() {
                   >
                     <Refresh
                       size="16"
-                      className="w-4 h-4 sm:w-[18px] sm:h-[18px]"
                       color={isRefreshing ? "#9CA3AF" : "#4B5563"}
                       className={`w-4 h-4 sm:w-[18px] sm:h-[18px] transition-transform duration-1000 ${
                         isRefreshing ? "animate-spin" : ""
