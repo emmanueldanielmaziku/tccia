@@ -1141,75 +1141,12 @@ export default function FactoryVerificationForm({
         onSubmit={handlePreview}
       >
         <div className="flex flex-col gap-4 overflow-y-auto pr-3 pb-6 flex-1">
-          {/* Applicant Information */}
-          <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 mb-2">
-            <div className="flex flex-col flex-1">
-              <label className="text-sm text-gray-600 mb-1">
-                Applicant Name
-              </label>
-              <input
-                type="text"
-                placeholder="Enter applicant name"
-                value={formData.applicant_name}
-                onChange={(e) =>
-                  setFormData({ ...formData, applicant_name: e.target.value })
-                }
-                className="w-full px-3 py-2 border text-sm border-zinc-300 bg-white rounded-md placeholder:text-zinc-400 text-zinc-500 focus:outline-none"
-              />
-              {errors.applicant_name && (
-                <p className="text-red-500 text-xs mt-1">
-                  {errors.applicant_name}
-                </p>
-              )}
+          {/* Header with Title and Date Picker */}
+          <div className="flex flex-col lg:flex-col justify-center lg:items-start border-b border-gray-200 pb-4 gap-2 lg:gap-6">
+            <div className="text-base text-md font-semibold text-gray-600">
+              Select the expected inspection date
             </div>
-            <div className="flex flex-col flex-1">
-              <label className="text-sm text-gray-600 mb-1">
-                Applicant Phone
-              </label>
-              <input
-                type="tel"
-                placeholder="Enter applicant phone"
-                value={formData.applicant_phone}
-                onChange={(e) =>
-                  setFormData({ ...formData, applicant_phone: handlePhoneInput(e.target.value) })
-                }
-                className="w-full px-3 py-2 border text-sm border-zinc-300 bg-white rounded-md placeholder:text-zinc-400 text-zinc-500 focus:outline-none"
-                inputMode="tel"
-                pattern="[0-9+]*"
-              />
-              {errors.applicant_phone && (
-                <p className="text-red-500 text-xs mt-1">
-                  {errors.applicant_phone}
-                </p>
-              )}
-            </div>
-            <div className="flex flex-col flex-1">
-              <label className="text-sm text-gray-600 mb-1">
-                Applicant Email
-              </label>
-              <input
-                type="email"
-                placeholder="Enter applicant email"
-                value={formData.applicant_email}
-                onChange={(e) =>
-                  setFormData({ ...formData, applicant_email: e.target.value })
-                }
-                className="w-full px-3 py-2 border text-sm border-zinc-300 bg-white rounded-md placeholder:text-zinc-400 text-zinc-500 focus:outline-none"
-              />
-              {errors.applicant_email && (
-                <p className="text-red-500 text-xs mt-1">
-                  {errors.applicant_email}
-                </p>
-              )}
-            </div>
-          </div>
-
-          {/* Header with Date Picker */}
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-gray-200 pb-4 gap-4 sm:gap-0">
-            <div className="text-base sm:text-lg font-semibold text-gray-700">
-              Factory Verification Application
-            </div>
-            <div className="flex flex-col items-start sm:items-end gap-2 w-full sm:w-auto">
+            <div className="flex flex-col items-start sm:items-start gap-2 w-full">
               <div className="text-sm text-gray-600">
                 Expected Inspection Date
               </div>
@@ -1218,7 +1155,7 @@ export default function FactoryVerificationForm({
                 onChange={handleDateChange}
                 error={errors.expected_inspection_date}
                 placeholder="Select date"
-                className="w-full sm:w-auto py-2 sm:py-4"
+                className="w-full py-5 sm:py-5 cursor-pointer"
               />
               {errors.expected_inspection_date && (
                 <p className="text-red-500 text-xs">
@@ -1228,8 +1165,76 @@ export default function FactoryVerificationForm({
             </div>
           </div>
 
+          {/* Contact Details Section */}
+          <div className="space-y-2">
+            <div className="text-base text-md font-semibold text-gray-600">
+              Contact Details
+            </div>
+            <div className="flex flex-col sm:flex-row gap-4 sm:gap-6">
+              <div className="flex flex-col flex-1">
+                <label className="text-sm text-gray-600 mb-1">
+                  Contact Person Name
+                </label>
+                <input
+                  type="text"
+                  placeholder="Enter contact person name"
+                  value={formData.applicant_name}
+                  onChange={(e) =>
+                    setFormData({ ...formData, applicant_name: e.target.value })
+                  }
+                  className="w-full px-3 py-2 border text-sm border-zinc-300 bg-white rounded-md placeholder:text-zinc-400 text-zinc-500 focus:outline-none"
+                />
+                {errors.applicant_name && (
+                  <p className="text-red-500 text-xs mt-1">
+                    {errors.applicant_name}
+                  </p>
+                )}
+              </div>
+              <div className="flex flex-col flex-1">
+                <label className="text-sm text-gray-600 mb-1">
+                  Contact Person Phone
+                </label>
+                <input
+                  type="tel"
+                  placeholder="Enter contact person phone"
+                  value={formData.applicant_phone}
+                  onChange={(e) =>
+                    setFormData({ ...formData, applicant_phone: handlePhoneInput(e.target.value) })
+                  }
+                  className="w-full px-3 py-2 border text-sm border-zinc-300 bg-white rounded-md placeholder:text-zinc-400 text-zinc-500 focus:outline-none"
+                  inputMode="tel"
+                  pattern="[0-9+]*"
+                />
+                {errors.applicant_phone && (
+                  <p className="text-red-500 text-xs mt-1">
+                    {errors.applicant_phone}
+                  </p>
+                )}
+              </div>
+              <div className="flex flex-col flex-1">
+                <label className="text-sm text-gray-600 mb-1">
+                  Contact Person Email
+                </label>
+                <input
+                  type="email"
+                  placeholder="Enter contact person email"
+                  value={formData.applicant_email}
+                  onChange={(e) =>
+                    setFormData({ ...formData, applicant_email: e.target.value })
+                  }
+                  className="w-full px-3 py-2 border text-sm border-zinc-300 bg-white rounded-md placeholder:text-zinc-400 text-zinc-500 focus:outline-none"
+                />
+                {errors.applicant_email && (
+                  <p className="text-red-500 text-xs mt-1">
+                    {errors.applicant_email}
+                  </p>
+                )}
+              </div>
+            </div>
+          </div>
+
           {/* Products Section */}
-          <div className="text-lg font-semibold text-gray-700 mb-2">
+          <div className="text-md font-semibold text-gray-700 mb-2">
             Products to be Verified
           </div>
 

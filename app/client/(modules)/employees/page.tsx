@@ -5,6 +5,7 @@ import ProgressTracker from "../employees/components/StatsBar";
 import { Add, CloseCircle, MoreCircle, SearchNormal1 } from "iconsax-reactjs";
 import AlertBox from "../factory-verification/components/AlertBox";
 import AddOfficerForm from "./components/AddOfficerForm";
+import { useRightSidebar } from "../../../contexts/RightSidebarContext";
 
 // Sample employees data
 const employeesData = [
@@ -221,7 +222,8 @@ const employeesData = [
 ];
 
 export default function EmployeesManagement() {
-    const [addEmployeeForm, setAddEmployeeForm] = useState(false);
+  const { isRightSidebarOpen } = useRightSidebar();
+  const [addEmployeeForm, setAddEmployeeForm] = useState(false);
     const [discardBoxState, setDiscardBoxState] = useState(false);
 
     const [currentPage, setCurrentPage] = useState(1);
@@ -399,7 +401,7 @@ export default function EmployeesManagement() {
                     </div>
                 </div>
                 
-                    <ProgressTracker />
+                {isRightSidebarOpen && <ProgressTracker />}
                
             </section>
             {/* End of Content */}

@@ -5,6 +5,7 @@ import ProgressTracker from "../cfa-management/components/StatsBar";
 import { Add, CloseCircle, MoreCircle, SearchNormal1 } from "iconsax-reactjs";
 import AlertBox from "../factory-verification/components/AlertBox";
 import CFASelectForm from "./components/CFASelectForm";
+import { useRightSidebar } from "../../../contexts/RightSidebarContext";
 
 // Sample employees data
 const employeesData = [
@@ -221,7 +222,8 @@ const employeesData = [
 ];
 
 export default function EmployeesManagement() {
-    const [addEmployeeForm, setAddEmployeeForm] = useState(false);
+  const { isRightSidebarOpen } = useRightSidebar();
+  const [addEmployeeForm, setAddEmployeeForm] = useState(false);
     const [discardBoxState, setDiscardBoxState] = useState(false);
 
     const [currentPage, setCurrentPage] = useState(1);
@@ -410,9 +412,11 @@ export default function EmployeesManagement() {
               )}
             </div>
           </div>
-          <div className="w-[450px] h-[97vh]">
-            <ProgressTracker />
-          </div>
+          {isRightSidebarOpen && (
+            <div className="w-[450px] h-[97vh]">
+              <ProgressTracker />
+            </div>
+          )}
         </section>
         {/* End of Content */}
       </main>

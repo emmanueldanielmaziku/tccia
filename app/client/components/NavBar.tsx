@@ -53,14 +53,14 @@ export default function NavBar({ title }: NavBarProps) {
   }, []);
 
   return (
-    <nav className="bg-gray-50/5 flex flex-row justify-between items-center absolute z-20 h-[65px] left-0 right-0 top-0 border-b-[1px] border-b-gray-200 px-4 w-full backdrop-blur-md">
+    <nav className="bg-gray-50/5 flex flex-row justify-between items-center absolute z-20 h-[60px] sm:h-[65px] left-0 right-0 top-0 border-b-[1px] border-b-gray-200 px-2 sm:px-4 w-full backdrop-blur-md">
       <div className="flex items-center flex-row">
         <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
           <SheetTrigger asChild>
             <Button
               variant="ghost"
               size="icon"
-              className="md:hidden flex items-center justify-center w-10 h-10 rounded-[12px] bg-gray-50 border-gray-100 hover:bg-blue-100 mr-3 border-[0.5px] cursor-pointer"
+              className="md:hidden flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 rounded-[10px] sm:rounded-[12px] bg-gray-50 border-gray-100 hover:bg-blue-100 mr-2 sm:mr-3 border-[0.5px] cursor-pointer"
               aria-label="Open menu"
             >
               <HamburgerMenu size="24" color="black" />
@@ -73,7 +73,7 @@ export default function NavBar({ title }: NavBarProps) {
 
         <button
           onClick={toggleMenu}
-          className="hidden md:flex items-center justify-center w-10 h-10 rounded-[12px] bg-gray-50 border-gray-100 hover:bg-blue-100 mr-3 border-[0.5px] cursor-pointer"
+          className="hidden md:flex items-center justify-center w-8 h-8 lg:w-10 lg:h-10 rounded-[10px] lg:rounded-[12px] bg-gray-50 border-gray-100 hover:bg-blue-100 mr-2 lg:mr-3 border-[0.5px] cursor-pointer"
         >
           {isMenuOpen ? (
             <SidebarLeft
@@ -92,8 +92,8 @@ export default function NavBar({ title }: NavBarProps) {
           )}
         </button>
 
-        <div className="h-[25px] max-h-[25px] bg-zinc-300 w-[1px] max-w-[1px]"></div>
-        <div className="px-4 text-zinc-600 text-[13px]">{title}</div>
+        <div className="h-[20px] sm:h-[25px] max-h-[25px] bg-zinc-300 w-[1px] max-w-[1px]"></div>
+        <div className="px-2 sm:px-4 text-zinc-600 text-[12px] sm:text-[13px]">{title}</div>
       </div>
 
       <div className="flex flex-row items-center">

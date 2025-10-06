@@ -6,12 +6,11 @@ import CompanyPicker from "./CompanyPicker";
 import SideBar from "./SideBar";
 import useLogState from "../services/LogoutState";
 import usePickerState from "../services/PickerState";
+import { RightSidebarProvider } from "../../contexts/RightSidebarContext";
+import { ResponsiveSidebarHandler } from "./ResponsiveSidebarHandler";
 
-export default function ClientLayoutContent({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+// Component that uses the responsive sidebar hook
+function ClientLayoutWithResponsiveSidebar({ children }: { children: React.ReactNode }) {
   const { alertState } = useLogState();
   const { pickerState, forceShowPicker } = usePickerState();
 
@@ -21,10 +20,23 @@ export default function ClientLayoutContent({
 
   return (
     <>
+      <ResponsiveSidebarHandler />
       {alertState && <AlertBox isLogout={true} />}
       {pickerState && <CompanyPicker />}
       <SideBar />
-      <section className="flex-1 bg-gray-50 pr-4">{children}</section>
+      <section className="flex-1 bg-gray-50 pr-2 sm:pr-4">{children}</section>
     </>
+  );
+}
+
+export default function ClientLayoutContent({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <RightSidebarProvider>
+      <ClientLayoutWithResponsiveSidebar>{children}</ClientLayoutWithResponsiveSidebar>
+    </RightSidebarProvider>
   );
 }

@@ -141,28 +141,28 @@ export default function SideBar() {
 
   return (
     <div
-      className={`bg-gray-50 h-full p-6 flex-col justify-between transition-all duration-300
+      className={`bg-gray-50 h-full p-3 sm:p-4 md:p-6 flex-col justify-between transition-all duration-300
         md:flex hidden flex-shrink-0
-        ${isMenuOpen ? "md:w-[340px] lg:w-[340px] xl:w-[340px]" : "md:w-[120px] lg:w-[120px] xl:w-[120px]"}`}
+        ${isMenuOpen ? "md:w-[280px] lg:w-[320px] xl:w-[340px]" : "md:w-[80px] lg:w-[100px] xl:w-[120px]"}`}
     >
       <div className="flex flex-col">
         {/* Logo */}
-        <div className="flex flex-row justify-start items-center gap-4">
-          <img src="/icons/LOGO.png" alt="Logo" className="w-15 h-15" />
+        <div className="flex flex-row justify-start items-center gap-2 md:gap-4">
+          <img src="/icons/LOGO.png" alt="Logo" className="w-12 h-12 md:w-15 md:h-15" />
           {isMenuOpen && (
             <div>
-              <h1 className="font-bold text-xl text-gray-700 truncate">
+              <h1 className="font-bold text-lg md:text-xl text-gray-700 truncate">
                 TCCIA'S CLIENT
               </h1>
-              <div className="text-gray-500">{t("dashboard")}</div>
+              <div className="text-sm md:text-base text-gray-500">{t("dashboard")}</div>
             </div>
           )}
         </div>
 
         {/* Modules */}
-        <div className="mt-8">
-          <h2 className="text-sm text-gray-500 mb-4">{t("modules")}</h2>
-          <div className="flex flex-col gap-2.5">
+        <div className="mt-6 md:mt-8">
+          <h2 className="text-xs md:text-sm text-gray-500 mb-3 md:mb-4">{t("modules")}</h2>
+          <div className="flex flex-col gap-2 md:gap-2.5">
             {menuItems.map((item) => {
               const isFirmManagement = item.id === "Firm Registration";
               const isNTB = item.id === "Non-Tariff Barrier";
@@ -214,26 +214,26 @@ export default function SideBar() {
                   <div key={item.id} className="w-full flex flex-col items-end">
                     {isLocked ? (
                       <div
-                        className="flex flex-row items-center h-[55px] w-full relative justify-between md:gap-2 px-4 rounded-[8px] md:rounded-[10px] border-[0.5px] border-gray-200 bg-gray-100 cursor-not-allowed opacity-60"
+                        className="flex flex-row items-center h-[45px] md:h-[55px] w-full relative justify-between gap-1 md:gap-2 px-3 md:px-4 rounded-[6px] md:rounded-[8px] lg:rounded-[10px] border-[0.5px] border-gray-200 bg-gray-100 cursor-not-allowed opacity-60"
                         title="Select a company to access this module"
                       >
-                        <div className="flex flex-row items-center gap-2">
-                          <item.icon size="20" color="#b0b0b0" />
+                        <div className="flex flex-row items-center gap-1 md:gap-2">
+                          <item.icon size="18" className="md:w-5 md:h-5" color="#b0b0b0" />
                           {isMenuOpen && (
-                            <span className="text-gray-400 text-sm truncate">
+                            <span className="text-gray-400 text-xs md:text-sm truncate">
                               {t(item.translationKey)}
                             </span>
                           )}
                         </div>
-                        <Lock size="18" color="#b0b0b0" />
+                        <Lock size="16" className="md:w-[18px] md:h-[18px]" color="#b0b0b0" />
                       </div>
                     ) : (
                       <Link
                         href={item.route}
                         onClick={() => handleTabClick(item.id)}
-                        className={`cursor-pointer flex flex-row items-center h-[55px] w-full relative ${
+                        className={`cursor-pointer flex flex-row items-center h-[45px] md:h-[55px] w-full relative ${
                           isMenuOpen ? "justify-between" : "justify-center"
-                        } md:gap-2 px-4 rounded-[8px] md:rounded-[10px] border-[0.5px] ${
+                        } gap-1 md:gap-2 px-3 md:px-4 rounded-[6px] md:rounded-[8px] lg:rounded-[10px] border-[0.5px] ${
                           selectedTab === item.id
                             ? "bg-blue-100 border-blue-500"
                             : "border-gray-200 hover:bg-blue-50 hover:border-blue-300"
@@ -247,15 +247,16 @@ export default function SideBar() {
                               : "bg-transparent"
                           } absolute left-0`}
                         ></div>
-                        <div className="flex flex-row items-center gap-2">
+                        <div className="flex flex-row items-center gap-1 md:gap-2">
                           <item.icon
-                            size="20"
+                            size="18"
+                            className="md:w-5 md:h-5"
                             color={
                               selectedTab === item.id ? "#0561f5" : "#364153"
                             }
                           />
                           {isMenuOpen && (
-                            <span className="text-gray-700 text-sm truncate">
+                            <span className="text-gray-700 text-xs md:text-sm truncate">
                               {t(item.translationKey)}
                             </span>
                           )}

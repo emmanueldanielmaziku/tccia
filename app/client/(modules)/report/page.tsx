@@ -163,11 +163,11 @@ export default function HelpdeskReport() {
   };
 
   return (
-    <main className="w-full h-[97vh] rounded-[14px] overflow-hidden bg-white border-[1px] border-gray-200 shadow-sm relative">
+    <main className="w-full h-[97vh] rounded-[12px] sm:rounded-[14px] overflow-hidden bg-white border-[1px] border-gray-200 shadow-sm relative">
       <NavBar title={t("title")} />
       <section className="flex flex-1 flex-col lg:flex-row h-full">
         <div className="flex flex-col items-start flex-1 w-full overflow-y-auto max-h-[calc(97vh-80px)]">
-          <div className="w-full max-w-4xl mx-auto mt-24 mb-8 px-6 pb-8">
+          <div className="w-full max-w-4xl mx-auto mt-20 sm:mt-24 mb-6 sm:mb-8 px-3 sm:px-6 pb-6 sm:pb-8">
             {/* Welcome Section */}
             {mode === "none" && (
               <div className="flex flex-col gap-8 items-center text-center">

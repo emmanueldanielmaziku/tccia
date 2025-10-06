@@ -41,7 +41,7 @@ export default function Membership() {
   };
 
   return (
-    <main className="w-full h-[97vh] rounded-[14px] overflow-hidden bg-white border-[1px] border-gray-200 shadow-sm relative">
+    <main className="w-full h-[97vh] rounded-[12px] sm:rounded-[14px] overflow-hidden bg-white border-[1px] border-gray-200 shadow-sm relative">
       {discardBoxState && (
         <AlertBox
           onConfirm={handleDiscard}

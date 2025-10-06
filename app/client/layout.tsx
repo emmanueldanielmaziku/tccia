@@ -7,7 +7,7 @@ export default function ClientLayout({
   children: React.ReactNode;
 }) {
   return (
-    <main className="bg-gray-50 flex gap-1 items-center h-lvh flex-row font-[family-name:var(--font-geist-sans)] relative">
+    <main className="bg-gray-50 flex gap-1 items-center h-lvh flex-col sm:flex-row font-[family-name:var(--font-geist-sans)] relative">
       <ClientLayoutContent>{children}</ClientLayoutContent>
     </main>
   );

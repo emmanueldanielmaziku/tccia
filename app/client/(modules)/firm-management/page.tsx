@@ -24,6 +24,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import usetinFormState from "../../services/companytinformState";
+import { useRightSidebar } from "../../../contexts/RightSidebarContext";
 
 type Company = {
   id: number;
@@ -44,6 +45,7 @@ type Company = {
 
 export default function FirmManagement() {
   const { tinformState, toggleCompanyTinForm } = usetinFormState();
+  const { isRightSidebarOpen } = useRightSidebar();
   const [discardBoxState, togglediscardBox] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
@@ -226,7 +228,7 @@ export default function FirmManagement() {
   };
 
   return (
-    <main className="w-full h-[97vh] rounded-[14px] overflow-hidden bg-white border-[1px] border-gray-200 shadow-sm relative">
+    <main className="w-full h-[97vh] rounded-[12px] sm:rounded-[14px] overflow-hidden bg-white border-[1px] border-gray-200 shadow-sm relative">
       {discardBoxState && (
         <AlertBox
           onConfirm={() => {
@@ -239,13 +241,13 @@ export default function FirmManagement() {
       <NavBar title={"Firm Registration"} />
 
       {/* Content */}
-      <section className="flex lg:flex-row flex-1">
-        <div className="flex flex-col items-start flex-1 min-w-0 h-[97vh] pt-18 bg-transparent border-transparent border-[1px] rounded-xl">
-          <div className="flex flex-col justify-start items-start mt-2 w-full h-[86vh] rounded-sm relative px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16">
+      <section className="flex flex-col lg:flex-row flex-1">
+        <div className="flex flex-col items-start flex-1 min-w-0 h-[97vh] pt-16 sm:pt-18 bg-transparent border-transparent border-[1px] rounded-xl">
+          <div className="flex flex-col justify-start items-start mt-2 w-full h-[86vh] rounded-sm relative px-3 sm:px-4 md:px-6 lg:px-8 xl:px-12 2xl:px-16">
             <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center w-full gap-4 lg:gap-6 my-1">
               {tinformState ? (
-                <div className="font-semibold antialiased text-base lg:text-[18px] text-zinc-600">
-                  Add New Firm
+                <div className="font-semibold antialiased text-sm sm:text-base lg:text-[18px] text-zinc-600">
+                  Add New Company
                 </div>
               ) : (
                 <>
@@ -257,18 +259,18 @@ export default function FirmManagement() {
                         placeholder="Search firms..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="w-full lg:w-auto border-[0.5px] border-zinc-300 focus:outline-2 focus:outline-blue-400 rounded-[9px] pl-6 lg:pl-8 pr-2.5 py-1.5 lg:py-2 text-sm placeholder:text-sm"
+                        className="w-full lg:w-auto border-[0.5px] border-zinc-300 focus:outline-2 focus:outline-blue-400 rounded-[8px] sm:rounded-[9px] pl-5 sm:pl-6 lg:pl-8 pr-2 sm:pr-2.5 py-1 sm:py-1.5 lg:py-2 text-xs sm:text-sm placeholder:text-xs sm:placeholder:text-sm"
                       />
                       <SearchNormal1
-                        size="16"
-                        className="absolute left-2 lg:left-3 lg:w-[18px] lg:h-[18px]"
+                        size="14"
+                        className="absolute left-1.5 sm:left-2 lg:left-3 w-4 h-4 sm:w-4 sm:h-4 lg:w-[18px] lg:h-[18px]"
                         color="gray"
                       />
                     </label>
 
                     {/* State Filter */}
                     <Select value={stateFilter} onValueChange={setStateFilter}>
-                      <SelectTrigger className="w-full lg:w-[140px] text-zinc-600 text-sm py-1.5 lg:py-2">
+                      <SelectTrigger className="w-full lg:w-[140px] text-zinc-600 text-xs sm:text-sm py-1 sm:py-1.5 lg:py-2">
                         <SelectValue placeholder="State" />
                       </SelectTrigger>
                       <SelectContent>
@@ -287,7 +289,7 @@ export default function FirmManagement() {
                   {/* Action Buttons Section */}
                   <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 w-full sm:w-auto">
                     <button
-                      className={`flex flex-row h-[35px] gap-2 items-center justify-center bg-gray-200 hover:bg-gray-300 text-gray-700 text-sm rounded-[6px] cursor-pointer px-3 sm:px-4 py-2 sm:py-3 w-full sm:w-auto border border-gray-300 ${
+                      className={`flex flex-row h-[32px] sm:h-[35px] gap-1 sm:gap-2 items-center justify-center bg-gray-200 hover:bg-gray-300 text-gray-700 text-xs sm:text-sm rounded-[5px] sm:rounded-[6px] cursor-pointer px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 md:py-3 w-full sm:w-auto border border-gray-300 ${
                         refreshing ? "opacity-60 cursor-not-allowed" : ""
                       }`}
                       onClick={fetchCompanies}
@@ -303,12 +305,12 @@ export default function FirmManagement() {
                       <span className="sm:hidden">{refreshing ? "..." : "↻"}</span>
                     </button>
                     <button
-                      className="flex flex-row gap-2 sm:gap-3 justify-center items-center bg-blue-600 hover:bg-blue-500 text-white text-sm rounded-[6px] cursor-pointer px-3 sm:px-5 h-[35px] w-full sm:w-auto"
+                      className="flex flex-row gap-1 sm:gap-2 md:gap-3 justify-center items-center bg-blue-600 hover:bg-blue-500 text-white text-xs sm:text-sm rounded-[5px] sm:rounded-[6px] cursor-pointer px-2 sm:px-3 md:px-5 h-[32px] sm:h-[35px] w-full sm:w-auto"
                       onClick={() => toggleCompanyTinForm()}
                     >
-                      <Add size={18} className="sm:w-5 sm:h-5" color="white" />
+                      <Add size="16" className="w-4 h-4 sm:w-5 sm:h-5" color="white" />
                       <span className="hidden sm:inline">Add Company</span>
-                      <span className="sm:hidden">Add Company</span>
+                      <span className="sm:hidden">Add</span>
                     </button>
                   </div>
                 </>
@@ -330,7 +332,7 @@ export default function FirmManagement() {
 
             {/* Main */}
             {loading || refreshing ? (
-              <div className="w-full grid grid-cols-1 pr-3 gap-5 mt-5 rounded-md overflow-hidden overflow-y-auto">
+              <div className="w-full grid grid-cols-1 pr-2 sm:pr-3 gap-3 sm:gap-5 mt-4 sm:mt-5 rounded-md overflow-hidden overflow-y-auto">
                 {Array.from({ length: 5 }).map((_, idx) => (
                   <div
                     key={idx}
@@ -390,19 +392,19 @@ export default function FirmManagement() {
             ) : error ? (
               <div className="text-red-500">{error}</div>
             ) : (
-              <div className="w-full grid grid-cols-1 pr-3 gap-5 mt-5 rounded-md overflow-hidden overflow-y-auto">
+              <div className="w-full grid grid-cols-1 pr-2 sm:pr-3 gap-3 sm:gap-5 mt-4 sm:mt-5 rounded-md overflow-hidden overflow-y-auto">
                 {paginatedData.map((firm, index) => (
                   <div
                     key={index}
                     className="hover:bg-white bg-gray-100 flex flex-col transition-colors border-[0.5px] rounded-[7px] text-gray-700 border-zinc-300 shadow-sm"
                   >
                     {/* Header */}
-                    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center border-b-[0.5px] border-zinc-200 p-4 gap-2">
-                      <div className="font-semibold text-base sm:text-lg break-words">{`${
+                    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center border-b-[0.5px] border-zinc-200 p-3 sm:p-4 gap-2">
+                      <div className="font-semibold text-sm sm:text-base md:text-lg break-words">{`${
                         index + 1
                       }. ${firm.company_name}`}</div>
                       <div
-                        className={`border-[0.5px] text-xs sm:text-sm rounded-[30px] px-3 py-1 self-start sm:self-auto ${
+                        className={`border-[0.5px] text-xs sm:text-sm rounded-[30px] px-2 sm:px-3 py-1 self-start sm:self-auto ${
                           firm.state == "approved"
                             ? "bg-green-100 border-green-300 text-green-600"
                             : "bg-red-100 border-red-300 text-red-600"
@@ -414,7 +416,7 @@ export default function FirmManagement() {
                     </div>
                     {/* Company Info */}
                     <div className="flex flex-col sm:flex-row items-start sm:items-center p-3 sm:p-4 gap-3 bg-gray-50">
-                      <div className="border-[0.5px] bg-blue-50 border-blue-200 py-2 sm:py-3 md:py-4 rounded-[12px] px-2 sm:px-3 md:px-4 flex items-center self-start">
+                      <div className="border-[0.5px] bg-blue-50 border-blue-200 py-2 sm:py-3 md:py-4 rounded-[10px] sm:rounded-[12px] px-2 sm:px-3 md:px-4 flex items-center self-start">
                         <Building variant="Bulk" size={24} className="sm:w-8 sm:h-8" color="#138abd" />
                       </div>
                       <div className="w-full flex flex-col gap-1 justify-start min-w-0">
@@ -508,13 +510,15 @@ export default function FirmManagement() {
           </div>
         </div>
 
-        <ProgressTracker
-          stats={{
-            total: companies.length,
-            submitted: submittedCount,
-            approved: approvedCount,
-          }}
-        />
+        {isRightSidebarOpen && (
+          <ProgressTracker
+            stats={{
+              total: companies.length,
+              submitted: submittedCount,
+              approved: approvedCount,
+            }}
+          />
+        )}
       </section>
     </main>
   );

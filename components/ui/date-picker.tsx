@@ -32,6 +32,7 @@ export function DatePicker({
   const [date, setDate] = React.useState<Date | undefined>(
     value ? new Date(value) : undefined
   );
+  const [open, setOpen] = React.useState(false);
 
   React.useEffect(() => {
     if (value) {
@@ -44,14 +45,19 @@ export function DatePicker({
   const handleSelect = (selectedDate: Date | undefined) => {
     setDate(selectedDate);
     if (selectedDate) {
-      onChange(selectedDate.toISOString().split("T")[0]);
+      // Use local date format to avoid timezone issues
+      const year = selectedDate.getFullYear();
+      const month = String(selectedDate.getMonth() + 1).padStart(2, '0');
+      const day = String(selectedDate.getDate()).padStart(2, '0');
+      onChange(`${year}-${month}-${day}`);
+      setOpen(false); // Auto-close the picker
     } else {
       onChange("");
     }
   };
 
   return (
-    <Popover>
+    <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <Button
           variant="outline"

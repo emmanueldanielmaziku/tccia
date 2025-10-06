@@ -28,8 +28,10 @@ import COOForm from "./components/COOForm";
 import { useRouter } from "next/navigation";
 
 import usePickerState from "../../services/PickerState";
+import { useRightSidebar } from "../../../contexts/RightSidebarContext";
 
 export default function COO() {
+  const { isRightSidebarOpen } = useRightSidebar();
   const [verificationForm, toggleForm] = useState(false);
   const [isNewCertificateModalOpen, setIsNewCertificateModalOpen] =
     useState(false);
@@ -350,17 +352,17 @@ export default function COO() {
   ).length;
 
   return (
-    <main className="w-full h-[97vh] rounded-[14px] overflow-hidden bg-white border-[1px] border-gray-200 shadow-sm relative">
+    <main className="w-full h-[97vh] rounded-[12px] sm:rounded-[14px] overflow-hidden bg-white border-[1px] border-gray-200 shadow-sm relative">
       <NavBar title={"Certificate of Origin"} />
 
       {/* Content */}
       <section className="flex flex-col lg:flex-row">
-        <div className="flex flex-col items-start flex-1 h-[97vh] pt-18 w-full bg-transparent border-transparent border-[1px] rounded-xl">
-          <div className="flex flex-col justify-start items-start mt-2 w-full h-[86vh] rounded-sm relative px-4 md:px-8 lg:px-16.5">
+        <div className="flex flex-col items-start flex-1 h-[97vh] pt-16 sm:pt-18 w-full bg-transparent border-transparent border-[1px] rounded-xl">
+          <div className="flex flex-col justify-start items-start mt-2 w-full h-[86vh] rounded-sm relative px-3 sm:px-4 md:px-6 lg:px-8 xl:px-12 2xl:px-16">
             {/* Header */}
             <div className="flex flex-col md:flex-row w-full justify-between items-start md:items-center gap-4 mb-5">
               {verificationForm ? (
-                <div className="font-semibold antialiased text-[18px] text-zinc-600 pl-3">
+                <div className="font-semibold antialiased text-sm sm:text-base lg:text-[18px] text-zinc-600 pl-2 sm:pl-3">
                   {selectedCertificate
                     ? "Certificate Preview"
                     : "Certificate of Origin List"}
@@ -373,12 +375,12 @@ export default function COO() {
                       placeholder="Search Certificates..."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      className="w-full md:w-auto border-[0.5px] border-zinc-300 focus:outline-2 focus:outline-blue-400 rounded-[9px] pl-8 pr-2.5 py-[9px] text-sm placeholder:text-[13px]"
+                      className="w-full md:w-auto border-[0.5px] border-zinc-300 focus:outline-2 focus:outline-blue-400 rounded-[8px] sm:rounded-[9px] pl-6 sm:pl-8 pr-2 sm:pr-2.5 py-1.5 sm:py-[9px] text-xs sm:text-sm placeholder:text-xs sm:placeholder:text-[13px]"
                     />
                     <SearchNormal1
-                      size="18"
+                      size="16"
                       color="gray"
-                      className="absolute left-6 md:left-19"
+                      className="absolute left-4 sm:left-6 md:left-19 w-4 h-4 sm:w-[18px] sm:h-[18px]"
                     />
                   </label>
 
@@ -389,7 +391,7 @@ export default function COO() {
                         value={statusFilter}
                         onValueChange={setStatusFilter}
                       >
-                        <SelectTrigger className="w-full md:w-[120px] text-zinc-600">
+                        <SelectTrigger className="w-full md:w-[120px] text-zinc-600 text-xs sm:text-sm py-1 sm:py-1.5">
                           <SelectValue placeholder="All Status" />
                         </SelectTrigger>
                         <SelectContent>
@@ -432,36 +434,39 @@ export default function COO() {
               {/* button */}
               {verificationForm ? (
                 <button
-                  className="flex flex-row gap-3 justify-between items-center bg-transparent hover:bg-red-100 text-red-500 text-sm rounded-[6px] border-[1px] border-red-500 cursor-pointer px-5 py-2 w-full md:w-auto"
+                  className="flex flex-row gap-2 sm:gap-3 justify-between items-center bg-transparent hover:bg-red-100 text-red-500 text-xs sm:text-sm rounded-[5px] sm:rounded-[6px] border-[1px] border-red-500 cursor-pointer px-3 sm:px-5 py-1.5 sm:py-2 w-full md:w-auto"
                   onClick={() => {
                     toggleForm(false);
                   }}
                 >
-                  <CloseCircle size={20} color="red" />
+                  <CloseCircle size="16" className="sm:w-5 sm:h-5" color="red" />
                   Close
                 </button>
               ) : (
-                <div className="flex flex-row gap-4 w-full md:w-auto">
+                <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 w-full md:w-auto">
                   <button
-                    className="flex flex-row gap-3 justify-between items-center border-[0.5px] border-gray-400 hover:bg-blue-100 text-gray-500 text-sm rounded-[7px] cursor-pointer px-5 py-[8px] w-full md:w-auto disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="flex flex-row gap-1 sm:gap-3 justify-between items-center border-[0.5px] border-gray-400 hover:bg-blue-100 text-gray-500 text-xs sm:text-sm rounded-[6px] sm:rounded-[7px] cursor-pointer px-3 sm:px-5 py-1.5 sm:py-[8px] w-full md:w-auto disabled:opacity-50 disabled:cursor-not-allowed"
                     onClick={handleRefresh}
                     disabled={isRefreshing}
                   >
                     <Refresh
-                      size={18}
+                      size="16"
+                      className="w-4 h-4 sm:w-[18px] sm:h-[18px]"
                       color={isRefreshing ? "#9CA3AF" : "#4B5563"}
-                      className={`transition-transform duration-1000 ${
+                      className={`w-4 h-4 sm:w-[18px] sm:h-[18px] transition-transform duration-1000 ${
                         isRefreshing ? "animate-spin" : ""
                       }`}
                     />
-                    {isRefreshing ? "Refreshing..." : "Refresh"}
+                    <span className="hidden sm:inline">{isRefreshing ? "Refreshing..." : "Refresh"}</span>
+                    <span className="sm:hidden">{isRefreshing ? "..." : "↻"}</span>
                   </button>
                   <button
-                    className="flex flex-row gap-2 justify-between items-center bg-blue-600 hover:bg-blue-500 text-white text-sm rounded-[7px] cursor-pointer px-2 py-[8px] w-full md:w-auto disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="flex flex-row gap-1 sm:gap-2 justify-between items-center bg-blue-600 hover:bg-blue-500 text-white text-xs sm:text-sm rounded-[6px] sm:rounded-[7px] cursor-pointer px-2 sm:px-2 py-1.5 sm:py-[8px] w-full md:w-auto disabled:opacity-50 disabled:cursor-not-allowed"
                     onClick={() => setIsNewCertificateModalOpen(true)}
                   >
-                    <Add size={20} color="white" />
-                    New Certificate
+                    <Add size="16" className="w-4 h-4 sm:w-5 sm:h-5" color="white" />
+                    <span className="hidden sm:inline">New Certificate</span>
+                    <span className="sm:hidden">New</span>
                   </button>
                 </div>
               )}
@@ -471,13 +476,13 @@ export default function COO() {
             {verificationForm ? (
               <COOForm certificateData={selectedCertificate} />
             ) : (
-              <div className="w-full grid grid-cols-1 gap-4 mt-5 rounded-md overflow-hidden overflow-y-auto">
+              <div className="w-full grid grid-cols-1 gap-3 sm:gap-4 mt-4 sm:mt-5 rounded-md overflow-hidden overflow-y-auto">
                 {isLoading ? (
-                  <div className="flex flex-col gap-4 pr-3">
+                  <div className="flex flex-col gap-3 sm:gap-4 pr-2 sm:pr-3">
                     {[...Array(5)].map((_, i) => (
                       <div
                         key={i}
-                        className="animate-pulse bg-gray-100 rounded-[10px] border border-zinc-200 shadow-sm p-6 flex flex-col gap-4"
+                        className="animate-pulse bg-gray-100 rounded-[8px] sm:rounded-[10px] border border-zinc-200 shadow-sm p-4 sm:p-6 flex flex-col gap-3 sm:gap-4"
                       >
                         <div className="flex flex-row items-center gap-4">
                           <div className="bg-blue-200 rounded-xl h-10 w-10" />
@@ -544,14 +549,14 @@ export default function COO() {
                   paginatedData.map((certificate, index) => (
                     <div
                       key={index}
-                      className={`hover:bg-white bg-gray-50 flex flex-col transition-all duration-200 border-[0.5px] rounded-[10px] text-gray-700 border-zinc-200 shadow-sm hover:shadow-md mr-2`}
+                      className={`hover:bg-white bg-gray-50 flex flex-col transition-all duration-200 border-[0.5px] rounded-[8px] sm:rounded-[10px] text-gray-700 border-zinc-200 shadow-sm hover:shadow-md mr-1 sm:mr-2`}
                     >
-                      <div className="flex flex-row justify-between items-center border-b-[0.5px] border-zinc-200 px-6 py-3 gap-2">
-                        <div className="font-semibold text-[15px]">{`${
+                      <div className="flex flex-row justify-between items-center border-b-[0.5px] border-zinc-200 px-4 sm:px-6 py-2 sm:py-3 gap-2">
+                        <div className="font-semibold text-sm sm:text-[15px]">{`${
                           index + 1
                         }. ${certificate.message_info.party_name}`}</div>
                         <div
-                          className={`border-[0.5px] text-[12px] rounded-[30px] px-4 py-1 ${
+                          className={`border-[0.5px] text-[10px] sm:text-[12px] rounded-[30px] px-2 sm:px-4 py-1 ${
                             certificate.message_info.status === "Approved" || certificate.message_info.status === "Paid"
                               ? "bg-green-50 border-green-200 text-green-600"
                               : "bg-orange-50 border-orange-200 text-orange-600"
@@ -561,37 +566,38 @@ export default function COO() {
                         </div>
                       </div>
                       {/* header */}
-                      <div className="flex flex-col md:flex-row justify-between items-start md:items-center p-4 gap-4 bg-gray-50">
-                        <div className="flex flex-col md:flex-row gap-3">
-                          <div className="border-[0.5px] bg-blue-50 border-blue-200 py-3 sm:py-4 rounded-[12px] px-3 sm:px-4 flex items-center self-start">
+                      <div className="flex flex-col md:flex-row justify-between items-start md:items-center p-3 sm:p-4 gap-3 sm:gap-4 bg-gray-50">
+                        <div className="flex flex-col md:flex-row gap-2 sm:gap-3">
+                          <div className="border-[0.5px] bg-blue-50 border-blue-200 py-2 sm:py-3 md:py-4 rounded-[10px] sm:rounded-[12px] px-2 sm:px-3 md:px-4 flex items-center self-start">
                             <DocumentText
                               variant="Bulk"
-                              size={36}
+                              size="28"
+                              className="sm:w-9 sm:h-9"
                               color="#138abd"
                             />
                           </div>
 
                           <div className="w-full flex flex-col gap-1 justify-start">
-                            <div className="font-semibold text-[15px]">
+                            <div className="font-semibold text-sm sm:text-[15px]">
                               {certificate.message_info.party_name}
                             </div>
-                            <div className="text-sm text-gray-600">
+                            <div className="text-xs sm:text-sm text-gray-600">
                               {certificate.message_info.party_physical_address}
                             </div>
-                            <div className="text-blue-600 text-[12px] font-medium">
+                            <div className="text-blue-600 text-[10px] sm:text-[12px] font-medium">
                               {certificate.message_info.party_tin}
                             </div>
-                            <div className="text-xs text-gray-500">
+                            <div className="text-[10px] sm:text-xs text-gray-500">
                               Submitted On:{" "}
                               {certificate.message_info.submitted_date}
                             </div>
 
                             {/* Invoice number with Copy Functionality */}
-                            <div className="flex flex-row items-center gap-2 mt-1">
-                              <span className="text-[13px] text-gray-600">
+                            <div className="flex flex-row items-center gap-1 sm:gap-2 mt-1">
+                              <span className="text-[11px] sm:text-[13px] text-gray-600">
                                 Invoice number:
                               </span>
-                              <span className="text-[13px] font-medium text-gray-800">
+                              <span className="text-[11px] sm:text-[13px] font-medium text-gray-800">
                                 {certificate.invoice?.[0]?.invoice_number || 'N/A'}
                               </span>
                            
@@ -624,13 +630,14 @@ export default function COO() {
                           </div>
                         </div>
 
-                        <div className="flex flex-row justify-between items-center gap-3 md:gap-4">
+                        <div className="flex flex-col sm:flex-row justify-between items-center gap-2 sm:gap-3 md:gap-4">
                           <button
                             onClick={() => handleViewCertificate(certificate)}
-                            className="px-4 md:px-5 py-1.5 text-[12px] rounded-[6px] flex flex-row justify-center items-center gap-2 bg-blue-500 text-white hover:bg-blue-600 cursor-pointer transition-colors duration-200"
+                            className="px-3 sm:px-4 md:px-5 py-1 sm:py-1.5 text-[10px] sm:text-[12px] rounded-[5px] sm:rounded-[6px] flex flex-row justify-center items-center gap-1 sm:gap-2 bg-blue-500 text-white hover:bg-blue-600 cursor-pointer transition-colors duration-200 w-full sm:w-auto"
                           >
-                            <Eye size="16" color="white" />
-                            Application
+                            <Eye size="14" className="sm:w-4 sm:h-4" color="white" />
+                            <span className="hidden sm:inline">Application</span>
+                            <span className="sm:hidden">View</span>
                           </button>
                           <button
                             disabled={
@@ -642,16 +649,16 @@ export default function COO() {
                                 certificate.message_info.application_code_number
                               )
                             }
-                            className="px-4 md:px-5 py-1.5 text-[12px] rounded-[6px] flex flex-row justify-center items-center gap-2 bg-blue-500 text-white disabled:bg-gray-400 disabled:cursor-not-allowed cursor-pointer transition-colors duration-200"
+                            className="px-3 sm:px-4 md:px-5 py-1 sm:py-1.5 text-[10px] sm:text-[12px] rounded-[5px] sm:rounded-[6px] flex flex-row justify-center items-center gap-1 sm:gap-2 bg-blue-500 text-white disabled:bg-gray-400 disabled:cursor-not-allowed cursor-pointer transition-colors duration-200 w-full sm:w-auto"
                           >
-                            <Printer size="16" color="white" />
+                            <Printer size="14" className="sm:w-4 sm:h-4" color="white" />
                             Print
                           </button>
                           {certificate.invoice?.[0]?.invoice_number ? (
                             <button
                               onClick={() => handlePayment(certificate)}
                               disabled={paymentLoading[certificate.invoice[0].invoice_number]}
-                              className="px-4 md:px-5 py-1.5 text-[12px] rounded-[6px] flex flex-row justify-center items-center gap-2 bg-green-500 text-white hover:bg-green-600 cursor-pointer transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                              className="px-3 sm:px-4 md:px-5 py-1 sm:py-1.5 text-[10px] sm:text-[12px] rounded-[5px] sm:rounded-[6px] flex flex-row justify-center items-center gap-1 sm:gap-2 bg-green-500 text-white hover:bg-green-600 cursor-pointer transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed w-full sm:w-auto"
                             >
                               {paymentLoading[certificate.invoice[0].invoice_number] ? (
                                 <>
@@ -686,33 +693,35 @@ export default function COO() {
             )}
             {/* Pagination */}
             {(!verificationForm || totalPages > 1) && (
-              <div className="flex flex-row justify-between items-center gap-4 mt-4 bg-white/35 backdrop-blur-md w-full p-4">
-                <span className="text-gray-600">
+              <div className="flex flex-col sm:flex-row justify-between items-center gap-3 sm:gap-4 mt-4 bg-white/35 backdrop-blur-md w-full p-3 sm:p-4">
+                <span className="text-sm sm:text-base text-gray-600 order-2 sm:order-1">
                   Page {currentPage} of {totalPages}
                 </span>
 
-                <div className="flex flex-row justify-between items-center gap-4 md:gap-8">
+                <div className="flex flex-row justify-between items-center gap-3 sm:gap-4 md:gap-8 order-1 sm:order-2">
                   <button
                     onClick={handlePreviousPage}
                     disabled={currentPage === 1}
-                    className={`px-4 md:px-6 py-1.5 text-sm rounded ${
+                    className={`px-3 sm:px-4 md:px-6 py-1 sm:py-1.5 text-xs sm:text-sm rounded ${
                       currentPage === 1
                         ? "bg-gray-200 text-gray-400 cursor-not-allowed"
                         : "bg-blue-500 text-white hover:bg-blue-600 cursor-pointer"
                     }`}
                   >
-                    Previous
+                    <span className="hidden sm:inline">Previous</span>
+                    <span className="sm:hidden">←</span>
                   </button>
                   <button
                     onClick={handleNextPage}
                     disabled={currentPage === totalPages}
-                    className={`px-4 md:px-6 py-1.5 text-sm rounded ${
+                    className={`px-3 sm:px-4 md:px-6 py-1 sm:py-1.5 text-xs sm:text-sm rounded ${
                       currentPage === totalPages
                         ? "bg-gray-200 text-gray-500 cursor-not-allowed"
                         : "bg-blue-500 text-white hover:bg-blue-600 cursor-pointer"
                     }`}
                   >
-                    Next
+                    <span className="hidden sm:inline">Next</span>
+                    <span className="sm:hidden">→</span>
                   </button>
                 </div>
               </div>
@@ -720,14 +729,16 @@ export default function COO() {
           </div>
         </div>
 
-        <ProgressTracker
-          stats={{
-            total: certificateData.length,
-            submitted: submittedCount,
-            approved: approvedCount,
-          }}
-          onCompanyChange={handleRefresh}
-        />
+        {isRightSidebarOpen && (
+          <ProgressTracker
+            stats={{
+              total: certificateData.length,
+              submitted: submittedCount,
+              approved: approvedCount,
+            }}
+            onCompanyChange={handleRefresh}
+          />
+        )}
       </section>
       <NewCertificateModal
         isOpen={isNewCertificateModalOpen}

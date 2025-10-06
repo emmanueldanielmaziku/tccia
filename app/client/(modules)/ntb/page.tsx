@@ -4,6 +4,7 @@ import ProgressTracker from "./components/StatsBar";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { DatePicker } from "@/components/ui/date-picker";
 import {
   Card,
   CardContent,
@@ -57,6 +58,7 @@ import {
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 import { useUserProfile } from "../../../hooks/useUserProfile";
+import { useRightSidebar } from "../../../contexts/RightSidebarContext";
 
 // Dynamic NTB types will be fetched from API
 // const NTB_TYPES = [
@@ -154,6 +156,7 @@ const GENDER_OPTIONS = [
 ];
 
 export default function NTB() {
+  const { isRightSidebarOpen } = useRightSidebar();
   const t = useTranslations("ntb");
   const { userProfile, loading: profileLoading, updateUserProfile } = useUserProfile();
   const [mode, setMode] = useState<"profile" | "list" | "new" | "detail">("profile");
@@ -687,11 +690,11 @@ export default function NTB() {
   }
 
   return (
-    <main className="w-full h-[97vh] rounded-[14px] overflow-hidden bg-white border-[1px] border-gray-200 ml-2 shadow-sm relative">
+    <main className="w-full h-[97vh] rounded-[12px] sm:rounded-[14px] overflow-hidden bg-white border-[1px] border-gray-200 ml-1 sm:ml-2 shadow-sm relative">
       <NavBar title={t("title")} />
       <section className="flex flex-1 flex-col lg:flex-row h-full">
         <div className="flex flex-col items-start flex-1 w-full overflow-y-auto max-h-[calc(97vh-80px)]">
-          <div className="w-full max-w-4xl mx-auto mt-24 mb-8 px-6 pb-8">
+          <div className="w-full max-w-4xl mx-auto mt-20 sm:mt-24 mb-6 sm:mb-8 px-3 sm:px-6 pb-6 sm:pb-8">
             
             {/* Profile Completion Form */}
             {mode === "profile" && (
@@ -1233,7 +1236,7 @@ export default function NTB() {
                             onValueChange={(value) => handleChange("ntb_type_id", value)}
                             required
                           >
-                            <SelectTrigger className="h-12 w-[280px] rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500">
+                            <SelectTrigger className="h-12 rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500">
                               <SelectValue placeholder="Select NTB type" />
                             </SelectTrigger>
                             <SelectContent>
@@ -1250,12 +1253,11 @@ export default function NTB() {
                           <Label className="text-sm font-medium text-gray-700">
                             Date of Incident *
                           </Label>
-                          <Input
-                            type="date"
+                          <DatePicker
                             value={form.date_of_incident}
-                            onChange={(e) => handleChange("date_of_incident", e.target.value)}
+                            onChange={(value) => handleChange("date_of_incident", value)}
+                            placeholder="Select incident date"
                             className="h-12 rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500"
-                            required
                           />
                         </div>
                       </div>
@@ -1862,7 +1864,7 @@ export default function NTB() {
             )}
           </div>
         </div>
-        <ProgressTracker />
+        {isRightSidebarOpen && <ProgressTracker />}
       </section>
     </main>
   );

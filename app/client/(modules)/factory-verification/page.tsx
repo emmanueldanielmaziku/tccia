@@ -23,6 +23,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Download } from "lucide-react";
+import { useRightSidebar } from "../../../contexts/RightSidebarContext";
 
 interface Product {
   sn: number;
@@ -79,6 +80,7 @@ const getStatusBadgeClass = (status: string) => {
 };
 
 export default function FactoryVerification() {
+  const { isRightSidebarOpen } = useRightSidebar();
   const [verificationForm, toggleForm] = useState(false);
   const [discardBoxState, togglediscardBox] = useState(false);
   const [products, setProducts] = useState<Product[]>([]);
@@ -348,17 +350,17 @@ export default function FactoryVerification() {
   };
 
   return (
-    <main className="w-full h-[97vh] rounded-[14px] overflow-hidden bg-white border-[1px] border-gray-200 shadow-sm relative">
+    <main className="w-full h-[97vh] rounded-[12px] sm:rounded-[14px] overflow-hidden bg-white border-[1px] border-gray-200 shadow-sm relative">
       <NavBar title="Factory Verification" />
-      <section className="flex flex-row flex-1">
-        <div className="flex flex-col items-center flex-1 min-w-0 h-[97vh] pt-18 bg-transparent border-transparent border-[1px] rounded-xl">
-          <div className="flex flex-col justify-between items-center mt-2 w-full h-[86vh] rounded-sm relative px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16">
+      <section className="flex flex-col lg:flex-row flex-1">
+        <div className="flex flex-col items-center flex-1 min-w-0 h-[97vh] pt-16 sm:pt-18 bg-transparent border-transparent border-[1px] rounded-xl">
+          <div className="flex flex-col justify-between items-center mt-2 w-full h-[86vh] rounded-sm relative px-3 sm:px-4 md:px-6 lg:px-8 xl:px-12 2xl:px-16">
             {/* Header */}
 
             <div className="flex flex-row w-full justify-between items-center my-1 gap-2 lg:gap-4">
               {verificationForm ? (
-                <div className="font-semibold antialiased text-base lg:text-[18px] text-zinc-600">
-                  Application Form
+                <div className="font-semibold antialiased text-sm sm:text-base lg:text-[19px] text-zinc-700">
+                  Factory Verification Application
                 </div>
               ) : (
                 <div className="flex flex-col lg:flex-row items-start lg:items-center gap-2 lg:gap-3 w-full lg:w-auto">
@@ -369,11 +371,11 @@ export default function FactoryVerification() {
                       placeholder="Search products..."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      className="w-full lg:w-auto border-[0.5px] border-zinc-300 focus:outline-2 focus:outline-blue-400 rounded-[10px] pl-6 lg:pl-8 pr-2.5 py-1.5 lg:py-2 text-sm placeholder:text-sm"
+                      className="w-full lg:w-auto border-[0.5px] border-zinc-300 focus:outline-2 focus:outline-blue-400 rounded-[8px] sm:rounded-[9px] lg:rounded-[10px] pl-5 sm:pl-6 lg:pl-8 pr-2 sm:pr-2.5 py-1 sm:py-1.5 lg:py-2 text-xs sm:text-sm placeholder:text-xs sm:placeholder:text-sm"
                     />
                     <SearchNormal1
-                      size="16"
-                      className="absolute left-2 lg:left-3 lg:w-[18px] lg:h-[18px]"
+                      size="14"
+                      className="absolute left-1.5 sm:left-2 lg:left-3 w-4 h-4 sm:w-4 sm:h-4 lg:w-[18px] lg:h-[18px]"
                       color="gray"
                     />
                   </label>
@@ -383,7 +385,7 @@ export default function FactoryVerification() {
                     value={communityNameFilter}
                     onValueChange={(value) => setCommunityNameFilter(value)}
                   >
-                    <SelectTrigger className="w-full lg:w-[170px] py-1.5 lg:py-2 text-sm">
+                    <SelectTrigger className="w-full lg:w-[170px] py-1 sm:py-1.5 lg:py-2 text-xs sm:text-sm">
                       <SelectValue placeholder="Community" />
                     </SelectTrigger>
                     <SelectContent>
@@ -403,36 +405,36 @@ export default function FactoryVerification() {
               {/* button */}
               {verificationForm ? (
                 <button
-                  className="flex flex-row gap-3 justify-between items-center bg-transparent hover:bg-red-100 text-red-500 text-sm rounded-[6px] border-[1px] border-red-500 cursor-pointer px-5 py-2"
+                  className="flex flex-row gap-2 sm:gap-3 justify-between items-center bg-transparent hover:bg-red-100 text-red-500 text-xs sm:text-sm rounded-[5px] sm:rounded-[6px] border-[1px] border-red-500 cursor-pointer px-3 sm:px-5 py-1.5 sm:py-2"
                   onClick={() => {
                     togglediscardBox(true);
                   }}
                 >
-                  <CloseCircle size={17} color="red" />
+                  <CloseCircle size="16" className="sm:w-[17px] sm:h-[17px]" color="red" />
                   Close
                 </button>
               ) : (
                 <div className="flex flex-col lg:flex-row items-center gap-2 w-full lg:w-auto">
                   <button
-                    className="flex flex-row gap-2 lg:gap-3 justify-center items-center bg-gray-100 hover:bg-gray-200 text-gray-600 text-sm rounded-[6px] cursor-pointer px-3 py-1.5 lg:py-2 transition-colors w-full lg:w-auto"
+                    className="flex flex-row gap-1 sm:gap-2 lg:gap-3 justify-center items-center bg-gray-100 hover:bg-gray-200 text-gray-600 text-xs sm:text-sm rounded-[5px] sm:rounded-[6px] cursor-pointer px-2 sm:px-3 py-1 sm:py-1.5 lg:py-2 transition-colors w-full lg:w-auto"
                     onClick={fetchProducts}
                     disabled={loading}
                   >
                     <Refresh
-                      size={16}
-                      className={`lg:w-[18px] lg:h-[18px] ${loading ? "animate-spin" : ""}`}
+                      size="14"
+                      className={`w-4 h-4 sm:w-4 sm:h-4 lg:w-[18px] lg:h-[18px] ${loading ? "animate-spin" : ""}`}
                       color={loading ? "#9CA3AF" : "#4B5563"}
                     />
-                    <span className="hidden lg:inline">{loading ? "Refreshing..." : "Refresh"}</span>
-                    <span className="lg:hidden">{loading ? "..." : "↻"}</span>
+                    <span className="hidden sm:inline lg:inline">{loading ? "Refreshing..." : "Refresh"}</span>
+                    <span className="sm:hidden lg:hidden">{loading ? "..." : "↻"}</span>
                   </button>
                   <button
-                    className="flex flex-row gap-2 lg:gap-3 justify-center items-center bg-blue-600 hover:bg-blue-500 text-white text-sm rounded-[6px] cursor-pointer px-3 py-1.5 lg:py-2 w-full lg:w-auto"
+                    className="flex flex-row gap-1 sm:gap-2 lg:gap-3 justify-center items-center bg-blue-600 hover:bg-blue-500 text-white text-xs sm:text-sm rounded-[5px] sm:rounded-[6px] cursor-pointer px-2 sm:px-3 py-1 sm:py-1.5 lg:py-2 w-full lg:w-auto"
                     onClick={() => toggleForm(true)}
                   >
-                    <Add size={16} className="lg:w-5 lg:h-5" color="white" />
-                    <span className="hidden lg:inline">New Product</span>
-                    <span className="lg:hidden">Add</span>
+                    <Add size="16" className="w-4 h-4 sm:w-5 sm:h-5" color="white" />
+                    <span className="hidden sm:inline">New Product</span>
+                    <span className="sm:hidden">Add</span>
                   </button>
                 </div>
               )}
@@ -444,29 +446,29 @@ export default function FactoryVerification() {
                 onRefreshList={fetchProducts}
               />
             ) : (
-              <div className="w-full mt-5 rounded-md border-[0.5px] overflow-hidden overflow-y-auto h-[100%]">
+              <div className="w-full mt-4 sm:mt-5 rounded-md border-[0.5px] overflow-hidden overflow-y-auto h-[100%]">
                 {loading ? (
                   <div className="w-full">
-                    <table className="w-full text-sm">
+                    <table className="w-full text-xs sm:text-sm">
                       <thead className="bg-gray-200">
                         <tr>
-                          <th className="px-4 py-5 text-left text-gray-700"></th>
-                          <th className="px-4 py-5 text-left text-gray-700">
+                          <th className="px-2 sm:px-4 py-3 sm:py-5 text-left text-gray-700"></th>
+                          <th className="px-2 sm:px-4 py-3 sm:py-5 text-left text-gray-700">
                             S/N
                           </th>
-                          <th className="px-4 py-5 text-left text-gray-700">
+                          <th className="px-2 sm:px-4 py-3 sm:py-5 text-left text-gray-700">
                             Product
                           </th>
-                          <th className="px-4 py-5 text-left text-gray-700">
+                          <th className="px-2 sm:px-4 py-3 sm:py-5 text-left text-gray-700">
                             Trade Region
                           </th>
-                          <th className="px-4 py-5 text-left text-gray-700">
+                          <th className="px-2 sm:px-4 py-3 sm:py-5 text-left text-gray-700">
                             Creterion
                           </th>
-                          <th className="px-4 py-5 text-left text-gray-700">
+                          <th className="px-2 sm:px-4 py-3 sm:py-5 text-left text-gray-700">
                             State
                           </th>
-                          <th className="px-4 py-5 text-center text-gray-700">
+                          <th className="px-2 sm:px-4 py-3 sm:py-5 text-center text-gray-700">
                             Actions
                           </th>
                           {/* <th className="px-4 py-5 text-left text-gray-700">
@@ -480,24 +482,24 @@ export default function FactoryVerification() {
                             key={index}
                             className="border-t-[0.5px] border-zinc-200"
                           >
-                            <td className="px-4 py-4"></td>
-                            <td className="px-4 py-4">
-                              <div className="h-4 w-8 bg-gray-200 rounded animate-pulse"></div>
+                            <td className="px-2 sm:px-4 py-3 sm:py-4"></td>
+                            <td className="px-2 sm:px-4 py-3 sm:py-4">
+                              <div className="h-3 sm:h-4 w-6 sm:w-8 bg-gray-200 rounded animate-pulse"></div>
                             </td>
-                            <td className="px-4 py-4">
-                              <div className="h-4 w-32 bg-gray-200 rounded animate-pulse"></div>
+                            <td className="px-2 sm:px-4 py-3 sm:py-4">
+                              <div className="h-3 sm:h-4 w-24 sm:w-32 bg-gray-200 rounded animate-pulse"></div>
                             </td>
-                            <td className="px-4 py-4">
-                              <div className="h-4 w-12 bg-gray-200 rounded animate-pulse"></div>
+                            <td className="px-2 sm:px-4 py-3 sm:py-4">
+                              <div className="h-3 sm:h-4 w-10 sm:w-12 bg-gray-200 rounded animate-pulse"></div>
                             </td>
-                            <td className="px-4 py-4">
-                              <div className="h-4 w-12 bg-gray-200 rounded animate-pulse"></div>
+                            <td className="px-2 sm:px-4 py-3 sm:py-4">
+                              <div className="h-3 sm:h-4 w-10 sm:w-12 bg-gray-200 rounded animate-pulse"></div>
                             </td>
-                            <td className="px-4 py-4">
-                              <div className="h-4 w-12 bg-gray-200 rounded animate-pulse"></div>
+                            <td className="px-2 sm:px-4 py-3 sm:py-4">
+                              <div className="h-3 sm:h-4 w-10 sm:w-12 bg-gray-200 rounded animate-pulse"></div>
                             </td>
-                            <td className="px-4 py-4 text-center">
-                              <div className="h-4 w-4 bg-gray-200 rounded animate-pulse mx-auto"></div>
+                            <td className="px-2 sm:px-4 py-3 sm:py-4 text-center">
+                              <div className="h-3 sm:h-4 w-3 sm:w-4 bg-gray-200 rounded animate-pulse mx-auto"></div>
                             </td>
                             {/* <td className="px-4 py-4">
                               <div className="h-4 w-20 bg-gray-200 rounded animate-pulse"></div>
@@ -557,28 +559,28 @@ export default function FactoryVerification() {
                   <>
                     {/* Desktop Table View */}
                     <div className="hidden md:block w-full">
-                      <table className="w-full text-sm">
+                      <table className="w-full text-xs lg:text-sm">
                         <thead className="bg-gray-200">
                           <tr>
                             <th
-                              className="px-4 py-5 text-left text-gray-700 cursor-pointer hover:bg-gray-300 transition-colors"
+                              className="px-2 lg:px-4 py-3 lg:py-5 text-left text-gray-700 cursor-pointer hover:bg-gray-300 transition-colors"
                               onClick={() => handleSort("sn")}
                             >
                               S/N
                             </th>
-                            <th className="px-4 py-5 text-left text-gray-700">
+                            <th className="px-2 lg:px-4 py-3 lg:py-5 text-left text-gray-700">
                               Product Name
                             </th>
-                            <th className="px-4 py-5 text-left text-gray-700">
+                            <th className="px-2 lg:px-4 py-3 lg:py-5 text-left text-gray-700">
                               Trade Region
                             </th>
-                            <th className="px-4 py-5 text-left text-gray-700">
+                            <th className="px-2 lg:px-4 py-3 lg:py-5 text-left text-gray-700">
                               Creterion
                             </th>
-                            <th className="px-4 py-5 text-left text-gray-700">
+                            <th className="px-2 lg:px-4 py-3 lg:py-5 text-left text-gray-700">
                               State
                             </th>
-                            <th className="px-4 py-5 text-center text-gray-700">
+                            <th className="px-2 lg:px-4 py-3 lg:py-5 text-center text-gray-700">
                               Actions
                             </th>
                           </tr>
@@ -591,17 +593,17 @@ export default function FactoryVerification() {
                                 index % 2 === 0 ? "bg-white" : "bg-gray-white"
                               }`}
                             >
-                              <td className="px-4 py-4">{product.sn}</td>
-                              <td className="px-4 py-4">{product.product_name}</td>
-                              <td className="px-4 py-4">
+                              <td className="px-2 lg:px-4 py-3 lg:py-4">{product.sn}</td>
+                              <td className="px-2 lg:px-4 py-3 lg:py-4">{product.product_name}</td>
+                              <td className="px-2 lg:px-4 py-3 lg:py-4">
                                 {product.community_name || "-"}
                               </td>
-                              <td className="px-4 py-4">
+                              <td className="px-2 lg:px-4 py-3 lg:py-4">
                                 {product.community_short_code || "-"}
                               </td>
-                              <td className="px-4 py-4">
+                              <td className="px-2 lg:px-4 py-3 lg:py-4">
                                 <span
-                                  className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusBadgeClass(
+                                  className={`px-2 lg:px-3 py-1 rounded-full text-xs font-medium ${getStatusBadgeClass(
                                     product.verification_state
                                   )}`}
                                 >
@@ -610,11 +612,11 @@ export default function FactoryVerification() {
                                   ] || product.verification_state}
                                 </span>
                               </td>
-                              <td className="px-4 py-4 text-center">
+                              <td className="px-2 lg:px-4 py-3 lg:py-4 text-center">
                                 <button
                                   onClick={() => handleViewDetails(product)}
                                   disabled={product.verification_state !== "inspection_done"}
-                                  className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
+                                  className={`px-2 lg:px-3 py-1 lg:py-1.5 text-xs font-medium rounded-md transition-colors ${
                                     product.verification_state === "inspection_done"
                                       ? "bg-blue-600 text-white hover:bg-blue-700 cursor-pointer"
                                       : "bg-gray-300 text-gray-500 cursor-not-allowed"
@@ -625,7 +627,8 @@ export default function FactoryVerification() {
                                       : "Review not available for this status"
                                   }
                                 >
-                                  Review Report
+                                  <span className="hidden lg:inline">Review Report</span>
+                                  <span className="lg:hidden">Review</span>
                                 </button>
                               </td>
                             </tr>
@@ -743,21 +746,23 @@ export default function FactoryVerification() {
           </div>
         </div>
 
-        <ProgressTracker
-          stats={{
-            total: products.length,
-            submitted: products.filter((p) => {
-              // Count all states that are NOT approved/done as pending
-              const approvedStates = ["approved", "report_accepted", "finalized"];
-              return !approvedStates.includes(p.verification_state.toLowerCase());
-            }).length,
-            approved: products.filter((p) => {
-              const approvedStates = ["approved", "report_accepted", "finalized"];
-              return approvedStates.includes(p.verification_state.toLowerCase());
-            }).length,
-          }}
-          onCompanyChange={fetchProducts}
-        />
+        {isRightSidebarOpen && (
+          <ProgressTracker
+            stats={{
+              total: products.length,
+              submitted: products.filter((p) => {
+                // Count all states that are NOT approved/done as pending
+                const approvedStates = ["approved", "report_accepted", "finalized"];
+                return !approvedStates.includes(p.verification_state.toLowerCase());
+              }).length,
+              approved: products.filter((p) => {
+                const approvedStates = ["approved", "report_accepted", "finalized"];
+                return approvedStates.includes(p.verification_state.toLowerCase());
+              }).length,
+            }}
+            onCompanyChange={fetchProducts}
+          />
+        )}
       </section>
 
       {/* Success Message Toast */}
