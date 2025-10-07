@@ -72,7 +72,13 @@ export default function NavBar({ title }: NavBarProps) {
         </Sheet>
 
         <button
-          onClick={toggleMenu}
+          onClick={() => {
+            toggleMenu();
+            // Mark that user manually toggled to prevent responsive override
+            if ((window as any).markManualToggle) {
+              (window as any).markManualToggle();
+            }
+          }}
           className="hidden md:flex items-center justify-center w-8 h-8 lg:w-10 lg:h-10 rounded-[10px] lg:rounded-[12px] bg-gray-50 border-gray-100 hover:bg-blue-100 mr-2 lg:mr-3 border-[0.5px] cursor-pointer"
         >
           {isMenuOpen ? (
