@@ -1,7 +1,7 @@
 "use client";
 import React, { createContext, useContext, ReactNode, useEffect } from "react";
 import { useSessionTimeout } from "../../hooks/use-session-timeout";
-import SessionTimeoutWarning from "./SessionTimeoutWarning";
+import SessionTimeoutWarning from "../client/components/SessionTimeoutWarning";
 import { useSessionExpired } from "../services/SessionExpiredService";
 
 interface SessionTimeoutContextType {
