@@ -303,38 +303,38 @@ function PreviewWidget({
           <div className="mb-6 grid grid-cols-2 gap-4 text-sm text-gray-700">
             <div className="flex flex-col gap-1">
               <span className="font-medium text-gray-700">Company Name:</span>
-              <span className="text-gray-600">{companyData.company_name}</span>
+              <span className="text-gray-600">{companyData.company_name || "N/A"}</span>
             </div>
             <div className="flex flex-col gap-1">
               <span className="font-medium text-gray-700">TIN Number:</span>
-              <span className="text-gray-600">{companyData.company_tin}</span>
+              <span className="text-gray-600">{companyData.company_tin || "N/A"}</span>
             </div>
             <div className="flex flex-col gap-1">
               <span className="font-medium text-gray-700">Email:</span>
-              <span className="text-gray-600">{companyData.company_email}</span>
+              <span className="text-gray-600">{companyData.company_email || "N/A"}</span>
             </div>
             <div className="flex flex-col gap-1">
               <span className="font-medium text-gray-700">Phone:</span>
-              <span className="text-gray-600">{companyData.company_phone}</span>
+              <span className="text-gray-600">{companyData.company_phone || "N/A"}</span>
             </div>
             <div className="flex flex-col gap-1">
               <span className="font-medium text-gray-700">
                 Physical Address:
               </span>
               <span className="text-gray-600">
-                {companyData.physical_address}
+                {companyData.physical_address || "N/A"}
               </span>
             </div>
             <div className="flex flex-col gap-1">
               <span className="font-medium text-gray-700">Description:</span>
-              <span className="text-gray-600">{companyData.description}</span>
+              <span className="text-gray-600">{companyData.description || "N/A"}</span>
             </div>
             <div className="flex flex-col gap-1">
               <span className="font-medium text-gray-700">
                 Nationality Code:
               </span>
               <span className="text-gray-600">
-                {companyData.nationality_code}
+                {companyData.nationality_code || "N/A"}
               </span>
             </div>
             <div className="flex flex-col gap-1">
@@ -342,26 +342,26 @@ function PreviewWidget({
                 Registration Type Code:
               </span>
               <span className="text-gray-600">
-                {companyData.registration_type_code}
+                {companyData.registration_type_code || "N/A"}
               </span>
             </div>
             <div className="flex flex-col gap-1">
               <span className="font-medium text-gray-700">Fax Number:</span>
-              <span className="text-gray-600">{companyData.fax_number}</span>
+              <span className="text-gray-600">{companyData.fax_number || "N/A"}</span>
             </div>
             <div className="flex flex-col gap-1">
               <span className="font-medium text-gray-700">Postal Code:</span>
-              <span className="text-gray-600">{companyData.postal_code}</span>
+              <span className="text-gray-600">{companyData.postal_code || "N/A"}</span>
             </div>
             <div className="flex flex-col gap-1">
               <span className="font-medium text-gray-700">Postal Address:</span>
               <span className="text-gray-600">
-                {companyData.postal_address}
+                {companyData.postal_address || "N/A"}
               </span>
             </div>
             <div className="flex flex-col gap-1">
               <span className="font-medium text-gray-700">Postal Detail:</span>
-              <span className="text-gray-600">{companyData.postal_detail}</span>
+              <span className="text-gray-600">{companyData.postal_detail || "N/A"}</span>
             </div>
           </div>
 
@@ -506,7 +506,33 @@ export default function FirmRegForm({
       console.log(result);
 
       if (result.result?.status === "success") {
-        setCompanyData(result.result.data);
+        const data = result.result.data;
+        
+        // Validate that essential company fields are present
+        // Business TINs may return incomplete data, so we need to validate
+        if (!data || !data.company_name || !data.company_tin) {
+          setError(
+            "Invalid TIN. Only Company TINs are allowed. Business TINs cannot be registered. Please enter a valid Company TIN."
+          );
+          setCompanyData(null);
+          return;
+        }
+        
+        // Additional validation for required fields
+        const missingFields = [];
+        if (!data.company_email) missingFields.push("email");
+        if (!data.company_phone) missingFields.push("phone");
+        if (!data.physical_address) missingFields.push("physical address");
+        
+        if (missingFields.length > 0) {
+          setError(
+            `Incomplete company data. Missing: ${missingFields.join(", ")}. Only valid Company TINs with complete information can be registered.`
+          );
+          setCompanyData(null);
+          return;
+        }
+        
+        setCompanyData(data);
         togglePreview(true);
         setError(undefined); // Clear any previous errors
       } else if (result.result?.status === "error") {
