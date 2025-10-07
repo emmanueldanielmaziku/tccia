@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
+import { handleAuthenticationError } from "../utils/authErrorHandler";
 
 const API_BASE_URL = "https://tccia.kalen.co.tz";
 
@@ -84,19 +85,27 @@ export async function GET(request: Request) {
     );
 
     if (!response.ok) {
-      const errorText = await response.text();
+      let errorData;
+      try {
+        errorData = await response.json();
+      } catch {
+        errorData = await response.text();
+      }
       console.error(
         "API response not ok:",
         response.status,
         response.statusText
       );
-      console.error("Error response body:", errorText);
+      console.error("Error response body:", errorData);
+
+      // Handle authentication errors
+      await handleAuthenticationError(response, errorData);
 
       return NextResponse.json(
         {
           status: "error",
           error: `API request failed: ${response.status} ${response.statusText}`,
-          details: errorText,
+          details: errorData,
         },
         { status: response.status }
       );

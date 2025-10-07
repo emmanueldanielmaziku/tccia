@@ -44,9 +44,13 @@ export function useApiWithSessionHandling() {
             (responseData.result?.error && responseData.result.error.toLowerCase().includes('unauthorized')) ||
             (responseData.result?.error && responseData.result.error.toLowerCase().includes('authentication')) ||
             // Direct error format
+            (responseData.code === 'AUTHENTICATION_FAILED') ||
             (responseData.error?.code === 'AUTHENTICATION_FAILED') ||
             (responseData.error?.message && responseData.error.message.toLowerCase().includes('token')) ||
             (responseData.error?.error_details && responseData.error.error_details.toLowerCase().includes('token')) ||
+            // Check for "Invalid API token" or similar errors in error string
+            (typeof responseData.error === 'string' && responseData.error.toLowerCase().includes('token')) ||
+            (typeof responseData.error === 'string' && responseData.error.toLowerCase().includes('unauthorized')) ||
             // Simple status check for 401/403
             response.status === 401 || response.status === 403
           );
