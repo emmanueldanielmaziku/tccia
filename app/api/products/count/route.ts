@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
-import { handleAuthenticationError } from "../utils/authErrorHandler";
+import { handleAuthenticationError } from "../../utils/authErrorHandler";
 
 const API_BASE_URL = "https://tccia.kalen.co.tz";
 
