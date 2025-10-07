@@ -1619,12 +1619,12 @@ export default function NTB() {
                         </Select>
                       </div>
 
-                      {/* Optional Fields Accordion */}
+                      {/* Losses incurred Accordion */}
                       <Accordion type="single" collapsible className="w-full border-1 px-4 border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50">
                         <AccordionItem value="optional-fields">
                           <AccordionTrigger className="text-lg font-semibold text-gray-900 hover:no-underline">
                             <div className="text-left">
-                              <div>Optional Fields</div>
+                              <div>Losses incurred</div>
                               <div className="text-sm font-normal text-gray-500 mt-1">
                                 Tap to add additional optional informations
                               </div>

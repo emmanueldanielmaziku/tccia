@@ -40,14 +40,14 @@ export default function SideBar() {
 
   // Function to get the active tab based on current pathname
   const getActiveTabFromPathname = (currentPath: string) => {
-    if (currentPath.includes("/client/firm-management")) return "Firm Registration";
+    if (currentPath.includes("/client/firm-management")) return "Company Registration";
     if (currentPath.includes("/client/factory-verification")) return "Factory Verification";
     if (currentPath.includes("/client/coo")) return "Certificate of Origin";
     if (currentPath.includes("/client/membership")) return "Membership";
     if (currentPath.includes("/client/ntb")) return "Non-Tariff Barrier";
     if (currentPath.includes("/client/report")) return "Help Desk";
     if (currentPath.includes("/client/profile")) return "Profile";
-    return "Firm Registration";
+    return "Company Registration";
   };
 
   // Set initial active tab based on current route
@@ -71,7 +71,7 @@ export default function SideBar() {
 
   const menuItems = [
     {
-      id: "Firm Registration",
+      id: "Company Registration",
       translationKey: "firmManagement",
       icon: Building,
       route: "/client/firm-management",
@@ -164,7 +164,7 @@ export default function SideBar() {
           <h2 className="text-xs md:text-sm text-gray-500 mb-3 md:mb-4">{t("modules")}</h2>
           <div className="flex flex-col gap-2 md:gap-2.5">
             {menuItems.map((item) => {
-              const isFirmManagement = item.id === "Firm Registration";
+              const isFirmManagement = item.id === "Company Registration";
               const isNTB = item.id === "Non-Tariff Barrier";
               const isHelpDesk = item.id === "Help Desk";
               const isProfile = item.id === "Profile";
@@ -176,7 +176,7 @@ export default function SideBar() {
                   [
                     "Factory Verification",
                     "Certificate of Origin",
-                    "Firm Registration",
+                    "Company Registration",
                     // "Employees Management",
                     // "CFAs Management",
                     "Membership",
@@ -188,7 +188,7 @@ export default function SideBar() {
                   [
                     "Factory Verification",
                     "Certificate of Origin",
-                    "Firm Registration",
+                    "Company Registration",
                     "Membership",
                     "Non-Tariff Barrier",
                     "Report a Problem",
