@@ -45,6 +45,80 @@ function PreviewWidget({
   const [showSuccess, setShowSuccess] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [otpMessage, setOtpMessage] = useState<string | undefined>(undefined);
+  const [resendAttempts, setResendAttempts] = useState(0);
+  const [isResending, setIsResending] = useState(false);
+  const [resendCooldown, setResendCooldown] = useState(0);
+  const MAX_RESEND_ATTEMPTS = 3;
+  const RESEND_COOLDOWN_SECONDS = 300; // 5 minutes (OTP expiration time)
+
+  // Browser storage keys
+  const STORAGE_KEY_ATTEMPTS = `otp_attempts_${companyData?.company_tin}`;
+  const STORAGE_KEY_COOLDOWN = `otp_cooldown_${companyData?.company_tin}`;
+  const STORAGE_KEY_TIMESTAMP = `otp_timestamp_${companyData?.company_tin}`;
+
+  // Load persisted data from browser storage
+  useEffect(() => {
+    if (companyData?.company_tin) {
+      const savedAttempts = localStorage.getItem(STORAGE_KEY_ATTEMPTS);
+      const savedCooldown = localStorage.getItem(STORAGE_KEY_COOLDOWN);
+      const savedTimestamp = localStorage.getItem(STORAGE_KEY_TIMESTAMP);
+
+      if (savedAttempts) {
+        setResendAttempts(parseInt(savedAttempts));
+      }
+
+      if (savedCooldown && savedTimestamp) {
+        const elapsed = Math.floor((Date.now() - parseInt(savedTimestamp)) / 1000);
+        const remaining = parseInt(savedCooldown) - elapsed;
+        
+        if (remaining > 0) {
+          setResendCooldown(remaining);
+        } else {
+          // Clear expired cooldown
+          localStorage.removeItem(STORAGE_KEY_COOLDOWN);
+          localStorage.removeItem(STORAGE_KEY_TIMESTAMP);
+        }
+      }
+    }
+  }, [companyData?.company_tin, STORAGE_KEY_ATTEMPTS, STORAGE_KEY_COOLDOWN, STORAGE_KEY_TIMESTAMP]);
+
+  // Save attempts to browser storage
+  useEffect(() => {
+    if (companyData?.company_tin) {
+      localStorage.setItem(STORAGE_KEY_ATTEMPTS, resendAttempts.toString());
+    }
+  }, [resendAttempts, companyData?.company_tin, STORAGE_KEY_ATTEMPTS]);
+
+  // Save cooldown to browser storage
+  useEffect(() => {
+    if (companyData?.company_tin && resendCooldown > 0) {
+      localStorage.setItem(STORAGE_KEY_COOLDOWN, resendCooldown.toString());
+      localStorage.setItem(STORAGE_KEY_TIMESTAMP, Date.now().toString());
+    } else if (companyData?.company_tin && resendCooldown === 0) {
+      localStorage.removeItem(STORAGE_KEY_COOLDOWN);
+      localStorage.removeItem(STORAGE_KEY_TIMESTAMP);
+    }
+  }, [resendCooldown, companyData?.company_tin, STORAGE_KEY_COOLDOWN, STORAGE_KEY_TIMESTAMP]);
+
+  // Handle cooldown timer
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (resendCooldown > 0) {
+      interval = setInterval(() => {
+        setResendCooldown(prev => {
+          if (prev <= 1) {
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    }
+    return () => {
+      if (interval) {
+        clearInterval(interval);
+      }
+    };
+  }, [resendCooldown]);
 
   const handleApprove = async () => {
     setIsLoading(true);
@@ -65,6 +139,7 @@ function PreviewWidget({
         setShowOtpInput(true);
         setOtpError(undefined);
         setOtpMessage(result.result?.message);
+        setResendCooldown(RESEND_COOLDOWN_SECONDS); // Start cooldown timer (5 minutes)
       } else {
         setOtpError(
           result.result?.error || result.result?.message || "Failed to send OTP"
@@ -76,6 +151,52 @@ function PreviewWidget({
       setOtpMessage(undefined);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleResendOtp = async () => {
+    if (resendAttempts >= MAX_RESEND_ATTEMPTS) {
+      setOtpError(`Maximum resend attempts (${MAX_RESEND_ATTEMPTS}) reached. Please contact support.`);
+      return;
+    }
+
+    if (resendCooldown > 0) {
+      const minutes = Math.ceil(resendCooldown / 60);
+      const seconds = resendCooldown % 60;
+      setOtpError(`Please wait ${minutes}m ${seconds}s before resending OTP.`);
+      return;
+    }
+
+    setIsResending(true);
+    setOtpError(undefined);
+    
+    try {
+      const response = await fetch("/api/auth/firm-registration/send-code", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          company_tin: companyData?.company_tin,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (result.result?.status === "success") {
+        setResendAttempts(prev => prev + 1);
+        setOtpMessage(result.result?.message || `OTP resent successfully. Attempts remaining: ${MAX_RESEND_ATTEMPTS - resendAttempts - 1}`);
+        setOtpError(undefined);
+        setResendCooldown(RESEND_COOLDOWN_SECONDS); // Start 5-minute cooldown timer after successful resend
+      } else {
+        setOtpError(
+          result.result?.error || result.result?.message || "Failed to resend OTP"
+        );
+      }
+    } catch (error) {
+      setOtpError("Failed to resend OTP. Please try again.");
+    } finally {
+      setIsResending(false);
     }
   };
 
@@ -273,20 +394,44 @@ function PreviewWidget({
                     type="text"
                     value={otp}
                     onChange={(e) => {
-                      setOtp(e.target.value);
+                      // Only allow numbers and limit to 6 digits
+                      const value = e.target.value.replace(/[^0-9]/g, '').slice(0, 6);
+                      setOtp(value);
                       setOtpError(undefined);
                     }}
                     placeholder="Enter 6-digit OTP"
+                    maxLength={6}
                     className={`w-full px-4 py-2 border ${
-                      otpError ? "border-blue-500" : "border-gray-300"
+                      otpError ? "border-red-500" : "border-gray-300"
                     } rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500`}
                   />
                   {otpError && (
-                    <p className="text-blue-500 text-sm mt-1">{otpError}</p>
+                    <p className="text-red-500 text-sm mt-1">{otpError}</p>
+                  )}
+                </div>
+                
+                {/* Attempt Counter */}
+                <div className="mt-4 text-sm text-gray-600">
+                  {resendAttempts < MAX_RESEND_ATTEMPTS ? (
+                    <span>Resend attempts remaining: {MAX_RESEND_ATTEMPTS - resendAttempts}</span>
+                  ) : (
+                    <span className="text-red-600">Maximum resend attempts reached</span>
                   )}
                 </div>
               </div>
-              <div className="flex justify-end">
+              <div className="flex flex-col sm:flex-row gap-3 justify-end">
+                <button
+                  type="button"
+                  onClick={handleResendOtp}
+                  disabled={isResending || resendAttempts >= MAX_RESEND_ATTEMPTS || resendCooldown > 0}
+                  className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+                    resendAttempts >= MAX_RESEND_ATTEMPTS || resendCooldown > 0
+                      ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                      : "bg-green-600 text-white hover:bg-green-700 cursor-pointer disabled:opacity-50"
+                  }`}
+                >
+                  {isResending ? "Resending..." : resendCooldown > 0 ? `Resend OTP (${Math.ceil(resendCooldown / 60)}m ${resendCooldown % 60}s)` : "Resend OTP"}
+                </button>
                 <button
                   type="submit"
                   disabled={isLoading}

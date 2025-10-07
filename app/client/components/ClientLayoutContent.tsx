@@ -7,6 +7,7 @@ import SideBar from "./SideBar";
 import useLogState from "../services/LogoutState";
 import usePickerState from "../services/PickerState";
 import { RightSidebarProvider } from "../../contexts/RightSidebarContext";
+import { SessionTimeoutProvider } from "../../contexts/SessionTimeoutContext";
 import { ResponsiveSidebarHandler } from "./ResponsiveSidebarHandler";
 
 // Component that uses the responsive sidebar hook
@@ -35,8 +36,10 @@ export default function ClientLayoutContent({
   children: React.ReactNode;
 }) {
   return (
-    <RightSidebarProvider>
-      <ClientLayoutWithResponsiveSidebar>{children}</ClientLayoutWithResponsiveSidebar>
-    </RightSidebarProvider>
+    <SessionTimeoutProvider timeoutMinutes={30} warningMinutes={5}>
+      <RightSidebarProvider>
+        <ClientLayoutWithResponsiveSidebar>{children}</ClientLayoutWithResponsiveSidebar>
+      </RightSidebarProvider>
+    </SessionTimeoutProvider>
   );
 }

@@ -320,7 +320,7 @@ export default function HelpdeskReport() {
                                 }
                                 placeholder={t("customerName")}
                                 required
-                                className="py-3 px-4 rounded-lg border-gray-300"
+                                className="py-3 px-4 h-12 rounded-lg border-gray-300"
                               />
                             </div>
                             <div className="space-y-2">
@@ -339,7 +339,7 @@ export default function HelpdeskReport() {
                                 }}
                                 placeholder="e.g. +255123456789"
                                 required
-                                className="py-3 px-4 rounded-lg border-gray-300"
+                                className="py-3 px-4 h-12 rounded-lg border-gray-300"
                               />
                               {submitError && (
                                 <div className="flex flex-row items-center gap-2 mt-1 text-red-600 text-sm">
@@ -363,7 +363,7 @@ export default function HelpdeskReport() {
                               }
                               placeholder={t("subject")}
                               required
-                              className="py-3 px-4 rounded-lg border-gray-300"
+                              className="py-3 px-4 h-12 rounded-lg border-gray-300"
                             />
                           </div>
 
@@ -374,7 +374,7 @@ export default function HelpdeskReport() {
                               {t("description")}
                             </Label>
                             <textarea
-                              className="w-full border rounded-lg px-4 py-3 min-h-[100px] border-gray-300"
+                              className="w-full border rounded-lg px-4 py-3 h-12 min-h-[100px] border-gray-300"
                               value={form.description}
                               onChange={(e) =>
                                 handleFormChange("description", e.target.value)
@@ -395,7 +395,7 @@ export default function HelpdeskReport() {
                                 onValueChange={(v) => setServiceCategory(v)}
                                 required
                               >
-                                <SelectTrigger className="py-3 px-4 rounded-lg border-gray-300">
+                                <SelectTrigger className="py-3 px-4 h-12 rounded-lg border-gray-300">
                                   <SelectValue
                                     placeholder={t("selectService")}
                                   />
@@ -417,6 +417,7 @@ export default function HelpdeskReport() {
                                 value={issueCategory}
                                 onValueChange={(v) => setIssueCategory(v)}
                                 required
+                                
                                 disabled={!serviceCategory}
                               >
                                 <SelectTrigger className="py-3 px-4 rounded-lg border-gray-300">
@@ -444,7 +445,7 @@ export default function HelpdeskReport() {
                                   handleFormChange("priority", v)
                                 }
                               >
-                                <SelectTrigger className="py-3 px-4 rounded-lg border-gray-300">
+                                <SelectTrigger className="py-3 px-4 h-12 rounded-lg border-gray-300">
                                   <SelectValue
                                     placeholder={t("selectPriority")}
                                   />
@@ -478,7 +479,7 @@ export default function HelpdeskReport() {
                                   handleFormChange("location", e.target.value)
                                 }
                                 placeholder={t("location")}
-                                className="py-3 px-4 rounded-lg border-gray-300"
+                                className="py-3 px-4 h-12 rounded-lg border-gray-300"
                               />
                             </div>
                           </div>
@@ -486,7 +487,7 @@ export default function HelpdeskReport() {
                           <div className="flex gap-4 mt-8">
                             <Button
                               type="submit"
-                              className="bg-blue-600 text-white px-8 py-3 rounded-lg"
+                              className="bg-blue-600 text-white px-8 py-3 h-12 rounded-lg cursor-pointer"
                               disabled={isSubmitting}
                             >
                               {isSubmitting
@@ -496,7 +497,7 @@ export default function HelpdeskReport() {
                             <Button
                               type="button"
                               variant="secondary"
-                              className="px-8 py-3 rounded-lg"
+                              className="px-8 py-3 h-12 rounded-lg cursor-pointer"
                               onClick={() => setMode("none")}
                             >
                               {t("cancel")}
@@ -541,12 +542,13 @@ export default function HelpdeskReport() {
                           onChange={(e) => setTrackId(e.target.value)}
                           placeholder="e.g. GEN-0007"
                           required
+                          className="py-3 px-4 h-12 rounded-lg border-gray-300"
                         />
                       </div>
                       <div className="flex gap-4 mt-6">
                         <Button
                           type="submit"
-                          className="bg-green-600 text-white px-8"
+                          className="bg-green-600 text-white px-8 h-12"
                           disabled={isTracking}
                         >
                           {isTracking ? t("tracking") : t("trackTicket")}
@@ -554,6 +556,7 @@ export default function HelpdeskReport() {
                         <Button
                           type="button"
                           variant="secondary"
+                          className="px-8 py-3 h-12"
                           onClick={() => setMode("none")}
                         >
                           {t("cancel")}
