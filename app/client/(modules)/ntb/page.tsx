@@ -209,6 +209,12 @@ export default function NTB() {
     onUpdate: ({ editor }) => {
       setForm(prev => ({ ...prev, complaint_details: editor.getText() }));
     },
+    editorProps: {
+      attributes: {
+        class: 'prose prose-sm max-w-none focus:outline-none min-h-[120px] p-4',
+        style: 'min-height: 120px; padding: 16px;',
+      },
+    },
   });
 
   // Check if profile is complete and set mode accordingly
@@ -1365,10 +1371,15 @@ export default function NTB() {
                               <List className="w-4 h-4" />
                             </Button>
                           </div>
-                          <EditorContent
-                            editor={editor}
-                            className="min-h-[140px] px-4 py-3 focus:outline-none prose prose-sm max-w-none"
-                          />
+                          <div 
+                            className="min-h-[140px] cursor-text"
+                            onClick={() => editor?.commands.focus()}
+                          >
+                            <EditorContent
+                              editor={editor}
+                              className="focus:outline-none prose prose-sm max-w-none"
+                            />
+                          </div>
                         </div>
                       </div>
                       {/* Location field hidden from user but still captured in background */}
