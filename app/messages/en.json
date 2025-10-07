@@ -23,7 +23,7 @@
   "sidebar": {
     "modules": "Modules",
     "dashboard": "Dashboard",
-    "firmManagement": "Firm Registration",
+    "firmManagement": "Company Registration",
     "factoryVerification": "Factory Verification",
     "cfaOfficersManagement": "CFA Officers Management",
     "cfasManagement": "CFAs Management",

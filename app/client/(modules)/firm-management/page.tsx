@@ -238,7 +238,7 @@ export default function FirmManagement() {
         />
       )}
 
-      <NavBar title={"Firm Registration"} />
+      <NavBar title={"Company Registration"} />
 
       {/* Content */}
       <section className="flex flex-col lg:flex-row flex-1">

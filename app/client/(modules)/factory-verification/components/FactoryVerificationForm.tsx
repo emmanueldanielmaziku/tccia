@@ -1141,32 +1141,8 @@ export default function FactoryVerificationForm({
         onSubmit={handlePreview}
       >
         <div className="flex flex-col gap-4 overflow-y-auto pr-3 pb-6 flex-1">
-          {/* Header with Title and Date Picker */}
-          <div className="flex flex-col lg:flex-col justify-center lg:items-start border-b border-gray-200 pb-4 gap-2 lg:gap-6">
-            <div className="text-base text-md font-semibold text-gray-600">
-              Select the expected inspection date
-            </div>
-            <div className="flex flex-col items-start sm:items-start gap-2 w-full">
-              <div className="text-sm text-gray-600">
-                Expected Inspection Date
-              </div>
-              <DatePicker
-                value={formData.expected_inspection_date}
-                onChange={handleDateChange}
-                error={errors.expected_inspection_date}
-                placeholder="Select date"
-                className="w-full py-5 sm:py-5 cursor-pointer"
-              />
-              {errors.expected_inspection_date && (
-                <p className="text-red-500 text-xs">
-                  {errors.expected_inspection_date}
-                </p>
-              )}
-            </div>
-          </div>
-
           {/* Contact Details Section */}
-          <div className="space-y-2">
+          <div className="space-y-2 border-b border-gray-200 pb-4">
             <div className="text-base text-md font-semibold text-gray-600">
               Contact Details
             </div>
@@ -1230,6 +1206,30 @@ export default function FactoryVerificationForm({
                   </p>
                 )}
               </div>
+            </div>
+          </div>
+
+          {/* Header with Title and Date Picker */}
+          <div className="flex flex-col lg:flex-col justify-center lg:items-start border-b border-gray-200 pb-4 gap-2 lg:gap-6">
+            <div className="text-base text-md font-semibold text-gray-600">
+              Select the expected inspection date
+            </div>
+            <div className="flex flex-col items-start sm:items-start gap-2 w-full">
+              <div className="text-sm text-gray-600">
+                Expected Inspection Date
+              </div>
+              <DatePicker
+                value={formData.expected_inspection_date}
+                onChange={handleDateChange}
+                error={errors.expected_inspection_date}
+                placeholder="Select date"
+                className="w-full py-5 sm:py-5 cursor-pointer"
+              />
+              {errors.expected_inspection_date && (
+                <p className="text-red-500 text-xs">
+                  {errors.expected_inspection_date}
+                </p>
+              )}
             </div>
           </div>
 

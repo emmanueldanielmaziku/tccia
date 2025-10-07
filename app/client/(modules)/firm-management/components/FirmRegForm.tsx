@@ -287,7 +287,7 @@ function PreviewWidget({
                 Company Registration Preview
               </h2>
               <p className="text-sm text-gray-500">
-                Please verify the company details and conFirm Registration
+                Please verify the company details and confirm Registration
               </p>
             </div>
             <button
