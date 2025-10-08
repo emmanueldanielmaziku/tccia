@@ -19,6 +19,7 @@ interface DatePickerProps {
   placeholder?: string;
   disabled?: boolean;
   className?: string;
+  allowPastDates?: boolean;
 }
 
 export function DatePicker({
@@ -28,6 +29,7 @@ export function DatePicker({
   placeholder = "Pick a date",
   disabled = false,
   className,
+  allowPastDates = false,
 }: DatePickerProps) {
   const [date, setDate] = React.useState<Date | undefined>(
     value ? new Date(value) : undefined
@@ -80,7 +82,7 @@ export function DatePicker({
           selected={date}
           onSelect={handleSelect}
           initialFocus
-          disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
+          disabled={allowPastDates ? undefined : (date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
         />
       </PopoverContent>
     </Popover>

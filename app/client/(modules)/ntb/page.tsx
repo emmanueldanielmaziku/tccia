@@ -1264,6 +1264,7 @@ export default function NTB() {
                             onChange={(value) => handleChange("date_of_incident", value)}
                             placeholder="Select incident date"
                             className="h-12 rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+                            allowPastDates={true}
                           />
                         </div>
                       </div>
