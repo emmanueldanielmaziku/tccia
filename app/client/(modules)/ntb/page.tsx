@@ -54,6 +54,7 @@ import {
   Eye,
   UserCheck,
   RefreshCw,
+  X,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
@@ -175,6 +176,8 @@ export default function NTB() {
   });
   const [locationPermission, setLocationPermission] = useState<'granted' | 'denied' | 'prompt' | 'loading'>('prompt');
   const [isDetectingLocation, setIsDetectingLocation] = useState(false);
+  const [showLocationWarning, setShowLocationWarning] = useState(false);
+  const [showLocationInstructions, setShowLocationInstructions] = useState(false);
   const [profileForm, setProfileForm] = useState({
     country_of_residence: "",
     operator_type: "",
@@ -450,34 +453,48 @@ export default function NTB() {
       toast.success('Location detected successfully!');
       
     } catch (error: any) {
-      console.error('Geolocation error:', error);
+      // Don't log the full error object to console as it's noisy
+      console.log('Location detection failed:', error.code === 1 ? 'Permission denied' : error.code === 2 ? 'Position unavailable' : error.code === 3 ? 'Timeout' : 'Unknown error');
       setLocationPermission('denied');
       
       if (error.code === 1) {
-        toast.error('Location access denied. Please enable location permissions.');
+        // Permission denied - show a subtle warning
+        toast.warning('Location access denied. You can enable it later when submitting the form.');
       } else if (error.code === 2) {
         toast.error('Location unavailable. Please check your connection.');
       } else if (error.code === 3) {
-        toast.error('Location request timed out. Please try again.');
+        toast.warning('Location request timed out. You can try again later.');
       } else {
-        toast.error('Failed to detect location. Please enter manually.');
+        toast.warning('Location detection not available. You can submit without it.');
       }
     } finally {
       setIsDetectingLocation(false);
     }
   };
 
-  const requestLocationPermission = () => {
+  const requestLocationPermission = async () => {
+    // Check current permission state
     if (navigator.permissions) {
-      navigator.permissions.query({ name: 'geolocation' as PermissionName }).then((result) => {
+      try {
+        const result = await navigator.permissions.query({ name: 'geolocation' as PermissionName });
         setLocationPermission(result.state);
-        if (result.state === 'granted') {
+        
+        if (result.state === 'denied') {
+          // Permission was previously denied, show instructions
+          setShowLocationInstructions(true);
+        } else if (result.state === 'granted') {
+          // Already granted, just detect location
           detectCurrentLocation();
-        } else if (result.state === 'prompt') {
+        } else {
+          // Prompt state - will show browser dialog
           detectCurrentLocation();
         }
-      });
+      } catch (error) {
+        // Fallback if permissions API fails
+        detectCurrentLocation();
+      }
     } else {
+      // Permissions API not supported, try detection anyway
       detectCurrentLocation();
     }
   };
@@ -551,6 +568,13 @@ export default function NTB() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Check if location permission is denied or not granted and location is empty
+    if ((locationPermission === 'denied' || locationPermission === 'prompt') && !form.location) {
+      setShowLocationWarning(true);
+      return;
+    }
+
     setSubmitting(true);
 
     try {
@@ -559,7 +583,7 @@ export default function NTB() {
         ntb_type_id: parseInt(form.ntb_type_id),
         date_of_incident: form.date_of_incident,
         country_of_incident: form.country_of_incident,
-        location: form.location,
+        location: form.location || 'Location not provided',
         complaint_details: form.complaint_details,
         product_description: form.product_description,
         occurrence: form.occurrence,
@@ -1388,7 +1412,6 @@ export default function NTB() {
                         <Input
                           value={form.location}
                           onChange={(e) => handleChange("location", e.target.value)}
-                          required
                         />
                       </div>
 
@@ -1878,6 +1901,102 @@ export default function NTB() {
         </div>
         {isRightSidebarOpen && <ProgressTracker />}
       </section>
+
+      {/* Location Permission Warning Modal */}
+      {showLocationWarning && (
+        <div className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <div className="bg-white rounded-xl w-full max-w-sm shadow-2xl border border-orange-200 animate-in fade-in-0 zoom-in-95 duration-200">
+            {/* Header */}
+            <div className="flex items-center justify-between p-4 border-b border-orange-200 bg-orange-50 rounded-t-xl">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center">
+                  <MapPin className="w-4 h-4 text-orange-600" />
+                </div>
+                <h2 className="text-base font-semibold text-orange-900">Location Required</h2>
+              </div>
+              <button
+                onClick={() => setShowLocationWarning(false)}
+                className="p-1 hover:bg-orange-100 rounded-md transition-colors"
+              >
+                <X size={18} className="text-orange-600" />
+              </button>
+            </div>
+
+            {/* Content */}
+            <div className="p-4">
+              <p className="text-sm text-gray-700 mb-4">
+                Please allow location access to submit your NTB report.
+              </p>
+
+              {/* Action Buttons */}
+              <div className="flex flex-col gap-2">
+                <Button
+                  onClick={() => {
+                    setShowLocationWarning(false);
+                    requestLocationPermission();
+                  }}
+                  className="w-full bg-orange-600 hover:bg-orange-700 text-white font-medium py-2.5 rounded-lg transition-colors duration-200 flex items-center justify-center gap-2"
+                >
+                  <MapPin className="w-4 h-4" />
+                  Enable Location
+                </Button>
+                
+                <Button
+                  variant="outline"
+                  onClick={() => setShowLocationWarning(false)}
+                  className="w-full border-gray-300 text-gray-700 hover:bg-gray-50 font-medium py-2 rounded-lg transition-colors duration-200"
+                >
+                  Cancel
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Location Instructions Modal - Shows how to manually enable */}
+      {showLocationInstructions && (
+        <div className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <div className="bg-white rounded-xl w-full max-w-sm shadow-2xl border border-blue-200 animate-in fade-in-0 zoom-in-95 duration-200">
+            {/* Header */}
+            <div className="flex items-center justify-between p-4 border-b border-blue-200 bg-blue-50 rounded-t-xl">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                  <MapPin className="w-4 h-4 text-blue-600" />
+                </div>
+                <h2 className="text-base font-semibold text-blue-900">Enable Location</h2>
+              </div>
+              <button
+                onClick={() => setShowLocationInstructions(false)}
+                className="p-1 hover:bg-blue-100 rounded-md transition-colors"
+              >
+                <X size={18} className="text-blue-600" />
+              </button>
+            </div>
+
+            {/* Content */}
+            <div className="p-4">
+              <p className="text-sm text-gray-700 mb-3">
+                Location was previously blocked. To enable it:
+              </p>
+
+              <ol className="text-sm text-gray-700 space-y-2 list-decimal list-inside mb-4">
+                <li>Click the lock icon in your browser's address bar</li>
+                <li>Find "Location" and set it to "Allow"</li>
+                <li>Refresh this page and try again</li>
+              </ol>
+
+              {/* Action Button */}
+              <Button
+                onClick={() => setShowLocationInstructions(false)}
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 rounded-lg transition-colors duration-200"
+              >
+                Got it
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 }
