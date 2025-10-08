@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useUserProfile } from "@/app/hooks/useUserProfile";
 import { useTranslations } from "next-intl";
@@ -136,6 +136,27 @@ export default function ProfilePage() {
     }
   }, [userProfile]);
 
+  const handleLogoutAndRedirect = useCallback(async () => {
+    try {
+      // Clear all localStorage and sessionStorage
+      localStorage.clear();
+      sessionStorage.clear();
+      
+      // Call logout API to clear server-side cookies
+      await fetch("/api/logout", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+    } catch (error) {
+      console.error("Error during logout:", error);
+    } finally {
+      // Force redirect to auth page regardless of API call success
+      window.location.replace("/auth");
+    }
+  }, []);
+
   // Countdown timer for password change success redirect
   useEffect(() => {
     let interval: NodeJS.Timeout;
@@ -144,10 +165,10 @@ export default function ProfilePage() {
         setRedirectCountdown((prev) => prev - 1);
       }, 1000);
     } else if (passwordChangeSuccess && redirectCountdown === 0) {
-      router.push("/auth");
+      handleLogoutAndRedirect();
     }
     return () => clearInterval(interval);
-  }, [passwordChangeSuccess, redirectCountdown, router]);
+  }, [passwordChangeSuccess, redirectCountdown, handleLogoutAndRedirect]);
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -600,36 +621,41 @@ export default function ProfilePage() {
                     </Button>
                   </DialogTrigger>
                   <DialogContent className="sm:max-w-[500px]">
-                    {true ? (
-                      // Success state with countdown
+                    {passwordChangeSuccess ? (
+                      // Success state with countdown - Minimal & Modern
                       <>
-                        <DialogHeader>
-                          <DialogTitle className="text-green-600">Password Changed Successfully!</DialogTitle>
-                          <DialogDescription className="text-gray-600">
-                            Your password has been updated successfully. Your session will be invalidated for security.
-                          </DialogDescription>
-                        </DialogHeader>
-                        <div className="flex flex-col items-center py-8 space-y-4">
-                          <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
-                            <svg className="w-8 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        <div className="flex flex-col items-center py-8 px-6 space-y-6">
+                          {/* Success Icon */}
+                          <div className="w-20 h-20 bg-green-50 rounded-2xl flex items-center justify-center">
+                            <svg className="w-10 h-10 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
                             </svg>
                           </div>
-                          <p className="text-lg font-medium text-center">
-                            Redirecting to login in <span className="text-blue-500 font-bold">{redirectCountdown}</span> seconds
-                          </p>
-                          <p className="text-sm text-gray-500 text-center">
-                            Please log in again with your new password
-                          </p>
-                        </div>
-                        <DialogFooter>
+
+                          {/* Title */}
+                          <div className="text-center space-y-2">
+                            <h3 className="text-xl font-semibold text-gray-900">Password Changed</h3>
+                            <p className="text-sm text-gray-500">
+                              Please log in with your new password
+                            </p>
+                          </div>
+
+                          {/* Countdown */}
+                          <div className="flex items-center justify-center gap-2 text-sm text-gray-600">
+                            <span>Redirecting in</span>
+                            <div className="flex items-center justify-center w-8 h-8 bg-blue-50 rounded-lg">
+                              <span className="text-base font-semibold text-blue-600">{redirectCountdown}</span>
+                            </div>
+                          </div>
+
+                          {/* Action Button */}
                           <Button 
-                            onClick={() => router.push("/auth")} 
-                            className="w-full bg-blue-500 hover:bg-blue-600 py-2"
+                            onClick={handleLogoutAndRedirect} 
+                            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 rounded-lg transition-colors"
                           >
-                            Go to Login Now
+                            Login Now
                           </Button>
-                        </DialogFooter>
+                        </div>
                       </>
                     ) : (
                       // Regular password change form

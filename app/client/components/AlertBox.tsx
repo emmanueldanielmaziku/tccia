@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
 import { CloseCircle, TickCircle, Warning2, InfoCircle } from "iconsax-reactjs";
 import useLogState from "../services/LogoutState";
-import { logout } from "@/app/utils/auth";
 
 type AlertBoxProps = {
   type?: "success" | "error" | "warning" | "info";
@@ -42,6 +41,9 @@ export default function AlertBox({
 
   const handleLogout = async () => {
     try {
+      // Close the alert first
+      toggleAlert();
+      
       // Clear all local and session storage
       localStorage.clear();
       sessionStorage.clear();
@@ -53,16 +55,11 @@ export default function AlertBox({
           "Content-Type": "application/json",
         },
       });
-      
-      // Close the alert
-      toggleAlert();
-      
-      // Call the server action to redirect
-      await logout();
     } catch (error) {
       console.error("Error during logout:", error);
-      // Still redirect even if there's an error
-      window.location.href = "/auth";
+    } finally {
+      // Always redirect to auth page regardless of API call success
+      window.location.replace("/auth");
     }
   };
 
