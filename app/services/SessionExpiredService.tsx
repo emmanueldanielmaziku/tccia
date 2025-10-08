@@ -1,5 +1,5 @@
 "use client";
-import React, { createContext, useContext, useState, ReactNode, useEffect } from "react";
+import React, { createContext, useContext, useState, ReactNode, useEffect, useRef } from "react";
 import SessionExpiredPopup from "../client/components/SessionExpiredPopup";
 import { setupFetchInterceptor, removeFetchInterceptor } from "../utils/fetchInterceptor";
 
@@ -12,16 +12,22 @@ interface SessionExpiredContextType {
 
 const SessionExpiredContext = createContext<SessionExpiredContextType | undefined>(undefined);
 
+// Global flag to prevent multiple redirects across all components
+let isHandlingSessionExpiration = false;
+
 export function SessionExpiredProvider({ children }: { children: ReactNode }) {
   const [isSessionExpiredVisible, setIsSessionExpiredVisible] = useState(false);
   const [hasShownSessionExpired, setHasShownSessionExpired] = useState(false);
+  const isCleaningUpRef = useRef(false);
 
   const showSessionExpired = () => {
-    // Prevent showing multiple times
-    if (hasShownSessionExpired) {
+    // Prevent showing multiple times across all instances
+    if (hasShownSessionExpired || isHandlingSessionExpiration || isCleaningUpRef.current) {
       return;
     }
     
+    console.log("🔴 Session expired - showing popup");
+    isHandlingSessionExpiration = true;
     setHasShownSessionExpired(true);
     setIsSessionExpiredVisible(true);
   };
@@ -36,15 +42,60 @@ export function SessionExpiredProvider({ children }: { children: ReactNode }) {
     };
   }, []);
 
-  const hideSessionExpired = () => {
+  const clearAllSessionData = async () => {
+    // Prevent multiple cleanup calls
+    if (isCleaningUpRef.current) {
+      return;
+    }
+    
+    isCleaningUpRef.current = true;
+    
+    try {
+      console.log("🔴 Clearing all session data...");
+      
+      // Clear all localStorage data
+      if (typeof window !== "undefined") {
+        localStorage.clear();
+        sessionStorage.clear();
+      }
+      
+      // Call logout API to clear server-side cookies
+      try {
+        await fetch("/api/logout", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+      } catch (error) {
+        console.error("Error calling logout API:", error);
+        // Continue with redirect even if logout API fails
+      }
+      
+      console.log("🔴 Session data cleared, redirecting to /auth");
+    } catch (error) {
+      console.error("Error clearing session data:", error);
+    }
+  };
+
+  const hideSessionExpired = async () => {
     setIsSessionExpiredVisible(false);
-    // Redirect to login page after closing
-    window.location.href = "/auth";
+    
+    // Clear all session data
+    await clearAllSessionData();
+    
+    // Force a hard redirect to clear all state
+    window.location.replace("/auth");
   };
 
   const resetSessionExpired = () => {
-    setHasShownSessionExpired(false);
-    setIsSessionExpiredVisible(false);
+    // Only reset if we're on the auth page
+    if (typeof window !== "undefined" && window.location.pathname === "/auth") {
+      setHasShownSessionExpired(false);
+      setIsSessionExpiredVisible(false);
+      isHandlingSessionExpiration = false;
+      isCleaningUpRef.current = false;
+    }
   };
 
   return (

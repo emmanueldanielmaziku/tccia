@@ -1516,7 +1516,7 @@ export default function NTB() {
                             onValueChange={(value) => handleChange("location_accuracy", value)}
                             disabled={locationPermission === 'granted'}
                           >
-                            <SelectTrigger className={`h-12 rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500 ${
+                            <SelectTrigger className={`h-18 rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500 ${
                               locationPermission === 'granted' 
                                 ? 'bg-gray-50 text-gray-700 cursor-not-allowed' 
                                 : ''

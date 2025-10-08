@@ -20,12 +20,12 @@ export async function isAuthenticated() {
 }
 
 export async function logout() {
-  // Clear all local storage items
-  if (typeof window !== "undefined") {
-    localStorage.clear();
-  }
-
+  "use server";
+  
+  // Clear cookies from server side
   const cookieStore = await cookies();
   cookieStore.delete("token");
+  cookieStore.delete("uid");
+  
   redirect("/auth");
 }

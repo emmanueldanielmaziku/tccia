@@ -24,6 +24,8 @@ import {
 } from "@/components/ui/select";
 import { Download } from "lucide-react";
 import { useRightSidebar } from "../../../contexts/RightSidebarContext";
+import { useApiWithSessionHandling } from "../../../hooks/useApiWithSessionHandling";
+import { handleSessionError } from "../../../utils/sessionErrorHandler";
 
 interface Product {
   sn: number;
@@ -81,6 +83,7 @@ const getStatusBadgeClass = (status: string) => {
 
 export default function FactoryVerification() {
   const { isRightSidebarOpen } = useRightSidebar();
+  const { fetchWithSessionHandling } = useApiWithSessionHandling();
   const [verificationForm, toggleForm] = useState(false);
   const [discardBoxState, togglediscardBox] = useState(false);
   const [products, setProducts] = useState<Product[]>([]);
@@ -123,7 +126,7 @@ export default function FactoryVerification() {
 
       const { company_tin } = JSON.parse(selectedCompany);
 
-      const response = await fetch("/api/factory/products", {
+      const response = await fetchWithSessionHandling("/api/factory/products", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -175,6 +178,10 @@ export default function FactoryVerification() {
         setIsEmpty(false);
       }
     } catch (err) {
+      if (handleSessionError(err)) {
+        // Session expired, handled by global popup
+        return;
+      }
       console.error("Fetch error:", err);
       setError("Network error occurred. Please try again.");
     } finally {
@@ -270,7 +277,7 @@ export default function FactoryVerification() {
       
       const { company_tin } = JSON.parse(selectedCompany);
       
-      const response = await fetch("/api/factory-verification/accept-report", {
+      const response = await fetchWithSessionHandling("/api/factory-verification/accept-report", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -293,6 +300,10 @@ export default function FactoryVerification() {
         alert(result.error || "Failed to accept report");
       }
     } catch (error) {
+      if (handleSessionError(error)) {
+        // Session expired, handled by global popup
+        return;
+      }
       console.error("Error accepting report:", error);
       alert("Network error occurred. Please try again.");
     } finally {
@@ -316,7 +327,7 @@ export default function FactoryVerification() {
       
       const { company_tin } = JSON.parse(selectedCompany);
       
-      const response = await fetch("/api/factory-verification/dispute-report", {
+      const response = await fetchWithSessionHandling("/api/factory-verification/dispute-report", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -342,6 +353,10 @@ export default function FactoryVerification() {
         alert(result.error || "Failed to dispute report");
       }
     } catch (error) {
+      if (handleSessionError(error)) {
+        // Session expired, handled by global popup
+        return;
+      }
       console.error("Error disputing report:", error);
       alert("Network error occurred. Please try again.");
     } finally {

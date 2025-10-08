@@ -41,9 +41,29 @@ export default function AlertBox({
   if (!isVisible) return null;
 
   const handleLogout = async () => {
-    localStorage.clear();
-    toggleAlert();
-    await logout();
+    try {
+      // Clear all local and session storage
+      localStorage.clear();
+      sessionStorage.clear();
+      
+      // Call logout API to clear server-side cookies
+      await fetch("/api/logout", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      
+      // Close the alert
+      toggleAlert();
+      
+      // Call the server action to redirect
+      await logout();
+    } catch (error) {
+      console.error("Error during logout:", error);
+      // Still redirect even if there's an error
+      window.location.href = "/auth";
+    }
   };
 
   if (isLogout) {

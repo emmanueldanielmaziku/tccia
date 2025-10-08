@@ -1,24 +1,33 @@
 import { useSessionExpired } from "../services/SessionExpiredService";
 import React, { useState, useRef, useEffect } from "react";
 
+// Global flag to prevent multiple session expired calls across all components
+let globalSessionExpiredFlag = false;
+
 export function useApiWithSessionHandling() {
   const { showSessionExpired, resetSessionExpired } = useSessionExpired();
   const [isSessionExpired, setIsSessionExpired] = useState(false);
   const hasShownPopup = useRef(false);
+  const isHandlingExpiration = useRef(false);
 
   // Reset session expired state when component mounts (user might have logged in again)
   useEffect(() => {
-    resetSessionExpired();
-    setIsSessionExpired(false);
-    hasShownPopup.current = false;
+    // Only reset if we're on the auth page
+    if (typeof window !== "undefined" && window.location.pathname === "/auth") {
+      resetSessionExpired();
+      setIsSessionExpired(false);
+      hasShownPopup.current = false;
+      globalSessionExpiredFlag = false;
+      isHandlingExpiration.current = false;
+    }
   }, [resetSessionExpired]);
 
   const fetchWithSessionHandling = async (
     url: string,
     options: RequestInit = {}
   ): Promise<Response> => {
-    // Don't make API calls if session is already expired
-    if (isSessionExpired || hasShownPopup.current) {
+    // Don't make API calls if session is already expired globally
+    if (globalSessionExpiredFlag || isSessionExpired || hasShownPopup.current || isHandlingExpiration.current) {
       throw new Error("SESSION_EXPIRED");
     }
 
@@ -30,7 +39,8 @@ export function useApiWithSessionHandling() {
       if ((response.status === 403 || response.status === 401) && 
           !url.includes('/api/auth/user_token') &&
           !url.includes('/api/request-password-reset') &&
-          !url.includes('/api/reset-password')) {
+          !url.includes('/api/reset-password') &&
+          !url.includes('/api/logout')) {
         
         // Enhanced authentication error detection
         try {
@@ -55,27 +65,41 @@ export function useApiWithSessionHandling() {
             response.status === 401 || response.status === 403
           );
           
-          if (isAuthError && !hasShownPopup.current) {
+          if (isAuthError && !hasShownPopup.current && !globalSessionExpiredFlag && !isHandlingExpiration.current) {
             console.log("🔴 useApiWithSessionHandling: Authentication error detected", {
               status: response.status,
               url: url,
               errorData: responseData
             });
+            
+            // Set all flags to prevent multiple calls
             hasShownPopup.current = true;
+            globalSessionExpiredFlag = true;
+            isHandlingExpiration.current = true;
             setIsSessionExpired(true);
+            
+            // Show the session expired popup
             showSessionExpired();
+            
             return Promise.reject(new Error("SESSION_EXPIRED"));
           }
         } catch (jsonError) {
           // If response is not JSON, fall back to status code check
-          if (!hasShownPopup.current) {
+          if (!hasShownPopup.current && !globalSessionExpiredFlag && !isHandlingExpiration.current) {
             console.log("🔴 useApiWithSessionHandling: Session expired detected (status-based)", {
               status: response.status,
               url: url
             });
+            
+            // Set all flags to prevent multiple calls
             hasShownPopup.current = true;
+            globalSessionExpiredFlag = true;
+            isHandlingExpiration.current = true;
             setIsSessionExpired(true);
+            
+            // Show the session expired popup
             showSessionExpired();
+            
             return Promise.reject(new Error("SESSION_EXPIRED"));
           }
         }
