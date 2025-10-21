@@ -75,9 +75,11 @@ interface ApplicationData {
 export default function MembershipApplication({
   tin,
   onHasApplication,
+  onDataChange,
 }: {
   tin: string;
   onHasApplication?: (has: boolean) => void;
+  onDataChange?: (data: ApplicationData | null) => void;
 }) {
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState<ApplicationData | null>(null);
@@ -113,9 +115,11 @@ export default function MembershipApplication({
       if (res.success && res.data) {
         setData(res.data);
         onHasApplication?.(true);
+        onDataChange?.(res.data);
       } else {
         setError(res.message || "No membership application found.");
         onHasApplication?.(false);
+        onDataChange?.(null);
       }
     } catch (error) {
       console.error("Error fetching application data:", error);
@@ -381,7 +385,7 @@ export default function MembershipApplication({
                 }
                 setDownloading(false);
               }}
-              className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg transition text-sm font-semibold cursor-pointer  ${
+              className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg transition text-sm font-semibold cursor-pointer whitespace-nowrap ${
                 data.state === "paid"
                   ? downloading
                     ? "bg-blue-300 text-white cursor-not-allowed"
@@ -421,7 +425,7 @@ export default function MembershipApplication({
           )}
           
           {/* Payment Button - Only show when certificate has expired or status is waiting for payment */}
-          {(data.state === "expired" || data.state === "waiting_payment") && (
+          {/* {(data.state === "expired" || data.state === "waiting_payment") && (
             <button
               onClick={handlePayment}
               disabled={paymentLoading}
@@ -440,7 +444,7 @@ export default function MembershipApplication({
                 </>
               )}
             </button>
-          )}
+          )} */}
           
           {/* {data.state === "expired" && (
             <button

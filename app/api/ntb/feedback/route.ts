@@ -1,65 +1,80 @@
+import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
-import { NextRequest, NextResponse } from "next/server";
 
-export async function GET(request: NextRequest) {
+const API_BASE_URL = "https://tccia.kalen.co.tz";
+
+export async function POST(request: Request) {
   try {
-    const { searchParams } = new URL(request.url);
-    const tracking_code = searchParams.get("tracking_code");
     const cookieStore = await cookies();
     const token = cookieStore.get("token");
+    const uid = cookieStore.get("uid");
 
-    if (!tracking_code) {
-      console.log("Tracking code is required");
+    if (!token || !uid) {
       return NextResponse.json(
-        { error: "Tracking code is required" },
+        {
+          success: false,
+          message: "Unauthorized - Missing authentication",
+        },
+        { status: 401 }
+      );
+    }
+
+    const body = await request.json();
+    const { ntb_id, rating, comment } = body;
+
+    if (!ntb_id || !rating || rating < 1 || rating > 5) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Invalid feedback data. Rating must be between 1-5.",
+        },
         { status: 400 }
       );
     }
 
-    const response = await fetch(
-      `https://tccia.kalen.co.tz/api/ntb/report/web/feedback?tracking_code=${tracking_code}`,
-      {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token?.value?.trim() ?? ""}`,
-        },
-      }
-    );
+    const payload = {
+      ntb_id: parseInt(ntb_id),
+      rating: parseInt(rating),
+      comment: comment || "",
+      user_id: uid.value,
+    };
+
+    console.log("Submitting feedback:", payload);
+
+    const response = await fetch(`${API_BASE_URL}/api/ntb/feedback`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token.value.trim()}`,
+      },
+      body: JSON.stringify(payload),
+    });
+
+    const data = await response.json();
+    console.log("Feedback API response:", data);
 
     if (!response.ok) {
-      if (response.status === 404) {
-        return NextResponse.json(
-          { error: "No report found with that tracking code" },
-          { status: 404 }
-        );
-      }
-
-      const errorData = await response.text();
-      console.error("External API error:", errorData);
       return NextResponse.json(
-        { error: "Failed to fetch report feedback from external service" },
+        {
+          success: false,
+          message: data.message || "Failed to submit feedback",
+        },
         { status: response.status }
       );
     }
 
-    const result = await response.json();
-
-    if (result.status === "success" && result.data) {
-      return NextResponse.json({
-        success: true,
-        data: result.data,
-        message: "Report feedback fetched successfully",
-      });
-    } else {
-      return NextResponse.json(
-        { error: "Invalid response from external service" },
-        { status: 500 }
-      );
-    }
+    return NextResponse.json({
+      success: true,
+      message: "Feedback submitted successfully",
+      data: data,
+    });
   } catch (error) {
-    console.error("Error fetching NTB report feedback:", error);
+    console.error("Feedback submission error:", error);
     return NextResponse.json(
-      { error: "Internal server error" },
+      {
+        success: false,
+        message: "Internal server error",
+      },
       { status: 500 }
     );
   }

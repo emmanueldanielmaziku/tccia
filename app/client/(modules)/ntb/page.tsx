@@ -55,6 +55,7 @@ import {
   UserCheck,
   RefreshCw,
   X,
+  Star,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
@@ -141,6 +142,69 @@ const COUNTRIES = [
   "Other",
 ];
 
+const SPECIFIC_LOCATION_OPTIONS = {
+  point: [
+    "Customs Office",
+    "Police Station",
+    "Government Building",
+    "Market Place",
+    "Business District",
+    "Industrial Area",
+    "Other Specific Point"
+  ],
+  area: [
+    "City Center",
+    "Suburban Area",
+    "Rural Area",
+    "Border Region",
+    "Coastal Area",
+    "Mountain Region",
+    "Other General Area"
+  ],
+  border: [
+    "Namanga Border",
+    "Holili Border",
+    "Tunduma Border",
+    "Sirari Border",
+    "Mutukula Border",
+    "Kasumulu Border",
+    "Other Border Point"
+  ],
+  port: [
+    "Dar es Salaam Port",
+    "Mwanza Port",
+    "Kigoma Port",
+    "Julius Nyerere Airport",
+    "Kilimanjaro Airport",
+    "Mwanza Airport",
+    "Other Port/Airport"
+  ],
+  warehouse: [
+    "Customs Warehouse",
+    "Private Warehouse",
+    "Cold Storage Facility",
+    "Container Terminal",
+    "Freight Forwarder Facility",
+    "Other Storage Facility"
+  ],
+  office: [
+    "TRA Office",
+    "TBS Office",
+    "Ministry Office",
+    "Local Government Office",
+    "Immigration Office",
+    "Other Government Office"
+  ],
+  other: [
+    "Roadside",
+    "Market",
+    "Shop",
+    "Office Building",
+    "Residential Area",
+    "Other Location"
+  ]
+};
+
 const OPERATOR_TYPES = [
   { value: "informal_trader", label: "Informal Trader" },
   { value: "small_scale_trader", label: "Small Scale Trader" },
@@ -178,6 +242,12 @@ export default function NTB() {
   const [isDetectingLocation, setIsDetectingLocation] = useState(false);
   const [showLocationWarning, setShowLocationWarning] = useState(false);
   const [showLocationInstructions, setShowLocationInstructions] = useState(false);
+  
+  // Feedback state
+  const [feedbackRating, setFeedbackRating] = useState(0);
+  const [feedbackComment, setFeedbackComment] = useState("");
+  const [feedbackSubmitting, setFeedbackSubmitting] = useState(false);
+  const [feedbackSubmitted, setFeedbackSubmitted] = useState(false);
   const [profileForm, setProfileForm] = useState({
     country_of_residence: "",
     operator_type: "",
@@ -188,7 +258,10 @@ export default function NTB() {
     ntb_type_id: "",
     date_of_incident: "",
     country_of_incident: "",
+    reporting_country: "",
     location: "",
+    location_type: "",
+    specific_location: "",
     complaint_details: "",
     product_description: "",
     cost_value_range: "",
@@ -200,7 +273,6 @@ export default function NTB() {
     // New optional location fields
     latitude: "",
     longitude: "",
-    location_type: "",
     location_accuracy: "",
     location_address: "",
     google_place_id: "",
@@ -583,7 +655,10 @@ export default function NTB() {
         ntb_type_id: parseInt(form.ntb_type_id),
         date_of_incident: form.date_of_incident,
         country_of_incident: form.country_of_incident,
+        reporting_country: form.reporting_country,
         location: form.location || 'Location not provided',
+        location_type: form.location_type,
+        specific_location: form.specific_location,
         complaint_details: form.complaint_details,
         product_description: form.product_description,
         occurrence: form.occurrence,
@@ -648,7 +723,10 @@ export default function NTB() {
       ntb_type_id: "",
       date_of_incident: "",
       country_of_incident: "",
+      reporting_country: "",
       location: "",
+      location_type: "",
+      specific_location: "",
       complaint_details: "",
       product_description: "",
       cost_value_range: "",
@@ -660,7 +738,6 @@ export default function NTB() {
       // New optional location fields
       latitude: "",
       longitude: "",
-      location_type: "",
       location_accuracy: "",
       location_address: "",
       google_place_id: "",
@@ -671,6 +748,44 @@ export default function NTB() {
     });
     setLocationPermission('prompt');
     editor?.commands.setContent('');
+  };
+
+  const handleFeedbackSubmit = async () => {
+    if (!selectedNtb || feedbackRating === 0) {
+      toast.error("Please provide a rating before submitting feedback");
+      return;
+    }
+
+    setFeedbackSubmitting(true);
+    try {
+      const response = await fetch('/api/ntb/feedback', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ntb_id: selectedNtb.id,
+          rating: feedbackRating,
+          comment: feedbackComment,
+        }),
+      });
+
+      const data = await response.json();
+      
+      if (data.success) {
+        toast.success("Thank you for your feedback!");
+        setFeedbackSubmitted(true);
+        setFeedbackRating(0);
+        setFeedbackComment("");
+      } else {
+        toast.error(data.message || "Failed to submit feedback");
+      }
+    } catch (error) {
+      console.error('Feedback submission error:', error);
+      toast.error("Failed to submit feedback. Please try again.");
+    } finally {
+      setFeedbackSubmitting(false);
+    }
   };
 
   const getStatusColor = (state: string) => {
@@ -999,12 +1114,20 @@ export default function NTB() {
                               <p className="font-medium">{ntb.date_of_incident}</p>
                             </div>
                             <div>
-                              <span className="text-gray-500">Country:</span>
+                              <span className="text-gray-500">Imposing Country:</span>
                               <p className="font-medium">{ntb.country_of_incident}</p>
                             </div>
                             <div>
-                              <span className="text-gray-500">Location:</span>
-                              <p className="font-medium">{ntb.location}</p>
+                              <span className="text-gray-500">Reporting Country:</span>
+                              <p className="font-medium">{ntb.reporting_country || 'Not specified'}</p>
+                            </div>
+                            <div>
+                              <span className="text-gray-500">Location Type:</span>
+                              <p className="font-medium">{ntb.location_type || 'Not specified'}</p>
+                            </div>
+                            <div>
+                              <span className="text-gray-500">Specific Location:</span>
+                              <p className="font-medium">{ntb.specific_location || 'Not specified'}</p>
                             </div>
                             <div>
                               <span className="text-gray-500">Cost Range:</span>
@@ -1025,7 +1148,7 @@ export default function NTB() {
                             )}
                           </div>
 
-                          <div className="flex gap-2">
+                          <div className="flex justify-end">
                             <Button
                               variant="outline"
                               size="sm"
@@ -1087,12 +1210,20 @@ export default function NTB() {
                             <p className="font-medium">{selectedNtb.date_of_incident}</p>
                           </div>
                           <div>
-                            <Label className="text-sm font-medium text-gray-500">Country</Label>
+                            <Label className="text-sm font-medium text-gray-500">Imposing Country</Label>
                             <p className="font-medium">{selectedNtb.country_of_incident}</p>
                           </div>
                           <div>
-                            <Label className="text-sm font-medium text-gray-500">Location</Label>
-                            <p className="font-medium">{selectedNtb.location}</p>
+                            <Label className="text-sm font-medium text-gray-500">Reporting Country</Label>
+                            <p className="font-medium">{selectedNtb.reporting_country || 'Not specified'}</p>
+                          </div>
+                          <div>
+                            <Label className="text-sm font-medium text-gray-500">Location Type</Label>
+                            <p className="font-medium">{selectedNtb.location_type || 'Not specified'}</p>
+                          </div>
+                          <div>
+                            <Label className="text-sm font-medium text-gray-500">Specific Location</Label>
+                            <p className="font-medium">{selectedNtb.specific_location || 'Not specified'}</p>
                           </div>
                         </div>
                       </CardContent>
@@ -1157,6 +1288,100 @@ export default function NTB() {
                         </div>
                       </CardContent>
                     </Card>
+
+                    {/* Feedback Section */}
+                    <Card className="border-[0.5px] shadow-[0_0_0px_rgba(0,0,0,0.1)]">
+                      <CardHeader>
+                        <CardTitle className="text-lg">
+                          Rate Our Service
+                        </CardTitle>
+                        <CardDescription>
+                          Help us improve by sharing your experience with this NTB report
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                        {feedbackSubmitted ? (
+                          <div className="text-center py-6">
+                            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                              <CheckCircle2 className="w-8 h-8 text-green-600" />
+                            </div>
+                            <h3 className="text-lg font-semibold text-green-800 mb-2">Thank You!</h3>
+                            <p className="text-gray-600">Your feedback has been submitted successfully.</p>
+                          </div>
+                        ) : (
+                          <>
+                            {/* Rating Stars */}
+                            <div className="space-y-2">
+                              <Label className="text-sm font-medium text-gray-700">
+                                How would you rate our service? *
+                              </Label>
+                              <div className="flex items-center gap-1">
+                                {[1, 2, 3, 4, 5].map((star) => (
+                                  <button
+                                    key={star}
+                                    type="button"
+                                    onClick={() => setFeedbackRating(star)}
+                                    className="p-1 hover:scale-110 transition-transform"
+                                  >
+                                    <Star
+                                      className={`w-8 h-8 ${
+                                        star <= feedbackRating
+                                          ? "text-yellow-400 fill-current"
+                                          : "text-gray-300"
+                                      }`}
+                                    />
+                                  </button>
+                                ))}
+                                <span className="ml-3 text-sm text-gray-600">
+                                  {feedbackRating === 0 && "Click to rate"}
+                                  {feedbackRating === 1 && "Poor"}
+                                  {feedbackRating === 2 && "Fair"}
+                                  {feedbackRating === 3 && "Good"}
+                                  {feedbackRating === 4 && "Very Good"}
+                                  {feedbackRating === 5 && "Excellent"}
+                                </span>
+                              </div>
+                            </div>
+
+                            {/* Comment Section */}
+                            <div className="space-y-2">
+                              <Label className="text-sm font-medium text-gray-700">
+                                Additional Comments (Optional)
+                              </Label>
+                              <textarea
+                                value={feedbackComment}
+                                onChange={(e) => setFeedbackComment(e.target.value)}
+                                placeholder="Tell us about your experience..."
+                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:border-blue-500 focus:ring-blue-500 resize-none"
+                                rows={4}
+                                maxLength={500}
+                              />
+                              <div className="text-xs text-gray-500 text-right">
+                                {feedbackComment.length}/500 characters
+                              </div>
+                            </div>
+
+                            {/* Submit Button */}
+                            <div className="flex justify-end">
+                              <Button
+                                onClick={handleFeedbackSubmit}
+                                disabled={feedbackSubmitting || feedbackRating === 0}
+                                className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                              >
+                                {feedbackSubmitting ? (
+                                  <div className="flex items-center gap-2">
+                                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                                    Submitting...
+                                  </div>
+                                ) : (
+                                  "Submit Feedback"
+                                )}
+                              </Button>
+                            </div>
+                          </>
+                        )}
+                      </CardContent>
+                    </Card>
                   </div>
 
                   {/* Sidebar */}
@@ -1187,29 +1412,29 @@ export default function NTB() {
                         <CardContent className="space-y-3">
                           <div>
                             <Label className="text-sm font-medium text-gray-500">Name</Label>
-                            <p className="font-medium">{selectedNtb.reporter_info.name}</p>
+                            <p className="font-medium break-words">{selectedNtb.reporter_info.name}</p>
                           </div>
                           <div>
                             <Label className="text-sm font-medium text-gray-500">Email</Label>
-                            <p className="font-medium">{selectedNtb.reporter_info.email}</p>
+                            <p className="font-medium break-all">{selectedNtb.reporter_info.email}</p>
                           </div>
                           {selectedNtb.reporter_info.phone && (
                             <div>
                               <Label className="text-sm font-medium text-gray-500">Phone</Label>
-                              <p className="font-medium">{selectedNtb.reporter_info.phone}</p>
+                              <p className="font-medium break-words">{selectedNtb.reporter_info.phone}</p>
                             </div>
                           )}
                           <div>
                             <Label className="text-sm font-medium text-gray-500">Country</Label>
-                            <p className="font-medium">{selectedNtb.reporter_info.country}</p>
+                            <p className="font-medium break-words">{selectedNtb.reporter_info.country}</p>
                           </div>
                           <div>
                             <Label className="text-sm font-medium text-gray-500">Operator Type</Label>
-                            <p className="font-medium capitalize">{selectedNtb.reporter_info.operator_type?.replace('_', ' ')}</p>
+                            <p className="font-medium capitalize break-words">{selectedNtb.reporter_info.operator_type?.replace('_', ' ')}</p>
                           </div>
                           <div>
                             <Label className="text-sm font-medium text-gray-500">Gender</Label>
-                            <p className="font-medium capitalize">{selectedNtb.reporter_info.gender}</p>
+                            <p className="font-medium capitalize break-words">{selectedNtb.reporter_info.gender}</p>
                           </div>
                         </CardContent>
                       </Card>
@@ -1266,7 +1491,7 @@ export default function NTB() {
                             onValueChange={(value) => handleChange("ntb_type_id", value)}
                             required
                           >
-                            <SelectTrigger className="h-12 rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500">
+                            <SelectTrigger className="h-12 rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500 py-3">
                               <SelectValue placeholder="Select NTB type" />
                             </SelectTrigger>
                             <SelectContent>
@@ -1293,18 +1518,19 @@ export default function NTB() {
                         </div>
                       </div>
 
+                      {/* Country Fields Row */}
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="space-y-3">
                           <Label className="text-sm font-medium text-gray-700">
-                            Country of Incident *
+                            Imposing Country *
                           </Label>
                           <Select
                             value={form.country_of_incident}
                             onValueChange={(value) => handleChange("country_of_incident", value)}
                             required
                           >
-                            <SelectTrigger className="h-12 rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500">
-                              <SelectValue placeholder="Select country" />
+                            <SelectTrigger className="h-12 rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500 py-3">
+                              <SelectValue placeholder="Select imposing country" />
                             </SelectTrigger>
                             <SelectContent>
                               {COUNTRIES.map((country) => (
@@ -1318,13 +1544,42 @@ export default function NTB() {
 
                         <div className="space-y-3">
                           <Label className="text-sm font-medium text-gray-700">
+                            Reporting Country *
+                          </Label>
+                          <Select
+                            value={form.reporting_country}
+                            onValueChange={(value) => handleChange("reporting_country", value)}
+                            required
+                          >
+                            <SelectTrigger className="h-12 rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500 py-3">
+                              <SelectValue placeholder="Select reporting country" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {COUNTRIES.map((country) => (
+                                <SelectItem key={country} value={country}>
+                                  {country}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
+
+                      {/* Location Fields Row */}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-3">
+                          <Label className="text-sm font-medium text-gray-700">
                             Location of Incident
                           </Label>
                           <Select
                             value={form.location_type}
-                            onValueChange={(value) => handleChange("location_type", value)}
+                            onValueChange={(value) => {
+                              handleChange("location_type", value);
+                              // Clear specific location when location type changes
+                              handleChange("specific_location", "");
+                            }}
                           >
-                            <SelectTrigger className="h-12 rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500">
+                            <SelectTrigger className="h-12 rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500 py-3">
                               <SelectValue placeholder="Select location type" />
                             </SelectTrigger>
                             <SelectContent>
@@ -1335,6 +1590,28 @@ export default function NTB() {
                               <SelectItem value="warehouse">Warehouse/Storage</SelectItem>
                               <SelectItem value="office">Government Office</SelectItem>
                               <SelectItem value="other">Other</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+
+                        <div className="space-y-3">
+                          <Label className="text-sm font-medium text-gray-700">
+                            Specific Location
+                          </Label>
+                          <Select
+                            value={form.specific_location}
+                            onValueChange={(value) => handleChange("specific_location", value)}
+                            disabled={!form.location_type}
+                          >
+                            <SelectTrigger className="h-12 rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500 py-3">
+                              <SelectValue placeholder={form.location_type ? "Select specific location" : "Select location type first"} />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {form.location_type && SPECIFIC_LOCATION_OPTIONS[form.location_type as keyof typeof SPECIFIC_LOCATION_OPTIONS]?.map((location) => (
+                                <SelectItem key={location} value={location}>
+                                  {location}
+                                </SelectItem>
+                              ))}
                             </SelectContent>
                           </Select>
                         </div>
@@ -1630,9 +1907,9 @@ export default function NTB() {
                           onValueChange={(value) => handleChange("occurrence", value)}
                           required
                         >
-                          <SelectTrigger className="h-12 w-[280px] rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500">
-                            <SelectValue placeholder="Select occurrence" />
-                          </SelectTrigger>
+                            <SelectTrigger className="h-12 w-[280px] rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500 py-3">
+                              <SelectValue placeholder="Select occurrence" />
+                            </SelectTrigger>
                           <SelectContent>
                             {OCCURRENCE_OPTIONS.map((occurrence) => (
                               <SelectItem key={occurrence} value={occurrence}>
@@ -1664,9 +1941,9 @@ export default function NTB() {
                                 value={form.cost_value_range}
                                 onValueChange={(value) => handleChange("cost_value_range", value)}
                               >
-                                <SelectTrigger className="h-12 w-[280px] rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500">
-                                  <SelectValue placeholder="Select cost range (optional)" />
-                                </SelectTrigger>
+                                 <SelectTrigger className="h-12 w-[280px] rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500 py-3">
+                                    <SelectValue placeholder="Select cost range (optional)" />
+                                  </SelectTrigger>
                                 <SelectContent>
                                   {COST_RANGES.map((range) => (
                                     <SelectItem key={range} value={range}>
@@ -1686,9 +1963,9 @@ export default function NTB() {
                                 value={form.time_lost_range}
                                 onValueChange={(value) => handleChange("time_lost_range", value)}
                               >
-                                <SelectTrigger className="h-12 w-[280px] rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500">
-                                  <SelectValue placeholder="Select time lost (optional)" />
-                                </SelectTrigger>
+                                 <SelectTrigger className="h-18 w-[280px] rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500 py-3">
+                                    <SelectValue placeholder="Select time lost (optional)" />
+                                  </SelectTrigger>
                                 <SelectContent>
                                   {TIME_LOST_OPTIONS.map((time) => (
                                     <SelectItem key={time} value={time}>
@@ -1717,9 +1994,9 @@ export default function NTB() {
                                     value={form.money_lost_range}
                                     onValueChange={(value) => handleChange("money_lost_range", value)}
                                   >
-                                    <SelectTrigger className="h-12 w-[280px] rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500">
-                                      <SelectValue placeholder="Select money lost range (optional)" />
-                                    </SelectTrigger>
+                                     <SelectTrigger className="h-12 w-[280px] rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500 py-3">
+                                        <SelectValue placeholder="Select money lost range (optional)" />
+                                      </SelectTrigger>
                                     <SelectContent>
                                       {MONEY_LOST_RANGES.map((range) => (
                                         <SelectItem key={range} value={range}>

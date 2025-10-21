@@ -93,8 +93,8 @@ export default function MembershipApplicationForm({
   // Form state
   const [regionId, setRegionId] = useState<string>("");
   const [districtId, setDistrictId] = useState<string>("");
-  const [sectorId, setSectorId] = useState<string>("");
-  const [subsectorId, setSubsectorId] = useState<string>("");
+  const [selectedSectors, setSelectedSectors] = useState<number[]>([]);
+  const [selectedSubsectors, setSelectedSubsectors] = useState<number[]>([]);
   const [categoryId, setCategoryId] = useState<string>("");
   const [subcategoryId, setSubcategoryId] = useState<string>("");
   const [directors, setDirectors] = useState<Person[]>([
@@ -120,6 +120,30 @@ export default function MembershipApplicationForm({
     { name: false, phone: false, email: false },
   ]);
   const [forceShowErrors, setForceShowErrors] = useState(false);
+
+  // Helper functions for multi-selection
+  const toggleSector = (sectorId: number) => {
+    setSelectedSectors(prev => 
+      prev.includes(sectorId) 
+        ? prev.filter(id => id !== sectorId)
+        : [...prev, sectorId]
+    );
+    // Clear subsectors when sectors change
+    setSelectedSubsectors([]);
+  };
+
+  const toggleSubsector = (subsectorId: number) => {
+    setSelectedSubsectors(prev => 
+      prev.includes(subsectorId) 
+        ? prev.filter(id => id !== subsectorId)
+        : [...prev, subsectorId]
+    );
+  };
+
+  // Get all subsectors from selected sectors
+  const availableSubsectors = sectors
+    .filter(sector => selectedSectors.includes(sector.id))
+    .flatMap(sector => sector.subsectors);
 
   // Phone number validation - only allow numbers
   const handlePhoneInput = (value: string) => {
@@ -223,11 +247,11 @@ export default function MembershipApplicationForm({
   const validateForm = () => {
     const errors: any = {};
 
-    // Validate region, district, sector, subsector
+    // Validate region, district, sectors, subsectors
     if (!regionId) errors.regionId = "Region is required.";
     if (!districtId) errors.districtId = "District is required.";
-    if (!sectorId) errors.sectorId = "Sector is required.";
-    if (!subsectorId) errors.subsectorId = "Subsector is required.";
+    if (selectedSectors.length === 0) errors.sectorId = "At least one sector is required.";
+    if (selectedSubsectors.length === 0) errors.subsectorId = "At least one subsector is required.";
 
     if (!categoryId) errors.categoryId = "Category is required.";
     if (!subcategoryId) errors.subcategoryId = "Subcategory is required.";
@@ -307,8 +331,8 @@ export default function MembershipApplicationForm({
         company_tin,
         region_id: Number(regionId),
         district_id: Number(districtId),
-        sector_id: Number(sectorId),
-        subsector_id: Number(subsectorId),
+        sector_ids: selectedSectors,
+        subsector_ids: selectedSubsectors,
       };
 
       const res = await fetch(`/api/membership/apply`, {
@@ -498,24 +522,35 @@ export default function MembershipApplicationForm({
 
                   <div className="flex flex-col gap-2">
                     <label className="text-sm text-gray-600 font-medium">
-                      Sector
+                      Sectors <span className="text-gray-400">(Select multiple)</span>
                     </label>
-                    <Select value={sectorId} onValueChange={setSectorId}>
-                      <SelectTrigger
-                        className={`w-full px-3 py-2 text-sm bg-white border-gray-300 focus:border-blue-500 focus:ring-blue-500 ${
-                          fieldErrors.sectorId ? "border-red-500" : ""
-                        }`}
-                      >
-                        <SelectValue placeholder="Select sector" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {sectors.map((s) => (
-                          <SelectItem key={s.id} value={String(s.id)}>
-                            {s.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <div className="border border-gray-300 rounded-md p-3 bg-white min-h-[120px] max-h-[200px] overflow-y-auto">
+                      {sectors.length === 0 ? (
+                        <p className="text-gray-400 text-sm">Loading sectors...</p>
+                      ) : (
+                        <div className="space-y-2">
+                          {sectors.map((sector) => (
+                            <label key={sector.id} className="flex items-center space-x-2 cursor-pointer hover:bg-gray-50 p-2 rounded">
+                              <input
+                                type="checkbox"
+                                checked={selectedSectors.includes(sector.id)}
+                                onChange={() => toggleSector(sector.id)}
+                                className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                              />
+                              <span className="text-sm text-gray-700">{sector.name}</span>
+                              {sector.description && (
+                                <span className="text-xs text-gray-500">({sector.description})</span>
+                              )}
+                            </label>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                    {selectedSectors.length > 0 && (
+                      <div className="text-xs text-gray-600">
+                        Selected: {selectedSectors.length} sector{selectedSectors.length > 1 ? 's' : ''}
+                      </div>
+                    )}
                     {fieldErrors.sectorId && (
                       <p className="text-red-500 text-xs">{fieldErrors.sectorId}</p>
                     )}
@@ -523,28 +558,37 @@ export default function MembershipApplicationForm({
 
                   <div className="flex flex-col gap-2">
                     <label className="text-sm text-gray-600 font-medium">
-                      Subsector
+                      Subsectors <span className="text-gray-400">(Select multiple)</span>
                     </label>
-                    <Select
-                      value={subsectorId}
-                      onValueChange={setSubsectorId}
-                      disabled={!sectorId}
-                    >
-                      <SelectTrigger
-                        className={`w-full px-3 py-2 text-sm bg-white border-gray-300 focus:border-blue-500 focus:ring-blue-500 ${
-                          fieldErrors.subsectorId ? "border-red-500" : ""
-                        }`}
-                      >
-                        <SelectValue placeholder="Select subsector" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {subsectors.map((s) => (
-                          <SelectItem key={s.id} value={String(s.id)}>
-                            {s.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <div className="border border-gray-300 rounded-md p-3 bg-white min-h-[120px] max-h-[200px] overflow-y-auto">
+                      {selectedSectors.length === 0 ? (
+                        <p className="text-gray-400 text-sm">Please select sectors first</p>
+                      ) : availableSubsectors.length === 0 ? (
+                        <p className="text-gray-400 text-sm">No subsectors available for selected sectors</p>
+                      ) : (
+                        <div className="space-y-2">
+                          {availableSubsectors.map((subsector) => (
+                            <label key={subsector.id} className="flex items-center space-x-2 cursor-pointer hover:bg-gray-50 p-2 rounded">
+                              <input
+                                type="checkbox"
+                                checked={selectedSubsectors.includes(subsector.id)}
+                                onChange={() => toggleSubsector(subsector.id)}
+                                className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                              />
+                              <span className="text-sm text-gray-700">{subsector.name}</span>
+                              {subsector.description && (
+                                <span className="text-xs text-gray-500">({subsector.description})</span>
+                              )}
+                            </label>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                    {selectedSubsectors.length > 0 && (
+                      <div className="text-xs text-gray-600">
+                        Selected: {selectedSubsectors.length} subsector{selectedSubsectors.length > 1 ? 's' : ''}
+                      </div>
+                    )}
                     {fieldErrors.subsectorId && (
                       <p className="text-red-500 text-xs">{fieldErrors.subsectorId}</p>
                     )}
@@ -1024,15 +1068,21 @@ export default function MembershipApplicationForm({
                     </span>
                   </div>
                   <div>
-                    <span className="text-gray-600">Sector:</span>{" "}
+                    <span className="text-gray-600">Sectors:</span>{" "}
                     <span className="font-medium">
-                      {sectors.find((s) => s.id === Number(sectorId))?.name || "-"}
+                      {selectedSectors.length > 0 
+                        ? selectedSectors.map(id => sectors.find(s => s.id === id)?.name).join(", ")
+                        : "-"
+                      }
                     </span>
                   </div>
                   <div>
-                    <span className="text-gray-600">Subsector:</span>{" "}
+                    <span className="text-gray-600">Subsectors:</span>{" "}
                     <span className="font-medium">
-                      {subsectors.find((s) => s.id === Number(subsectorId))?.name || "-"}
+                      {selectedSubsectors.length > 0 
+                        ? selectedSubsectors.map(id => availableSubsectors.find(s => s.id === id)?.name).join(", ")
+                        : "-"
+                      }
                     </span>
                   </div>
                   <div>

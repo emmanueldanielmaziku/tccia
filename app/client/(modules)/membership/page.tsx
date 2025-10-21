@@ -6,6 +6,7 @@ import { Add, CloseCircle, Lock, Refresh } from "iconsax-reactjs";
 import AlertBox from "../factory-verification/components/AlertBox";
 import StatsBar from "./components/StatsBar";
 import MembershipApplication from "./components/MembershipApplication";
+import MembershipProgress from "./components/MembershipProgress";
 
 export default function Membership() {
   const [showForm, setShowForm] = useState(false);
@@ -13,6 +14,7 @@ export default function Membership() {
   const [selectedTin, setSelectedTin] = useState<string | null>(null);
   const [hasApplication, setHasApplication] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [applicationData, setApplicationData] = useState<any>(null);
 
   useEffect(() => {
     const storedCompany = localStorage.getItem("selectedCompany");
@@ -52,7 +54,7 @@ export default function Membership() {
       <section className="flex flex-row w-full h-full flex-1">
         {/* Main Content */}
         <div className="flex flex-col items-start flex-1 min-w-0 h-[97vh] pt-16 bg-transparent border-transparent border-[1px] rounded-xl">
-          <div className="flex flex-col justify-start items-start my-3 w-full h-[86vh] rounded-sm relative px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16">
+          <div className="flex flex-col justify-start items-start my-3 w-full h-[86vh] rounded-sm relative px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 overflow-y-auto">
             {/* Header */}
             <div className="flex flex-col lg:flex-row w-full justify-between items-start lg:items-center gap-4 my-1">
               {showForm ? (
@@ -124,11 +126,24 @@ export default function Membership() {
               />
             ) : (
               <div className="w-full mt-8">
+                {/* Progress Component */}
+                {applicationData && (
+                  <MembershipProgress
+                    status={applicationData.state}
+                    applicationNumber={applicationData.application_number}
+                    submittedDate={applicationData.submission_date}
+                    paidDate={applicationData.paid_date}
+                    expiryDate={applicationData.expiry_date}
+                  />
+                )}
+                
+                {/* Membership Application Card */}
                 {selectedTin && (
                   <MembershipApplication
                     key={refreshKey}
                     tin={selectedTin}
                     onHasApplication={setHasApplication}
+                    onDataChange={setApplicationData}
                   />
                 )}
               </div>

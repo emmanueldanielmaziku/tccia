@@ -15,7 +15,8 @@ import {
   PaginationItem,
   PaginationLink,
 } from "@/components/ui/pagination";
-import { Search } from "lucide-react";
+import { Search, Copy, Check } from "lucide-react";
+import { toast } from "sonner";
 
 const REMOTE_BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL || "https://tccia.kalen.co.tz/api/";
@@ -35,6 +36,7 @@ export default function HSCodeWidget({
   const [data, setData] = useState<any[]>([]);
   const [total, setTotal] = useState(0);
   const [error, setError] = useState<string | null>(null);
+  const [copiedItems, setCopiedItems] = useState<Set<string>>(new Set());
   const modalRef = useRef<HTMLDivElement>(null);
 
   const pageSize = 10;
@@ -112,6 +114,26 @@ export default function HSCodeWidget({
     setDigit("12");
     setPage(1);
     fetchData(false);
+  };
+
+  const copyToClipboard = async (hsCode: string) => {
+    try {
+      await navigator.clipboard.writeText(hsCode);
+      setCopiedItems(prev => new Set(prev).add(hsCode));
+      toast.success(`HS Code ${hsCode} copied to clipboard!`);
+      
+      // Reset the copied state after 2 seconds
+      setTimeout(() => {
+        setCopiedItems(prev => {
+          const newSet = new Set(prev);
+          newSet.delete(hsCode);
+          return newSet;
+        });
+      }, 2000);
+    } catch (err) {
+      console.error('Failed to copy HS code:', err);
+      toast.error('Failed to copy HS code');
+    }
   };
 
   if (!open) return null;
@@ -227,6 +249,7 @@ export default function HSCodeWidget({
                       <TableHead className="w-12">#</TableHead>
                       <TableHead className="w-48">HS Code</TableHead>
                       <TableHead>HS Description</TableHead>
+                      <TableHead className="w-20">Copy</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -236,10 +259,29 @@ export default function HSCodeWidget({
                         className="hover:bg-blue-50"
                       >
                         <TableCell>{(page - 1) * pageSize + idx + 1}</TableCell>
-                        <TableCell className="text-blue-600 underline cursor-pointer">
+                        <TableCell className="text-blue-600 underline cursor-pointer hover:text-blue-800">
                           {row.hs_code}
                         </TableCell>
                         <TableCell>{row.description}</TableCell>
+                        <TableCell>
+                          <button
+                            onClick={() => copyToClipboard(row.hs_code)}
+                            className="flex items-center gap-1 px-2 py-1 hover:bg-blue-100 rounded transition-colors duration-200 text-sm"
+                            title="Copy HS Code"
+                          >
+                            {copiedItems.has(row.hs_code) ? (
+                              <>
+                                <Check size={14} className="text-green-600" />
+                                <span className="text-green-600">Copied</span>
+                              </>
+                            ) : (
+                              <>
+                                <Copy size={14} className="text-blue-600" />
+                                <span className="text-blue-600">Copy</span>
+                              </>
+                            )}
+                          </button>
+                        </TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
