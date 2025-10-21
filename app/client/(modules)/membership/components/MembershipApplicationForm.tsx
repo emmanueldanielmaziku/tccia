@@ -175,8 +175,6 @@ export default function MembershipApplicationForm({
   // Filtered lists
   const selectedRegion = regions.find((r) => r.id === Number(regionId));
   const districts = selectedRegion?.districts || [];
-  const selectedSector = sectors.find((s) => s.id === Number(sectorId));
-  const subsectors = selectedSector?.subsectors || [];
   const selectedCategory = categories.find((c) => c.id === Number(categoryId));
   const subcategories = selectedCategory?.subcategories || [];
 
