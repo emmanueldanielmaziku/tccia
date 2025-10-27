@@ -92,11 +92,6 @@ export default function FactoryVerification() {
   const [isEmpty, setIsEmpty] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
-  const [showActionModal, setShowActionModal] = useState(false);
-  const [disputeComments, setDisputeComments] = useState("");
-  const [isSubmittingAction, setIsSubmittingAction] = useState(false);
-  const [showDisputeForm, setShowDisputeForm] = useState(false);
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [sortField, setSortField] = useState<"sn" | "product" | "status">("sn");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
   const [searchQuery, setSearchQuery] = useState("");
@@ -261,108 +256,9 @@ export default function FactoryVerification() {
 
   const handleViewDetails = (product: Product) => {
     setSelectedProduct(product);
-    setShowActionModal(true);
+    setShowDetailModal(true);
   };
 
-  const handleAcceptReport = async () => {
-    if (!selectedProduct) return;
-    
-    setIsSubmittingAction(true);
-    try {
-      const selectedCompany = localStorage.getItem("selectedCompany");
-      if (!selectedCompany) {
-        alert("No company selected. Please select a company first.");
-        return;
-      }
-      
-      const { company_tin } = JSON.parse(selectedCompany);
-      
-      const response = await fetchWithSessionHandling("/api/factory-verification/accept-report", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          factory_verification_id: selectedProduct.verification_id,
-          company_tin: company_tin,
-        }),
-      });
-
-      const result = await response.json();
-      
-      if (result.status === "success") {
-        setSuccessMessage("Report accepted successfully!");
-        setShowActionModal(false);
-        fetchProducts(); // Refresh the list
-        // Clear success message after 3 seconds
-        setTimeout(() => setSuccessMessage(null), 3000);
-      } else {
-        alert(result.error || "Failed to accept report");
-      }
-    } catch (error) {
-      if (handleSessionError(error)) {
-        // Session expired, handled by global popup
-        return;
-      }
-      console.error("Error accepting report:", error);
-      alert("Network error occurred. Please try again.");
-    } finally {
-      setIsSubmittingAction(false);
-    }
-  };
-
-  const handleDisputeReport = async () => {
-    if (!selectedProduct || !disputeComments.trim()) {
-      alert("Please provide dispute comments");
-      return;
-    }
-    
-    setIsSubmittingAction(true);
-    try {
-      const selectedCompany = localStorage.getItem("selectedCompany");
-      if (!selectedCompany) {
-        alert("No company selected. Please select a company first.");
-        return;
-      }
-      
-      const { company_tin } = JSON.parse(selectedCompany);
-      
-      const response = await fetchWithSessionHandling("/api/factory-verification/dispute-report", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          factory_verification_id: selectedProduct.verification_id,
-          company_tin: company_tin,
-          dispute_comments: disputeComments.trim(),
-        }),
-      });
-
-      const result = await response.json();
-      
-      if (result.status === "success") {
-        setSuccessMessage("Report disputed successfully!");
-        setShowActionModal(false);
-        setDisputeComments("");
-        setShowDisputeForm(false);
-        fetchProducts(); // Refresh the list
-        // Clear success message after 3 seconds
-        setTimeout(() => setSuccessMessage(null), 3000);
-      } else {
-        alert(result.error || "Failed to dispute report");
-      }
-    } catch (error) {
-      if (handleSessionError(error)) {
-        // Session expired, handled by global popup
-        return;
-      }
-      console.error("Error disputing report:", error);
-      alert("Network error occurred. Please try again.");
-    } finally {
-      setIsSubmittingAction(false);
-    }
-  };
 
   return (
     <main className="w-full h-[97vh] rounded-[12px] sm:rounded-[14px] overflow-hidden bg-white border-[1px] border-gray-200 shadow-sm relative">
@@ -386,7 +282,7 @@ export default function FactoryVerification() {
                       placeholder="Search products..."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      className="w-full lg:w-auto border-[0.5px] border-zinc-300 focus:outline-2 focus:outline-blue-400 rounded-[8px] sm:rounded-[9px] lg:rounded-[10px] pl-5 sm:pl-6 lg:pl-8 pr-2 sm:pr-2.5 py-1 sm:py-1.5 lg:py-2 text-xs sm:text-sm placeholder:text-xs sm:placeholder:text-sm"
+                      className="w-full lg:w-auto h-[38px] border-[0.5px] border-zinc-300 focus:outline-2 focus:outline-blue-400 rounded-[8px] sm:rounded-[9px] lg:rounded-[10px] pl-5 sm:pl-6 lg:pl-8 pr-2 sm:pr-2.5 text-xs sm:text-sm placeholder:text-xs sm:placeholder:text-sm"
                     />
                     <SearchNormal1
                       size="14"
@@ -400,7 +296,7 @@ export default function FactoryVerification() {
                     value={communityNameFilter}
                     onValueChange={(value) => setCommunityNameFilter(value)}
                   >
-                    <SelectTrigger className="w-full lg:w-[170px] py-1 sm:py-1.5 lg:py-2 text-xs sm:text-sm">
+                    <SelectTrigger className="w-full lg:w-[170px] h-[38px] text-xs sm:text-sm">
                       <SelectValue placeholder="Community" />
                     </SelectTrigger>
                     <SelectContent>
@@ -431,7 +327,7 @@ export default function FactoryVerification() {
               ) : (
                 <div className="flex flex-col lg:flex-row items-center gap-2 w-full lg:w-auto">
                   <button
-                    className="flex flex-row gap-1 sm:gap-2 lg:gap-3 justify-center items-center bg-gray-100 hover:bg-gray-200 text-gray-600 text-xs sm:text-sm rounded-[5px] sm:rounded-[6px] cursor-pointer px-2 sm:px-3 py-1 sm:py-1.5 lg:py-2 transition-colors w-full lg:w-auto"
+                    className="flex flex-row gap-1 sm:gap-2 lg:gap-3 justify-center items-center bg-gray-100 hover:bg-gray-200 text-gray-600 text-xs sm:text-sm rounded-[5px] sm:rounded-[6px] cursor-pointer px-2 sm:px-3 h-[38px] transition-colors w-full lg:w-auto"
                     onClick={fetchProducts}
                     disabled={loading}
                   >
@@ -444,7 +340,7 @@ export default function FactoryVerification() {
                     <span className="sm:hidden lg:hidden">{loading ? "..." : "↻"}</span>
                   </button>
                   <button
-                    className="flex flex-row gap-1 sm:gap-2 lg:gap-3 justify-center items-center bg-blue-600 hover:bg-blue-500 text-white text-xs sm:text-sm rounded-[5px] sm:rounded-[6px] cursor-pointer px-2 sm:px-3 py-1 sm:py-1.5 lg:py-2 w-full lg:w-auto"
+                    className="flex flex-row gap-1 sm:gap-2 lg:gap-3 justify-center items-center bg-blue-600 hover:bg-blue-500 text-white text-xs sm:text-sm rounded-[5px] sm:rounded-[6px] cursor-pointer px-2 sm:px-3 h-[38px] w-full lg:w-auto"
                     onClick={() => toggleForm(true)}
                   >
                     <Add size="16" className="w-4 h-4 sm:w-5 sm:h-5" color="white" />
@@ -780,27 +676,6 @@ export default function FactoryVerification() {
         )}
       </section>
 
-      {/* Success Message Toast */}
-      {successMessage && (
-        <div className="fixed top-4 right-4 z-50 animate-fadeIn">
-          <div className="bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg flex items-center gap-3">
-            <div className="w-5 h-5 bg-white rounded-full flex items-center justify-center">
-              <svg className="w-3 h-3 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-              </svg>
-            </div>
-            <span className="font-medium">{successMessage}</span>
-            <button
-              onClick={() => setSuccessMessage(null)}
-              className="ml-2 hover:bg-green-600 rounded-full p-1 transition-colors"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-          </div>
-        </div>
-      )}
       {discardBoxState && (
         <AlertBox
           title="Are you sure?"
@@ -816,7 +691,7 @@ export default function FactoryVerification() {
       )}
 
       {/* Action Modal */}
-      {showActionModal && selectedProduct && (
+      {showDetailModal && selectedProduct && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-[3px] p-4">
           <div className="relative w-full max-w-md bg-white rounded-xl shadow-2xl p-4 sm:p-6 mx-2 sm:mx-4 max-h-[90vh] overflow-y-auto">
             {/* Header */}
@@ -826,9 +701,7 @@ export default function FactoryVerification() {
               </h2>
               <button
                 onClick={() => {
-                  setShowActionModal(false);
-                  setDisputeComments("");
-                  setShowDisputeForm(false);
+                  setShowDetailModal(false);
                 }}
                 className="p-1 hover:bg-gray-100 rounded-full transition-colors flex-shrink-0"
               >
@@ -865,89 +738,28 @@ export default function FactoryVerification() {
               </div>
             </div>
 
-            {/* Dispute Comments Section - Only show when dispute form is active */}
-            {showDisputeForm && (
-              <div className="mb-6">
-                <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
-                  Dispute Comments (required for dispute)
-                </label>
-                <textarea
-                  value={disputeComments}
-                  onChange={(e) => setDisputeComments(e.target.value)}
-                  placeholder="Enter your dispute comments here..."
-                  rows={3}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none text-xs sm:text-sm"
-                />
-              </div>
-            )}
-
             {/* Action Buttons - Column Layout */}
             <div className="space-y-2 sm:space-y-3">
-              {["report_accepted", "awaiting_director", "approved"].includes(selectedProduct.verification_state) ? (
-                <div className="text-center py-4">
-                  <p className="text-sm text-gray-600">
-                    {selectedProduct.verification_state === "report_accepted" 
-                      ? "Report has been accepted and is waiting for final approval."
-                      : selectedProduct.verification_state === "awaiting_director"
-                      ? "Report is awaiting director approval."
-                      : "Report has been approved and completed."
-                    }
-                  </p>
-                </div>
-              ) : !showDisputeForm ? (
-                <>
-                  <button
-                    onClick={handleAcceptReport}
-                    disabled={isSubmittingAction}
-                    className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-blue-600 text-white text-xs sm:text-sm font-medium rounded-md hover:bg-blue-700 cursor-pointer transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {isSubmittingAction ? (
-                      <div className="flex items-center justify-center gap-2">
-                        <div className="w-3 h-3 sm:w-4 sm:h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                        <span className="text-xs sm:text-sm">Accepting...</span>
-                      </div>
-                    ) : (
-                      "Accept Report"
-                    )}
-                  </button>
-                  
-                  <button
-                    onClick={() => setShowDisputeForm(true)}
-                    disabled={isSubmittingAction}
-                    className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-red-600 text-white text-xs sm:text-sm font-medium rounded-md cursor-pointer hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    Dispute Report
-                  </button>
-                </>
-              ) : (
-                <>
-                  <button
-                    onClick={() => {
-                      setShowDisputeForm(false);
-                      setDisputeComments("");
-                    }}
-                    disabled={isSubmittingAction}
-                    className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-gray-500 text-white text-xs sm:text-sm font-medium rounded-md hover:bg-gray-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    Cancel
-                  </button>
-                  
-                  <button
-                    onClick={handleDisputeReport}
-                    disabled={isSubmittingAction || !disputeComments.trim()}
-                    className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-red-600 text-white text-xs sm:text-sm font-medium rounded-md hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {isSubmittingAction ? (
-                      <div className="flex items-center justify-center gap-2">
-                        <div className="w-3 h-3 sm:w-4 sm:h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                        <span className="text-xs sm:text-sm">Submitting...</span>
-                      </div>
-                    ) : (
-                      "Submit Dispute"
-                    )}
-                  </button>
-                </>
-              )}
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-center">
+                <p className={`text-sm font-medium ${
+                  selectedProduct.verification_state === "report_accepted" 
+                    ? "text-blue-700"
+                    : selectedProduct.verification_state === "awaiting_director"
+                    ? "text-orange-700"
+                    : selectedProduct.verification_state === "approved"
+                    ? "text-green-700"
+                    : "text-gray-700"
+                }`}>
+                  {selectedProduct.verification_state === "report_accepted" 
+                    ? "Report has been accepted and is waiting for final approval."
+                    : selectedProduct.verification_state === "awaiting_director"
+                    ? "Report is awaiting director approval."
+                    : selectedProduct.verification_state === "approved"
+                    ? "Report has been approved and completed."
+                    : "You can view the report details below."
+                  }
+                </p>
+              </div>
             </div>
           </div>
         </div>

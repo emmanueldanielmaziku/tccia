@@ -22,6 +22,7 @@ import { ChevronDownIcon, CheckIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import usetinFormState from "../services/companytinformState";
 import { Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
 interface Company {
   id: number;
@@ -65,6 +66,7 @@ export default function CompanyPicker() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
+  const [showJoinMembershipError, setShowJoinMembershipError] = useState(false);
 
   const fetchCompanies = async () => {
     try {
@@ -149,6 +151,7 @@ export default function CompanyPicker() {
 
   const handleCompanySelect = (value: string) => {
     setSelectedCompany(value);
+    setShowJoinMembershipError(false); // Clear error when company is selected
     const selectedCompanyData = companies.find(
       (company) => company.company_tin === value
     );
@@ -207,6 +210,26 @@ export default function CompanyPicker() {
 
   const handleHelpdeskRedirect = () => {
     router.push("/client/report");
+    hidePicker();
+  };
+
+  const handleJoinMembership = () => {
+    // Check if user has selected a company
+    if (!selectedCompany) {
+      // If no companies exist, redirect to firm registration
+      if (companies.length === 0) {
+        toast.info("Please register a company first");
+        router.push("/client/firm-management");
+        hidePicker();
+        return;
+      }
+      // If companies exist but none selected, show error message below dropdown
+      setShowJoinMembershipError(true);
+      return;
+    }
+
+    // Company is selected, redirect to membership page
+    router.push("/client/membership");
     hidePicker();
   };
 
@@ -289,11 +312,16 @@ export default function CompanyPicker() {
             </PopoverContent>
           </Popover>
         </div>
+        {showJoinMembershipError && (
+          <p className="text-[12px] text-red-600 mt-1 block text-center bg-red-100 border-[1px] border-red-400 rounded-[7px] p-2">
+            Please select company or register your company first.
+          </p>
+        )}
         <div className="flex flex-col items-center w-full gap-3 mt-2">
           <button
             onClick={handleContinue}
             disabled={!selectedCompany || isLoading}
-            className="border-[1px] border-blue-600 bg-blue-500 text-white w-full rounded-[7px] py-3 cursor-pointer hover:bg-blue-600 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+            className="border-[1px] text-[14px] border-blue-600 bg-blue-500 text-white w-full rounded-[7px] py-3 cursor-pointer hover:bg-blue-600 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isLoading ? (
               <div className="flex items-center justify-center gap-2">
@@ -309,17 +337,25 @@ export default function CompanyPicker() {
             <button
               onClick={handleAddCompany}
               disabled={isLoading}
-              className="border-[1px] border-blue-600 bg-blue-500 text-white w-full rounded-[7px] py-3 cursor-pointer hover:bg-blue-600 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+              className="border-[1px] text-[14px] border-blue-600 bg-blue-500 text-white w-full rounded-[7px] py-3 cursor-pointer hover:bg-blue-600 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Register Company
             </button>
           )}
 
+          <button
+            onClick={handleJoinMembership}
+            disabled={isLoading}
+            className="border-[1px] text-[14px] border-blue-600 bg-blue-500 text-white w-full rounded-[7px] py-3 cursor-pointer hover:bg-blue-600 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Join Membership
+          </button>
+
           <div className="flex flex-row items-center w-full gap-3">
             <button
               onClick={handleNTBRedirect}
               disabled={isLoading}
-              className="border-[1px] border-green-600 bg-green-500 text-white flex-1 rounded-[7px] py-3 cursor-pointer hover:bg-green-600 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+              className="border-[1px] text-[14px] border-green-600 bg-green-500 text-white flex-1 rounded-[7px] py-3 cursor-pointer hover:bg-green-600 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
             >
               NTB
             </button>
@@ -327,7 +363,7 @@ export default function CompanyPicker() {
             <button
               onClick={handleHelpdeskRedirect}
               disabled={isLoading}
-              className="border-[1px] border-green-600 bg-green-500 text-white flex-1 rounded-[7px] py-3 cursor-pointer hover:bg-green-600 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+              className="border-[1px] text-[14px] border-green-600 bg-green-500 text-white flex-1 rounded-[7px] py-3 cursor-pointer hover:bg-green-600 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Help Desk
             </button>
