@@ -12,6 +12,8 @@ import {
   Refresh,
   Box,
   More2,
+  Profile2User,
+  AddCircle,
 } from "iconsax-reactjs";
 import AlertBox from "../factory-verification/components/AlertBox";
 import {
@@ -22,7 +24,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Download } from "lucide-react";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import { Download, UserPlus } from "lucide-react";
 import { useRightSidebar } from "../../../contexts/RightSidebarContext";
 import { useApiWithSessionHandling } from "../../../hooks/useApiWithSessionHandling";
 import { handleSessionError } from "../../../utils/sessionErrorHandler";
@@ -96,6 +106,46 @@ export default function FactoryVerification() {
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
   const [searchQuery, setSearchQuery] = useState("");
   const [communityNameFilter, setCommunityNameFilter] = useState("__all__");
+
+  // Agents popup state
+  const [showAgentsModal, setShowAgentsModal] = useState(false);
+  const [selectedProductForAgents, setSelectedProductForAgents] = useState<Product | null>(null);
+  const [agentSearchInput, setAgentSearchInput] = useState("");
+  const [agentSearchResults, setAgentSearchResults] = useState<Array<{ tin: string; name: string; email?: string }>>([]);
+  const [selectedAgents, setSelectedAgents] = useState<Array<{ tin: string; name: string; email?: string }>>([]);
+  const [isSearchingAgents, setIsSearchingAgents] = useState(false);
+
+  // Debounce search
+  useEffect(() => {
+    if (agentSearchInput.length < 2) {
+      setAgentSearchResults([]);
+      return;
+    }
+
+    setIsSearchingAgents(true);
+    const timeout = setTimeout(async () => {
+      try {
+        const response = await fetch(`/api/agents/search?search=${encodeURIComponent(agentSearchInput)}`, {
+          method: "GET",
+        });
+
+        const data = await response.json();
+        
+        if (data.success && data.data) {
+          setAgentSearchResults(data.data);
+        } else {
+          setAgentSearchResults([]);
+        }
+      } catch (error) {
+        console.error("Error searching agents:", error);
+        setAgentSearchResults([]);
+      } finally {
+        setIsSearchingAgents(false);
+      }
+    }, 300); // 300ms debounce
+
+    return () => clearTimeout(timeout);
+  }, [agentSearchInput]);
 
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 20;
@@ -257,6 +307,49 @@ export default function FactoryVerification() {
   const handleViewDetails = (product: Product) => {
     setSelectedProduct(product);
     setShowDetailModal(true);
+  };
+
+  const handleOpenAgentsModal = (product: Product) => {
+    setSelectedProductForAgents(product);
+    setShowAgentsModal(true);
+    setSelectedAgents([]);
+    setAgentSearchInput("");
+    setAgentSearchResults([]);
+  };
+
+  const handleCloseAgentsModal = () => {
+    setShowAgentsModal(false);
+    setSelectedProductForAgents(null);
+    setSelectedAgents([]);
+    setAgentSearchInput("");
+    setAgentSearchResults([]);
+  };
+
+
+  const handleAddAgent = (agent: { tin: string; name: string; email?: string }) => {
+    // Check if agent already exists in the list
+    if (!selectedAgents.some(a => a.tin === agent.tin)) {
+      setSelectedAgents([...selectedAgents, agent]);
+      setAgentSearchInput("");
+      setAgentSearchResults([]);
+    }
+  };
+
+  const handleSubmitAgents = async () => {
+    if (selectedAgents.length === 0) {
+      alert("Please add at least one agent");
+      return;
+    }
+
+    // Here you would submit the agents data
+    // For now, just log it
+    console.log("Selected agents:", selectedAgents);
+    console.log("Product ID:", selectedProductForAgents?.id);
+    
+    // TODO: Implement API call to submit agents
+    alert(`Submitted ${selectedAgents.length} agent(s) for product: ${selectedProductForAgents?.product_name}`);
+    
+    handleCloseAgentsModal();
   };
 
 
@@ -524,23 +617,40 @@ export default function FactoryVerification() {
                                 </span>
                               </td>
                               <td className="px-2 lg:px-4 py-3 lg:py-4 text-center">
-                                <button
-                                  onClick={() => handleViewDetails(product)}
-                                  disabled={!["inspection_done", "report_accepted", "awaiting_director", "approved"].includes(product.verification_state)}
-                                  className={`px-2 lg:px-3 py-1 lg:py-1.5 text-xs font-medium rounded-md transition-colors ${
-                                    ["inspection_done", "report_accepted", "awaiting_director", "approved"].includes(product.verification_state)
-                                      ? "bg-blue-600 text-white hover:bg-blue-700 cursor-pointer"
-                                      : "bg-gray-300 text-gray-500 cursor-not-allowed"
-                                  }`}
-                                  title={
-                                    ["inspection_done", "report_accepted", "awaiting_director", "approved"].includes(product.verification_state)
-                                      ? "Review inspection report"
-                                      : "Review not available for this status"
-                                  }
-                                >
-                                  <span className="hidden lg:inline">View Report</span>
-                                  <span className="lg:hidden">View</span>
-                                </button>
+                                <div className="flex items-center justify-center gap-2">
+                                  <button
+                                    onClick={() => handleViewDetails(product)}
+                                    disabled={!["inspection_done", "report_accepted", "awaiting_director", "approved"].includes(product.verification_state)}
+                                    className={`px-2 lg:px-3 py-1 lg:py-1.5 text-xs font-medium rounded-md transition-colors ${
+                                      ["inspection_done", "report_accepted", "awaiting_director", "approved"].includes(product.verification_state)
+                                        ? "bg-blue-600 text-white hover:bg-blue-700 cursor-pointer"
+                                        : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                                    }`}
+                                    title={
+                                      ["inspection_done", "report_accepted", "awaiting_director", "approved"].includes(product.verification_state)
+                                        ? "Review inspection report"
+                                        : "Review not available for this status"
+                                    }
+                                  >
+                                    View
+                                  </button>
+                                  <button
+                                    onClick={() => handleOpenAgentsModal(product)}
+                                    disabled={product.verification_state !== "approved"}
+                                    className={`px-2 lg:px-3 py-1 lg:py-1.5 text-xs font-medium rounded-md transition-colors ${
+                                      product.verification_state === "approved"
+                                        ? "bg-green-600 text-white hover:bg-green-700 cursor-pointer"
+                                        : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                                    }`}
+                                    title={
+                                      product.verification_state === "approved"
+                                        ? "Manage agents"
+                                        : "Only available for approved products"
+                                    }
+                                  >
+                                    Agents
+                                  </button>
+                                </div>
                               </td>
                             </tr>
                           ))}
@@ -590,8 +700,8 @@ export default function FactoryVerification() {
                               <p className="text-gray-600 text-sm">{product.community_short_code || "-"}</p>
                             </div>
 
-                            {/* Action Button */}
-                            <div className="pt-2 border-t border-gray-100">
+                            {/* Action Buttons */}
+                            <div className="pt-2 border-t border-gray-100 space-y-2">
                               <button
                                 onClick={() => handleViewDetails(product)}
                                 disabled={!["inspection_done", "report_accepted", "awaiting_director", "approved"].includes(product.verification_state)}
@@ -607,6 +717,22 @@ export default function FactoryVerification() {
                                 }
                               >
                                 Review Report
+                              </button>
+                              <button
+                                onClick={() => handleOpenAgentsModal(product)}
+                                disabled={product.verification_state !== "approved"}
+                                className={`w-full px-3 py-2 text-xs font-medium rounded-md transition-colors ${
+                                  product.verification_state === "approved"
+                                    ? "bg-green-600 text-white hover:bg-green-700 cursor-pointer"
+                                    : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                                }`}
+                                title={
+                                  product.verification_state === "approved"
+                                    ? "Manage agents"
+                                    : "Only available for approved products"
+                                }
+                              >
+                                Agents
                               </button>
                             </div>
                           </div>
@@ -760,6 +886,127 @@ export default function FactoryVerification() {
                   }
                 </p>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Agents Modal */}
+      {showAgentsModal && selectedProductForAgents && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-[3px] p-4">
+          <div className="relative w-full max-w-lg bg-white rounded-xl shadow-2xl p-4 sm:p-6 mx-2 sm:mx-4 max-h-[90vh] overflow-y-auto">
+            {/* Header */}
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-lg sm:text-xl font-semibold text-gray-800 pr-2">
+                Add Agents - {selectedProductForAgents.product_name}
+              </h2>
+              <button
+                onClick={handleCloseAgentsModal}
+                className="p-1 hover:bg-gray-100 rounded-full transition-colors flex-shrink-0"
+              >
+                <CloseCircle size={20} color="#6B7280" />
+              </button>
+            </div>
+
+            {/* Search Input */}
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Search Agent by Name or TIN
+              </label>
+              <div className="relative">
+                <input
+                  type="text"
+                  value={agentSearchInput}
+                  onChange={(e) => setAgentSearchInput(e.target.value)}
+                  placeholder="Enter company name or TIN..."
+                  className="w-full h-10 border-[0.5px] border-gray-300 focus:outline-2 focus:outline-blue-400 rounded-md pl-3 pr-10 text-sm"
+                />
+                {isSearchingAgents && (
+                  <div className="absolute right-3 top-2.5">
+                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600"></div>
+                  </div>
+                )}
+              </div>
+
+              {/* Search Results */}
+              {agentSearchResults.length > 0 && (
+                <div className="mt-2 border border-gray-200 rounded-md bg-white shadow-lg max-h-48 overflow-y-auto">
+                  {agentSearchResults.map((agent, index) => (
+                    <div
+                      key={`${agent.tin}-${index}`}
+                      onClick={() => handleAddAgent(agent)}
+                      className="flex items-center justify-between p-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-b-0 transition-colors"
+                    >
+                      <div className="flex-1 min-w-0">
+                        <div className="text-sm font-medium text-gray-900 truncate">{agent.name}</div>
+                        <div className="text-xs text-gray-500 truncate">
+                          {agent.tin} {agent.email ? `| ${agent.email}` : ''}
+                        </div>
+                      </div>
+                      <UserPlus className="w-5 h-5 text-blue-600 flex-shrink-0 ml-2" />
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {agentSearchInput.length >= 2 && !isSearchingAgents && agentSearchResults.length === 0 && (
+                <div className="mt-2 text-xs text-gray-500">No agents found</div>
+              )}
+            </div>
+
+            {/* Selected Agents List */}
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Selected Agents ({selectedAgents.length})
+              </label>
+              {selectedAgents.length > 0 ? (
+                <div className="border border-gray-200 rounded-md bg-gray-50 max-h-48 overflow-y-auto">
+                  {selectedAgents.map((agent, index) => (
+                    <div
+                      key={agent.tin}
+                      className="flex items-center justify-between p-3 border-b border-gray-100 last:border-b-0"
+                    >
+                      <div className="flex-1 min-w-0">
+                        <div className="text-sm font-medium text-gray-900 truncate">{agent.name}</div>
+                        <div className="text-xs text-gray-500 truncate">
+                          TIN: {agent.tin} {agent.email ? `| ${agent.email}` : ''}
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => setSelectedAgents(selectedAgents.filter(a => a.tin !== agent.tin))}
+                        className="p-1 hover:bg-red-100 rounded-full transition-colors flex-shrink-0"
+                      >
+                        <CloseCircle size={18} color="#DC2626" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="border border-gray-200 rounded-md bg-gray-50 p-4 text-center text-sm text-gray-500">
+                  No agents selected yet
+                </div>
+              )}
+            </div>
+
+            {/* Submit Button */}
+            <div className="flex gap-2">
+              <button
+                onClick={handleCloseAgentsModal}
+                className="flex-1 px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSubmitAgents}
+                disabled={selectedAgents.length === 0}
+                className={`flex-1 px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+                  selectedAgents.length > 0
+                    ? "bg-green-600 text-white hover:bg-green-700 cursor-pointer"
+                    : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                }`}
+              >
+                Submit ({selectedAgents.length})
+              </button>
             </div>
           </div>
         </div>
