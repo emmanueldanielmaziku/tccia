@@ -78,6 +78,11 @@ interface Person {
   email: string;
 }
 
+interface SelectedSector {
+  sectorId: string;
+  subsectorIds: number[];
+}
+
 export default function MembershipApplicationForm({
   onSuccess,
   submitLabel,
@@ -93,8 +98,9 @@ export default function MembershipApplicationForm({
   // Form state
   const [regionId, setRegionId] = useState<string>("");
   const [districtId, setDistrictId] = useState<string>("");
-  const [selectedSectors, setSelectedSectors] = useState<number[]>([]);
-  const [selectedSubsectors, setSelectedSubsectors] = useState<number[]>([]);
+  const [sectorSelections, setSectorSelections] = useState<SelectedSector[]>([
+    { sectorId: "", subsectorIds: [] },
+  ]);
   const [categoryId, setCategoryId] = useState<string>("");
   const [subcategoryId, setSubcategoryId] = useState<string>("");
   const [directors, setDirectors] = useState<Person[]>([
@@ -121,29 +127,50 @@ export default function MembershipApplicationForm({
   ]);
   const [forceShowErrors, setForceShowErrors] = useState(false);
 
-  // Helper functions for multi-selection
-  const toggleSector = (sectorId: number) => {
-    setSelectedSectors(prev => 
-      prev.includes(sectorId) 
-        ? prev.filter(id => id !== sectorId)
-        : [...prev, sectorId]
-    );
-    // Clear subsectors when sectors change
-    setSelectedSubsectors([]);
+  // Helper functions for sector selections
+  const addSectorSelection = () => {
+    setSectorSelections((prev) => [...prev, { sectorId: "", subsectorIds: [] }]);
   };
 
-  const toggleSubsector = (subsectorId: number) => {
-    setSelectedSubsectors(prev => 
-      prev.includes(subsectorId) 
-        ? prev.filter(id => id !== subsectorId)
-        : [...prev, subsectorId]
+  const removeSectorSelection = (index: number) => {
+    setSectorSelections((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const handleSectorChange = (index: number, sectorId: string) => {
+    setSectorSelections((prev) =>
+      prev.map((s, i) => (i === index ? { sectorId, subsectorIds: [] } : s))
     );
   };
 
-  // Get all subsectors from selected sectors
-  const availableSubsectors = sectors
-    .filter(sector => selectedSectors.includes(sector.id))
-    .flatMap(sector => sector.subsectors);
+  const toggleSubsector = (index: number, subsectorId: number) => {
+    setSectorSelections((prev) =>
+      prev.map((s, i) =>
+        i === index
+          ? {
+              ...s,
+              subsectorIds: s.subsectorIds.includes(subsectorId)
+                ? s.subsectorIds.filter((id) => id !== subsectorId)
+                : [...s.subsectorIds, subsectorId],
+            }
+          : s
+      )
+    );
+  };
+
+  // Get available subsectors for a specific sector
+  const getAvailableSubsectors = (sectorId: string) => {
+    const sector = sectors.find((s) => s.id === Number(sectorId));
+    return sector?.subsectors || [];
+  };
+
+  // Get all selected sectors and subsectors for submission
+  const getAllSelectedSectors = () => {
+    return sectorSelections.map((s) => Number(s.sectorId)).filter((id) => id > 0);
+  };
+
+  const getAllSelectedSubsectors = () => {
+    return sectorSelections.flatMap((s) => s.subsectorIds);
+  };
 
   // Phone number validation - only allow numbers
   const handlePhoneInput = (value: string) => {
@@ -248,8 +275,24 @@ export default function MembershipApplicationForm({
     // Validate region, district, sectors, subsectors
     if (!regionId) errors.regionId = "Region is required.";
     if (!districtId) errors.districtId = "District is required.";
-    if (selectedSectors.length === 0) errors.sectorId = "At least one sector is required.";
-    if (selectedSubsectors.length === 0) errors.subsectorId = "At least one subsector is required.";
+    
+    const allSectors = getAllSelectedSectors();
+    const allSubsectors = getAllSelectedSubsectors();
+    
+    if (allSectors.length === 0) errors.sectorId = "At least one sector is required.";
+    if (allSubsectors.length === 0) errors.subsectorId = "At least one subsector is required.";
+    
+    // Validate each sector selection
+    errors.sectorSelections = sectorSelections.map((selection: any, index: number) => {
+      const e: any = {};
+      if (!selection.sectorId || selection.sectorId === "") {
+        e.sectorId = "Sector is required";
+      }
+      if (!selection.subsectorIds || selection.subsectorIds.length === 0) {
+        e.subsectorIds = "At least one subsector is required";
+      }
+      return e;
+    });
 
     if (!categoryId) errors.categoryId = "Category is required.";
     if (!subcategoryId) errors.subcategoryId = "Subcategory is required.";
@@ -329,8 +372,8 @@ export default function MembershipApplicationForm({
         company_tin,
         region_id: Number(regionId),
         district_id: Number(districtId),
-        sector_ids: selectedSectors,
-        subsector_ids: selectedSubsectors,
+        sector_ids: getAllSelectedSectors(),
+        subsector_ids: getAllSelectedSubsectors(),
       };
 
       const res = await fetch(`/api/membership/apply`, {
@@ -518,80 +561,138 @@ export default function MembershipApplicationForm({
                     )}
                   </div>
 
-                  <div className="flex flex-col gap-2">
-                    <label className="text-sm text-gray-600 font-medium">
-                      Sectors <span className="text-gray-400">(Select multiple)</span>
-                    </label>
-                    <div className="border border-gray-300 rounded-md p-3 bg-white min-h-[120px] max-h-[200px] overflow-y-auto">
-                      {sectors.length === 0 ? (
-                        <p className="text-gray-400 text-sm">Loading sectors...</p>
-                      ) : (
-                        <div className="space-y-2">
+                {/* Close the grid */}
+            </div>
+          </div>
+
+          {/* Sectors Section */}
+          <div className="bg-gray-50 rounded-lg p-6 border border-gray-200">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
+                <Building size={20} className="text-blue-600" />
+                Sectors & Subsectors
+              </h3>
+              <button
+                type="button"
+                onClick={addSectorSelection}
+                className="flex items-center gap-2 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-[12px] font-medium rounded-sm transition-colors"
+              >
+                <Plus size={16} />
+                Add Sector
+              </button>
+            </div>
+
+            {fieldErrors.sectorId && (
+              <div className="flex items-center gap-2 bg-red-50 text-red-600 px-3 py-2 rounded-md font-medium text-sm mb-4">
+                <AlertCircle size={16} className="text-red-400" />
+                <span>{fieldErrors.sectorId}</span>
+              </div>
+            )}
+
+            <div className="space-y-4">
+              {sectorSelections.map((selection, idx) => (
+                <div
+                  key={idx}
+                  className="bg-white rounded-lg p-4 border border-gray-200 relative"
+                >
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {/* Sector Selection */}
+                    <div className="flex flex-col gap-2">
+                      <label className="text-sm text-gray-600 font-medium">
+                        Sector
+                      </label>
+                      <Select
+                        value={selection.sectorId}
+                        onValueChange={(value) => handleSectorChange(idx, value)}
+                      >
+                        <SelectTrigger
+                          className={`w-full px-3 py-2 text-sm bg-white border-gray-300 focus:border-blue-500 focus:ring-blue-500 ${
+                            fieldErrors.sectorSelections?.[idx]?.sectorId ? "border-red-500" : ""
+                          }`}
+                        >
+                          <SelectValue placeholder="Select a sector" />
+                        </SelectTrigger>
+                        <SelectContent>
                           {sectors.map((sector) => (
-                            <label key={sector.id} className="flex items-center space-x-2 cursor-pointer hover:bg-gray-50 p-2 rounded">
-                              <input
-                                type="checkbox"
-                                checked={selectedSectors.includes(sector.id)}
-                                onChange={() => toggleSector(sector.id)}
-                                className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                              />
-                              <span className="text-sm text-gray-700">{sector.name}</span>
-                              {sector.description && (
-                                <span className="text-xs text-gray-500">({sector.description})</span>
-                              )}
-                            </label>
+                            <SelectItem key={sector.id} value={String(sector.id)}>
+                              {sector.name}
+                            </SelectItem>
                           ))}
-                        </div>
+                        </SelectContent>
+                      </Select>
+                      {fieldErrors.sectorSelections?.[idx]?.sectorId && (
+                        <p className="text-red-500 text-xs">
+                          {fieldErrors.sectorSelections[idx].sectorId}
+                        </p>
                       )}
                     </div>
-                    {selectedSectors.length > 0 && (
-                      <div className="text-xs text-gray-600">
-                        Selected: {selectedSectors.length} sector{selectedSectors.length > 1 ? 's' : ''}
-                      </div>
-                    )}
-                    {fieldErrors.sectorId && (
-                      <p className="text-red-500 text-xs">{fieldErrors.sectorId}</p>
-                    )}
-                  </div>
 
-                  <div className="flex flex-col gap-2">
-                    <label className="text-sm text-gray-600 font-medium">
-                      Subsectors <span className="text-gray-400">(Select multiple)</span>
-                    </label>
-                    <div className="border border-gray-300 rounded-md p-3 bg-white min-h-[120px] max-h-[200px] overflow-y-auto">
-                      {selectedSectors.length === 0 ? (
-                        <p className="text-gray-400 text-sm">Please select sectors first</p>
-                      ) : availableSubsectors.length === 0 ? (
-                        <p className="text-gray-400 text-sm">No subsectors available for selected sectors</p>
-                      ) : (
-                        <div className="space-y-2">
-                          {availableSubsectors.map((subsector) => (
-                            <label key={subsector.id} className="flex items-center space-x-2 cursor-pointer hover:bg-gray-50 p-2 rounded">
-                              <input
-                                type="checkbox"
-                                checked={selectedSubsectors.includes(subsector.id)}
-                                onChange={() => toggleSubsector(subsector.id)}
-                                className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                              />
-                              <span className="text-sm text-gray-700">{subsector.name}</span>
-                              {subsector.description && (
-                                <span className="text-xs text-gray-500">({subsector.description})</span>
-                              )}
-                            </label>
-                          ))}
+                    {/* Subsectors for selected sector */}
+                    <div className="flex flex-col gap-2">
+                      <label className="text-sm text-gray-600 font-medium">
+                        Subsectors <span className="text-gray-400">(Select multiple)</span>
+                      </label>
+                      <div className="border border-gray-300 rounded-md p-3 bg-gray-50 min-h-[120px] max-h-[200px] overflow-y-auto">
+                        {!selection.sectorId || selection.sectorId === "" ? (
+                          <p className="text-gray-400 text-sm">Please select a sector first</p>
+                        ) : (
+                          getAvailableSubsectors(selection.sectorId).length === 0 ? (
+                            <p className="text-gray-400 text-sm">No subsectors available for this sector</p>
+                          ) : (
+                            <div className="space-y-2">
+                              {getAvailableSubsectors(selection.sectorId).map((subsector) => (
+                                <label
+                                  key={subsector.id}
+                                  className="flex items-center space-x-2 cursor-pointer hover:bg-gray-100 p-2 rounded"
+                                >
+                                  <input
+                                    type="checkbox"
+                                    checked={selection.subsectorIds.includes(subsector.id)}
+                                    onChange={() => toggleSubsector(idx, subsector.id)}
+                                    className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                                  />
+                                  <span className="text-sm text-gray-700">{subsector.name}</span>
+                                  {subsector.description && (
+                                    <span className="text-xs text-gray-500">({subsector.description})</span>
+                                  )}
+                                </label>
+                              ))}
+                            </div>
+                          )
+                        )}
+                      </div>
+                      {selection.subsectorIds.length > 0 && (
+                        <div className="text-xs text-gray-600">
+                          Selected: {selection.subsectorIds.length} subsector{selection.subsectorIds.length > 1 ? 's' : ''}
                         </div>
                       )}
+                      {fieldErrors.sectorSelections?.[idx]?.subsectorIds && (
+                        <p className="text-red-500 text-xs">
+                          {fieldErrors.sectorSelections[idx].subsectorIds}
+                        </p>
+                      )}
                     </div>
-                    {selectedSubsectors.length > 0 && (
-                      <div className="text-xs text-gray-600">
-                        Selected: {selectedSubsectors.length} subsector{selectedSubsectors.length > 1 ? 's' : ''}
-                      </div>
-                    )}
-                    {fieldErrors.subsectorId && (
-                      <p className="text-red-500 text-xs">{fieldErrors.subsectorId}</p>
-                    )}
                   </div>
 
+                  {/* Delete button */}
+                  {sectorSelections.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={() => removeSectorSelection(idx)}
+                      className="absolute top-2 right-2 p-1.5 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-md transition-colors"
+                      aria-label="Remove sector selection"
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Category and Subcategory Section */}
+          <div className="bg-gray-50 rounded-lg p-6 mt-3 border border-gray-200">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="flex flex-col gap-2">
                 <label className="text-sm text-gray-600 font-medium">
                   Category
@@ -1068,8 +1169,8 @@ export default function MembershipApplicationForm({
                   <div>
                     <span className="text-gray-600">Sectors:</span>{" "}
                     <span className="font-medium">
-                      {selectedSectors.length > 0 
-                        ? selectedSectors.map(id => sectors.find(s => s.id === id)?.name).join(", ")
+                      {getAllSelectedSectors().length > 0 
+                        ? getAllSelectedSectors().map((id: number) => sectors.find(s => s.id === id)?.name).join(", ")
                         : "-"
                       }
                     </span>
@@ -1077,8 +1178,15 @@ export default function MembershipApplicationForm({
                   <div>
                     <span className="text-gray-600">Subsectors:</span>{" "}
                     <span className="font-medium">
-                      {selectedSubsectors.length > 0 
-                        ? selectedSubsectors.map(id => availableSubsectors.find(s => s.id === id)?.name).join(", ")
+                      {getAllSelectedSubsectors().length > 0 
+                        ? sectorSelections.flatMap((sel: any, idx: number) => {
+                            const sector = sectors.find(s => s.id === Number(sel.sectorId));
+                            if (!sector) return [];
+                            return sel.subsectorIds.map((subId: number) => {
+                              const sub = sector.subsectors.find((s) => s.id === subId);
+                              return sub?.name || '';
+                            });
+                          }).filter(Boolean).join(", ")
                         : "-"
                       }
                     </span>
