@@ -597,10 +597,10 @@ export default function MembershipApplicationForm({
                 >
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {/* Sector Selection */}
-                    <div className="flex flex-col gap-2">
-                      <label className="text-sm text-gray-600 font-medium">
+                  <div className="flex flex-col gap-2">
+                    <label className="text-sm text-gray-600 font-medium">
                         Sector
-                      </label>
+                    </label>
                       <Select
                         value={selection.sectorId}
                         onValueChange={(value) => handleSectorChange(idx, value)}
@@ -624,53 +624,53 @@ export default function MembershipApplicationForm({
                         <p className="text-red-500 text-xs">
                           {fieldErrors.sectorSelections[idx].sectorId}
                         </p>
-                      )}
-                    </div>
+                    )}
+                  </div>
 
                     {/* Subsectors for selected sector */}
-                    <div className="flex flex-col gap-2">
-                      <label className="text-sm text-gray-600 font-medium">
-                        Subsectors <span className="text-gray-400">(Select multiple)</span>
-                      </label>
+                  <div className="flex flex-col gap-2">
+                    <label className="text-sm text-gray-600 font-medium">
+                      Subsectors <span className="text-gray-400">(Select multiple)</span>
+                    </label>
                       <div className="border border-gray-300 rounded-md p-3 bg-gray-50 min-h-[120px] max-h-[200px] overflow-y-auto">
                         {!selection.sectorId || selection.sectorId === "" ? (
                           <p className="text-gray-400 text-sm">Please select a sector first</p>
                         ) : (
                           getAvailableSubsectors(selection.sectorId).length === 0 ? (
                             <p className="text-gray-400 text-sm">No subsectors available for this sector</p>
-                          ) : (
-                            <div className="space-y-2">
+                      ) : (
+                        <div className="space-y-2">
                               {getAvailableSubsectors(selection.sectorId).map((subsector) => (
                                 <label
                                   key={subsector.id}
                                   className="flex items-center space-x-2 cursor-pointer hover:bg-gray-100 p-2 rounded"
                                 >
-                                  <input
-                                    type="checkbox"
+                              <input
+                                type="checkbox"
                                     checked={selection.subsectorIds.includes(subsector.id)}
                                     onChange={() => toggleSubsector(idx, subsector.id)}
-                                    className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                                  />
-                                  <span className="text-sm text-gray-700">{subsector.name}</span>
-                                  {subsector.description && (
-                                    <span className="text-xs text-gray-500">({subsector.description})</span>
-                                  )}
-                                </label>
-                              ))}
-                            </div>
-                          )
-                        )}
-                      </div>
-                      {selection.subsectorIds.length > 0 && (
-                        <div className="text-xs text-gray-600">
-                          Selected: {selection.subsectorIds.length} subsector{selection.subsectorIds.length > 1 ? 's' : ''}
+                                className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                              />
+                              <span className="text-sm text-gray-700">{subsector.name}</span>
+                              {subsector.description && (
+                                <span className="text-xs text-gray-500">({subsector.description})</span>
+                              )}
+                            </label>
+                          ))}
                         </div>
+                          )
                       )}
+                    </div>
+                      {selection.subsectorIds.length > 0 && (
+                      <div className="text-xs text-gray-600">
+                          Selected: {selection.subsectorIds.length} subsector{selection.subsectorIds.length > 1 ? 's' : ''}
+                      </div>
+                    )}
                       {fieldErrors.sectorSelections?.[idx]?.subsectorIds && (
                         <p className="text-red-500 text-xs">
                           {fieldErrors.sectorSelections[idx].subsectorIds}
                         </p>
-                      )}
+                    )}
                     </div>
                   </div>
 

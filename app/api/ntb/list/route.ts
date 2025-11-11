@@ -1,15 +1,14 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 
-const API_BASE_URL = "https://tccia.kalen.co.tz";
+const API_BASE_URL = "https://dev.kalen.co.tz";
 
 export async function GET(request: Request) {
   try {
     const cookieStore = await cookies();
     const token = cookieStore.get("token");
-    const uid = cookieStore.get("uid");
 
-    if (!token || !uid) {
+    if (!token) {
       return NextResponse.json(
         {
           status: "error",
@@ -21,22 +20,13 @@ export async function GET(request: Request) {
 
     const apiUrl = `${API_BASE_URL}/api/ntb/list`;
     console.log("Fetching NTB list from:", apiUrl);
-    console.log("Token:", token.value);
-    console.log("UID:", uid.value);
 
     const response = await fetch(apiUrl, {
       method: "GET",
       headers: {
         Authorization: `Bearer ${token.value.trim()}`,
-        // "Content-Type": "application/json",
       },
     });
-
-    console.log("Response status:", response.status);
-    console.log(
-      "Response headers:",
-      Object.fromEntries(response.headers.entries())
-    );
 
     if (!response.ok) {
       const errorText = await response.text();
@@ -71,8 +61,6 @@ export async function GET(request: Request) {
     }
 
     const data = await response.json();
-    console.log("NTB List API response:", data);
-
     // Handle JSON-RPC response structure
     if (data.jsonrpc && data.result) {
       if (data.result.status === "success" || data.result.success) {

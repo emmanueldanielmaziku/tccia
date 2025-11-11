@@ -61,6 +61,14 @@ import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 import { useUserProfile } from "../../../hooks/useUserProfile";
 import { useRightSidebar } from "../../../contexts/RightSidebarContext";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 // Dynamic NTB types will be fetched from API
 // const NTB_TYPES = [
@@ -93,6 +101,19 @@ const COST_RANGES = [
   "2501 - 5000",
   "5000+",
 ];
+
+const STATUS_LABELS: Record<string, string> = {
+  submitted: "Submitted",
+  review: "Review (Focal Persons)",
+  assignment: "Assignment",
+  in_progress: "In Progress",
+  "in progress": "In Progress",
+  intended_resolved: "Intended Resolved",
+  unintended_resolved: "Unintended Resolved",
+  resolved: "Resolved",
+  done: "Resolved",
+  closed: "Closed",
+};
 
 const OCCURRENCE_OPTIONS = [
   "First time",
@@ -142,68 +163,15 @@ const COUNTRIES = [
   "Other",
 ];
 
-const SPECIFIC_LOCATION_OPTIONS = {
-  point: [
-    "Customs Office",
-    "Police Station",
-    "Government Building",
-    "Market Place",
-    "Business District",
-    "Industrial Area",
-    "Other Specific Point"
-  ],
-  area: [
-    "City Center",
-    "Suburban Area",
-    "Rural Area",
-    "Border Region",
-    "Coastal Area",
-    "Mountain Region",
-    "Other General Area"
-  ],
-  border: [
-    "Namanga Border",
-    "Holili Border",
-    "Tunduma Border",
-    "Sirari Border",
-    "Mutukula Border",
-    "Kasumulu Border",
-    "Other Border Point"
-  ],
-  port: [
-    "Dar es Salaam Port",
-    "Mwanza Port",
-    "Kigoma Port",
-    "Julius Nyerere Airport",
-    "Kilimanjaro Airport",
-    "Mwanza Airport",
-    "Other Port/Airport"
-  ],
-  warehouse: [
-    "Customs Warehouse",
-    "Private Warehouse",
-    "Cold Storage Facility",
-    "Container Terminal",
-    "Freight Forwarder Facility",
-    "Other Storage Facility"
-  ],
-  office: [
-    "TRA Office",
-    "TBS Office",
-    "Ministry Office",
-    "Local Government Office",
-    "Immigration Office",
-    "Other Government Office"
-  ],
-  other: [
-    "Roadside",
-    "Market",
-    "Shop",
-    "Office Building",
-    "Residential Area",
-    "Other Location"
-  ]
-};
+interface LocationIncidence {
+  id: number;
+  name: string;
+  specific_locations: {
+    id: number;
+    name: string;
+    code?: string;
+  }[];
+}
 
 const OPERATOR_TYPES = [
   { value: "informal_trader", label: "Informal Trader" },
@@ -227,6 +195,7 @@ export default function NTB() {
   const [mode, setMode] = useState<"profile" | "list" | "new" | "detail">("profile");
   const [ntbList, setNtbList] = useState<any[]>([]);
   const [ntbTypes, setNtbTypes] = useState<{id: number, name: string, description: string}[]>([]);
+  const [locationIncidences, setLocationIncidences] = useState<LocationIncidence[]>([]);
   const [selectedNtb, setSelectedNtb] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -248,6 +217,11 @@ export default function NTB() {
   const [feedbackComment, setFeedbackComment] = useState("");
   const [feedbackSubmitting, setFeedbackSubmitting] = useState(false);
   const [feedbackSubmitted, setFeedbackSubmitted] = useState(false);
+  const [feedbackModalOpen, setFeedbackModalOpen] = useState(false);
+  const [feedbackTarget, setFeedbackTarget] = useState<{
+    id: number;
+    reference: string;
+  } | null>(null);
   const [profileForm, setProfileForm] = useState({
     country_of_residence: "",
     operator_type: "",
@@ -257,11 +231,11 @@ export default function NTB() {
   const [form, setForm] = useState({
     ntb_type_id: "",
     date_of_incident: "",
-    country_of_incident: "",
+    reported_country: "",
     reporting_country: "",
     location: "",
-    location_type: "",
-    specific_location: "",
+    location_of_incidence_id: "",
+    specific_location_id: "",
     complaint_details: "",
     product_description: "",
     cost_value_range: "",
@@ -277,6 +251,9 @@ export default function NTB() {
     location_address: "",
     google_place_id: "",
   });
+  const selectedLocationIncidence = locationIncidences.find(
+    (loc) => String(loc.id) === form.location_of_incidence_id
+  );
 
   const editor = useEditor({
     extensions: [StarterKit],
@@ -319,7 +296,17 @@ export default function NTB() {
 
   useEffect(() => {
     fetchNTBTypes();
+    fetchLocationIncidences();
   }, []);
+
+  useEffect(() => {
+    if (locationIncidences.length > 0 && !form.location_of_incidence_id) {
+      setForm((prev) => ({
+        ...prev,
+        location_of_incidence_id: String(locationIncidences[0].id),
+      }));
+    }
+  }, [locationIncidences, form.location_of_incidence_id]);
 
   // Auto-detect location when form mode is 'new'
   useEffect(() => {
@@ -373,6 +360,20 @@ export default function NTB() {
     }
   };
 
+  const fetchLocationIncidences = async () => {
+    try {
+      const response = await fetch("/api/locations/incidence");
+      const data = await response.json();
+      if (data.success) {
+        setLocationIncidences(data.data || []);
+      } else {
+        console.error("Error fetching location incidences:", data.message);
+      }
+    } catch (error) {
+      console.error("Error fetching location incidences:", error);
+    }
+  };
+
   const fetchNTBList = async () => {
     setLoading(true);
     try {
@@ -410,6 +411,25 @@ export default function NTB() {
     } finally {
       setDetailLoading(false);
     }
+  };
+
+  const openFeedbackModal = (ntb: any) => {
+    setFeedbackTarget({
+      id: ntb.id,
+      reference: ntb.report_reference,
+    });
+    setFeedbackRating(0);
+    setFeedbackComment("");
+    setFeedbackSubmitted(false);
+    setFeedbackModalOpen(true);
+  };
+
+  const closeFeedbackModal = () => {
+    setFeedbackModalOpen(false);
+    setFeedbackSubmitted(false);
+    setFeedbackRating(0);
+    setFeedbackComment("");
+    setFeedbackTarget(null);
   };
 
   const handleChange = (field: string, value: string) => {
@@ -466,13 +486,25 @@ export default function NTB() {
       const { latitude, longitude } = position.coords;
       
       // Update form with detected coordinates
-      setForm(prev => ({
-        ...prev,
-        latitude: latitude.toString(),
-        longitude: longitude.toString(),
-        location_accuracy: 'high',
-        location_type: 'border' // Default to border, user can change if needed
-      }));
+      setForm(prev => {
+        let locationOfIncidenceId = prev.location_of_incidence_id;
+        if (!locationOfIncidenceId && locationIncidences.length > 0) {
+          const borderLocation = locationIncidences.find((loc) =>
+            loc.name.toLowerCase().includes("border")
+          );
+          if (borderLocation) {
+            locationOfIncidenceId = String(borderLocation.id);
+          }
+        }
+
+        return {
+          ...prev,
+          latitude: latitude.toString(),
+          longitude: longitude.toString(),
+          location_accuracy: 'high',
+          location_of_incidence_id: locationOfIncidenceId,
+        };
+      });
 
       // Try to get reverse geocoding for address and Google Place ID
       try {
@@ -649,20 +681,38 @@ export default function NTB() {
 
     setSubmitting(true);
 
+    if (!form.location_of_incidence_id) {
+      toast.error("Please select a location of incidence");
+      setSubmitting(false);
+      return;
+    }
+
+    if (!form.specific_location_id) {
+      toast.error("Please select a specific location");
+      setSubmitting(false);
+      return;
+    }
+
     try {
       // Prepare the payload according to the expected format
       const payload: any = {
         ntb_type_id: parseInt(form.ntb_type_id),
         date_of_incident: form.date_of_incident,
-        country_of_incident: form.country_of_incident,
         reporting_country: form.reporting_country,
+        reported_country: form.reported_country,
         location: form.location || 'Location not provided',
-        location_type: form.location_type,
-        specific_location: form.specific_location,
         complaint_details: form.complaint_details,
         product_description: form.product_description,
         occurrence: form.occurrence,
       };
+
+      if (form.location_of_incidence_id) {
+        payload.location_of_incidence_id = parseInt(form.location_of_incidence_id);
+      }
+
+      if (form.specific_location_id) {
+        payload.specific_location_id = parseInt(form.specific_location_id);
+      }
 
       // Add optional fields if they have values
       if (form.cost_value_range) payload.cost_value_range = form.cost_value_range;
@@ -674,7 +724,6 @@ export default function NTB() {
       // Add optional location fields
       if (form.latitude) payload.latitude = form.latitude;
       if (form.longitude) payload.longitude = form.longitude;
-      if (form.location_type) payload.location_type = form.location_type;
       if (form.location_accuracy) payload.location_accuracy = form.location_accuracy;
       if (form.location_address) payload.location_address = form.location_address;
       if (form.google_place_id) payload.google_place_id = form.google_place_id;
@@ -722,11 +771,11 @@ export default function NTB() {
     setForm({
       ntb_type_id: "",
       date_of_incident: "",
-      country_of_incident: "",
+      reported_country: "",
       reporting_country: "",
       location: "",
-      location_type: "",
-      specific_location: "",
+      location_of_incidence_id: "",
+      specific_location_id: "",
       complaint_details: "",
       product_description: "",
       cost_value_range: "",
@@ -751,32 +800,35 @@ export default function NTB() {
   };
 
   const handleFeedbackSubmit = async () => {
-    if (!selectedNtb || feedbackRating === 0) {
+    if (!feedbackTarget || feedbackRating === 0) {
       toast.error("Please provide a rating before submitting feedback");
       return;
     }
 
     setFeedbackSubmitting(true);
     try {
-      const response = await fetch('/api/ntb/feedback', {
+      const response = await fetch(`/api/ntb/${feedbackTarget.id}/feedback`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          ntb_id: selectedNtb.id,
-          rating: feedbackRating,
-          comment: feedbackComment,
+          rating: String(feedbackRating),
+          additional_comment: feedbackComment,
         }),
       });
 
       const data = await response.json();
       
       if (data.success) {
-        toast.success("Thank you for your feedback!");
+        toast.success(data.message || "Thank you for your feedback!");
         setFeedbackSubmitted(true);
         setFeedbackRating(0);
         setFeedbackComment("");
+        fetchNTBList();
+        if (selectedNtb && selectedNtb.id === feedbackTarget.id) {
+          fetchNTBDetails(selectedNtb.id);
+        }
       } else {
         toast.error(data.message || "Failed to submit feedback");
       }
@@ -792,9 +844,13 @@ export default function NTB() {
     switch (state.toLowerCase()) {
       case 'resolved':
       case 'done':
+      case 'intended_resolved':
+      case 'unintended_resolved':
         return 'bg-green-100 text-green-800 border-green-300';
       case 'in_progress':
       case 'in progress':
+      case 'review':
+      case 'assignment':
         return 'bg-blue-100 text-blue-800 border-blue-300';
       case 'under_review':
       case 'under review':
@@ -809,14 +865,125 @@ export default function NTB() {
   };
 
   const formatStatus = (state: string) => {
-    // Map "done" to "resolved" for display
-    if (state.toLowerCase() === 'done') {
-      return 'Resolved';
+    const key = state.toLowerCase();
+    if (STATUS_LABELS[key]) {
+      return STATUS_LABELS[key];
     }
-    // Capitalize first letter of each word
-    return state.split(' ').map(word => 
+    return state.split(' ').map(word =>
       word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
     ).join(' ');
+  };
+
+  const resolveLocationOfIncidenceName = (ntb: any) => {
+    if (!ntb) return "Not specified";
+
+    if (ntb.location_of_incidence?.name) {
+      return ntb.location_of_incidence.name;
+    }
+
+    if (ntb.location_of_incidence_name) {
+      return ntb.location_of_incidence_name;
+    }
+
+    const locationId =
+      ntb.location_of_incidence_id ?? ntb.location_of_incidence?.id ?? null;
+
+    if (locationId && locationIncidences.length > 0) {
+      const match = locationIncidences.find(
+        (loc) => Number(loc.id) === Number(locationId)
+      );
+      if (match) {
+        return match.name;
+      }
+    }
+
+    if (ntb.location_type) {
+      return ntb.location_type;
+    }
+
+    return "Not specified";
+  };
+
+  const resolveSpecificLocationName = (ntb: any) => {
+    if (!ntb) return "Not specified";
+
+    if (typeof ntb.specific_location === "string") {
+      const trimmed = ntb.specific_location.trim();
+      if (trimmed.length > 0) {
+        return trimmed;
+      }
+    }
+
+    if (ntb.specific_location?.name) {
+      const code = ntb.specific_location.code || ntb.specific_location.short_code;
+      return code
+        ? `${ntb.specific_location.name} (${code})`
+        : ntb.specific_location.name;
+    }
+
+    if (ntb.specific_location_name) {
+      return ntb.specific_location_name;
+    }
+
+    const specificId =
+      ntb.specific_location_id ?? ntb.specific_location?.id ?? null;
+
+    if (specificId) {
+      const locationId =
+        ntb.location_of_incidence_id ?? ntb.location_of_incidence?.id ?? null;
+
+      const searchPools = locationId
+        ? locationIncidences.filter(
+            (loc) => Number(loc.id) === Number(locationId)
+          )
+        : locationIncidences;
+
+      for (const loc of searchPools) {
+        const match = loc.specific_locations?.find(
+          (spec) => Number(spec.id) === Number(specificId)
+        );
+        if (match) {
+          return match.code ? `${match.name} (${match.code})` : match.name;
+        }
+      }
+    }
+
+    return "Not specified";
+  };
+
+  const parseRatingValue = (rating: any): number | null => {
+    if (rating === null || rating === undefined || rating === false) {
+      return null;
+    }
+
+    if (typeof rating === "string") {
+      const trimmed = rating.trim();
+      if (trimmed.length === 0) {
+        return null;
+      }
+      const num = Number(trimmed);
+      if (Number.isNaN(num)) {
+        return null;
+      }
+      return Math.min(Math.max(Math.round(num), 1), 5);
+    }
+
+    if (typeof rating === "number") {
+      if (Number.isNaN(rating)) {
+        return null;
+      }
+      return Math.min(Math.max(Math.round(rating), 1), 5);
+    }
+
+    return null;
+  };
+
+  const extractComment = (value: any): string | null => {
+    if (typeof value === "string") {
+      const trimmed = value.trim();
+      return trimmed.length > 0 ? trimmed : null;
+    }
+    return null;
   };
 
   // Show loading state while profile is loading
@@ -1086,73 +1253,152 @@ export default function NTB() {
                   </Card>
                 ) : (
                   <div className="space-y-4">
-                    {ntbList.map((ntb) => (
-                      <Card key={ntb.id} className="hover:shadow-md transition-shadow border-[0.5px] shadow-[0_0_0px_rgba(0,0,0,0.1)]">
-                        <CardContent className="p-6">
-                          <div className="flex justify-between items-start mb-4">
-                            <div>
-                              <div className="flex items-center gap-2 mb-2">
-                                <h3 className="text-lg font-semibold text-gray-900">
-                                  {ntb.ntb_type}
-                                </h3>
-                                <span className="text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded">
+                    {ntbList.map((ntb) => {
+                      const normalizedState =
+                        typeof ntb.state === "string"
+                          ? ntb.state.trim().toLowerCase()
+                          : "";
+                      const isResolved =
+                        normalizedState && [
+                          "resolved",
+                          "closed",
+                          "done",
+                          "intended_resolved",
+                          "unintended_resolved",
+                        ].includes(normalizedState);
+                      const ratingValue = parseRatingValue(ntb.rating);
+                      const hasRating = ratingValue !== null;
+                      const ratingComment = extractComment(ntb.additional_comment);
+
+                      return (
+                      <Card
+                        key={ntb.id}
+                        className={`relative overflow-hidden transition-all duration-200 border border-gray-200 shadow-sm hover:shadow-lg ${
+                          isResolved
+                            ? "bg-gradient-to-br from-green-50 via-white to-green-100/60"
+                            : "bg-gradient-to-br from-white via-white to-gray-50"
+                        }`}
+                      >
+                        <div className="absolute inset-0 opacity-[0.04] pointer-events-none bg-[radial-gradient(circle_at_top,_#3b82f650,_transparent_60%)]" />
+                        {isResolved && (
+                          <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-green-400 via-emerald-500 to-green-400" />
+                        )}
+
+                        <CardContent className="relative p-6 space-y-5">
+                          <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
+                            <div className="space-y-2">
+                              <div className="flex flex-wrap items-center gap-2">
+                                <span className="text-xs uppercase tracking-wide text-gray-500">NTB Report</span>
+                                <span className="text-xs font-semibold bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">
                                   {ntb.report_reference}
                                 </span>
+                                {isResolved && (
+                                  <span className="inline-flex items-center gap-1 text-xs font-medium text-green-700 bg-green-100 px-2 py-0.5 rounded-full">
+                                    <CheckCircle2 className="w-3.5 h-3.5" />
+                                    Resolved & Closed
+                                  </span>
+                                )}
                               </div>
+                              <h3 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
+                                {ntb.ntb_type}
+                              </h3>
                               <p className="text-gray-600 text-sm">
-                                Reported on {new Date(ntb.submission_date).toLocaleDateString()}
+                                Reported on <strong>{new Date(ntb.submission_date).toLocaleDateString()}</strong>
+                                {ntb.date_of_incident && (
+                                  <span className="text-gray-500">
+                                    {" "}
+                                    (incident: {new Date(ntb.date_of_incident).toLocaleDateString()})
+                                  </span>
+                                )}
                               </p>
                             </div>
-                            <Badge className={getStatusColor(ntb.state)}>
-                              {formatStatus(ntb.state)}
-                            </Badge>
-                          </div>
-                          
-                          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm mb-4">
-                            <div>
-                              <span className="text-gray-500">Incident Date:</span>
-                              <p className="font-medium">{ntb.date_of_incident}</p>
-                            </div>
-                            <div>
-                              <span className="text-gray-500">Imposing Country:</span>
-                              <p className="font-medium">{ntb.country_of_incident}</p>
-                            </div>
-                            <div>
-                              <span className="text-gray-500">Reporting Country:</span>
-                              <p className="font-medium">{ntb.reporting_country || 'Not specified'}</p>
-                            </div>
-                            <div>
-                              <span className="text-gray-500">Location Type:</span>
-                              <p className="font-medium">{ntb.location_type || 'Not specified'}</p>
-                            </div>
-                            <div>
-                              <span className="text-gray-500">Specific Location:</span>
-                              <p className="font-medium">{ntb.specific_location || 'Not specified'}</p>
-                            </div>
-                            <div>
-                              <span className="text-gray-500">Cost Range:</span>
-                              <p className="font-medium">{ntb.cost_value_range}</p>
-                            </div>
-                          </div>
-                          
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm mb-4">
-                            <div>
-                              <span className="text-gray-500">Occurrence:</span>
-                              <p className="font-medium">{ntb.occurrence}</p>
-                            </div>
-                            {ntb.latest_feedback && (
-                              <div>
-                                <span className="text-gray-500">Latest Feedback:</span>
-                                <p className="font-medium">{ntb.latest_feedback}</p>
+
+                            <div className="flex flex-col items-start md:items-end gap-2">
+                              <Badge className={getStatusColor(ntb.state)}>
+                                {formatStatus(ntb.state)}
+                              </Badge>
+                              <div className="text-xs text-gray-500">
+                                Attachments: {ntb.attachment_count || 0}
                               </div>
-                            )}
+                            </div>
                           </div>
 
-                          <div className="flex justify-end">
+                          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 text-sm">
+                            <div className="space-y-1">
+                              <span className="text-xs uppercase tracking-wide text-gray-500">Imposing Country</span>
+                              <p className="font-medium text-gray-800">{ntb.reported_country || "Not specified"}</p>
+                            </div>
+                            <div className="space-y-1">
+                              <span className="text-xs uppercase tracking-wide text-gray-500">Reporting Country</span>
+                              <p className="font-medium text-gray-800">{ntb.reporting_country || "Not specified"}</p>
+                            </div>
+                            <div className="space-y-1">
+                              <span className="text-xs uppercase tracking-wide text-gray-500">Location Type</span>
+                              <p className="font-medium text-gray-800">{resolveLocationOfIncidenceName(ntb)}</p>
+                            </div>
+                            <div className="space-y-1">
+                              <span className="text-xs uppercase tracking-wide text-gray-500">Specific Location</span>
+                              <p className="font-medium text-gray-800">{resolveSpecificLocationName(ntb)}</p>
+                            </div>
+                            <div className="space-y-1">
+                              <span className="text-xs uppercase tracking-wide text-gray-500">Occurrence</span>
+                              <p className="font-medium text-gray-800">{ntb.occurrence}</p>
+                            </div>
+                            <div className="space-y-1">
+                              <span className="text-xs uppercase tracking-wide text-gray-500">Cost Range</span>
+                              <p className="font-medium text-gray-800">{ntb.cost_value_range || "Not specified"}</p>
+                            </div>
+                            <div className="space-y-1">
+                              <span className="text-xs uppercase tracking-wide text-gray-500">Latest Feedback</span>
+                              <p className="font-medium text-gray-800">{extractComment(ntb.latest_feedback) || "—"}</p>
+                            </div>
+                            <div className="space-y-1">
+                              <span className="text-xs uppercase tracking-wide text-gray-500">Has Attachments</span>
+                              <p className="font-medium text-gray-800">{ntb.has_attachments ? "Yes" : "No"}</p>
+                            </div>
+                          </div>
+
+                          {hasRating && (
+                            <div className="rounded-lg border border-green-200 bg-white/80 p-4 space-y-2">
+                              <div className="flex flex-wrap items-center gap-2 text-green-700">
+                                <div className="flex items-center gap-0.5">
+                                  {[1, 2, 3, 4, 5].map((star) => (
+                                    <Star
+                                      key={star}
+                                      className={`w-4 h-4 ${
+                                        ratingValue !== null && star <= ratingValue
+                                          ? "text-yellow-400 fill-current"
+                                          : "text-gray-300"
+                                      }`}
+                                    />
+                                  ))}
+                                </div>
+                                <span className="text-sm font-semibold">{ratingValue} / 5</span>
+                                <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full">
+                                  Rated
+                                </span>
+                              </div>
+                              {ratingComment && (
+                                <p className="text-sm text-gray-700">"{ratingComment}"</p>
+                              )}
+                            </div>
+                          )}
+
+                          <div className="flex flex-wrap justify-end gap-2 pt-2">
+                            {isResolved && !hasRating && (
+                              <Button
+                                size="sm"
+                                className="flex items-center gap-2 bg-green-600 text-white hover:bg-green-700"
+                                onClick={() => openFeedbackModal(ntb)}
+                              >
+                                <Star className="w-4 h-4" />
+                                Rate Service
+                              </Button>
+                            )}
                             <Button
                               variant="outline"
                               size="sm"
-                              className="flex items-center gap-2 cursor-pointer"
+                              className="flex items-center gap-2"
                               onClick={() => fetchNTBDetails(ntb.id)}
                               disabled={detailLoading}
                             >
@@ -1162,7 +1408,8 @@ export default function NTB() {
                           </div>
                         </CardContent>
                       </Card>
-                    ))}
+                      );
+                    })}
                   </div>
                 )}
               </div>
@@ -1211,7 +1458,7 @@ export default function NTB() {
                           </div>
                           <div>
                             <Label className="text-sm font-medium text-gray-500">Imposing Country</Label>
-                            <p className="font-medium">{selectedNtb.country_of_incident}</p>
+                            <p className="font-medium">{selectedNtb.reported_country || selectedNtb.country_of_incident}</p>
                           </div>
                           <div>
                             <Label className="text-sm font-medium text-gray-500">Reporting Country</Label>
@@ -1219,25 +1466,12 @@ export default function NTB() {
                           </div>
                           <div>
                             <Label className="text-sm font-medium text-gray-500">Location Type</Label>
-                            <p className="font-medium">{selectedNtb.location_type || 'Not specified'}</p>
+                            <p className="font-medium">{resolveLocationOfIncidenceName(selectedNtb)}</p>
                           </div>
                           <div>
                             <Label className="text-sm font-medium text-gray-500">Specific Location</Label>
-                            <p className="font-medium">{selectedNtb.specific_location || 'Not specified'}</p>
+                            <p className="font-medium">{resolveSpecificLocationName(selectedNtb)}</p>
                           </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-
-                    {/* Product Details */}
-                    <Card className="border-[0.5px] shadow-[0_0_0px_rgba(0,0,0,0.1)]">
-                      <CardHeader>
-                        <CardTitle className="text-lg">Product Information</CardTitle>
-                      </CardHeader>
-                      <CardContent className="space-y-4">
-                        <div>
-                          <Label className="text-sm font-medium text-gray-500">Product Description</Label>
-                          <p className="font-medium">{selectedNtb.product_description}</p>
                         </div>
                       </CardContent>
                     </Card>
@@ -1286,100 +1520,6 @@ export default function NTB() {
                         <div className="prose prose-sm max-w-none whitespace-pre-wrap">
                           {selectedNtb.complaint_details}
                         </div>
-                      </CardContent>
-                    </Card>
-
-                    {/* Feedback Section */}
-                    <Card className="border-[0.5px] shadow-[0_0_0px_rgba(0,0,0,0.1)]">
-                      <CardHeader>
-                        <CardTitle className="text-lg">
-                          Rate Our Service
-                        </CardTitle>
-                        <CardDescription>
-                          Help us improve by sharing your experience with this NTB report
-                        </CardDescription>
-                      </CardHeader>
-                      <CardContent className="space-y-4">
-                        {feedbackSubmitted ? (
-                          <div className="text-center py-6">
-                            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                              <CheckCircle2 className="w-8 h-8 text-green-600" />
-                            </div>
-                            <h3 className="text-lg font-semibold text-green-800 mb-2">Thank You!</h3>
-                            <p className="text-gray-600">Your feedback has been submitted successfully.</p>
-                          </div>
-                        ) : (
-                          <>
-                            {/* Rating Stars */}
-                            <div className="space-y-2">
-                              <Label className="text-sm font-medium text-gray-700">
-                                How would you rate our service? *
-                              </Label>
-                              <div className="flex items-center gap-1">
-                                {[1, 2, 3, 4, 5].map((star) => (
-                                  <button
-                                    key={star}
-                                    type="button"
-                                    onClick={() => setFeedbackRating(star)}
-                                    className="p-1 hover:scale-110 transition-transform"
-                                  >
-                                    <Star
-                                      className={`w-8 h-8 ${
-                                        star <= feedbackRating
-                                          ? "text-yellow-400 fill-current"
-                                          : "text-gray-300"
-                                      }`}
-                                    />
-                                  </button>
-                                ))}
-                                <span className="ml-3 text-sm text-gray-600">
-                                  {feedbackRating === 0 && "Click to rate"}
-                                  {feedbackRating === 1 && "Poor"}
-                                  {feedbackRating === 2 && "Fair"}
-                                  {feedbackRating === 3 && "Good"}
-                                  {feedbackRating === 4 && "Very Good"}
-                                  {feedbackRating === 5 && "Excellent"}
-                                </span>
-                              </div>
-                            </div>
-
-                            {/* Comment Section */}
-                            <div className="space-y-2">
-                              <Label className="text-sm font-medium text-gray-700">
-                                Additional Comments (Optional)
-                              </Label>
-                              <textarea
-                                value={feedbackComment}
-                                onChange={(e) => setFeedbackComment(e.target.value)}
-                                placeholder="Tell us about your experience..."
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:border-blue-500 focus:ring-blue-500 resize-none"
-                                rows={4}
-                                maxLength={500}
-                              />
-                              <div className="text-xs text-gray-500 text-right">
-                                {feedbackComment.length}/500 characters
-                              </div>
-                            </div>
-
-                            {/* Submit Button */}
-                            <div className="flex justify-end">
-                              <Button
-                                onClick={handleFeedbackSubmit}
-                                disabled={feedbackSubmitting || feedbackRating === 0}
-                                className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                              >
-                                {feedbackSubmitting ? (
-                                  <div className="flex items-center gap-2">
-                                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                                    Submitting...
-                                  </div>
-                                ) : (
-                                  "Submit Feedback"
-                                )}
-                              </Button>
-                            </div>
-                          </>
-                        )}
                       </CardContent>
                     </Card>
                   </div>
@@ -1439,6 +1579,53 @@ export default function NTB() {
                         </CardContent>
                       </Card>
                     )}
+
+                    {(() => {
+                      const detailRating = parseRatingValue(selectedNtb?.rating);
+                      const detailComment = extractComment(
+                        selectedNtb?.additional_comment ?? selectedNtb?.latest_feedback
+                      );
+
+                      if (detailRating === null && !detailComment) {
+                        return null;
+                      }
+
+                      return (
+                        <Card className="border-[0.5px] shadow-[0_0_0px_rgba(0,0,0,0.1)] bg-green-50/60">
+                          <CardHeader>
+                            <CardTitle className="text-lg flex items-center gap-2">
+                              <Star className="w-4 h-4 text-yellow-400 fill-current" />
+                              Service Rating
+                            </CardTitle>
+                          </CardHeader>
+                          <CardContent className="space-y-3">
+                            {detailRating !== null && (
+                              <div className="flex items-center gap-3 text-green-700">
+                                <div className="flex items-center gap-0.5">
+                                  {[1, 2, 3, 4, 5].map((star) => (
+                                    <Star
+                                      key={star}
+                                      className={`w-4 h-4 ${
+                                        detailRating !== null && star <= detailRating
+                                          ? "text-yellow-400 fill-current"
+                                          : "text-gray-300"
+                                      }`}
+                                    />
+                                  ))}
+                                </div>
+                                <span className="text-sm font-semibold">{detailRating} / 5</span>
+                              </div>
+                            )}
+
+                            {detailComment && (
+                              <p className="text-sm text-gray-700 bg-white border border-green-100 rounded-md px-3 py-2">
+                                "{detailComment}"
+                              </p>
+                            )}
+                          </CardContent>
+                        </Card>
+                      );
+                    })()}
 
                     {/* Feedback */}
                     {selectedNtb.latest_feedback && (
@@ -1525,8 +1712,8 @@ export default function NTB() {
                             Imposing Country *
                           </Label>
                           <Select
-                            value={form.country_of_incident}
-                            onValueChange={(value) => handleChange("country_of_incident", value)}
+                            value={form.reported_country}
+                            onValueChange={(value) => handleChange("reported_country", value)}
                             required
                           >
                             <SelectTrigger className="h-12 rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500 py-3">
@@ -1569,47 +1756,45 @@ export default function NTB() {
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="space-y-3">
                           <Label className="text-sm font-medium text-gray-700">
-                            Location of Incident
+                            Location of Incidence *
                           </Label>
                           <Select
-                            value={form.location_type}
+                            value={form.location_of_incidence_id}
                             onValueChange={(value) => {
-                              handleChange("location_type", value);
-                              // Clear specific location when location type changes
-                              handleChange("specific_location", "");
+                              handleChange("location_of_incidence_id", value);
+                              handleChange("specific_location_id", "");
                             }}
                           >
                             <SelectTrigger className="h-12 rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500 py-3">
-                              <SelectValue placeholder="Select location type" />
+                              <SelectValue placeholder="Select location of incidence" />
                             </SelectTrigger>
                             <SelectContent>
-                              <SelectItem value="point">Exact Location</SelectItem>
-                              <SelectItem value="area">General Area</SelectItem>
-                              <SelectItem value="border">Border/Crossing Point</SelectItem>
-                              <SelectItem value="port">Port/Airport</SelectItem>
-                              <SelectItem value="warehouse">Warehouse/Storage</SelectItem>
-                              <SelectItem value="office">Government Office</SelectItem>
-                              <SelectItem value="other">Other</SelectItem>
+                              {locationIncidences.map((location) => (
+                                <SelectItem key={location.id} value={String(location.id)}>
+                                  {location.name}
+                                </SelectItem>
+                              ))}
                             </SelectContent>
                           </Select>
                         </div>
 
                         <div className="space-y-3">
                           <Label className="text-sm font-medium text-gray-700">
-                            Specific Location
+                            Specific Location *
                           </Label>
                           <Select
-                            value={form.specific_location}
-                            onValueChange={(value) => handleChange("specific_location", value)}
-                            disabled={!form.location_type}
+                            value={form.specific_location_id}
+                            onValueChange={(value) => handleChange("specific_location_id", value)}
+                            disabled={!form.location_of_incidence_id || !selectedLocationIncidence}
                           >
                             <SelectTrigger className="h-12 rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500 py-3">
-                              <SelectValue placeholder={form.location_type ? "Select specific location" : "Select location type first"} />
+                              <SelectValue placeholder={selectedLocationIncidence ? "Select specific location" : "Select location of incidence first"} />
                             </SelectTrigger>
                             <SelectContent>
-                              {form.location_type && SPECIFIC_LOCATION_OPTIONS[form.location_type as keyof typeof SPECIFIC_LOCATION_OPTIONS]?.map((location) => (
-                                <SelectItem key={location} value={location}>
-                                  {location}
+                              {selectedLocationIncidence?.specific_locations?.map((location) => (
+                                <SelectItem key={location.id} value={String(location.id)}>
+                                  {location.name}
+                                  {location.code ? ` (${location.code})` : ""}
                                 </SelectItem>
                               ))}
                             </SelectContent>
@@ -2274,6 +2459,116 @@ export default function NTB() {
           </div>
         </div>
       )}
+
+      {feedbackModalOpen && (
+        <Dialog
+          open={feedbackModalOpen}
+          onOpenChange={(open) => {
+            if (!open) {
+              closeFeedbackModal();
+            } else {
+              setFeedbackModalOpen(true);
+            }
+          }}
+        >
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle>Rate Our Service</DialogTitle>
+              <DialogDescription>
+                {feedbackTarget
+                  ? `Share your experience for report ${feedbackTarget.reference}.`
+                  : "Share your experience with this NTB report."}
+              </DialogDescription>
+            </DialogHeader>
+
+            {feedbackSubmitted ? (
+              <div className="flex flex-col items-center justify-center py-6">
+                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
+                  <CheckCircle2 className="w-8 h-8 text-green-600" />
+                </div>
+                <h3 className="text-lg font-semibold text-green-800 mb-2">
+                  Thank you for your feedback!
+                </h3>
+                <Button onClick={closeFeedbackModal} className="mt-4">
+                  Close
+                </Button>
+              </div>
+            ) : (
+              <div className="space-y-6">
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium text-gray-700">
+                    How would you rate our service? *
+                  </Label>
+                  <div className="flex items-center gap-1">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <button
+                        key={star}
+                        type="button"
+                        onClick={() => setFeedbackRating(star)}
+                        className="p-1 hover:scale-110 transition-transform"
+                      >
+                        <Star
+                          className={`w-8 h-8 ${
+                            star <= feedbackRating
+                              ? "text-yellow-400 fill-current"
+                              : "text-gray-300"
+                          }`}
+                        />
+                      </button>
+                    ))}
+                    <span className="ml-3 text-sm text-gray-600">
+                      {feedbackRating === 0 && "Click to rate"}
+                      {feedbackRating === 1 && "Poor"}
+                      {feedbackRating === 2 && "Fair"}
+                      {feedbackRating === 3 && "Good"}
+                      {feedbackRating === 4 && "Very Good"}
+                      {feedbackRating === 5 && "Excellent"}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium text-gray-700">
+                    Additional Comments (Optional)
+                  </Label>
+                  <textarea
+                    value={feedbackComment}
+                    onChange={(e) => setFeedbackComment(e.target.value)}
+                    placeholder="Tell us about your experience..."
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:border-blue-500 focus:ring-blue-500 resize-none"
+                    rows={4}
+                    maxLength={500}
+                  />
+                  <div className="text-xs text-gray-500 text-right">
+                    {feedbackComment.length}/500 characters
+                  </div>
+                </div>
+
+                <DialogFooter className="flex items-center justify-end gap-2">
+                  <Button variant="outline" onClick={closeFeedbackModal}>
+                    Cancel
+                  </Button>
+                  <Button
+                    onClick={handleFeedbackSubmit}
+                    disabled={feedbackSubmitting || feedbackRating === 0}
+                    className="bg-blue-600 hover:bg-blue-700 text-white"
+                  >
+                    {feedbackSubmitting ? (
+                      <div className="flex items-center gap-2">
+                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                        Submitting...
+                      </div>
+                    ) : (
+                      "Submit Feedback"
+                    )}
+                  </Button>
+                </DialogFooter>
+              </div>
+            )}
+          </DialogContent>
+        </Dialog>
+      )}
     </main>
   );
 }
+

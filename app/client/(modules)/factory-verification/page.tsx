@@ -618,22 +618,22 @@ export default function FactoryVerification() {
                               </td>
                               <td className="px-2 lg:px-4 py-3 lg:py-4 text-center">
                                 <div className="flex items-center justify-center gap-2">
-                                  <button
-                                    onClick={() => handleViewDetails(product)}
-                                    disabled={!["inspection_done", "report_accepted", "awaiting_director", "approved"].includes(product.verification_state)}
-                                    className={`px-2 lg:px-3 py-1 lg:py-1.5 text-xs font-medium rounded-md transition-colors ${
-                                      ["inspection_done", "report_accepted", "awaiting_director", "approved"].includes(product.verification_state)
-                                        ? "bg-blue-600 text-white hover:bg-blue-700 cursor-pointer"
-                                        : "bg-gray-300 text-gray-500 cursor-not-allowed"
-                                    }`}
-                                    title={
-                                      ["inspection_done", "report_accepted", "awaiting_director", "approved"].includes(product.verification_state)
-                                        ? "Review inspection report"
-                                        : "Review not available for this status"
-                                    }
-                                  >
+                                <button
+                                  onClick={() => handleViewDetails(product)}
+                                  disabled={!["inspection_done", "report_accepted", "awaiting_director", "approved"].includes(product.verification_state)}
+                                  className={`px-2 lg:px-3 py-1 lg:py-1.5 text-xs font-medium rounded-md transition-colors ${
+                                    ["inspection_done", "report_accepted", "awaiting_director", "approved"].includes(product.verification_state)
+                                      ? "bg-blue-600 text-white hover:bg-blue-700 cursor-pointer"
+                                      : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                                  }`}
+                                  title={
+                                    ["inspection_done", "report_accepted", "awaiting_director", "approved"].includes(product.verification_state)
+                                      ? "Review inspection report"
+                                      : "Review not available for this status"
+                                  }
+                                >
                                     View
-                                  </button>
+                                </button>
                                   <button
                                     onClick={() => handleOpenAgentsModal(product)}
                                     disabled={product.verification_state !== "approved"}

@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 
-const API_BASE_URL = "https://tccia.kalen.co.tz";
+const API_BASE_URL = "https://dev.kalen.co.tz";
 
 export async function GET(
   request: Request,
@@ -10,9 +10,8 @@ export async function GET(
   try {
     const cookieStore = await cookies();
     const token = cookieStore.get("token");
-    const uid = cookieStore.get("uid");
 
-    if (!token || !uid) {
+    if (!token) {
       return NextResponse.json(
         {
           status: "error",
@@ -36,8 +35,6 @@ export async function GET(
 
     const apiUrl = `${API_BASE_URL}/api/ntb/${encodeURIComponent(id)}`;
     console.log("Fetching NTB details from:", apiUrl);
-    console.log("Token:", token.value);
-    console.log("UID:", uid.value);
     console.log("NTB ID:", id);
 
     const response = await fetch(apiUrl, {
@@ -46,12 +43,6 @@ export async function GET(
         Authorization: `Bearer ${token.value.trim()}`,
       },
     });
-
-    console.log("Response status:", response.status);
-    console.log(
-      "Response headers:",
-      Object.fromEntries(response.headers.entries())
-    );
 
     if (!response.ok) {
       const errorText = await response.text();

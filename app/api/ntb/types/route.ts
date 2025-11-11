@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 
-const API_BASE_URL = "https://tccia.kalen.co.tz";
+const API_BASE_URL = "https://dev.kalen.co.tz";
 
 export async function GET() {
   try {
@@ -9,14 +9,8 @@ export async function GET() {
 
     const response = await fetch(apiUrl, {
       method: "GET",
-      // Removed Content-Type header as it causes 400 error from external API
-    });
 
-    console.log("Response status:", response.status);
-    console.log(
-      "Response headers:",
-      Object.fromEntries(response.headers.entries())
-    );
+    });
 
     if (!response.ok) {
       const errorText = await response.text();
