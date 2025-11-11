@@ -1266,6 +1266,8 @@ export default function NTB() {
                           "intended_resolved",
                           "unintended_resolved",
                         ].includes(normalizedState);
+                      const shouldHighlightCard =
+                        normalizedState && ["resolved", "closed", "done", "unintended_resolved"].includes(normalizedState);
                       const ratingValue = parseRatingValue(ntb.rating);
                       const hasRating = ratingValue !== null;
                       const ratingComment = extractComment(ntb.additional_comment);
@@ -1274,13 +1276,13 @@ export default function NTB() {
                       <Card
                         key={ntb.id}
                         className={`relative overflow-hidden transition-all duration-200 border border-gray-200 shadow-sm hover:shadow-lg ${
-                          isResolved
+                          shouldHighlightCard
                             ? "bg-gradient-to-br from-green-50 via-white to-green-100/60"
                             : "bg-gradient-to-br from-white via-white to-gray-50"
                         }`}
                       >
                         <div className="absolute inset-0 opacity-[0.04] pointer-events-none bg-[radial-gradient(circle_at_top,_#3b82f650,_transparent_60%)]" />
-                        {isResolved && (
+                        {shouldHighlightCard && (
                           <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-green-400 via-emerald-500 to-green-400" />
                         )}
 
