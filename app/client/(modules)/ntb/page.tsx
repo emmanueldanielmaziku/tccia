@@ -145,32 +145,32 @@ const MONEY_LOST_RANGES = [
   "$5000+",
 ];
 
-const COUNTRIES = [
-  "Tanzania",
-  "Kenya",
-  "Uganda",
-  "Rwanda",
-  "Burundi",
-  "South Sudan",
-  "DR Congo",
-  "Zambia",
-  "Malawi",
-  "Mozambique",
-  "Zimbabwe",
-  "Botswana",
-  "Namibia",
-  "South Africa",
-  "Other",
-];
+interface Country {
+  id: number;
+  name: string;
+  code: string;
+}
 
 interface LocationIncidence {
   id: number;
   name: string;
-  specific_locations: {
+  display_name: string;
+  country: {
     id: number;
     name: string;
-    code?: string;
-  }[];
+    code: string;
+  };
+}
+
+interface SpecificLocation {
+  id: number;
+  name: string;
+  code?: string;
+  country: {
+    id: number;
+    name: string;
+    code: string;
+  };
 }
 
 const OPERATOR_TYPES = [
@@ -195,7 +195,9 @@ export default function NTB() {
   const [mode, setMode] = useState<"profile" | "list" | "new" | "detail">("profile");
   const [ntbList, setNtbList] = useState<any[]>([]);
   const [ntbTypes, setNtbTypes] = useState<{id: number, name: string, description: string}[]>([]);
+  const [countries, setCountries] = useState<Country[]>([]);
   const [locationIncidences, setLocationIncidences] = useState<LocationIncidence[]>([]);
+  const [specificLocations, setSpecificLocations] = useState<SpecificLocation[]>([]);
   const [selectedNtb, setSelectedNtb] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -231,8 +233,8 @@ export default function NTB() {
   const [form, setForm] = useState({
     ntb_type_id: "",
     date_of_incident: "",
-    reported_country: "",
-    reporting_country: "",
+    reported_country_id: "",
+    reporting_country_id: "",
     location: "",
     location_of_incidence_id: "",
     specific_location_id: "",
@@ -296,17 +298,39 @@ export default function NTB() {
 
   useEffect(() => {
     fetchNTBTypes();
-    fetchLocationIncidences();
+    fetchCountries();
   }, []);
 
+  // Fetch locations when reporting country changes
   useEffect(() => {
-    if (locationIncidences.length > 0 && !form.location_of_incidence_id) {
+    if (form.reporting_country_id) {
+      fetchLocationIncidences(parseInt(form.reporting_country_id));
+      // Reset location selections when country changes
       setForm((prev) => ({
         ...prev,
-        location_of_incidence_id: String(locationIncidences[0].id),
+        location_of_incidence_id: "",
+        specific_location_id: "",
       }));
+      setSpecificLocations([]);
+    } else {
+      setLocationIncidences([]);
+      setSpecificLocations([]);
     }
-  }, [locationIncidences, form.location_of_incidence_id]);
+  }, [form.reporting_country_id]);
+
+  // Fetch specific locations when location of incidence changes
+  useEffect(() => {
+    if (form.location_of_incidence_id) {
+      fetchSpecificLocations(parseInt(form.location_of_incidence_id));
+      // Reset specific location when location of incidence changes
+      setForm((prev) => ({
+        ...prev,
+        specific_location_id: "",
+      }));
+    } else {
+      setSpecificLocations([]);
+    }
+  }, [form.location_of_incidence_id]);
 
   // Auto-detect location when form mode is 'new'
   useEffect(() => {
@@ -360,17 +384,49 @@ export default function NTB() {
     }
   };
 
-  const fetchLocationIncidences = async () => {
+  const fetchCountries = async () => {
     try {
-      const response = await fetch("/api/locations/incidence");
+      const response = await fetch("/api/countries");
+      const data = await response.json();
+      if (data.success) {
+        setCountries(data.data || []);
+      } else {
+        console.error("Error fetching countries:", data.message);
+      }
+    } catch (error) {
+      console.error("Error fetching countries:", error);
+    }
+  };
+
+  const fetchLocationIncidences = async (countryId: number) => {
+    try {
+      const response = await fetch(`/api/locations/incidence/country/${countryId}`);
       const data = await response.json();
       if (data.success) {
         setLocationIncidences(data.data || []);
       } else {
         console.error("Error fetching location incidences:", data.message);
+        setLocationIncidences([]);
       }
     } catch (error) {
       console.error("Error fetching location incidences:", error);
+      setLocationIncidences([]);
+    }
+  };
+
+  const fetchSpecificLocations = async (locationId: number) => {
+    try {
+      const response = await fetch(`/api/locations/specific/${locationId}`);
+      const data = await response.json();
+      if (data.success) {
+        setSpecificLocations(data.data || []);
+      } else {
+        console.error("Error fetching specific locations:", data.message);
+        setSpecificLocations([]);
+      }
+    } catch (error) {
+      console.error("Error fetching specific locations:", error);
+      setSpecificLocations([]);
     }
   };
 
@@ -486,25 +542,12 @@ export default function NTB() {
       const { latitude, longitude } = position.coords;
       
       // Update form with detected coordinates
-      setForm(prev => {
-        let locationOfIncidenceId = prev.location_of_incidence_id;
-        if (!locationOfIncidenceId && locationIncidences.length > 0) {
-          const borderLocation = locationIncidences.find((loc) =>
-            loc.name.toLowerCase().includes("border")
-          );
-          if (borderLocation) {
-            locationOfIncidenceId = String(borderLocation.id);
-          }
-        }
-
-        return {
-          ...prev,
-          latitude: latitude.toString(),
-          longitude: longitude.toString(),
-          location_accuracy: 'high',
-          location_of_incidence_id: locationOfIncidenceId,
-        };
-      });
+      setForm(prev => ({
+        ...prev,
+        latitude: latitude.toString(),
+        longitude: longitude.toString(),
+        location_accuracy: 'high',
+      }));
 
       // Try to get reverse geocoding for address and Google Place ID
       try {
@@ -681,38 +724,115 @@ export default function NTB() {
 
     setSubmitting(true);
 
-    if (!form.location_of_incidence_id) {
+    // Validate all required fields (marked with *)
+    if (!form.ntb_type_id || form.ntb_type_id.trim() === "") {
+      toast.error("Please select an NTB type");
+      setSubmitting(false);
+      return;
+    }
+
+    if (!form.date_of_incident || form.date_of_incident.trim() === "") {
+      toast.error("Please select a date of incident");
+      setSubmitting(false);
+      return;
+    }
+
+    if (!form.reporting_country_id || form.reporting_country_id.trim() === "") {
+      toast.error("Please select a reporting country");
+      setSubmitting(false);
+      return;
+    }
+
+    if (!form.reported_country_id || form.reported_country_id.trim() === "") {
+      toast.error("Please select an imposing country");
+      setSubmitting(false);
+      return;
+    }
+
+    if (!form.location_of_incidence_id || form.location_of_incidence_id.trim() === "") {
       toast.error("Please select a location of incidence");
       setSubmitting(false);
       return;
     }
 
-    if (!form.specific_location_id) {
+    if (!form.specific_location_id || form.specific_location_id.trim() === "") {
       toast.error("Please select a specific location");
       setSubmitting(false);
       return;
     }
 
+    if (!form.complaint_details || form.complaint_details.trim() === "") {
+      toast.error("Please provide complaint details");
+      setSubmitting(false);
+      return;
+    }
+
+    if (!form.product_description || form.product_description.trim() === "") {
+      toast.error("Please provide a product description");
+      setSubmitting(false);
+      return;
+    }
+
+    if (!form.occurrence || form.occurrence.trim() === "") {
+      toast.error("Please select an occurrence");
+      setSubmitting(false);
+      return;
+    }
+
     try {
+      // Validate numeric fields are valid
+      const ntbTypeId = parseInt(form.ntb_type_id);
+      const reportingCountryId = parseInt(form.reporting_country_id);
+      const reportedCountryId = parseInt(form.reported_country_id);
+      const locationOfIncidenceId = parseInt(form.location_of_incidence_id);
+      const specificLocationId = parseInt(form.specific_location_id);
+
+      if (isNaN(ntbTypeId) || ntbTypeId <= 0) {
+        toast.error("Invalid NTB type selected");
+        setSubmitting(false);
+        return;
+      }
+
+      if (isNaN(reportingCountryId) || reportingCountryId <= 0) {
+        toast.error("Invalid reporting country selected");
+        setSubmitting(false);
+        return;
+      }
+
+      if (isNaN(reportedCountryId) || reportedCountryId <= 0) {
+        toast.error("Invalid imposing country selected");
+        setSubmitting(false);
+        return;
+      }
+
+      if (isNaN(locationOfIncidenceId) || locationOfIncidenceId <= 0) {
+        toast.error("Invalid location of incidence selected");
+        setSubmitting(false);
+        return;
+      }
+
+      if (isNaN(specificLocationId) || specificLocationId <= 0) {
+        toast.error("Invalid specific location selected");
+        setSubmitting(false);
+        return;
+      }
+
       // Prepare the payload according to the expected format
+      // All required fields are guaranteed to be non-null at this point
       const payload: any = {
-        ntb_type_id: parseInt(form.ntb_type_id),
-        date_of_incident: form.date_of_incident,
-        reporting_country: form.reporting_country,
-        reported_country: form.reported_country,
+        ntb_type_id: ntbTypeId,
+        date_of_incident: form.date_of_incident.trim(),
+        reporting_country_id: reportingCountryId,
+        reported_country_id: reportedCountryId,
         location: form.location || 'Location not provided',
-        complaint_details: form.complaint_details,
-        product_description: form.product_description,
-        occurrence: form.occurrence,
+        complaint_details: form.complaint_details.trim(),
+        product_description: form.product_description.trim(),
+        occurrence: form.occurrence.trim(),
+        location_of_incidence_id: locationOfIncidenceId,
+        specific_location_id: specificLocationId,
       };
 
-      if (form.location_of_incidence_id) {
-        payload.location_of_incidence_id = parseInt(form.location_of_incidence_id);
-      }
-
-      if (form.specific_location_id) {
-        payload.specific_location_id = parseInt(form.specific_location_id);
-      }
+      // location_of_incidence_id and specific_location_id are already added above as required fields
 
       // Add optional fields if they have values
       if (form.cost_value_range) payload.cost_value_range = form.cost_value_range;
@@ -736,15 +856,15 @@ export default function NTB() {
         formData.append(key, payload[key]);
       });
 
-      // Add files by type
-      selectedFiles.documents.forEach(file => {
-        formData.append('document_files', file);
+      // Add files by type (using document1, document2, etc. and image1, image2, etc. format)
+      selectedFiles.documents.forEach((file, index) => {
+        formData.append(`document${index + 1}`, file);
       });
-      selectedFiles.images.forEach(file => {
-        formData.append('image_files', file);
+      selectedFiles.images.forEach((file, index) => {
+        formData.append(`image${index + 1}`, file);
       });
 
-      const response = await fetch('/api/ntb/submit', {
+      const response = await fetch('/api/ntb/create-with-files', {
         method: 'POST',
         body: formData,
       });
@@ -771,8 +891,8 @@ export default function NTB() {
     setForm({
       ntb_type_id: "",
       date_of_incident: "",
-      reported_country: "",
-      reporting_country: "",
+      reported_country_id: "",
+      reporting_country_id: "",
       location: "",
       location_of_incidence_id: "",
       specific_location_id: "",
@@ -845,8 +965,9 @@ export default function NTB() {
       case 'resolved':
       case 'done':
       case 'intended_resolved':
-      case 'unintended_resolved':
         return 'bg-green-100 text-green-800 border-green-300';
+      case 'unintended_resolved':
+        return 'bg-orange-100 text-orange-800 border-orange-300';
       case 'in_progress':
       case 'in progress':
       case 'review':
@@ -877,6 +998,10 @@ export default function NTB() {
   const resolveLocationOfIncidenceName = (ntb: any) => {
     if (!ntb) return "Not specified";
 
+    if (ntb.location_of_incidence?.display_name) {
+      return ntb.location_of_incidence.display_name;
+    }
+
     if (ntb.location_of_incidence?.name) {
       return ntb.location_of_incidence.name;
     }
@@ -893,7 +1018,7 @@ export default function NTB() {
         (loc) => Number(loc.id) === Number(locationId)
       );
       if (match) {
-        return match.name;
+        return match.display_name || match.name;
       }
     }
 
@@ -925,26 +1050,16 @@ export default function NTB() {
       return ntb.specific_location_name;
     }
 
+    // Try to find in current specificLocations state if available
     const specificId =
       ntb.specific_location_id ?? ntb.specific_location?.id ?? null;
 
-    if (specificId) {
-      const locationId =
-        ntb.location_of_incidence_id ?? ntb.location_of_incidence?.id ?? null;
-
-      const searchPools = locationId
-        ? locationIncidences.filter(
-            (loc) => Number(loc.id) === Number(locationId)
-          )
-        : locationIncidences;
-
-      for (const loc of searchPools) {
-        const match = loc.specific_locations?.find(
-          (spec) => Number(spec.id) === Number(specificId)
-        );
-        if (match) {
-          return match.code ? `${match.name} (${match.code})` : match.name;
-        }
+    if (specificId && specificLocations.length > 0) {
+      const match = specificLocations.find(
+        (spec) => Number(spec.id) === Number(specificId)
+      );
+      if (match) {
+        return match.code ? `${match.name} (${match.code})` : match.name;
       }
     }
 
@@ -1045,9 +1160,9 @@ export default function NTB() {
                               <SelectValue placeholder="Select country" />
                             </SelectTrigger>
                             <SelectContent>
-                              {COUNTRIES.map((country) => (
-                                <SelectItem key={country} value={country}>
-                                  {country}
+                              {countries.map((country) => (
+                                <SelectItem key={country.id} value={country.name}>
+                                  {country.name}
                                 </SelectItem>
                               ))}
                             </SelectContent>
@@ -1267,7 +1382,7 @@ export default function NTB() {
                           "unintended_resolved",
                         ].includes(normalizedState);
                       const shouldHighlightCard =
-                        normalizedState && ["resolved", "closed", "done", "unintended_resolved"].includes(normalizedState);
+                        normalizedState && ["resolved", "closed", "done"].includes(normalizedState);
                       const ratingValue = parseRatingValue(ntb.rating);
                       const hasRating = ratingValue !== null;
                       const ratingComment = extractComment(ntb.additional_comment);
@@ -1328,11 +1443,19 @@ export default function NTB() {
                           <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 text-sm">
                             <div className="space-y-1">
                               <span className="text-xs uppercase tracking-wide text-gray-500">Imposing Country</span>
-                              <p className="font-medium text-gray-800">{ntb.reported_country || "Not specified"}</p>
+                              <p className="font-medium text-gray-800">
+                                {typeof ntb.reported_country === 'string' 
+                                  ? ntb.reported_country 
+                                  : ntb.reported_country?.name || "Not specified"}
+                              </p>
                             </div>
                             <div className="space-y-1">
                               <span className="text-xs uppercase tracking-wide text-gray-500">Reporting Country</span>
-                              <p className="font-medium text-gray-800">{ntb.reporting_country || "Not specified"}</p>
+                              <p className="font-medium text-gray-800">
+                                {typeof ntb.reporting_country === 'string' 
+                                  ? ntb.reporting_country 
+                                  : ntb.reporting_country?.name || "Not specified"}
+                              </p>
                             </div>
                             <div className="space-y-1">
                               <span className="text-xs uppercase tracking-wide text-gray-500">Location Type</span>
@@ -1359,6 +1482,16 @@ export default function NTB() {
                               <p className="font-medium text-gray-800">{ntb.has_attachments ? "Yes" : "No"}</p>
                             </div>
                           </div>
+
+                          {ntb.resolution && (
+                            <div className="rounded-lg border border-blue-200 bg-blue-50/50 p-4 space-y-2">
+                              <div className="flex items-center gap-2 text-blue-700">
+                                <CheckCircle2 className="w-4 h-4" />
+                                <span className="text-sm font-semibold">Resolution</span>
+                              </div>
+                              <p className="text-sm text-gray-700 whitespace-pre-wrap">{ntb.resolution}</p>
+                            </div>
+                          )}
 
                           {hasRating && (
                             <div className="rounded-lg border border-green-200 bg-white/80 p-4 space-y-2">
@@ -1460,11 +1593,19 @@ export default function NTB() {
                           </div>
                           <div>
                             <Label className="text-sm font-medium text-gray-500">Imposing Country</Label>
-                            <p className="font-medium">{selectedNtb.reported_country || selectedNtb.country_of_incident}</p>
+                            <p className="font-medium">
+                              {typeof selectedNtb.reported_country === 'string' 
+                                ? selectedNtb.reported_country 
+                                : selectedNtb.reported_country?.name || selectedNtb.country_of_incident || 'Not specified'}
+                            </p>
                           </div>
                           <div>
                             <Label className="text-sm font-medium text-gray-500">Reporting Country</Label>
-                            <p className="font-medium">{selectedNtb.reporting_country || 'Not specified'}</p>
+                            <p className="font-medium">
+                              {typeof selectedNtb.reporting_country === 'string' 
+                                ? selectedNtb.reporting_country 
+                                : selectedNtb.reporting_country?.name || 'Not specified'}
+                            </p>
                           </div>
                           <div>
                             <Label className="text-sm font-medium text-gray-500">Location Type</Label>
@@ -1640,6 +1781,21 @@ export default function NTB() {
                         </CardContent>
                       </Card>
                     )}
+
+                    {/* Resolution */}
+                    {selectedNtb.resolution && (
+                      <Card className="border-[0.5px] shadow-[0_0_0px_rgba(0,0,0,0.1)] border-blue-200 bg-blue-50/60">
+                        <CardHeader>
+                          <CardTitle className="text-lg flex items-center gap-2 text-blue-700">
+                            <CheckCircle2 className="w-5 h-5" />
+                            Resolution
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <p className="text-sm text-gray-700 whitespace-pre-wrap">{selectedNtb.resolution}</p>
+                        </CardContent>
+                      </Card>
+                    )}
                   </div>
                 </div>
               </div>
@@ -1714,17 +1870,17 @@ export default function NTB() {
                             Imposing Country *
                           </Label>
                           <Select
-                            value={form.reported_country}
-                            onValueChange={(value) => handleChange("reported_country", value)}
+                            value={form.reported_country_id}
+                            onValueChange={(value) => handleChange("reported_country_id", value)}
                             required
                           >
                             <SelectTrigger className="h-12 rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500 py-3">
                               <SelectValue placeholder="Select imposing country" />
                             </SelectTrigger>
                             <SelectContent>
-                              {COUNTRIES.map((country) => (
-                                <SelectItem key={country} value={country}>
-                                  {country}
+                              {countries.map((country) => (
+                                <SelectItem key={country.id} value={String(country.id)}>
+                                  {country.name}
                                 </SelectItem>
                               ))}
                             </SelectContent>
@@ -1736,17 +1892,17 @@ export default function NTB() {
                             Reporting Country *
                           </Label>
                           <Select
-                            value={form.reporting_country}
-                            onValueChange={(value) => handleChange("reporting_country", value)}
+                            value={form.reporting_country_id}
+                            onValueChange={(value) => handleChange("reporting_country_id", value)}
                             required
                           >
                             <SelectTrigger className="h-12 rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500 py-3">
                               <SelectValue placeholder="Select reporting country" />
                             </SelectTrigger>
                             <SelectContent>
-                              {COUNTRIES.map((country) => (
-                                <SelectItem key={country} value={country}>
-                                  {country}
+                              {countries.map((country) => (
+                                <SelectItem key={country.id} value={String(country.id)}>
+                                  {country.name}
                                 </SelectItem>
                               ))}
                             </SelectContent>
@@ -1766,14 +1922,21 @@ export default function NTB() {
                               handleChange("location_of_incidence_id", value);
                               handleChange("specific_location_id", "");
                             }}
+                            disabled={!form.reporting_country_id || locationIncidences.length === 0}
                           >
                             <SelectTrigger className="h-12 rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500 py-3">
-                              <SelectValue placeholder="Select location of incidence" />
+                              <SelectValue placeholder={
+                                !form.reporting_country_id 
+                                  ? "Select reporting country first" 
+                                  : locationIncidences.length === 0 
+                                    ? "Loading locations..." 
+                                    : "Select location of incidence"
+                              } />
                             </SelectTrigger>
                             <SelectContent>
                               {locationIncidences.map((location) => (
                                 <SelectItem key={location.id} value={String(location.id)}>
-                                  {location.name}
+                                  {location.display_name || location.name}
                                 </SelectItem>
                               ))}
                             </SelectContent>
@@ -1787,13 +1950,13 @@ export default function NTB() {
                           <Select
                             value={form.specific_location_id}
                             onValueChange={(value) => handleChange("specific_location_id", value)}
-                            disabled={!form.location_of_incidence_id || !selectedLocationIncidence}
+                            disabled={!form.location_of_incidence_id || specificLocations.length === 0}
                           >
                             <SelectTrigger className="h-12 rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500 py-3">
-                              <SelectValue placeholder={selectedLocationIncidence ? "Select specific location" : "Select location of incidence first"} />
+                              <SelectValue placeholder={specificLocations.length > 0 ? "Select specific location" : "Select location of incidence first"} />
                             </SelectTrigger>
                             <SelectContent>
-                              {selectedLocationIncidence?.specific_locations?.map((location) => (
+                              {specificLocations.map((location) => (
                                 <SelectItem key={location.id} value={String(location.id)}>
                                   {location.name}
                                   {location.code ? ` (${location.code})` : ""}
