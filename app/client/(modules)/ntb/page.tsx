@@ -301,10 +301,10 @@ export default function NTB() {
     fetchCountries();
   }, []);
 
-  // Fetch locations when reporting country changes
+  // Fetch locations when imposing country (reported_country_id) changes
   useEffect(() => {
-    if (form.reporting_country_id) {
-      fetchLocationIncidences(parseInt(form.reporting_country_id));
+    if (form.reported_country_id) {
+      fetchLocationIncidences(parseInt(form.reported_country_id));
       // Reset location selections when country changes
       setForm((prev) => ({
         ...prev,
@@ -316,7 +316,7 @@ export default function NTB() {
       setLocationIncidences([]);
       setSpecificLocations([]);
     }
-  }, [form.reporting_country_id]);
+  }, [form.reported_country_id]);
 
   // Fetch specific locations when location of incidence changes
   useEffect(() => {
@@ -1922,12 +1922,12 @@ export default function NTB() {
                               handleChange("location_of_incidence_id", value);
                               handleChange("specific_location_id", "");
                             }}
-                            disabled={!form.reporting_country_id || locationIncidences.length === 0}
+                            disabled={!form.reported_country_id || locationIncidences.length === 0}
                           >
                             <SelectTrigger className="h-12 rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500 py-3">
                               <SelectValue placeholder={
-                                !form.reporting_country_id 
-                                  ? "Select reporting country first" 
+                                !form.reported_country_id 
+                                  ? "Select imposing country first" 
                                   : locationIncidences.length === 0 
                                     ? "Loading locations..." 
                                     : "Select location of incidence"
