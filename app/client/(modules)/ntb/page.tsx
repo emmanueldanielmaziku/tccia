@@ -1474,10 +1474,6 @@ export default function NTB() {
                               <p className="font-medium text-gray-800">{ntb.cost_value_range || "Not specified"}</p>
                             </div>
                             <div className="space-y-1">
-                              <span className="text-xs uppercase tracking-wide text-gray-500">Latest Feedback</span>
-                              <p className="font-medium text-gray-800">{extractComment(ntb.latest_feedback) || "—"}</p>
-                            </div>
-                            <div className="space-y-1">
                               <span className="text-xs uppercase tracking-wide text-gray-500">Has Attachments</span>
                               <p className="font-medium text-gray-800">{ntb.has_attachments ? "Yes" : "No"}</p>
                             </div>
@@ -1725,9 +1721,7 @@ export default function NTB() {
 
                     {(() => {
                       const detailRating = parseRatingValue(selectedNtb?.rating);
-                      const detailComment = extractComment(
-                        selectedNtb?.additional_comment ?? selectedNtb?.latest_feedback
-                      );
+                      const detailComment = extractComment(selectedNtb?.additional_comment);
 
                       if (detailRating === null && !detailComment) {
                         return null;
@@ -1769,18 +1763,6 @@ export default function NTB() {
                         </Card>
                       );
                     })()}
-
-                    {/* Feedback */}
-                    {selectedNtb.latest_feedback && (
-                      <Card className="border-[0.5px] shadow-[0_0_0px_rgba(0,0,0,0.1)]">
-                        <CardHeader>
-                          <CardTitle className="text-lg">Latest Feedback</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                          <p className="text-sm">{selectedNtb.latest_feedback}</p>
-                        </CardContent>
-                      </Card>
-                    )}
 
                     {/* Resolution */}
                     {selectedNtb.resolution && (
