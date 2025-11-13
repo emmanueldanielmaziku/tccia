@@ -196,10 +196,19 @@ export async function POST(
       console.error("API response not ok:", response.status, response.statusText);
       console.error("Error response body:", errorData);
 
+      // Extract error message from various possible structures
+      const errorMessage = 
+        errorData.error || 
+        errorData.message || 
+        errorData.result?.error || 
+        errorData.result?.message ||
+        (typeof errorData === 'string' ? errorData : null) ||
+        `API request failed: ${response.status} ${response.statusText}`;
+
       return NextResponse.json(
         {
           success: false,
-          error: errorData.error || `API request failed: ${response.status} ${response.statusText}`,
+          error: errorMessage,
         },
         { status: response.status }
       );

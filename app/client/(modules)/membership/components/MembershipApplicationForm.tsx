@@ -282,15 +282,21 @@ export default function MembershipApplicationForm({
     if (allSectors.length === 0) errors.sectorId = "At least one sector is required.";
     if (allSubsectors.length === 0) errors.subsectorId = "At least one subsector is required.";
     
-    // Validate each sector selection
+    // Validate each sector selection (only validate if sector is selected)
     errors.sectorSelections = sectorSelections.map((selection: any, index: number) => {
       const e: any = {};
-      if (!selection.sectorId || selection.sectorId === "") {
+      // Only validate if this selection row has a sector selected
+      // Empty rows are allowed if there are other valid selections
+      if (selection.sectorId && selection.sectorId !== "") {
+        // Sector is selected, so subsectors are required
+        if (!selection.subsectorIds || selection.subsectorIds.length === 0) {
+          e.subsectorIds = "At least one subsector is required";
+        }
+      } else if (sectorSelections.length === 1) {
+        // If this is the only sector selection, it must be filled
         e.sectorId = "Sector is required";
       }
-      if (!selection.subsectorIds || selection.subsectorIds.length === 0) {
-        e.subsectorIds = "At least one subsector is required";
-      }
+      // If there are multiple selections and this one is empty, that's OK (don't add error)
       return e;
     });
 
@@ -306,9 +312,9 @@ export default function MembershipApplicationForm({
 
     errors.contacts = contacts.map((c: any) => {
       const e: any = {};
-      if (!c.name) e.name = "Name required";
-      if (!c.phone) e.phone = "Phone required";
-      if (!c.email) e.email = "Email required";
+      if (!c.name || !c.name.trim()) e.name = "Name required";
+      if (!c.phone || !c.phone.trim()) e.phone = "Phone required";
+      if (!c.email || !c.email.trim()) e.email = "Email required";
       return e;
     });
 
@@ -319,10 +325,11 @@ export default function MembershipApplicationForm({
     // Check if any errors
     const hasFieldError =
       Object.keys(errors).some(
-        (k) => k !== "directors" && k !== "contacts" && errors[k]
+        (k) => k !== "directors" && k !== "contacts" && k !== "sectorSelections" && errors[k]
       ) ||
       errors.directors.some((e: any) => Object.keys(e).length > 0) ||
-      errors.contacts.some((e: any) => Object.keys(e).length > 0);
+      errors.contacts.some((e: any) => Object.keys(e).length > 0) ||
+      (errors.sectorSelections && errors.sectorSelections.some((e: any) => Object.keys(e).length > 0));
 
     return { errors, hasFieldError };
   };
@@ -334,7 +341,50 @@ export default function MembershipApplicationForm({
     setFieldErrors(errors);
 
     if (hasFieldError) {
-      setErrorMsg("Please fill all required fields correctly.");
+      // Log validation errors for debugging
+      console.log("Validation errors:", errors);
+      console.log("Form state:", {
+        regionId,
+        districtId,
+        sectorSelections,
+        categoryId,
+        subcategoryId,
+        directors,
+        contacts,
+        allSectors: getAllSelectedSectors(),
+        allSubsectors: getAllSelectedSubsectors(),
+      });
+      
+      // Create a more helpful error message
+      const missingFields: string[] = [];
+      if (errors.regionId) missingFields.push("Region");
+      if (errors.districtId) missingFields.push("District");
+      if (errors.sectorId) missingFields.push("At least one Sector");
+      if (errors.subsectorId) missingFields.push("At least one Subsector");
+      if (errors.categoryId) missingFields.push("Category");
+      if (errors.subcategoryId) missingFields.push("Subcategory");
+      if (errors.contactsGeneral) missingFields.push("At least one Contact");
+      
+      // Check for sector selection errors
+      if (errors.sectorSelections) {
+        errors.sectorSelections.forEach((selErrors: any, idx: number) => {
+          if (selErrors.sectorId) missingFields.push(`Sector ${idx + 1}`);
+          if (selErrors.subsectorIds) missingFields.push(`Subsectors for Sector ${idx + 1}`);
+        });
+      }
+      
+      // Check for contact field errors
+      errors.contacts.forEach((contactErrors: any, idx: number) => {
+        if (contactErrors.name) missingFields.push(`Contact ${idx + 1} Name`);
+        if (contactErrors.phone) missingFields.push(`Contact ${idx + 1} Phone`);
+        if (contactErrors.email) missingFields.push(`Contact ${idx + 1} Email`);
+      });
+      
+      const errorMessage = missingFields.length > 0 
+        ? `Please fill the following required fields: ${missingFields.join(", ")}`
+        : "Please fill all required fields correctly.";
+      
+      setErrorMsg(errorMessage);
       return;
     }
 
@@ -394,6 +444,12 @@ export default function MembershipApplicationForm({
         contacts: validContacts,
       };
 
+      // Print request body for Postman testing
+      console.log("=== MEMBERSHIP APPLICATION REQUEST BODY (for Postman) ===");
+      console.log("JSON:", JSON.stringify(requestBody, null, 2));
+      console.log("Pretty formatted:", requestBody);
+      console.log("=== END REQUEST BODY ===");
+
       const res = await fetch(`/api/membership/apply`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -418,6 +474,18 @@ export default function MembershipApplicationForm({
         return;
       }
 
+      // Handle JSON-RPC error responses
+      if (data.jsonrpc && data.error) {
+        const errorMessage = 
+          data.error.message || 
+          data.error.data?.message || 
+          "An error occurred while processing your membership application. Please try again or contact support if the issue persists.";
+        
+        console.error("JSON-RPC Error:", data.error);
+        setErrorMsg(errorMessage);
+        return;
+      }
+
       // Support both { result: { success, ... } } and { result: { result: { success, ... } } } and { result: { ... } }
       let success = false;
       let resultData = null;
@@ -435,6 +503,12 @@ export default function MembershipApplicationForm({
       } else if (data?.result) {
         // Fallback: if result exists, but no success field, try to use message
         message = data.result.message || "";
+      }
+      
+      // If result exists but success is false, show error
+      if (data?.result && data.result.success === false) {
+        setErrorMsg(message || data.result.error || "Submission failed. Please try again.");
+        return;
       }
 
       // Always treat success === true as success, even if data is missing

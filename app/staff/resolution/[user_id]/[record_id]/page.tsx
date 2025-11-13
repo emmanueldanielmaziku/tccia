@@ -197,10 +197,18 @@ function ResolutionContent() {
         }),
       });
 
+      // Parse response (API always returns JSON)
       const result = await response.json();
 
+      // Check for errors
       if (!response.ok || !result.success) {
-        throw new Error(result.error || "Failed to submit resolution");
+        const errorMessage = result.error || result.message || `Server error: ${response.status} ${response.statusText}`;
+        console.error("Resolution submission error:", {
+          status: response.status,
+          statusText: response.statusText,
+          result
+        });
+        throw new Error(errorMessage);
       }
 
       toast.success(result.message || "Resolution submitted successfully!");
@@ -209,6 +217,7 @@ function ResolutionContent() {
       await fetchResolutionData();
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : "Failed to submit resolution";
+      console.error("Resolution submission error:", err);
       toast.error(errorMessage);
     } finally {
       setSubmitting(false);
