@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, Suspense } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -24,7 +24,6 @@ import {
   Building2,
   Flag,
   Loader2,
-  ArrowLeft,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -117,7 +116,6 @@ const STATUS_COLORS: Record<string, string> = {
 
 function ResolutionContent() {
   const params = useParams();
-  const router = useRouter();
   const user_id = params?.user_id as string;
   const record_id = params?.record_id as string;
 
@@ -285,14 +283,6 @@ function ResolutionContent() {
           </CardHeader>
           <CardContent>
             <p className="text-muted-foreground">{error || "Failed to load resolution data"}</p>
-            <Button
-              variant="outline"
-              className="mt-4"
-              onClick={() => router.back()}
-            >
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Go Back
-            </Button>
           </CardContent>
         </Card>
       </div>
@@ -306,14 +296,6 @@ function ResolutionContent() {
   return (
     <div className="container mx-auto px-4 py-8 max-w-6xl">
       <div className="mb-6">
-        <Button
-          variant="ghost"
-          onClick={() => router.back()}
-          className="mb-4"
-        >
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Back
-        </Button>
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold tracking-tight">NTB Resolution</h1>
@@ -557,14 +539,6 @@ function ResolutionContent() {
             )}
 
             <div className="flex items-center justify-end gap-3 pt-4">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => router.back()}
-                disabled={submitting}
-              >
-                Cancel
-              </Button>
               <Button
                 type="submit"
                 disabled={report.has_submitted_resolution || submitting || !resolutionRemarks.trim()}
