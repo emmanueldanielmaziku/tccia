@@ -363,17 +363,35 @@ export default function MembershipApplicationForm({
         return;
       }
 
-      // Build request body
+      // Filter out empty directors (directors are optional, but if included, all fields should be filled)
+      const validDirectors = directors.filter(
+        (d) => d.name.trim() && d.phone.trim() && d.email.trim()
+      ).map((d) => ({
+        name: d.name.trim(),
+        phone: d.phone.trim(),
+        email: d.email.trim(),
+      }));
+
+      // Filter out empty contacts (contacts are required, but filter just in case)
+      const validContacts = contacts.filter(
+        (c) => c.name.trim() && c.phone.trim() && c.email.trim()
+      ).map((c) => ({
+        name: c.name.trim(),
+        phone: c.phone.trim(),
+        email: c.email.trim(),
+      }));
+
+      // Build request body matching expected API format
       const requestBody = {
+        company_tin,
         category_id: Number(categoryId),
         subcategory_id: Number(subcategoryId),
-        directors,
-        contacts,
-        company_tin,
         region_id: Number(regionId),
         district_id: Number(districtId),
         sector_ids: getAllSelectedSectors(),
         subsector_ids: getAllSelectedSubsectors(),
+        directors: validDirectors,
+        contacts: validContacts,
       };
 
       const res = await fetch(`/api/membership/apply`, {
