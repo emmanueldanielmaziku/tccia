@@ -425,7 +425,7 @@ export default function MembershipApplication({
           )}
           
           {/* Payment Button - Only show when certificate has expired or status is waiting for payment */}
-          {/* {(data.state === "expired" || data.state === "waiting_payment") && (
+          {(data.state === "expired" || data.state === "waiting_payment") && (
             <button
               onClick={handlePayment}
               disabled={paymentLoading}
@@ -444,7 +444,7 @@ export default function MembershipApplication({
                 </>
               )}
             </button>
-          )} */}
+          )}
           
           {/* {data.state === "expired" && (
             <button
