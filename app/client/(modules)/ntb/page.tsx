@@ -105,7 +105,7 @@ const COST_RANGES = [
 const STATUS_LABELS: Record<string, string> = {
   submitted: "Submitted",
   review: "Review (Focal Persons)",
-  assignment: "Assignment",
+  assignment: "In Progress",
   in_progress: "In Progress",
   "in progress": "In Progress",
   intended_resolved: "Intended Resolved",
