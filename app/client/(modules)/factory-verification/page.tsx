@@ -113,7 +113,11 @@ export default function FactoryVerification() {
   const [agentSearchInput, setAgentSearchInput] = useState("");
   const [agentSearchResults, setAgentSearchResults] = useState<Array<{ tin: string; name: string; email?: string }>>([]);
   const [selectedAgents, setSelectedAgents] = useState<Array<{ tin: string; name: string; email?: string }>>([]);
+  const [existingAgents, setExistingAgents] = useState<
+    Array<{ id: string; tin: string; name: string; email?: string; phone?: string; assignedOn?: string; status?: "active" | "inactive" }>
+  >([]);
   const [isSearchingAgents, setIsSearchingAgents] = useState(false);
+  const [isAddingAgents, setIsAddingAgents] = useState(false);
 
   // Debounce search
   useEffect(() => {
@@ -309,12 +313,62 @@ export default function FactoryVerification() {
     setShowDetailModal(true);
   };
 
+  const generateDummyAgentsForProduct = (product: Product) => {
+    const baseAgents = [
+      {
+        id: "agt-1001",
+        name: "Alpha Trading Co.",
+        tin: "123456789",
+        assignedOn: "12 Aug 2024",
+        status: "active" as const,
+      },
+      {
+        id: "agt-1002",
+        name: "Beta Logistics Ltd",
+        tin: "987654321",
+        assignedOn: "02 Sep 2024",
+        status: "active" as const,
+      },
+      {
+        id: "agt-1003",
+        name: "Gamma Exporters",
+        tin: "456789123",
+        assignedOn: "21 Oct 2024",
+        status: "inactive" as const,
+      },
+      {
+        id: "agt-1004",
+        name: "Delta Distributors",
+        tin: "654321987",
+        assignedOn: "04 Nov 2024",
+        status: "active" as const,
+      },
+      {
+        id: "agt-1005",
+        name: "Epsilon Agencies",
+        tin: "321987654",
+        assignedOn: "29 Oct 2024",
+        status: "inactive" as const,
+      },
+    ];
+
+    const sliceCount = (product.id % baseAgents.length) + 1;
+
+    return baseAgents.slice(0, sliceCount).map((agent, index) => ({
+      ...agent,
+      id: `${agent.id}-${product.id}-${index}`,
+      tin: `${agent.tin.slice(0, 5)}${(product.id + index).toString().padStart(4, "0")}`,
+    }));
+  };
+
   const handleOpenAgentsModal = (product: Product) => {
     setSelectedProductForAgents(product);
     setShowAgentsModal(true);
     setSelectedAgents([]);
     setAgentSearchInput("");
     setAgentSearchResults([]);
+    setExistingAgents(generateDummyAgentsForProduct(product));
+    setIsAddingAgents(false);
   };
 
   const handleCloseAgentsModal = () => {
@@ -323,6 +377,8 @@ export default function FactoryVerification() {
     setSelectedAgents([]);
     setAgentSearchInput("");
     setAgentSearchResults([]);
+    setExistingAgents([]);
+    setIsAddingAgents(false);
   };
 
 
@@ -908,106 +964,185 @@ export default function FactoryVerification() {
               </button>
             </div>
 
-            {/* Search Input */}
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Search Agent by Name or TIN
-              </label>
-              <div className="relative">
-                <input
-                  type="text"
-                  value={agentSearchInput}
-                  onChange={(e) => setAgentSearchInput(e.target.value)}
-                  placeholder="Enter company name or TIN..."
-                  className="w-full h-10 border-[0.5px] border-gray-300 focus:outline-2 focus:outline-blue-400 rounded-md pl-3 pr-10 text-sm"
-                />
-                {isSearchingAgents && (
-                  <div className="absolute right-3 top-2.5">
-                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600"></div>
+            {!isAddingAgents ? (
+              <>
+                {/* Existing Agents */}
+                <div className="mb-6">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Assigned Agents ({existingAgents.length})
+                  </label>
+                  {existingAgents.length > 0 ? (
+                    <div className="space-y-3">
+                      {existingAgents.map((agent) => (
+                        <div
+                          key={agent.id}
+                          className="border border-gray-200 rounded-lg p-3 flex flex-col gap-1 bg-gray-50"
+                        >
+                        <div className="flex items-start justify-between gap-2">
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-semibold text-gray-900 truncate">{agent.name}</p>
+                              <p className="text-xs text-gray-600 truncate">TIN: {agent.tin}</p>
+                            </div>
+                            <span
+                              className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${
+                                agent.status === "active"
+                                  ? "bg-green-100 text-green-700"
+                                  : "bg-gray-200 text-gray-600"
+                              }`}
+                            >
+                              {agent.status === "active" ? "Active" : "Inactive"}
+                            </span>
+                          </div>
+                          {agent.assignedOn && (
+                            <p className="text-[11px] text-gray-500">Assigned on {agent.assignedOn}</p>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="border border-dashed border-gray-300 rounded-lg p-4 text-center text-sm text-gray-500">
+                      No agents assigned to this product yet.
+                    </div>
+                  )}
+                </div>
+
+                {/* Modal Actions */}
+                <div className="flex gap-2">
+                  <button
+                    onClick={handleCloseAgentsModal}
+                    className="flex-1 px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={() => setIsAddingAgents(true)}
+                    className="flex-1 px-4 py-2 text-sm font-medium text-white bg-green-600 hover:bg-green-700 rounded-md transition-colors"
+                  >
+                    Add Agents
+                  </button>
+                </div>
+              </>
+            ) : (
+              <>
+                {/* Search Input */}
+                <div className="mb-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <label className="block text-sm font-medium text-gray-700">
+                      Add New Agents
+                    </label>
+                    <button
+                      onClick={() => {
+                        setIsAddingAgents(false);
+                        setSelectedAgents([]);
+                        setAgentSearchInput("");
+                        setAgentSearchResults([]);
+                      }}
+                      className="text-xs text-blue-600 hover:text-blue-700 font-medium"
+                    >
+                      ↩ Back to list
+                    </button>
                   </div>
-                )}
-              </div>
-
-              {/* Search Results */}
-              {agentSearchResults.length > 0 && (
-                <div className="mt-2 border border-gray-200 rounded-md bg-white shadow-lg max-h-48 overflow-y-auto">
-                  {agentSearchResults.map((agent, index) => (
-                    <div
-                      key={`${agent.tin}-${index}`}
-                      onClick={() => handleAddAgent(agent)}
-                      className="flex items-center justify-between p-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-b-0 transition-colors"
-                    >
-                      <div className="flex-1 min-w-0">
-                        <div className="text-sm font-medium text-gray-900 truncate">{agent.name}</div>
-                        <div className="text-xs text-gray-500 truncate">
-                          {agent.tin} {agent.email ? `| ${agent.email}` : ''}
-                        </div>
+                  <p className="text-xs text-gray-500 mb-2">
+                    Search by company name or TIN to add additional agents for this product.
+                  </p>
+                  <div className="relative">
+                    <input
+                      type="text"
+                      value={agentSearchInput}
+                      onChange={(e) => setAgentSearchInput(e.target.value)}
+                      placeholder="Enter company name or TIN..."
+                      className="w-full h-10 border-[0.5px] border-gray-300 focus:outline-2 focus:outline-blue-400 rounded-md pl-3 pr-10 text-sm"
+                    />
+                    {isSearchingAgents && (
+                      <div className="absolute right-3 top-2.5">
+                        <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600"></div>
                       </div>
-                      <UserPlus className="w-5 h-5 text-blue-600 flex-shrink-0 ml-2" />
-                    </div>
-                  ))}
-                </div>
-              )}
+                    )}
+                  </div>
 
-              {agentSearchInput.length >= 2 && !isSearchingAgents && agentSearchResults.length === 0 && (
-                <div className="mt-2 text-xs text-gray-500">No agents found</div>
-              )}
-            </div>
-
-            {/* Selected Agents List */}
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Selected Agents ({selectedAgents.length})
-              </label>
-              {selectedAgents.length > 0 ? (
-                <div className="border border-gray-200 rounded-md bg-gray-50 max-h-48 overflow-y-auto">
-                  {selectedAgents.map((agent, index) => (
-                    <div
-                      key={agent.tin}
-                      className="flex items-center justify-between p-3 border-b border-gray-100 last:border-b-0"
-                    >
-                      <div className="flex-1 min-w-0">
-                        <div className="text-sm font-medium text-gray-900 truncate">{agent.name}</div>
-                        <div className="text-xs text-gray-500 truncate">
-                          TIN: {agent.tin} {agent.email ? `| ${agent.email}` : ''}
+                  {/* Search Results */}
+                  {agentSearchResults.length > 0 && (
+                    <div className="mt-2 border border-gray-200 rounded-md bg-white shadow-lg max-h-48 overflow-y-auto">
+                      {agentSearchResults.map((agent, index) => (
+                        <div
+                          key={`${agent.tin}-${index}`}
+                          onClick={() => handleAddAgent(agent)}
+                          className="flex items-center justify-between p-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-b-0 transition-colors"
+                        >
+                          <div className="flex-1 min-w-0">
+                            <div className="text-sm font-medium text-gray-900 truncate">{agent.name}</div>
+                            <div className="text-xs text-gray-500 truncate">TIN: {agent.tin}</div>
+                          </div>
+                          <UserPlus className="w-5 h-5 text-blue-600 flex-shrink-0 ml-2" />
                         </div>
-                      </div>
-                      <button
-                        onClick={() => setSelectedAgents(selectedAgents.filter(a => a.tin !== agent.tin))}
-                        className="p-1 hover:bg-red-100 rounded-full transition-colors flex-shrink-0"
-                      >
-                        <CloseCircle size={18} color="#DC2626" />
-                      </button>
+                      ))}
                     </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="border border-gray-200 rounded-md bg-gray-50 p-4 text-center text-sm text-gray-500">
-                  No agents selected yet
-                </div>
-              )}
-            </div>
+                  )}
 
-            {/* Submit Button */}
-            <div className="flex gap-2">
-              <button
-                onClick={handleCloseAgentsModal}
-                className="flex-1 px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleSubmitAgents}
-                disabled={selectedAgents.length === 0}
-                className={`flex-1 px-4 py-2 text-sm font-medium rounded-md transition-colors ${
-                  selectedAgents.length > 0
-                    ? "bg-green-600 text-white hover:bg-green-700 cursor-pointer"
-                    : "bg-gray-300 text-gray-500 cursor-not-allowed"
-                }`}
-              >
-                Submit ({selectedAgents.length})
-              </button>
-            </div>
+                  {agentSearchInput.length >= 2 && !isSearchingAgents && agentSearchResults.length === 0 && (
+                    <div className="mt-2 text-xs text-gray-500">No agents found</div>
+                  )}
+                </div>
+
+                {/* Selected Agents List */}
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Selected Agents ({selectedAgents.length})
+                  </label>
+                  {selectedAgents.length > 0 ? (
+                    <div className="border border-gray-200 rounded-md bg-gray-50 max-h-48 overflow-y-auto">
+                      {selectedAgents.map((agent) => (
+                        <div
+                          key={agent.tin}
+                          className="flex items-center justify-between p-3 border-b border-gray-100 last:border-b-0"
+                        >
+                          <div className="flex-1 min-w-0">
+                            <div className="text-sm font-medium text-gray-900 truncate">{agent.name}</div>
+                            <div className="text-xs text-gray-500 truncate">TIN: {agent.tin}</div>
+                          </div>
+                          <button
+                            onClick={() => setSelectedAgents(selectedAgents.filter(a => a.tin !== agent.tin))}
+                            className="p-1 hover:bg-red-100 rounded-full transition-colors flex-shrink-0"
+                          >
+                            <CloseCircle size={18} color="#DC2626" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="border border-gray-200 rounded-md bg-gray-50 p-4 text-center text-sm text-gray-500">
+                      No agents selected yet
+                    </div>
+                  )}
+                </div>
+
+                {/* Submit Buttons */}
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => {
+                      setIsAddingAgents(false);
+                      setSelectedAgents([]);
+                      setAgentSearchInput("");
+                      setAgentSearchResults([]);
+                    }}
+                    className="flex-1 px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleSubmitAgents}
+                    disabled={selectedAgents.length === 0}
+                    className={`flex-1 px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+                      selectedAgents.length > 0
+                        ? "bg-green-600 text-white hover:bg-green-700 cursor-pointer"
+                        : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                    }`}
+                  >
+                    Submit ({selectedAgents.length})
+                  </button>
+                </div>
+              </>
+            )}
           </div>
         </div>
       )}
