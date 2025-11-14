@@ -283,7 +283,7 @@ export default function COO() {
     application_code_number?: string
   ) => {
     const certType = getCertificateType(application_code_number || "");
-    const certificateUrl = `https://tccia.kalen.co.tz/certificate_of_origin/static/certificate/${certType}/index.html?id=${aid}`;
+    const certificateUrl = `https://dev.kalen.co.tz/certificate_of_origin/static/certificate/${certType}/index.html?id=${aid}`;
     window.open(certificateUrl, "_blank");
   };
 
@@ -653,7 +653,8 @@ export default function COO() {
                             <Printer size="14" className="sm:w-4 sm:h-4" color="white" />
                             Print
                           </button>
-                          {certificate.invoice?.[0]?.invoice_number ? (
+                          {/* Pay button temporarily disabled per request */}
+                          {/* {certificate.invoice?.[0]?.invoice_number ? (
                             <button
                               onClick={() => handlePayment(certificate)}
                               disabled={paymentLoading[certificate.invoice[0].invoice_number]}
@@ -676,7 +677,7 @@ export default function COO() {
                               <MoneyRecive size="16" color="#9CA3AF" />
                               Invoice Pending
                             </div>
-                          )}
+                          )} */}
                         </div>
                       </div>
 

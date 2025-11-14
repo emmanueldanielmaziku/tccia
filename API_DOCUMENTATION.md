@@ -1,6 +1,6 @@
 # TCCIA API Documentation
 
-**Base URL**: `https://tccia.kalen.co.tz`
+**Base URL**: `https://dev.kalen.co.tz`
 
 This documentation covers all the API endpoints used in the TCCIA frontend application. These are the exact endpoints that your Flutter mobile app should use with Dio.
 
@@ -1004,7 +1004,7 @@ image_files: [File] (multiple files)
 3. **Error Handling**: Check both `status` field and `result.error` field in responses
 4. **Response Formats**: Some endpoints return JSON-RPC format, others return standard JSON - handle both
 5. **Content Types**: Most POST requests require `Content-Type: application/json` header
-6. **Base URL**: All endpoints should be prefixed with `https://tccia.kalen.co.tz`
+6. **Base URL**: All endpoints should be prefixed with `https://dev.kalen.co.tz`
 
 ## Example Dio Implementation (Flutter)
 
@@ -1013,7 +1013,7 @@ import 'package:dio/dio.dart';
 
 class TCCIAApiService {
   final Dio _dio = Dio();
-  static const String baseUrl = 'https://tccia.kalen.co.tz';
+  static const String baseUrl = 'https://dev.kalen.co.tz';
   
   TCCIAApiService() {
     _dio.options.baseUrl = baseUrl;

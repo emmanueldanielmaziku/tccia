@@ -1149,7 +1149,7 @@ export default function NTB() {
                       <div className="flex flex-row gap-4 justify-between">
                         <div className="space-y-2">
                           <Label className="text-sm font-medium text-gray-700">
-                            Country of Residence *
+                            Country of Residence <span className="text-red-500">*</span>
                           </Label>
                           <Select
                             value={profileForm.country_of_residence}
@@ -1171,7 +1171,7 @@ export default function NTB() {
 
                         <div className="space-y-2">
                           <Label className="text-sm font-medium text-gray-700">
-                            Operator Type *
+                            Operator Type <span className="text-red-500">*</span>
                           </Label>
                           <Select
                             value={profileForm.operator_type}
@@ -1194,7 +1194,7 @@ export default function NTB() {
 
                         <div className="space-y-2">
                           <Label className="text-sm font-medium text-gray-700">
-                            Gender *
+                            Gender <span className="text-red-500">*</span>
                           </Label>
                           <Select
                             value={profileForm.gender}
@@ -1219,7 +1219,7 @@ export default function NTB() {
                       {profileForm.operator_type === "others" && (
                         <div className="space-y-2">
                           <Label className="text-sm font-medium text-gray-700">
-                            Specify Type (e.g., Exporter) *
+                            Specify Type (e.g., Exporter) <span className="text-red-500">*</span>
                           </Label>
                           <Input
                             placeholder="e.g., Exporter, Agent, etc."
@@ -1811,7 +1811,7 @@ export default function NTB() {
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="space-y-3">
                           <Label className="text-sm font-medium text-gray-700">
-                            NTB Type *
+                            NTB Type <span className="text-red-500">*</span>
                           </Label>
                           <Select
                             value={form.ntb_type_id}
@@ -1833,7 +1833,7 @@ export default function NTB() {
 
                         <div className="space-y-3">
                           <Label className="text-sm font-medium text-gray-700">
-                            Date of Incident *
+                            Date of Incident <span className="text-red-500">*</span>
                           </Label>
                           <DatePicker
                             value={form.date_of_incident}
@@ -1849,7 +1849,7 @@ export default function NTB() {
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="space-y-3">
                           <Label className="text-sm font-medium text-gray-700">
-                            Imposing Country *
+                            Imposing Country <span className="text-red-500">*</span>
                           </Label>
                           <Select
                             value={form.reported_country_id}
@@ -1871,7 +1871,7 @@ export default function NTB() {
 
                         <div className="space-y-3">
                           <Label className="text-sm font-medium text-gray-700">
-                            Reporting Country *
+                            Reporting Country <span className="text-red-500">*</span>
                           </Label>
                           <Select
                             value={form.reporting_country_id}
@@ -1896,7 +1896,7 @@ export default function NTB() {
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="space-y-3">
                           <Label className="text-sm font-medium text-gray-700">
-                            Location of Incidence *
+                            Location of Incidence <span className="text-red-500">*</span>
                           </Label>
                           <Select
                             value={form.location_of_incidence_id}
@@ -1927,7 +1927,7 @@ export default function NTB() {
 
                         <div className="space-y-3">
                           <Label className="text-sm font-medium text-gray-700">
-                            Specific Location *
+                            Specific Location <span className="text-red-500">*</span>
                           </Label>
                           <Select
                             value={form.specific_location_id}
@@ -1951,7 +1951,7 @@ export default function NTB() {
                       {/* Complaint Details - Start with Description */}
                       <div className="space-y-3">
                         <Label className="text-sm font-medium text-gray-700">
-                          Complaint Details & Description *
+                          Complaint Details & Description <span className="text-red-500">*</span>
                         </Label>
                         <div className="border border-gray-200 rounded-xl bg-white overflow-hidden focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500">
                           <div className="flex gap-1 border-b border-gray-100 px-4 py-3 bg-gray-50">
@@ -2217,7 +2217,7 @@ export default function NTB() {
                       {/* Product Information */}
                       <div className="space-y-3">
                         <Label className="text-sm font-medium text-gray-700">
-                          Product Description *
+                          Product Description <span className="text-red-500">*</span>
                         </Label>
                         <Input
                           placeholder="Describe the product affected"
@@ -2232,7 +2232,7 @@ export default function NTB() {
                       {/* Occurrence - Required Field */}
                       <div className="space-y-3">
                         <Label className="text-sm font-medium text-gray-700">
-                          Occurrence *
+                          Occurrence <span className="text-red-500">*</span>
                         </Label>
                         <Select
                           value={form.occurrence}
@@ -2644,7 +2644,7 @@ export default function NTB() {
               <div className="space-y-6">
                 <div className="space-y-2">
                   <Label className="text-sm font-medium text-gray-700">
-                    How would you rate our service? *
+                    How would you rate our service? <span className="text-red-500">*</span>
                   </Label>
                   <div className="flex items-center gap-1">
                     {[1, 2, 3, 4, 5].map((star) => (

@@ -13,7 +13,7 @@ export async function GET(request: Request) {
       });
     }
 
-    const apiUrl = `https://tccia.kalen.co.tz/api/manufacturers?search=${encodeURIComponent(query)}`;
+    const apiUrl = `https://dev.kalen.co.tz/api/manufacturers?search=${encodeURIComponent(query)}`;
 
     console.log("[API] /api/agents/search GET");
     console.log("Incoming search params:", query);
