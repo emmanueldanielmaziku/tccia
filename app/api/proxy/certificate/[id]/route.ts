@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 
-const REMOTE_BASE_URL = "https://tccia.kalen.co.tz/api";
+const REMOTE_BASE_URL = "https://dev.kalen.co.tz/api";
 
 export async function GET(req: NextRequest, context: any) {
   try {
