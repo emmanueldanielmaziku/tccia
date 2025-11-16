@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 
-const API_BASE_URL = "https://tccia.kalen.co.tz";
+const API_BASE_URL = "https://dev.kalen.co.tz";
 
 export async function POST(request: Request) {
   try {
@@ -90,7 +90,7 @@ export async function POST(request: Request) {
       );
     }
 
-    if (!Array.isArray(data.products)) {
+    if (!Array.isArray(data.verifications)) {
       return NextResponse.json(
         {
           success: false,
@@ -102,9 +102,8 @@ export async function POST(request: Request) {
 
     return NextResponse.json({
       success: true,
-      products: data.products,
-      total_products: data.total_products,
-      message: data.message || "Factory products fetched successfully",
+      verifications: data.verifications,
+      message: data.message || "Factory verifications fetched successfully",
     });
   } catch (error) {
     console.error("Factory products fetch error:", error);

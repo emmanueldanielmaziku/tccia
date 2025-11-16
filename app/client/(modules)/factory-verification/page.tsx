@@ -192,33 +192,36 @@ export default function FactoryVerification() {
 
       const result = await response.json();
 
-      if (result.success && Array.isArray(result.products)) {
+      if (result.success && Array.isArray(result.verifications)) {
         let sn = 1;
-        const mappedProducts: Product[] = result.products.map((product: any) => ({
-          sn: sn++,
-          id: product.id,
-          product_name: product.product_name,
-          hs_code: product.hs_code,
-          description:
-            typeof product.description === "string"
-              ? product.description
-              : product.description === false
-              ? ""
-              : "",
-          state: product.state,
-          community_name: product.community_names || null,
-          community_short_code: product.creation_short_codes || null,
-          manufacturer:
-            typeof product.manufacturer === "object" &&
-            product.manufacturer !== null
-              ? product.manufacturer.name
-              : typeof product.manufacturer === "string"
-              ? product.manufacturer
-              : "",
-          verification_id: product.id, // Using product id as verification_id since structure changed
-          verification_reference: `PROD-${product.id}`, // Generate reference from product id
-          verification_state: product.state, // Use product state directly
-        }));
+        const mappedProducts: Product[] = result.verifications.flatMap(
+          (verification: any) =>
+            (verification.products || []).map((product: any) => ({
+              sn: sn++,
+              id: product.id,
+              product_name: product.product_name,
+              hs_code: product.hs_code,
+              description:
+                typeof product.description === "string"
+                  ? product.description
+                  : product.description === false
+                  ? ""
+                  : "",
+              state: product.state,
+              community_name: product.community_names || null,
+              community_short_code: product.creation_short_codes || null,
+              manufacturer:
+                typeof product.manufacturer === "object" &&
+                product.manufacturer !== null
+                  ? product.manufacturer.name
+                  : typeof product.manufacturer === "string"
+                  ? product.manufacturer
+                  : "",
+              verification_id: verification.id,
+              verification_reference: verification.reference,
+              verification_state: verification.state,
+            }))
+        );
 
         setProducts(mappedProducts);
         setIsEmpty(mappedProducts.length === 0);
