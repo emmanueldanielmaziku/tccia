@@ -192,32 +192,33 @@ export default function FactoryVerification() {
 
       const result = await response.json();
 
-      if (result.success && Array.isArray(result.verifications)) {
+      if (result.success && Array.isArray(result.products)) {
         let sn = 1;
-        const mappedProducts: Product[] = result.verifications.flatMap(
-          (verification: any) =>
-            (verification.products || []).map((product: any) => ({
-              sn: sn++,
-              id: product.id,
-              product_name: product.product_name,
-              hs_code: product.hs_code,
-              description:
-                typeof product.description === "string"
-                  ? product.description
-                  : "",
-              state: product.state,
-              community_name: product.community_names || null,
-              community_short_code: product.creation_short_codes || null,
-              manufacturer:
-                typeof product.manufacturer === "object" &&
-                product.manufacturer !== null
-                  ? product.manufacturer.name
-                  : "",
-              verification_id: verification.id,
-              verification_reference: verification.reference,
-              verification_state: verification.state,
-            }))
-        );
+        const mappedProducts: Product[] = result.products.map((product: any) => ({
+          sn: sn++,
+          id: product.id,
+          product_name: product.product_name,
+          hs_code: product.hs_code,
+          description:
+            typeof product.description === "string"
+              ? product.description
+              : product.description === false
+              ? ""
+              : "",
+          state: product.state,
+          community_name: product.community_names || null,
+          community_short_code: product.creation_short_codes || null,
+          manufacturer:
+            typeof product.manufacturer === "object" &&
+            product.manufacturer !== null
+              ? product.manufacturer.name
+              : typeof product.manufacturer === "string"
+              ? product.manufacturer
+              : "",
+          verification_id: product.id, // Using product id as verification_id since structure changed
+          verification_reference: `PROD-${product.id}`, // Generate reference from product id
+          verification_state: product.state, // Use product state directly
+        }));
 
         setProducts(mappedProducts);
         setIsEmpty(mappedProducts.length === 0);
@@ -445,7 +446,7 @@ export default function FactoryVerification() {
                     value={communityNameFilter}
                     onValueChange={(value) => setCommunityNameFilter(value)}
                   >
-                    <SelectTrigger className="w-full lg:w-[170px] h-[38px] text-xs sm:text-sm">
+                    <SelectTrigger className="w-full lg:w-[170px] text-xs sm:text-sm">
                       <SelectValue placeholder="Community" />
                     </SelectTrigger>
                     <SelectContent>

@@ -90,7 +90,7 @@ export async function POST(request: Request) {
       );
     }
 
-    if (!Array.isArray(data.verifications)) {
+    if (!Array.isArray(data.products)) {
       return NextResponse.json(
         {
           success: false,
@@ -102,9 +102,9 @@ export async function POST(request: Request) {
 
     return NextResponse.json({
       success: true,
-      verifications: data.verifications,
-      pagination: data.pagination,
-      message: data.message || "Factory verifications fetched successfully",
+      products: data.products,
+      total_products: data.total_products,
+      message: data.message || "Factory products fetched successfully",
     });
   } catch (error) {
     console.error("Factory products fetch error:", error);
