@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { handleAuthenticationError } from "../../utils/authErrorHandler";
 
-const API_BASE_URL = "https://tccia.kalen.co.tz";
+const API_BASE_URL = "https://dev.kalen.co.tz";
 
 export async function POST(request: Request) {
   try {
@@ -62,15 +62,26 @@ export async function POST(request: Request) {
     }
 
       const data = await response.json();
-      console.log(apiUrl);
+      console.log("Product count API response:", data);
+
+      // Handle different response structures
+      let productCount = 0;
+      if (data.product_count !== undefined) {
+        productCount = parseInt(data.product_count, 10) || 0;
+      } else if (data.success && data.verifications) {
+        // If we get verifications structure, count products from all verifications
+        productCount = data.verifications.reduce((total: number, verification: any) => {
+          return total + (Array.isArray(verification.products) ? verification.products.length : 0);
+        }, 0);
+      }
 
     // Return in the expected format
     return NextResponse.json({
       success: true,
-      product_count: data.product_count,
+      product_count: productCount,
       message:
         data.message ||
-        `Total ${data.product_count} products found for TIN ${company_tin}.`,
+        `Total ${productCount} products found for TIN ${company_tin}.`,
     });
   } catch (error) {
     return NextResponse.json(

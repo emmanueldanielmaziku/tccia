@@ -108,9 +108,24 @@ export default function FirmManagement() {
       })
         .then((res) => res.json())
         .then((data) => {
+          if (data.success) {
+            setProductCounts((prev) => ({
+              ...prev,
+              [company.company_tin]: data.product_count || 0,
+            }));
+          } else {
+            // Set to 0 if there's an error
+            setProductCounts((prev) => ({
+              ...prev,
+              [company.company_tin]: 0,
+            }));
+          }
+        })
+        .catch((error) => {
+          console.error("Error fetching product count:", error);
           setProductCounts((prev) => ({
             ...prev,
-            [company.company_tin]: data.product_count || 0,
+            [company.company_tin]: 0,
           }));
         });
 
