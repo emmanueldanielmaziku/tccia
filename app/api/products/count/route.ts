@@ -32,7 +32,7 @@ export async function POST(request: Request) {
             );
           }
 
-    const apiUrl = `${API_BASE_URL}/api/factory_verification/products/count?company_tin=${company_tin}`;
+    const apiUrl = `${API_BASE_URL}/api/factory_verification/products?company_tin=${company_tin}`;
     const response = await fetch(apiUrl, {
       method: "GET",
       headers: {
