@@ -18,7 +18,7 @@
     "home": "Home",
     "membership": "Membership Application",
     "about": "About Us",
-    "help": "Help Desk"
+    "help": "Complaints"
   },
   "sidebar": {
     "modules": "Modules",
@@ -31,7 +31,7 @@
     "certificateOfOrigin": "Certificate of Origin",
     "membership": "Membership",
     "nonTariffBarrier": "Non-Tariff Barrier",
-    "reportProblem": "Help Desk",
+    "reportProblem": "Complaints",
     "profile": "Profile",
     "settings": "Settings"
   },

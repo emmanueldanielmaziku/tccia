@@ -36,7 +36,7 @@ export default function SideBarMobile() {
     if (currentPath.includes("/client/coo")) return "Certificate of Origin";
     if (currentPath.includes("/client/membership")) return "Membership";
     if (currentPath.includes("/client/ntb")) return "Non-Tariff Barrier";
-    if (currentPath.includes("/client/report")) return "Help Desk";
+    if (currentPath.includes("/client/report")) return "Complaints";
     if (currentPath.includes("/client/profile")) return "Profile";
     return "Company Registration"; // Default fallback
   };
@@ -88,7 +88,7 @@ export default function SideBarMobile() {
       route: "/client/ntb",
     },
     {
-      id: "Help Desk",
+      id: "Complaints",
       translationKey: "reportProblem",
       icon: Lifebuoy,
       route: "/client/report",
@@ -139,7 +139,7 @@ export default function SideBarMobile() {
                 "CFAs Management",
                 "Membership",
                 "Non-Tariff Barrier",
-                "Help Desk",
+                "Complaints",
                 "Profile",
               ].includes(item.id) ? (
                 <div key={item.id} className="w-full flex flex-col items-end">
@@ -178,7 +178,7 @@ export default function SideBarMobile() {
                   "Company Registration",
                   "Membership",
                   "Non-Tariff Barrier",
-                  "Help Desk",
+                  "Complaints",
                   "Profile",
                 ].includes(item.id) ? (
                 <div key={item.id} className="w-full flex flex-col items-end">
@@ -216,7 +216,7 @@ export default function SideBarMobile() {
                 [
                   "Certificate of Origin",
                   "Non-Tariff Barrier",
-                  "Help Desk",
+                  "Complaints",
                   "Profile",
                 ].includes(item.id) ? (
                 <div key={item.id} className="w-full flex flex-col items-end">
@@ -252,7 +252,7 @@ export default function SideBarMobile() {
                 [
                   "Certificate of Origin",
                   "Non-Tariff Barrier",
-                  "Help Desk",
+                  "Complaints",
                   "Profile",
                 ].includes(item.id) ? (
                 <div key={item.id} className="w-full flex flex-col items-end">
