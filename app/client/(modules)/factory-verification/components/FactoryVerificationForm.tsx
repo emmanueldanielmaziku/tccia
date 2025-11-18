@@ -907,7 +907,7 @@ export default function FactoryVerificationForm({
       productErrors.unity_of_measure = "Unity of measure is required";
     }
 
-    if (!userType[index] || userType[index] === "") {
+    if (!userType[index] || (userType[index] !== "exporter" && userType[index] !== "manufacturer")) {
       productErrors.userType = "Please select whether you are an Exporter or Manufacturer";
     }
 
