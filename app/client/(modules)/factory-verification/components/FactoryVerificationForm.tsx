@@ -1289,7 +1289,13 @@ export default function FactoryVerificationForm({
                       // Clear manufacturer fields when switching to manufacturer
                       if (value === "manufacturer") {
                         handleInputChange(idx, "manufacturer", "");
-                        handleInputChange(idx, "manufacturer_id", undefined);
+                        // Directly update formData to clear manufacturer_id (since handleInputChange doesn't accept undefined)
+                        const updatedFormData = { ...formData };
+                        updatedFormData.products[idx] = {
+                          ...updatedFormData.products[idx],
+                          manufacturer_id: undefined,
+                        };
+                        setFormData(updatedFormData);
                       }
                       // Clear error when user selects an option
                       if (errors.products[idx]?.userType) {
@@ -1331,8 +1337,8 @@ export default function FactoryVerificationForm({
                     <Label className="text-sm text-gray-600">
                       Manufacturer <span className="text-red-500">*</span>
                     </Label>
-                    <ManufacturerAutocomplete
-                      value={product.manufacturer || ""}
+                <ManufacturerAutocomplete
+                  value={product.manufacturer || ""}
                       onChange={(value) => {
                         handleInputChange(idx, "manufacturer", value);
                         // Clear error when user starts typing
@@ -1343,13 +1349,13 @@ export default function FactoryVerificationForm({
                           setErrors(newErrors);
                         }
                       }}
-                      onSelect={(manufacturer) => {
-                        handleInputChange(
-                          idx,
-                          "manufacturer",
-                          manufacturer.company_name
-                        );
-                        handleInputChange(idx, "manufacturer_id", manufacturer.id);
+                  onSelect={(manufacturer) => {
+                    handleInputChange(
+                      idx,
+                      "manufacturer",
+                      manufacturer.company_name
+                    );
+                    handleInputChange(idx, "manufacturer_id", manufacturer.id);
                         // Clear error when manufacturer is selected
                         if (errors.products[idx]?.manufacturer) {
                           const newErrors = { ...errors };
@@ -1357,8 +1363,8 @@ export default function FactoryVerificationForm({
                           delete newErrors.products[idx].manufacturer;
                           setErrors(newErrors);
                         }
-                      }}
-                      placeholder="Search manufacturer..."
+                  }}
+                  placeholder="Search manufacturer..."
                       error={errors.products[idx]?.manufacturer}
                     />
                     {errors.products[idx]?.manufacturer && (
