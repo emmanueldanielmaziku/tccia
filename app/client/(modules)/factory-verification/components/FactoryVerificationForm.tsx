@@ -9,6 +9,8 @@ import {
   Book,
 } from "iconsax-reactjs";
 import { DatePicker } from "@/components/ui/date-picker";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
 import HSCodeWidget from "./HSCodeWidget";
 
 interface Product {
@@ -347,6 +349,7 @@ function PreviewWidget({
   getValidFormData,
   onFormClose,
   onRefreshList,
+  userType,
 }: {
   open: boolean;
   onClose: () => void;
@@ -354,6 +357,7 @@ function PreviewWidget({
   getValidFormData: () => FormData;
   onFormClose?: () => void;
   onRefreshList?: () => void;
+  userType: ("exporter" | "manufacturer" | "")[];
 }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -373,16 +377,17 @@ function PreviewWidget({
       const validFormData = getValidFormData();
       // Debug logs
       console.log("formData before submit:", validFormData);
-      // Check for missing manufacturer_id or product_id
+      // Check for missing manufacturer_id only for exporters
       const missingManufacturer = validFormData.products.some(
-        (product: FormProduct) => !product.manufacturer_id
+        (product: FormProduct, index: number) => 
+          userType[index] === "exporter" && !product.manufacturer_id
       );
       const missingProductId = validFormData.products.some(
         (product: FormProduct) => !product.product_id
       );
       if (missingManufacturer) {
         setSubmitError(
-          "Please select a manufacturer from the dropdown for each product."
+          "Please select a manufacturer from the dropdown for each product where you are an Exporter."
         );
         setIsSubmitting(false);
         return;
@@ -407,8 +412,11 @@ function PreviewWidget({
         suggested_inspection_date: validFormData.expected_inspection_date
           ? formatDateToDDMMYYYY(validFormData.expected_inspection_date)
           : null,
-        products: validFormData.products.map((product: FormProduct) => ({
-          manufacturer_id: product.manufacturer_id,
+        products: validFormData.products.map((product: FormProduct, index: number) => ({
+          // Only include manufacturer_id if user is an exporter
+          ...(userType[index] === "exporter" && product.manufacturer_id
+            ? { manufacturer_id: product.manufacturer_id }
+            : {}),
           product_name_id: product.product_id,
           description: product.description,
         })),
@@ -774,6 +782,8 @@ export default function FactoryVerificationForm({
       description?: string;
       product_category?: string;
       unity_of_measure?: string;
+      userType?: string;
+      manufacturer?: string;
     }[];
     expected_inspection_date?: string;
     applicant_name?: string;
@@ -797,6 +807,7 @@ export default function FactoryVerificationForm({
     []
   );
   const [open, setOpen] = useState(false);
+  const [userType, setUserType] = useState<("exporter" | "manufacturer" | "")[]>([]);
 
   useEffect(() => {
     setManufacturerSearch((prev) =>
@@ -810,6 +821,9 @@ export default function FactoryVerificationForm({
     );
     setManufacturerError((prev) =>
       formData.products.map((_, i) => prev[i] || null)
+    );
+    setUserType((prev) =>
+      formData.products.map((_, i) => prev[i] || "")
     );
   }, [formData.products.length]);
 
@@ -891,6 +905,19 @@ export default function FactoryVerificationForm({
 
     if (!product.unity_of_measure.trim()) {
       productErrors.unity_of_measure = "Unity of measure is required";
+    }
+
+    if (!userType[index] || userType[index] === "") {
+      productErrors.userType = "Please select whether you are an Exporter or Manufacturer";
+    }
+
+    // If user is an exporter, manufacturer is required
+    if (userType[index] === "exporter") {
+      if (!product.manufacturer || !product.manufacturer.trim()) {
+        productErrors.manufacturer = "Manufacturer is required when you are an Exporter";
+      } else if (!product.manufacturer_id) {
+        productErrors.manufacturer = "Please select a valid manufacturer from the list";
+      }
     }
 
     return productErrors;
@@ -1052,6 +1079,7 @@ export default function FactoryVerificationForm({
 
     const updatedProducts = formData.products.filter((_, i) => i !== idx);
     const updatedErrors = errors.products.filter((_, i) => i !== idx);
+    const updatedUserType = userType.filter((_, i) => i !== idx);
 
     setFormData({
       ...formData,
@@ -1062,6 +1090,8 @@ export default function FactoryVerificationForm({
       ...errors,
       products: updatedErrors,
     });
+
+    setUserType(updatedUserType);
   };
 
   const getValidFormData = (): FormData => {
@@ -1132,6 +1162,7 @@ export default function FactoryVerificationForm({
         getValidFormData={getValidFormData}
         onFormClose={onFormClose}
         onRefreshList={onRefreshList}
+        userType={userType}
       />
 
       <HSCodeWidget open={open} onClose={() => setOpen(false)} />
@@ -1243,25 +1274,100 @@ export default function FactoryVerificationForm({
               className="flex flex-col gap-3 relative border border-gray-200 rounded-lg p-4 bg-gray-50"
               key={idx}
             >
-              {/* Manufacturer Input for each product */}
-              <div className="flex flex-col gap-1 mb-2">
-                <label className="text-sm text-gray-600">Manufacturer</label>
-                <ManufacturerAutocomplete
-                  value={product.manufacturer || ""}
-                  onChange={(value) =>
-                    handleInputChange(idx, "manufacturer", value)
-                  }
-                  onSelect={(manufacturer) => {
-                    handleInputChange(
-                      idx,
-                      "manufacturer",
-                      manufacturer.company_name
-                    );
-                    handleInputChange(idx, "manufacturer_id", manufacturer.id);
-                  }}
-                  placeholder="Search manufacturer..."
-                  error={undefined}
-                />
+              {/* Exporter/Manufacturer Selection and Manufacturer Input */}
+              <div className="flex flex-col gap-3 mb-2">
+                <div className="flex flex-col gap-2">
+                  <Label className="text-sm text-gray-700">
+                    I am a: <span className="text-red-500">*</span>
+                  </Label>
+                  <RadioGroup
+                    value={userType[idx] || ""}
+                    onValueChange={(value) => {
+                      const newUserType = [...userType];
+                      newUserType[idx] = value as "exporter" | "manufacturer" | "";
+                      setUserType(newUserType);
+                      // Clear manufacturer fields when switching to manufacturer
+                      if (value === "manufacturer") {
+                        handleInputChange(idx, "manufacturer", "");
+                        handleInputChange(idx, "manufacturer_id", undefined);
+                      }
+                      // Clear error when user selects an option
+                      if (errors.products[idx]?.userType) {
+                        const newErrors = { ...errors };
+                        newErrors.products[idx] = { ...newErrors.products[idx] };
+                        delete newErrors.products[idx].userType;
+                        setErrors(newErrors);
+                      }
+                    }}
+                    className="flex flex-col gap-2"
+                  >
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="exporter" id={`exporter-${idx}`} />
+                      <Label
+                        htmlFor={`exporter-${idx}`}
+                        className="text-sm text-gray-700 cursor-pointer font-normal"
+                      >
+                        Exporter
+                      </Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="manufacturer" id={`manufacturer-${idx}`} />
+                      <Label
+                        htmlFor={`manufacturer-${idx}`}
+                        className="text-sm text-gray-700 cursor-pointer font-normal"
+                      >
+                        Manufacturer
+                      </Label>
+                    </div>
+                  </RadioGroup>
+                  {errors.products[idx]?.userType && (
+                    <p className="text-sm text-red-500 mt-1">
+                      {errors.products[idx]?.userType}
+                    </p>
+                  )}
+                </div>
+                {userType[idx] === "exporter" && (
+                  <div className="flex flex-col gap-1">
+                    <Label className="text-sm text-gray-600">
+                      Manufacturer <span className="text-red-500">*</span>
+                    </Label>
+                    <ManufacturerAutocomplete
+                      value={product.manufacturer || ""}
+                      onChange={(value) => {
+                        handleInputChange(idx, "manufacturer", value);
+                        // Clear error when user starts typing
+                        if (errors.products[idx]?.manufacturer) {
+                          const newErrors = { ...errors };
+                          newErrors.products[idx] = { ...newErrors.products[idx] };
+                          delete newErrors.products[idx].manufacturer;
+                          setErrors(newErrors);
+                        }
+                      }}
+                      onSelect={(manufacturer) => {
+                        handleInputChange(
+                          idx,
+                          "manufacturer",
+                          manufacturer.company_name
+                        );
+                        handleInputChange(idx, "manufacturer_id", manufacturer.id);
+                        // Clear error when manufacturer is selected
+                        if (errors.products[idx]?.manufacturer) {
+                          const newErrors = { ...errors };
+                          newErrors.products[idx] = { ...newErrors.products[idx] };
+                          delete newErrors.products[idx].manufacturer;
+                          setErrors(newErrors);
+                        }
+                      }}
+                      placeholder="Search manufacturer..."
+                      error={errors.products[idx]?.manufacturer}
+                    />
+                    {errors.products[idx]?.manufacturer && (
+                      <p className="text-sm text-red-500 mt-1">
+                        {errors.products[idx]?.manufacturer}
+                      </p>
+                    )}
+                  </div>
+                )}
               </div>
               <div className="relative w-full">
                 <div className="text-sm text-gray-600 mb-1 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
