@@ -52,7 +52,7 @@ export default function NewCertificateModal({
                   <span className="text-blue-600 text-sm font-medium">2</span>
                 </div>
                 <p className="text-gray-600">
-                  Visit the TRA Single Window website and complete the application form
+                  Visit the TRA Single Window portal and complete the application form
                   with all required details.
                 </p>
               </div>
