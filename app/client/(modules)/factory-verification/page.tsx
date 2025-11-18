@@ -704,11 +704,11 @@ export default function FactoryVerification() {
                                     }`}
                                     title={
                                       product.verification_state === "approved"
-                                        ? "Manage agents"
+                                        ? "Manage dealers"
                                         : "Only available for approved products"
                                     }
                                   >
-                                    Agents
+                                    Dealers
                                   </button>
                                 </div>
                               </td>
@@ -788,11 +788,11 @@ export default function FactoryVerification() {
                                 }`}
                                 title={
                                   product.verification_state === "approved"
-                                    ? "Manage agents"
+                                    ? "Manage dealers"
                                     : "Only available for approved products"
                                 }
                               >
-                                Agents
+                                Dealers
                               </button>
                             </div>
                           </div>
@@ -951,14 +951,14 @@ export default function FactoryVerification() {
         </div>
       )}
 
-      {/* Agents Modal */}
+      {/* Dealers Modal */}
       {showAgentsModal && selectedProductForAgents && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-[3px] p-4">
           <div className="relative w-full max-w-lg bg-white rounded-xl shadow-2xl p-4 sm:p-6 mx-2 sm:mx-4 max-h-[90vh] overflow-y-auto">
             {/* Header */}
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-lg sm:text-xl font-semibold text-gray-800 pr-2">
-                Add Agents - {selectedProductForAgents.product_name}
+                Add Dealers - {selectedProductForAgents.product_name}
               </h2>
               <button
                 onClick={handleCloseAgentsModal}
@@ -970,10 +970,10 @@ export default function FactoryVerification() {
 
             {!isAddingAgents ? (
               <>
-                {/* Existing Agents */}
+                {/* Existing Dealers */}
                 <div className="mb-6">
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Assigned Agents ({existingAgents.length})
+                    Assigned Dealers ({existingAgents.length})
                   </label>
                   {existingAgents.length > 0 ? (
                     <div className="space-y-3">
@@ -1005,7 +1005,7 @@ export default function FactoryVerification() {
                     </div>
                   ) : (
                     <div className="border border-dashed border-gray-300 rounded-lg p-4 text-center text-sm text-gray-500">
-                      No agents assigned to this product yet.
+                      No dealers assigned to this product yet.
                     </div>
                   )}
                 </div>
@@ -1022,7 +1022,7 @@ export default function FactoryVerification() {
                     onClick={() => setIsAddingAgents(true)}
                     className="flex-1 px-4 py-2 text-sm font-medium text-white bg-green-600 hover:bg-green-700 rounded-md transition-colors"
                   >
-                    Add Agents
+                    Add Dealers
                   </button>
                 </div>
               </>
@@ -1032,7 +1032,7 @@ export default function FactoryVerification() {
                 <div className="mb-4">
                   <div className="flex items-center justify-between mb-2">
                     <label className="block text-sm font-medium text-gray-700">
-                      Add New Agents
+                      Add New Dealers
                     </label>
                     <button
                       onClick={() => {
@@ -1047,7 +1047,7 @@ export default function FactoryVerification() {
                     </button>
                   </div>
                   <p className="text-xs text-gray-500 mb-2">
-                    Search by company name or TIN to add additional agents for this product.
+                    Search by company name or TIN to add additional dealers for this product.
                   </p>
                   <div className="relative">
                     <input
@@ -1084,14 +1084,14 @@ export default function FactoryVerification() {
                   )}
 
                   {agentSearchInput.length >= 2 && !isSearchingAgents && agentSearchResults.length === 0 && (
-                    <div className="mt-2 text-xs text-gray-500">No agents found</div>
+                    <div className="mt-2 text-xs text-gray-500">No dealers found</div>
                   )}
                 </div>
 
-                {/* Selected Agents List */}
+                {/* Selected Dealers List */}
                 <div className="mb-4">
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Selected Agents ({selectedAgents.length})
+                    Selected Dealers ({selectedAgents.length})
                   </label>
                   {selectedAgents.length > 0 ? (
                     <div className="border border-gray-200 rounded-md bg-gray-50 max-h-48 overflow-y-auto">
@@ -1115,7 +1115,7 @@ export default function FactoryVerification() {
                     </div>
                   ) : (
                     <div className="border border-gray-200 rounded-md bg-gray-50 p-4 text-center text-sm text-gray-500">
-                      No agents selected yet
+                      No dealers selected yet
                     </div>
                   )}
                 </div>
