@@ -18,7 +18,7 @@
     "home": "Home",
     "membership": "Membership Application",
     "about": "About Us",
-    "help": "Complaints"
+    "help": "Business Complaints"
   },
   "sidebar": {
     "modules": "Modules",
@@ -31,7 +31,7 @@
     "certificateOfOrigin": "Certificate of Origin",
     "membership": "Membership",
     "nonTariffBarrier": "Non-Tariff Barrier",
-    "reportProblem": "Complaints",
+    "reportProblem": "Business Complaints",
     "profile": "Profile",
     "settings": "Settings"
   },
@@ -103,7 +103,7 @@
     "submitTicket": "Submit a ticket for any issue or support request. Fill out the form with detailed information about your problem.",
     "trackTicketHeading": "Track Ticket Status",
     "trackTicket": "Enter the ticket number you received when you submitted your help desk request to check the current status and feedback.",
-    "helpdeskPortal": "Help Desk Portal"
+    "helpdeskPortal": "Business Complaints Portal"
   },
   "alerts": {
     "success": "Success",
@@ -136,8 +136,8 @@
     }
   },
   "helpdesk": {
-    "title": "Helpdesk & Support",
-    "welcome": "Welcome to Helpdesk & Support",
+    "title": "Business Complaints Portal",
+    "welcome": "Welcome to Business Complaints Portal",
     "intro": "Submit a support ticket or track your existing requests for technical, account, or general issues. Our team is here to help!",
     "submitRequest": "Submit a Support Request",
     "submitRequestDesc": "Report a problem, request support, or get help with our services.",

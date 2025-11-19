@@ -45,7 +45,7 @@ export default function SideBar() {
     if (currentPath.includes("/client/coo")) return "Certificate of Origin";
     if (currentPath.includes("/client/membership")) return "Membership";
     if (currentPath.includes("/client/ntb")) return "Non-Tariff Barrier";
-    if (currentPath.includes("/client/report")) return "Complaints";
+    if (currentPath.includes("/client/report")) return "Business Complaints";
     if (currentPath.includes("/client/profile")) return "Profile";
     return "Company Registration";
   };
@@ -122,7 +122,7 @@ export default function SideBar() {
       route: "/client/ntb",
     },
     {
-      id: "Complaints",
+      id: "Business Complaints",
       translationKey: "reportProblem",
       icon: Lifebuoy,
       route: "/client/report",
@@ -166,7 +166,7 @@ export default function SideBar() {
             {menuItems.map((item) => {
               const isFirmManagement = item.id === "Company Registration";
               const isNTB = item.id === "Non-Tariff Barrier";
-              const isHelpDesk = item.id === "Complaints";
+              const isHelpDesk = item.id === "Business Complaints";
               const isProfile = item.id === "Profile";
               // const isMembership = item.id === "Membership";
 
@@ -181,7 +181,7 @@ export default function SideBar() {
                     // "CFAs Management",
                     "Membership",
                     "Non-Tariff Barrier",
-                    "Complaints",
+                    "Business Complaints",
                     "Profile",
                   ].includes(item.id)) ||
                 (role === "CEO" &&
