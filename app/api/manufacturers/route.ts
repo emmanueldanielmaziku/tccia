@@ -5,7 +5,7 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const query = searchParams.toString();
     const apiUrl =
-      "https://tccia.kalen.co.tz/api/manufacturers" +
+      "https://tcpdev.kalen.co.tz/api/manufacturers" +
       (query ? `?${query}` : "");
 
     console.log("[API] /api/manufacturers GET");

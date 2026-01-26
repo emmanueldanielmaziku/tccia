@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 
-const API_BASE_URL = "https://tccia.kalen.co.tz";
+const API_BASE_URL = "https://tcpdev.kalen.co.tz";
 
 export async function GET(
   request: Request,
@@ -157,8 +157,9 @@ export async function POST(
       );
     }
 
-    const body = await request.json();
-    const { resolution_remarks } = body;
+    // Get form data from request (multipart/form-data)
+    const formData = await request.formData();
+    const resolution_remarks = formData.get("resolution_remarks") as string;
 
     if (!resolution_remarks || !resolution_remarks.trim()) {
       return NextResponse.json(
@@ -170,18 +171,73 @@ export async function POST(
       );
     }
 
+    // Create new FormData for API request
+    const apiFormData = new FormData();
+    apiFormData.append("resolution_remarks", resolution_remarks.trim());
+
+    // Collect all file fields and their corresponding names
+    // Frontend sends: file1, file1_name, file2, file2_name, etc.
+    const fileMap = new Map<string, { file: File; name?: string }>();
+    
+    // First pass: collect all files
+    for (const [key, value] of formData.entries()) {
+      // Check if it's a file field (not a name field)
+      if (key.startsWith("file") && !key.endsWith("_name") && value instanceof File) {
+        console.log(`Found file field: ${key}, filename: ${value.name}, size: ${value.size}, type: ${value.type}`);
+        fileMap.set(key, { file: value });
+      }
+    }
+    
+    // Second pass: collect file names
+    for (const [key, value] of formData.entries()) {
+      if (key.endsWith("_name") && typeof value === "string") {
+        const fileKey = key.replace("_name", "");
+        const fileEntry = fileMap.get(fileKey);
+        if (fileEntry && value.trim()) {
+          console.log(`Found file name for ${fileKey}: ${value.trim()}`);
+          fileEntry.name = value.trim();
+        }
+      }
+    }
+
+    console.log(`Total files collected: ${fileMap.size}`);
+
+    // Append files to API FormData with sequential numbering (file1, file2, etc.)
+    // Sort by key to maintain order (file1, file2, file3...)
+    const sortedKeys = Array.from(fileMap.keys()).sort((a, b) => {
+      const numA = parseInt(a.replace("file", "")) || 0;
+      const numB = parseInt(b.replace("file", "")) || 0;
+      return numA - numB;
+    });
+
+    sortedKeys.forEach((key, index) => {
+      const entry = fileMap.get(key);
+      if (entry) {
+        if (entry.name) {
+          // Create a new File with the custom filename
+          const fileWithName = new File([entry.file], entry.name, { type: entry.file.type });
+          console.log(`Appending file${index + 1} with custom name: ${entry.name} (original: ${entry.file.name})`);
+          apiFormData.append(`file${index + 1}`, fileWithName);
+        } else {
+          // Use original filename
+          console.log(`Appending file${index + 1} with original name: ${entry.file.name}`);
+          apiFormData.append(`file${index + 1}`, entry.file);
+        }
+      }
+    });
+
     const apiUrl = `${API_BASE_URL}/api/ntb/resolution/${encodeURIComponent(user_id)}/${encodeURIComponent(record_id)}`;
     console.log("Submitting NTB resolution to:", apiUrl);
+    console.log(`FormData entries: resolution_remarks and ${sortedKeys.length} file(s)`);
 
     const response = await fetch(apiUrl, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${token.value.trim()}`,
-        "Content-Type": "application/json",
+        Accept: "application/json",
+        // Don't set Content-Type header - let fetch set it with boundary for multipart/form-data
       },
-      body: JSON.stringify({
-        resolution_remarks: resolution_remarks.trim(),
-      }),
+      body: apiFormData,
     });
 
     console.log("NTB Resolution API response status:", response.status, response.statusText);
@@ -220,6 +276,7 @@ export async function POST(
               success: true,
               message: responseData.result.message || "Resolution submitted successfully",
               resolution_id: responseData.result.resolution_id || responseData.result.data?.resolution_id,
+              attachments: responseData.result.attachments || responseData.result.data?.attachments || [],
             });
           }
         }
@@ -229,6 +286,7 @@ export async function POST(
           success: true,
           message: responseData.message || "Resolution submitted successfully",
           resolution_id: responseData.resolution_id || responseData.data?.resolution_id,
+          attachments: responseData.attachments || responseData.data?.attachments || [],
         });
       } catch (error) {
         console.error("Error parsing success response:", error);
@@ -389,6 +447,7 @@ export async function POST(
           success: true,
           message: data.result.message || "Resolution submitted successfully",
           resolution_id: data.result.resolution_id || data.result.data?.resolution_id,
+          attachments: data.result.attachments || data.result.data?.attachments || [],
         });
       } else {
         return NextResponse.json(
@@ -407,6 +466,7 @@ export async function POST(
         success: true,
         message: data.message || "Resolution submitted successfully",
         resolution_id: data.resolution_id || data.data?.resolution_id,
+        attachments: data.attachments || data.data?.attachments || [],
       });
     }
 
@@ -415,6 +475,7 @@ export async function POST(
       success: true,
       message: "Resolution submitted successfully",
       resolution_id: data.resolution_id,
+      attachments: data.attachments || [],
     });
 
   } catch (error) {

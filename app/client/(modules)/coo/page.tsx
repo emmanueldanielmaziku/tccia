@@ -24,7 +24,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import COOForm from "./components/COOForm";
-// import PaymentPopup from "./components/PaymentPopup"; // No longer needed - redirecting to external payment gateway
+
 import { useRouter } from "next/navigation";
 
 import usePickerState from "../../services/PickerState";
@@ -35,8 +35,7 @@ export default function COO() {
   const [verificationForm, toggleForm] = useState(false);
   const [isNewCertificateModalOpen, setIsNewCertificateModalOpen] =
     useState(false);
-  // const [isPaymentPopupOpen, setIsPaymentPopupOpen] = useState(false); // No longer needed
-  // const [selectedCertificateForPayment, setSelectedCertificateForPayment] = useState<any>(null); // No longer needed
+
 
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
@@ -283,7 +282,7 @@ export default function COO() {
     application_code_number?: string
   ) => {
     const certType = getCertificateType(application_code_number || "");
-    const certificateUrl = `https://tccia.kalen.co.tz/certificate_of_origin/static/certificate/${certType}/index.html?id=${aid}`;
+    const certificateUrl = `https://tcpdev.kalen.co.tz/certificate_of_origin/static/certificate/${certType}/index.html?id=${aid}`;
     window.open(certificateUrl, "_blank");
   };
 

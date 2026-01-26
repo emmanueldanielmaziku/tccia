@@ -18,7 +18,7 @@ export async function GET(request: NextRequest) {
     }
 
     const response = await fetch(
-      `https://tccia.kalen.co.tz/api/user/me`,
+      `https://tcpdev.kalen.co.tz/api/user/me`,
       {
         method: "GET",
         headers: {

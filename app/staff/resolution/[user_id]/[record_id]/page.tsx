@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -24,6 +25,8 @@ import {
   Building2,
   Flag,
   Loader2,
+  X,
+  Plus,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -124,6 +127,7 @@ function ResolutionContent() {
   const [data, setData] = useState<ResolutionData | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [resolutionRemarks, setResolutionRemarks] = useState("");
+  const [files, setFiles] = useState<Array<{ id: number; name: string; file: File | null }>>([]);
 
   useEffect(() => {
     if (!user_id || !record_id) {
@@ -164,6 +168,22 @@ function ResolutionContent() {
     }
   };
 
+  const addFileField = () => {
+    setFiles([...files, { id: Date.now(), name: "", file: null }]);
+  };
+
+  const removeFileField = (id: number) => {
+    setFiles(files.filter((f) => f.id !== id));
+  };
+
+  const updateFileName = (id: number, name: string) => {
+    setFiles(files.map((f) => (f.id === id ? { ...f, name } : f)));
+  };
+
+  const updateFile = (id: number, file: File | null) => {
+    setFiles(files.map((f) => (f.id === id ? { ...f, file } : f)));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -185,14 +205,24 @@ function ResolutionContent() {
     setSubmitting(true);
 
     try {
+      // Create FormData for multipart/form-data submission
+      const formData = new FormData();
+      formData.append("resolution_remarks", resolutionRemarks.trim());
+
+      // Add files with their names
+      files.forEach((fileItem, index) => {
+        if (fileItem.file) {
+          formData.append(`file${index + 1}`, fileItem.file);
+          if (fileItem.name.trim()) {
+            formData.append(`file${index + 1}_name`, fileItem.name.trim());
+          }
+        }
+      });
+
       const response = await fetch(`/api/ntb/resolution/${user_id}/${record_id}`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          resolution_remarks: resolutionRemarks.trim(),
-        }),
+        // Don't set Content-Type header - browser will set it with boundary for multipart/form-data
+        body: formData,
       });
 
       // Parse response (API always returns JSON)
@@ -210,6 +240,9 @@ function ResolutionContent() {
       }
 
       toast.success(result.message || "Resolution submitted successfully!");
+      
+      // Clear files after successful submission
+      setFiles([]);
       
       // Refresh data to show updated state
       await fetchResolutionData();
@@ -241,7 +274,7 @@ function ResolutionContent() {
         <div className="space-y-6">
           <Skeleton className="h-12 w-64" />
           <div className="grid gap-6 md:grid-cols-2">
-            <Card>
+            <Card className="shadow-none">
               <CardHeader>
                 <Skeleton className="h-6 w-48" />
                 <Skeleton className="h-4 w-32 mt-2" />
@@ -254,7 +287,7 @@ function ResolutionContent() {
                 </div>
               </CardContent>
             </Card>
-            <Card>
+            <Card className="shadow-none">
               <CardHeader>
                 <Skeleton className="h-6 w-48" />
               </CardHeader>
@@ -274,7 +307,7 @@ function ResolutionContent() {
   if (error || !data) {
     return (
       <div className="container mx-auto px-4 py-8 max-w-6xl">
-        <Card className="border-destructive">
+        <Card className="border-destructive shadow-none">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-destructive">
               <AlertCircle className="h-5 w-5" />
@@ -311,7 +344,7 @@ function ResolutionContent() {
 
       <div className="grid gap-6 md:grid-cols-2">
         {/* Report Details Card */}
-        <Card>
+        <Card className="shadow-none">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <FileText className="h-5 w-5" />
@@ -431,7 +464,7 @@ function ResolutionContent() {
         </Card>
 
         {/* User Details Card */}
-        <Card>
+        <Card className="shadow-none">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <User className="h-5 w-5" />
@@ -487,7 +520,7 @@ function ResolutionContent() {
       </div>
 
       {/* Resolution Form Card */}
-      <Card className="mt-6">
+      <Card className="mt-6 shadow-none">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             {report.has_submitted_resolution ? (
@@ -522,6 +555,96 @@ function ResolutionContent() {
               <p className="text-sm text-muted-foreground">
                 Please provide a detailed explanation of the resolution or actions taken.
               </p>
+            </div>
+
+            {/* File Attachments Section */}
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <Label>
+                  Attachments <span className="text-muted-foreground font-normal">(Optional)</span>
+                </Label>
+                {!report.has_submitted_resolution && !submitting && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={addFileField}
+                    className="flex items-center gap-2"
+                  >
+                    <Plus className="h-4 w-4" />
+                    Add File
+                  </Button>
+                )}
+              </div>
+
+              {files.length === 0 && (
+                <p className="text-sm text-muted-foreground">
+                  No files attached. Click "Add File" to attach supporting documents.
+                </p>
+              )}
+
+              <div className="space-y-3">
+                {files.map((fileItem) => (
+                  <div
+                    key={fileItem.id}
+                    className="flex items-start gap-3 p-4 border rounded-lg bg-muted/50"
+                  >
+                    <div className="flex-1 space-y-3">
+                      <div className="space-y-2">
+                        <Label htmlFor={`file-name-${fileItem.id}`} className="text-sm">
+                          File Name
+                        </Label>
+                        <Input
+                          id={`file-name-${fileItem.id}`}
+                          type="text"
+                          placeholder="Enter file name (optional)"
+                          value={fileItem.name}
+                          onChange={(e) => updateFileName(fileItem.id, e.target.value)}
+                          disabled={report.has_submitted_resolution || submitting}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor={`file-input-${fileItem.id}`} className="text-sm">
+                          File
+                        </Label>
+                        <div className="flex items-center gap-2">
+                          <input
+                            id={`file-input-${fileItem.id}`}
+                            type="file"
+                            onChange={(e) => {
+                              const file = e.target.files?.[0] || null;
+                              updateFile(fileItem.id, file);
+                              // Auto-fill name if not set
+                              if (file && !fileItem.name.trim()) {
+                                updateFileName(fileItem.id, file.name);
+                              }
+                            }}
+                            disabled={report.has_submitted_resolution || submitting}
+                            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                          />
+                          {fileItem.file && (
+                            <span className="text-sm text-muted-foreground flex items-center gap-1">
+                              <FileText className="h-4 w-4" />
+                              {fileItem.file.name}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                    {!report.has_submitted_resolution && !submitting && (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => removeFileField(fileItem.id)}
+                        className="flex-shrink-0"
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    )}
+                  </div>
+                ))}
+              </div>
             </div>
 
             {report.has_submitted_resolution && (
@@ -575,7 +698,7 @@ export default function Resolution() {
         <div className="space-y-6">
           <Skeleton className="h-12 w-64" />
           <div className="grid gap-6 md:grid-cols-2">
-            <Card>
+            <Card className="shadow-none">
               <CardHeader>
                 <Skeleton className="h-6 w-48" />
                 <Skeleton className="h-4 w-32 mt-2" />
@@ -588,7 +711,7 @@ export default function Resolution() {
                 </div>
               </CardContent>
             </Card>
-            <Card>
+            <Card className="shadow-none">
               <CardHeader>
                 <Skeleton className="h-6 w-48" />
               </CardHeader>

@@ -56,7 +56,7 @@ export async function POST(request: NextRequest) {
     }
 
     const response = await fetch(
-      `https://tccia.kalen.co.tz/api/user/update-profile`,
+      `https://tcpdev.kalen.co.tz/api/user/update-profile`,
       {
         method: "POST",
         headers: {

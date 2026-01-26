@@ -1,0 +1,20 @@
+import { NextResponse } from "next/server";
+
+const API_BASE_URL = "https://tcpdev.kalen.co.tz";
+
+export async function GET() {
+  try {
+    const res = await fetch(`${API_BASE_URL}/api/business_complain/regions`);
+    const data = await res.json();
+    return NextResponse.json(data);
+  } catch (error) {
+    return NextResponse.json(
+      {
+        success: false,
+        message: "Error fetching regions.",
+        data: null,
+      },
+      { status: 500 }
+    );
+  }
+}

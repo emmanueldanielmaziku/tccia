@@ -5,7 +5,7 @@ import type { NextRequest } from "next/server";
 const protectedPaths = ["/client"];
 
 // Add paths that should be publicly accessible even under /client
-const publicPaths = ["/client/ntb"];
+const publicPaths = ["/client/ntb", "/staff/resolution"];
 
 export function middleware(request: NextRequest) {
   const token = request.cookies.get("token");

@@ -36,9 +36,10 @@ export default function SideBarMobile() {
     if (currentPath.includes("/client/coo")) return "Certificate of Origin";
     if (currentPath.includes("/client/membership")) return "Membership";
     if (currentPath.includes("/client/ntb")) return "Non-Tariff Barrier";
-    if (currentPath.includes("/client/report")) return "Business Complaints";
+    if (currentPath.includes("/client/business-complaints")) return "Business Complaints";
+    if (currentPath.includes("/client/report")) return "IT Support";
     if (currentPath.includes("/client/profile")) return "Profile";
-    return "Company Registration"; // Default fallback
+    return "Company Registration";
   };
 
   // Set initial active tab based on current route
@@ -73,22 +74,28 @@ export default function SideBarMobile() {
     //   icon: Profile2User,
     //   route: "/client/cfa-management",
     // }
-
-
     {
       id: "Membership",
       translationKey: "membership",
       icon: People,
       route: "/client/membership",
     },
+
     {
       id: "Non-Tariff Barrier",
       translationKey: "nonTariffBarrier",
       icon: Direct,
       route: "/client/ntb",
     },
+
     {
       id: "Business Complaints",
+      translationKey: "businessComplaints",
+      icon: Lifebuoy,
+      route: "/client/business-complaints",
+    },
+    {
+      id: "IT Support",
       translationKey: "reportProblem",
       icon: Lifebuoy,
       route: "/client/report",
@@ -140,6 +147,7 @@ export default function SideBarMobile() {
                 "Membership",
                 "Non-Tariff Barrier",
                 "Business Complaints",
+                "IT Support",
                 "Profile",
               ].includes(item.id) ? (
                 <div key={item.id} className="w-full flex flex-col items-end">
@@ -178,7 +186,8 @@ export default function SideBarMobile() {
                   "Company Registration",
                   "Membership",
                   "Non-Tariff Barrier",
-                  "Complaints",
+                  "Business Complaints",
+                  "IT Support",
                   "Profile",
                 ].includes(item.id) ? (
                 <div key={item.id} className="w-full flex flex-col items-end">
@@ -216,7 +225,8 @@ export default function SideBarMobile() {
                 [
                   "Certificate of Origin",
                   "Non-Tariff Barrier",
-                  "Complaints",
+                  "Business Complaints",
+                  "IT Support",
                   "Profile",
                 ].includes(item.id) ? (
                 <div key={item.id} className="w-full flex flex-col items-end">
@@ -252,7 +262,8 @@ export default function SideBarMobile() {
                 [
                   "Certificate of Origin",
                   "Non-Tariff Barrier",
-                  "Complaints",
+                  "Business Complaints",
+                  "IT Support",
                   "Profile",
                 ].includes(item.id) ? (
                 <div key={item.id} className="w-full flex flex-col items-end">

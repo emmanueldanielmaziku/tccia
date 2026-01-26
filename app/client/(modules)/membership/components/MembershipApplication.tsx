@@ -38,6 +38,12 @@ interface Contact {
   phone: string;
   email: string;
 }
+interface Sector {
+  id: number;
+  name: string;
+  is_other: boolean;
+}
+
 interface ApplicationData {
   id: number;
   application_number: string;
@@ -46,8 +52,13 @@ interface ApplicationData {
   company_name: string;
   company_email: string;
   company_telephone_number: string;
+  company_fax_number: boolean;
   company_physical_address: string;
+  company_postal_base_address: string;
+  company_postal_detail_address: string;
   company_description: string;
+  company_nationality_code: string;
+  company_registration_type_code: string;
   category_id: number;
   category_name: string;
   subcategory_id: number;
@@ -56,20 +67,26 @@ interface ApplicationData {
   region_name: string;
   district_id: number;
   district_name: string;
-  sector_id: number;
-  sector_name: string;
-  subsector_id: number;
-  subsector_name: string;
+  sector_ids: Sector[];
+  sector_names: string[];
+  subsector_ids: number[];
+  subsector_names: string[];
+  sector_other?: string;
+  subsector_other?: string;
+  has_other_sector: boolean;
   entry_fee: number;
   annual_fee: number;
   certificate_fee: number;
   total_fee: number;
   directors: Director[];
   contacts: Contact[];
+  directors_count: number;
+  contacts_count: number;
   application_date: string;
   submission_date: string;
   invoice_number: string | false;
   tin_verification_status: string;
+  company_registration_id: number;
 }
 
 export default function MembershipApplication({
@@ -517,8 +534,22 @@ export default function MembershipApplication({
           <div className="text-sm text-gray-700">Subcategory: <strong>{data.subcategory_name}</strong></div>
           <div className="text-sm text-gray-700">Region: <strong>{data.region_name}</strong></div>
           <div className="text-sm text-gray-700">District: <strong>{data.district_name}</strong></div>
-          <div className="text-sm text-gray-700">Sector: <strong>{data.sector_name}</strong></div>
-          <div className="text-sm text-gray-700">Subsector: <strong>{data.subsector_name}</strong></div>
+          <div className="text-sm text-gray-700">
+            Sector: <strong>
+              {data.sector_names && data.sector_names.length > 0
+                ? data.sector_names.join(", ")
+                : "N/A"}
+              {data.sector_other && ` (${data.sector_other})`}
+            </strong>
+          </div>
+          <div className="text-sm text-gray-700">
+            Subsector: <strong>
+              {data.subsector_names && data.subsector_names.length > 0
+                ? data.subsector_names.join(", ")
+                : "N/A"}
+              {data.subsector_other && ` (${data.subsector_other})`}
+            </strong>
+          </div>
         </div>
 
         {/* Invoice + TIN */}

@@ -45,7 +45,8 @@ export default function SideBar() {
     if (currentPath.includes("/client/coo")) return "Certificate of Origin";
     if (currentPath.includes("/client/membership")) return "Membership";
     if (currentPath.includes("/client/ntb")) return "Non-Tariff Barrier";
-    if (currentPath.includes("/client/report")) return "Business Complaints";
+    if (currentPath.includes("/client/business-complaints")) return "Business Complaints";
+    if (currentPath.includes("/client/report")) return "IT Support";
     if (currentPath.includes("/client/profile")) return "Profile";
     return "Company Registration";
   };
@@ -123,6 +124,12 @@ export default function SideBar() {
     },
     {
       id: "Business Complaints",
+      translationKey: "businessComplaints",
+      icon: Lifebuoy,
+      route: "/client/business-complaints",
+    },
+    {
+      id: "IT Support",
       translationKey: "reportProblem",
       icon: Lifebuoy,
       route: "/client/report",
@@ -166,11 +173,18 @@ export default function SideBar() {
             {menuItems.map((item) => {
               const isFirmManagement = item.id === "Company Registration";
               const isNTB = item.id === "Non-Tariff Barrier";
-              const isHelpDesk = item.id === "Business Complaints";
+              const isBusinessComplaints = item.id === "Business Complaints";
+              const isHelpDesk = item.id === "IT Support";
               const isProfile = item.id === "Profile";
               // const isMembership = item.id === "Membership";
 
-              const isLocked = !companySelected && !isFirmManagement && !isNTB && !isHelpDesk && !isProfile;
+              const isLocked =
+                !companySelected &&
+                !isFirmManagement &&
+                !isNTB &&
+                !isBusinessComplaints &&
+                !isHelpDesk &&
+                !isProfile;
               if (
                 (role === "CEM" &&
                   [
@@ -182,6 +196,7 @@ export default function SideBar() {
                     "Membership",
                     "Non-Tariff Barrier",
                     "Business Complaints",
+                    "IT Support",
                     "Profile",
                   ].includes(item.id)) ||
                 (role === "CEO" &&
@@ -191,7 +206,8 @@ export default function SideBar() {
                     "Company Registration",
                     "Membership",
                     "Non-Tariff Barrier",
-                    "Report a Problem",
+                    "Business Complaints",
+                    "IT Support",
                     "Profile",
                   ].includes(item.id)) ||
                 (role === "CFAM" &&
@@ -199,14 +215,16 @@ export default function SideBar() {
                     "Certificate of Origin",
                     "CFA Officers Management",
                     "Non-Tariff Barrier",
-                    "Report a Problem",
+                    "Business Complaints",
+                    "IT Support",
                     "Profile",
                   ].includes(item.id)) ||
                 (role === "CFAO" &&
                   [
                     "Certificate of Origin",
                     "Non-Tariff Barrier",
-                    "Report a Problem",
+                    "Business Complaints",
+                    "IT Support",
                     "Profile",
                   ].includes(item.id))
               ) {

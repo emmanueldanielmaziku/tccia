@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 
-const API_BASE_URL = "https://tccia.kalen.co.tz";
+const API_BASE_URL = "https://tcpdev.kalen.co.tz";
 
 export async function POST(request: Request) {
   try {

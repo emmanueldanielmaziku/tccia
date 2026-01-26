@@ -19,7 +19,7 @@ import { Search, Copy, Check } from "lucide-react";
 import { toast } from "sonner";
 
 const REMOTE_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL || "https://tccia.kalen.co.tz/api/";
+  process.env.NEXT_PUBLIC_API_BASE_URL || "https://tcpdev.kalen.co.tz/api/";
 
 export default function HSCodeWidget({
   open,
