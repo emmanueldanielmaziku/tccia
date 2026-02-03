@@ -1,247 +1,158 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import NavBar from "../../components/NavBar";
 import ProgressTracker from "../employees/components/StatsBar";
-import { Add, CloseCircle, MoreCircle, SearchNormal1 } from "iconsax-reactjs";
+import { Add, CloseCircle, MoreCircle, SearchNormal1, Refresh } from "iconsax-reactjs";
 import AlertBox from "../factory-verification/components/AlertBox";
 import AddOfficerForm from "./components/AddOfficerForm";
 import { useRightSidebar } from "../../../contexts/RightSidebarContext";
+import { useApiWithSessionHandling } from "../../../hooks/useApiWithSessionHandling";
+import { handleSessionError } from "../../../utils/sessionErrorHandler";
 
-// Sample employees data
-const employeesData = [
-  {
-    sn: 1,
-    fullName: "John Doe",
-    role: "Manager",
-    companies: ["Acme Corp", "Globex Inc", "Acme Corp", "Globex Inc"],
-    status: "On-duty",
-  },
-  {
-    sn: 2,
-    fullName: "Jane Smith",
-    role: "Supervisor",
-    companies: ["Umbrella Ltd"],
-    status: "Off-duty",
-  },
-  {
-    sn: 3,
-    fullName: "Michael Johnson",
-    role: "Operator",
-    companies: ["Acme Corp", "Wayne Enterprises"],
-    status: "On-duty",
-  },
-  {
-    sn: 4,
-    fullName: "Emily Brown",
-    role: "Technician",
-    companies: ["Globex Inc"],
-    status: "On-duty",
-  },
-  {
-    sn: 5,
-    fullName: "David Wilson",
-    role: "Clerk",
-    companies: ["Wayne Enterprises", "Umbrella Ltd"],
-    status: "Off-duty",
-  },
-  {
-    sn: 6,
-    fullName: "Sarah Lee",
-    role: "HR",
-    companies: ["Acme Corp"],
-    status: "On-duty",
-  },
-  {
-    sn: 7,
-    fullName: "Chris Evans",
-    role: "Security",
-    companies: ["Globex Inc"],
-    status: "On-duty",
-  },
-  {
-    sn: 8,
-    fullName: "Anna White",
-    role: "Accountant",
-    companies: ["Umbrella Ltd"],
-    status: "Off-duty",
-  },
-  {
-    sn: 9,
-    fullName: "Tom Clark",
-    role: "Supervisor",
-    companies: ["Wayne Enterprises"],
-    status: "On-duty",
-  },
-  {
-    sn: 10,
-    fullName: "Lisa Turner",
-    role: "Manager",
-    companies: ["Acme Corp", "Globex Inc"],
-    status: "On-duty",
-  },
-  {
-    sn: 11,
-    fullName: "Peter Parker",
-    role: "Technician",
-    companies: ["Wayne Enterprises"],
-    status: "Off-duty",
-  },
-  {
-    sn: 12,
-    fullName: "Mary Jane",
-    role: "Operator",
-    companies: ["Umbrella Ltd"],
-    status: "On-duty",
-  },
-  {
-    sn: 13,
-    fullName: "Bruce Wayne",
-    role: "CEO",
-    companies: ["Wayne Enterprises"],
-    status: "On-duty",
-  },
-  {
-    sn: 14,
-    fullName: "Clark Kent",
-    role: "Manager",
-    companies: ["Globex Inc"],
-    status: "Off-duty",
-  },
-  {
-    sn: 15,
-    fullName: "Diana Prince",
-    role: "HR",
-    companies: ["Acme Corp"],
-    status: "On-duty",
-  },
-  {
-    sn: 16,
-    fullName: "Barry Allen",
-    role: "Operator",
-    companies: ["Umbrella Ltd"],
-    status: "On-duty",
-  },
-  {
-    sn: 17,
-    fullName: "Hal Jordan",
-    role: "Security",
-    companies: ["Globex Inc"],
-    status: "Off-duty",
-  },
-  {
-    sn: 18,
-    fullName: "Arthur Curry",
-    role: "Technician",
-    companies: ["Wayne Enterprises"],
-    status: "On-duty",
-  },
-  {
-    sn: 19,
-    fullName: "Victor Stone",
-    role: "Clerk",
-    companies: ["Acme Corp"],
-    status: "On-duty",
-  },
-  {
-    sn: 20,
-    fullName: "Selina Kyle",
-    role: "Accountant",
-    companies: ["Globex Inc", "Wayne Enterprises"],
-    status: "Off-duty",
-  },
-  {
-    sn: 21,
-    fullName: "Steve Rogers",
-    role: "Supervisor",
-    companies: ["Umbrella Ltd"],
-    status: "On-duty",
-  },
-  {
-    sn: 22,
-    fullName: "Natasha Romanoff",
-    role: "Manager",
-    companies: ["Acme Corp"],
-    status: "On-duty",
-  },
-  {
-    sn: 23,
-    fullName: "Tony Stark",
-    role: "CEO",
-    companies: ["Globex Inc"],
-    status: "On-duty",
-  },
-  {
-    sn: 24,
-    fullName: "Wanda Maximoff",
-    role: "HR",
-    companies: ["Umbrella Ltd"],
-    status: "Off-duty",
-  },
-  {
-    sn: 25,
-    fullName: "Sam Wilson",
-    role: "Security",
-    companies: ["Wayne Enterprises"],
-    status: "On-duty",
-  },
-  {
-    sn: 26,
-    fullName: "Bucky Barnes",
-    role: "Technician",
-    companies: ["Acme Corp"],
-    status: "Off-duty",
-  },
-  {
-    sn: 27,
-    fullName: "Scott Lang",
-    role: "Clerk",
-    companies: ["Globex Inc"],
-    status: "On-duty",
-  },
-  {
-    sn: 28,
-    fullName: "Hope Van Dyne",
-    role: "Accountant",
-    companies: ["Umbrella Ltd"],
-    status: "On-duty",
-  },
-  {
-    sn: 29,
-    fullName: "T'Challa",
-    role: "Manager",
-    companies: ["Wayne Enterprises"],
-    status: "On-duty",
-  },
-  {
-    sn: 30,
-    fullName: "Shuri",
-    role: "Technician",
-    companies: ["Acme Corp", "Globex Inc"],
-    status: "Off-duty",
-  },
-];
+interface SelectedCompany {
+  id: number;
+  company_tin: string;
+  company_name: string;
+  company_nationality_code?: string;
+}
+
+interface Employee {
+  id: number;
+  name: string;
+  email: string;
+  phone?: string;
+  user_role?: string;
+  account_active: boolean;
+  hire_date?: string;
+  modules?: Array<{
+    module_id: number;
+    module_name: string;
+    permissions: string[];
+  }>;
+}
 
 export default function EmployeesManagement() {
   const { isRightSidebarOpen } = useRightSidebar();
+  const { fetchWithSessionHandling } = useApiWithSessionHandling();
   const [addEmployeeForm, setAddEmployeeForm] = useState(false);
-    const [discardBoxState, setDiscardBoxState] = useState(false);
+  const [discardBoxState, setDiscardBoxState] = useState(false);
+  const [employees, setEmployees] = useState<Employee[]>([]);
+  const [selectedCompany, setSelectedCompany] = useState<SelectedCompany | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
 
-    const [currentPage, setCurrentPage] = useState(1);
-    const itemsPerPage = 20;
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 20;
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalRecords, setTotalRecords] = useState(0);
 
-    const totalPages = Math.ceil(employeesData.length / itemsPerPage);
-    const paginatedData = employeesData.slice(
-        (currentPage - 1) * itemsPerPage,
-        currentPage * itemsPerPage
-    );
+  const activeCount = useMemo(
+    () => employees.filter((e) => e.account_active).length,
+    [employees]
+  );
+  const inactiveCount = useMemo(
+    () => employees.filter((e) => !e.account_active).length,
+    [employees]
+  );
 
-    const handleNextPage = () => {
-        if (currentPage < totalPages) setCurrentPage(currentPage + 1);
+  const statusLabel = (active: boolean) => (active ? "Active" : "Inactive");
+  const statusBadgeClass = (active: boolean) =>
+    active
+      ? "bg-green-50 text-green-600 border-green-300"
+      : "bg-gray-100 text-gray-500 border-gray-200";
+
+  const fetchEmployees = async (page = currentPage) => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const stored = localStorage.getItem("selectedCompany");
+      if (!stored) {
+        setSelectedCompany(null);
+        setEmployees([]);
+        setTotalPages(1);
+        setTotalRecords(0);
+        setError("No company selected. Please select a company first.");
+        return;
+      }
+
+      const parsed: SelectedCompany = JSON.parse(stored);
+      setSelectedCompany(parsed);
+
+      const res = await fetchWithSessionHandling(
+        `/api/manager/employees?company_id=${encodeURIComponent(
+          String(parsed.id)
+        )}&page=${encodeURIComponent(String(page))}&limit=${encodeURIComponent(
+          String(itemsPerPage)
+        )}`,
+        { method: "GET" }
+      );
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setEmployees([]);
+        setTotalPages(1);
+        setTotalRecords(0);
+        setError(data?.error || "Failed to fetch employees.");
+        return;
+      }
+
+      const list: Employee[] = Array.isArray(data?.employees) ? data.employees : [];
+      setEmployees(list);
+      setTotalPages(Number(data?.pagination?.total_pages) || 1);
+      setTotalRecords(Number(data?.pagination?.total_records) || list.length);
+      setCurrentPage(Number(data?.pagination?.current_page) || page);
+    } catch (err) {
+      if (handleSessionError(err)) return;
+      setError("Network error occurred. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchEmployees(1);
+    const handleCompanyChange = () => {
+      setCurrentPage(1);
+      fetchEmployees(1);
     };
-
-    const handlePreviousPage = () => {
-        if (currentPage > 1) setCurrentPage(currentPage - 1);
+    window.addEventListener("COMPANY_CHANGE_EVENT", handleCompanyChange);
+    window.addEventListener("storage", handleCompanyChange);
+    return () => {
+      window.removeEventListener("COMPANY_CHANGE_EVENT", handleCompanyChange);
+      window.removeEventListener("storage", handleCompanyChange);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    // When pagination changes (e.g., clicking next/prev), refetch that page.
+    fetchEmployees(currentPage);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentPage]);
+
+  const filteredEmployees = useMemo(() => {
+    if (!searchQuery.trim()) return employees;
+    const q = searchQuery.toLowerCase();
+    return employees.filter((e) => {
+      return (
+        (e.name || "").toLowerCase().includes(q) ||
+        (e.email || "").toLowerCase().includes(q) ||
+        (e.phone || "").toLowerCase().includes(q) ||
+        (e.user_role || "").toLowerCase().includes(q)
+      );
+    });
+  }, [employees, searchQuery]);
+
+  const handleNextPage = () => {
+    if (currentPage < totalPages) setCurrentPage(currentPage + 1);
+  };
+
+  const handlePreviousPage = () => {
+    if (currentPage > 1) setCurrentPage(currentPage - 1);
+  };
 
     return (
         <main className="w-full h-[97vh] rounded-[14px] overflow-hidden bg-white border-[1px] border-gray-200 shadow-sm relative">
@@ -266,18 +177,34 @@ export default function EmployeesManagement() {
                                     Add Employee
                                 </div>
                             ) : (
-                                <label className="flex justify-center items-center">
+                                <div className="flex flex-row gap-3 items-center">
+                                  <label className="flex justify-center items-center relative">
                                     <input
                                         type="text"
                                         placeholder="Search employees..."
+                                        value={searchQuery}
+                                        onChange={(e) => setSearchQuery(e.target.value)}
                                         className="border-[0.5px] border-zinc-300 focus:outline-2 focus:outline-blue-400 rounded-sm pl-8 pr-2.5 py-2.5 text-sm placeholder:text-sm"
                                     />
                                     <SearchNormal1
                                         size="18"
                                         color="gray"
-                                        className="absolute left-19"
+                                        className="absolute left-3"
                                     />
-                                </label>
+                                  </label>
+                                  <button
+                                    className="flex flex-row gap-2 justify-center items-center bg-gray-100 hover:bg-gray-200 text-gray-600 text-sm rounded-[6px] cursor-pointer px-4 py-2.5"
+                                    onClick={() => fetchEmployees(currentPage)}
+                                    disabled={loading}
+                                  >
+                                    <Refresh
+                                      size="18"
+                                      color={loading ? "#9CA3AF" : "#4B5563"}
+                                      className={loading ? "animate-spin" : ""}
+                                    />
+                                    {loading ? "Refreshing..." : "Refresh"}
+                                  </button>
+                                </div>
                             )}
 
                             {/* button */}
@@ -304,64 +231,80 @@ export default function EmployeesManagement() {
                         {/* Main */}
                         {addEmployeeForm ? (
                             <div className="w-full flex items-center justify-center h-full">
-                                <AddOfficerForm />
+                                <AddOfficerForm
+                                  onSuccess={() => {
+                                    setAddEmployeeForm(false);
+                                    setCurrentPage(1);
+                                    fetchEmployees(1);
+                                  }}
+                                />
                             </div>
                         ) : (
                             <div className="w-full mt-5 rounded-md border-[0.5px] overflow-hidden overflow-y-auto h-[100%]">
+                              {loading ? (
+                                <div className="p-6 text-gray-600 text-sm">Loading employees...</div>
+                              ) : error ? (
+                                <div className="p-6 text-red-500 text-sm">{error}</div>
+                              ) : (
                                 <table className="w-full text-sm">
-                                    <thead className="bg-gray-200">
-                                        <tr>
-                                            <th className="px-4 py-5 text-left text-gray-700"></th>
-                                            <th className="px-4 py-5 text-left text-gray-700">S/N</th>
-                                            <th className="px-4 py-5 text-left text-gray-700">Full Name</th>
-                                            <th className="px-4 py-5 text-left text-gray-700">Role</th>
-                                            <th className="px-4 py-5 text-left text-gray-700">Companies</th>
-                                            <th className="px-4 py-5 text-left text-gray-700">Status</th>
-                                            <th className="px-4 py-5 text-left text-gray-700">Actions</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {paginatedData.map((employee, index) => (
-                                            <tr
-                                                key={employee.sn}
-                                                className={`hover:bg-gray-100 transition-colors border-t-[0.5px] rounded-[12px] text-gray-700 border-zinc-200 ${
-                                                    index % 2 === 0 ? "bg-white" : "bg-gray-white"
-                                                }`}
-                                            >
-                                                <td className="px-4 py-4"></td>
-                                                <td className="px-4 py-4">{employee.sn}</td>
-                                                <td className="px-4 py-4">{employee.fullName}</td>
-                                                <td className="px-4 py-4">{employee.role}</td>
-                                                <td className="px-4 py-4">
-                                                    {employee.companies.map((c, i) => (
-                                                        <span
-                                                            key={c}
-                                                            className="inline-block bg-blue-50 text-blue-600 rounded px-2 py-0.5 mr-1 text-xs border border-blue-100"
-                                                        >
-                                                            {c}
-                                                        </span>
-                                                    ))}
-                                                </td>
-                                                <td className="px-4 py-4">
-                                                    <span
-                                                        className={`px-3 py-1 rounded-[5px] text-xs border-[0.5px] ${
-                                                            employee.status === "On-duty"
-                                                                ? "bg-green-50 text-green-500 border-green-300"
-                                                                : "bg-orange-50 text-orange-400 border-orange-200"
-                                                        }`}
-                                                    >
-                                                        {employee.status}
-                                                    </span>
-                                                </td>
-                                                <td className="px-4 py-4">
-                                                    <button className="w-full flex items-center justify-center cursor-pointer">
-                                                        <MoreCircle color="gray" />
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
+                                  <thead className="bg-gray-200">
+                                    <tr>
+                                      <th className="px-4 py-5 text-left text-gray-700">S/N</th>
+                                      <th className="px-4 py-5 text-left text-gray-700">Full Name</th>
+                                      <th className="px-4 py-5 text-left text-gray-700">Email</th>
+                                      <th className="px-4 py-5 text-left text-gray-700">Phone</th>
+                                      <th className="px-4 py-5 text-left text-gray-700">Role</th>
+                                      <th className="px-4 py-5 text-left text-gray-700">Company</th>
+                                      <th className="px-4 py-5 text-left text-gray-700">Status</th>
+                                      <th className="px-4 py-5 text-left text-gray-700">Actions</th>
+                                    </tr>
+                                  </thead>
+                                  <tbody>
+                                    {filteredEmployees.map((employee, index) => (
+                                      <tr
+                                        key={employee.id}
+                                        className={`hover:bg-gray-100 transition-colors border-t-[0.5px] rounded-[12px] text-gray-700 border-zinc-200 ${
+                                          index % 2 === 0 ? "bg-white" : "bg-gray-white"
+                                        }`}
+                                      >
+                                        <td className="px-4 py-4">
+                                          {(currentPage - 1) * itemsPerPage + index + 1}
+                                        </td>
+                                        <td className="px-4 py-4">{employee.name}</td>
+                                        <td className="px-4 py-4">{employee.email}</td>
+                                        <td className="px-4 py-4">{employee.phone || "-"}</td>
+                                        <td className="px-4 py-4">{employee.user_role || "-"}</td>
+                                        <td className="px-4 py-4">
+                                          <span className="inline-block bg-blue-50 text-blue-600 rounded px-2 py-0.5 mr-1 text-xs border border-blue-100">
+                                            {selectedCompany?.company_name || "-"}
+                                          </span>
+                                        </td>
+                                        <td className="px-4 py-4">
+                                          <span
+                                            className={`px-3 py-1 rounded-[5px] text-xs border-[0.5px] ${statusBadgeClass(
+                                              employee.account_active
+                                            )}`}
+                                          >
+                                            {statusLabel(employee.account_active)}
+                                          </span>
+                                        </td>
+                                        <td className="px-4 py-4">
+                                          <button className="w-full flex items-center justify-center cursor-pointer">
+                                            <MoreCircle color="gray" />
+                                          </button>
+                                        </td>
+                                      </tr>
+                                    ))}
+                                    {filteredEmployees.length === 0 && (
+                                      <tr>
+                                        <td className="px-4 py-8 text-center text-gray-500" colSpan={8}>
+                                          No employees found.
+                                        </td>
+                                      </tr>
+                                    )}
+                                  </tbody>
                                 </table>
+                              )}
                             </div>
                         )}
 
@@ -369,7 +312,7 @@ export default function EmployeesManagement() {
                         {addEmployeeForm ? null : (
                             <div className="flex justify-between items-center mt-4 bg-white/35 backdrop-blur-md w-full">
                                 <span className="text-gray-600">
-                                    Page {currentPage} of {totalPages}
+                                    Page {currentPage} of {totalPages} ({totalRecords} total)
                                 </span>
 
                                 <div className="flex flex-row justify-between items-center gap-8">
@@ -401,7 +344,19 @@ export default function EmployeesManagement() {
                     </div>
                 </div>
                 
-                {isRightSidebarOpen && <ProgressTracker />}
+                {isRightSidebarOpen && (
+                  <ProgressTracker
+                    stats={{
+                      total: totalRecords,
+                      active: activeCount,
+                      inactive: inactiveCount,
+                    }}
+                    onCompanyChange={() => {
+                      setCurrentPage(1);
+                      fetchEmployees(1);
+                    }}
+                  />
+                )}
                
             </section>
             {/* End of Content */}

@@ -209,6 +209,7 @@ export default function NTB() {
     documents: [],
     images: [],
   });
+  const [fileError, setFileError] = useState<string | null>(null);
   const [locationPermission, setLocationPermission] = useState<'granted' | 'denied' | 'prompt' | 'loading'>('prompt');
   const [isDetectingLocation, setIsDetectingLocation] = useState(false);
   const [showLocationWarning, setShowLocationWarning] = useState(false);
@@ -499,17 +500,29 @@ export default function NTB() {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, fileType: 'documents' | 'images') => {
     const files = Array.from(e.target.files || []);
     if (files.length > 0) {
-      // Check file sizes (10MB limit per file)
-      const oversizedFiles = files.filter(file => file.size > 10 * 1024 * 1024);
+      const MAX_BYTES = 10 * 1024 * 1024;
+      const oversizedFiles = files.filter((file) => file.size > MAX_BYTES);
+      const validFiles = files.filter((file) => file.size <= MAX_BYTES);
+
       if (oversizedFiles.length > 0) {
-        toast.error('File size must be less than 10MB per file');
-        return;
+        const names = oversizedFiles.map((f) => f.name).slice(0, 3).join(", ");
+        const more = oversizedFiles.length > 3 ? ` (+${oversizedFiles.length - 3} more)` : "";
+        const message = `Some files exceed 10MB and were not added: ${names}${more}`;
+        setFileError(message);
+        toast.error(message);
+      } else {
+        setFileError(null);
       }
-      
-      setSelectedFiles(prev => ({
-        ...prev,
-        [fileType]: [...prev[fileType], ...files]
-      }));
+
+      if (validFiles.length > 0) {
+        setSelectedFiles((prev) => ({
+          ...prev,
+          [fileType]: [...prev[fileType], ...validFiles],
+        }));
+      }
+
+      // Allow selecting the same file again later
+      e.target.value = "";
     }
   };
 
@@ -2378,6 +2391,12 @@ export default function NTB() {
                             Upload supporting documents and images to strengthen your NTB report
                           </p>
                         </div>
+
+                        {fileError && (
+                          <div className="border border-red-200 bg-red-50 text-red-700 rounded-lg px-4 py-3 text-sm">
+                            {fileError}
+                          </div>
+                        )}
 
                         {/* File Upload Widgets in Row */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

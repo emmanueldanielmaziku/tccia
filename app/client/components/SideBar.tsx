@@ -43,6 +43,7 @@ export default function SideBar() {
     if (currentPath.includes("/client/firm-management")) return "Company Registration";
     if (currentPath.includes("/client/factory-verification")) return "Factory Verification";
     if (currentPath.includes("/client/coo")) return "Certificate of Origin";
+    if (currentPath.includes("/client/employees")) return "Employees Management";
     if (currentPath.includes("/client/membership")) return "Membership";
     if (currentPath.includes("/client/ntb")) return "Non-Tariff Barrier";
     if (currentPath.includes("/client/business-complaints")) return "Business Complaints";
@@ -103,12 +104,12 @@ export default function SideBar() {
     //   route: "/client/cfa-management",
     // },
 
-    // {
-    //   id: "Employees Management",
-    //   translationKey: "employeesManagement",
-    //   icon: UserTick,
-    //   route: "/client/employees",
-    // },
+    {
+      id: "Employees Management",
+      translationKey: "employeesManagement",
+      icon: UserTick,
+      route: "/client/employees",
+    },
 
     {
       id: "Membership",
@@ -191,7 +192,7 @@ export default function SideBar() {
                     "Factory Verification",
                     "Certificate of Origin",
                     "Company Registration",
-                    // "Employees Management",
+                    "Employees Management",
                     // "CFAs Management",
                     "Membership",
                     "Non-Tariff Barrier",
@@ -204,6 +205,7 @@ export default function SideBar() {
                     "Factory Verification",
                     "Certificate of Origin",
                     "Company Registration",
+                    "Employees Management",
                     "Membership",
                     "Non-Tariff Barrier",
                     "Business Complaints",

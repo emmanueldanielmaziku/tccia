@@ -3,7 +3,7 @@ import { useState, useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useFormState } from "../services/FormStates";
+import { useFormState, useOtpVerificationState } from "../services/FormStates";
 import { useTranslations } from "next-intl";
 import { MdVisibility, MdVisibilityOff } from "react-icons/md";
 import { useRouter } from "next/navigation";
@@ -66,6 +66,7 @@ const RegForm = () => {
   const tf = useTranslations("forms");
 
   const { toggleFormType } = useFormState();
+  const { startOtp } = useOtpVerificationState();
 
   const {
     register,
@@ -171,11 +172,17 @@ const RegForm = () => {
           localStorage.setItem("registration_state", result.result.registration_state);
         }
 
+        // Start OTP verification flow (prefer email, fallback to phone)
+        const otpLogin = (data.email && data.email.trim()) ? data.email.trim() : data.phone;
+        startOtp({
+          login: otpLogin,
+          message:
+            result.result?.message ||
+            "Registration successful. OTP sent to your phone/email. Please verify your account.",
+        });
+
         setSuccess(tf("messages.registrationSuccess"));
         reset();
-        setTimeout(() => {
-          toggleFormType();
-        }, 2000);
       } else {
         throw new Error(tf("messages.registrationFailed"));
       }

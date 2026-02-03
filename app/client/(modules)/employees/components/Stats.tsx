@@ -18,10 +18,10 @@ export default function Stat({
       className={`flex flex-col w-full justify-center items-center border-[0.5px] rounded-md transition-all duration-300 ${
         title === "Total"
           ? "bg-zinc-100"
-          : title === "Verified"
+          : title === "Active"
           ? "bg-green-50 border-green-300"
-          : title === "Pending"
-          ? "bg-orange-50 border-orange-200"
+          : title === "Inactive"
+          ? "bg-gray-100 border-gray-200"
           : title === "Rejected"
           ? "bg-red-50 border-red-200"
           : "bg-zinc-100 border-zinc-300"
@@ -31,13 +31,9 @@ export default function Stat({
         {React.createElement(icon, {
           size: minimized ? 22 : 18,
           color:
-            title === "Rejected Products"
-              ? "red"
-              : title === "Verified Products"
+            title === "Active"
               ? "green"
-              : title === "Pending Products"
-              ? "orange"
-              : title === "Total Products"
+              : title === "Inactive"
               ? "gray"
               : "gray",
         })}

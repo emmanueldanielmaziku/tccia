@@ -80,7 +80,8 @@ export async function POST(request: Request) {
     const data = await response.json();
     console.log("API response:", data);
 
-    if (!data.success) {
+    // Handle different possible backend shapes
+    if (data.success === false) {
       return NextResponse.json(
         {
           success: false,
@@ -90,21 +91,43 @@ export async function POST(request: Request) {
       );
     }
 
-    if (!Array.isArray(data.verifications)) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: "Invalid response structure from API",
-        },
-        { status: 500 }
-      );
+    // Shape 1: already in expected format with verifications[]
+    if (Array.isArray(data.verifications)) {
+      return NextResponse.json({
+        success: true,
+        verifications: data.verifications,
+        message: data.message || "Factory verifications fetched successfully",
+      });
     }
 
-    return NextResponse.json({
-      success: true,
-      verifications: data.verifications,
-      message: data.message || "Factory verifications fetched successfully",
-    });
+    // Shape 2: flat products[] list (as seen in logs)
+    if (Array.isArray(data.products)) {
+      // Wrap products into a single pseudo-verification so the frontend
+      // mapping logic can stay unchanged.
+      const verifications = [
+        {
+          id: null,
+          reference: "",
+          state: "",
+          products: data.products,
+        },
+      ];
+
+      return NextResponse.json({
+        success: true,
+        verifications,
+        message: data.message || "Factory products fetched successfully",
+      });
+    }
+
+    // Unknown structure
+    return NextResponse.json(
+      {
+        success: false,
+        error: "Invalid response structure from API",
+      },
+      { status: 500 }
+    );
   } catch (error) {
     console.error("Factory products fetch error:", error);
     return NextResponse.json(

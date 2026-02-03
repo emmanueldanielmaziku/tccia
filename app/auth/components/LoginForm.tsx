@@ -10,6 +10,7 @@ import { Call, InfoCircle, Sms } from "iconsax-reactjs";
 import { useTranslations } from "next-intl";
 import { useApiWithSessionHandling } from "../../hooks/useApiWithSessionHandling";
 import { handleSessionError } from "../../utils/sessionErrorHandler";
+import { useOtpVerificationState } from "../services/FormStates";
 
 
 const schema = z.object({
@@ -44,6 +45,7 @@ export default function LoginForm() {
   const [error, setError] = useState<string | null>(null);
   const { toggleFormType } = useFormState();
   const { resetForm } = useResetFormState();
+  const { startOtp } = useOtpVerificationState();
   const t = useTranslations();
   const tf = useTranslations("forms");
   const { fetchWithSessionHandling } = useApiWithSessionHandling();
@@ -71,6 +73,16 @@ export default function LoginForm() {
 
       const result = await response.json();
       console.log("Login response:", result);
+
+      // OTP verification required
+      if (response.status === 403 && result.result?.need_otp_verification) {
+        startOtp({
+          login: data.login,
+          password: data.password,
+          message: result.result?.error || "Account not verified. Please enter the OTP sent to your phone/email.",
+        });
+        return;
+      }
 
       if (!response.ok || result.result?.error) {
         const errorMessage = result.result?.error || tf("messages.loginFailed");

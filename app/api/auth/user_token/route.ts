@@ -18,6 +18,30 @@ export async function POST(request: Request) {
     const data = await response.json();
     console.log("User token result:", data);
 
+    // If backend indicates OTP verification required, pass it through as 403
+    if (
+      response.status === 403 ||
+      data?.need_otp_verification === true ||
+      data?.result?.need_otp_verification === true
+    ) {
+      const err =
+        data?.error ||
+        data?.result?.error ||
+        data?.message ||
+        "Account not verified. Please enter the OTP sent to your phone/email.";
+      return NextResponse.json(
+        {
+          jsonrpc: "2.0",
+          id: null,
+          result: {
+            error: err,
+            need_otp_verification: true,
+          },
+        },
+        { status: 403 }
+      );
+    }
+
     if (data.result?.error) {
       return NextResponse.json(
         {
@@ -27,7 +51,7 @@ export async function POST(request: Request) {
             error: data.result.error,
           },
         },
-        { status: 401 }
+        { status: response.status || 401 }
       );
     }
 

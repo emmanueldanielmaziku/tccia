@@ -38,3 +38,30 @@ export const useActivateAccountState = create<ActivateAccountState>((set) => ({
   isActivated: false,
   setIsActivated: () => set((state) => ({ isActivated: !state.isActivated })),
 }));
+
+// OTP Verification Flow
+interface OtpVerificationState {
+  otpActive: boolean;
+  otpLogin: string | null;
+  otpMessage: string | null;
+  startOtp: (args: { login: string; message?: string | null }) => void;
+  stopOtp: () => void;
+}
+
+export const useOtpVerificationState = create<OtpVerificationState>((set) => ({
+  otpActive: false,
+  otpLogin: null,
+  otpMessage: null,
+  startOtp: ({ login, message }) =>
+    set({
+      otpActive: true,
+      otpLogin: login,
+      otpMessage: message ?? null,
+    }),
+  stopOtp: () =>
+    set({
+      otpActive: false,
+      otpLogin: null,
+      otpMessage: null,
+    }),
+}));

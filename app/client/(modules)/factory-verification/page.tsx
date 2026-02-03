@@ -207,6 +207,7 @@ export default function FactoryVerification() {
                   : product.description === false
                   ? ""
                   : "",
+              // Raw product state from API (e.g. report_accepted)
               state: product.state,
               community_name: product.community_names || null,
               community_short_code: product.creation_short_codes || null,
@@ -219,7 +220,9 @@ export default function FactoryVerification() {
                   : "",
               verification_id: verification.id,
               verification_reference: verification.reference,
-              verification_state: verification.state,
+              // What we actually display in the status badge:
+              // prefer verification.state when present, otherwise fall back to product.state
+              verification_state: verification.state || product.state || "",
             }))
         );
 
@@ -636,6 +639,9 @@ export default function FactoryVerification() {
                               Product Name
                             </th>
                             <th className="px-2 lg:px-4 py-3 lg:py-5 text-left text-gray-700">
+                              HS Code
+                            </th>
+                            <th className="px-2 lg:px-4 py-3 lg:py-5 text-left text-gray-700">
                               Trade Region
                             </th>
                             <th className="px-2 lg:px-4 py-3 lg:py-5 text-left text-gray-700">
@@ -659,6 +665,9 @@ export default function FactoryVerification() {
                             >
                               <td className="px-2 lg:px-4 py-3 lg:py-4">{product.sn}</td>
                               <td className="px-2 lg:px-4 py-3 lg:py-4">{product.product_name}</td>
+                              <td className="px-2 lg:px-4 py-3 lg:py-4 font-mono">
+                                {product.hs_code || "-"}
+                              </td>
                               <td className="px-2 lg:px-4 py-3 lg:py-4">
                                 {product.community_name || "-"}
                               </td>
@@ -746,6 +755,14 @@ export default function FactoryVerification() {
                             <div>
                               <h3 className="font-medium text-gray-900 text-sm mb-1">Product Name</h3>
                               <p className="text-gray-700 text-sm break-words">{product.product_name}</p>
+                            </div>
+
+                            {/* HS Code */}
+                            <div>
+                              <h4 className="font-medium text-gray-900 text-sm mb-1">HS Code</h4>
+                              <p className="text-gray-700 text-sm font-mono break-words">
+                                {product.hs_code || "-"}
+                              </p>
                             </div>
 
                             {/* Trade Region */}

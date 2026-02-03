@@ -1,45 +1,48 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { z } from "zod";
-import { Sms, Call, User, Building } from "iconsax-reactjs";
+import { Sms, Call, User, Building, Layer, Verify, Chart } from "iconsax-reactjs";
 import { Checkbox } from "@/components/ui/checkbox";
 
-// Zod schema for validation
-const companySchema = z.object({
-  companyname: z.string().min(1, "Company name is required"),
-});
-
 const userSchema = z.object({
-  firstname: z.string().min(1, "First name is required"),
-  lastname: z.string().min(1, "Second name is required"),
+  name: z.string().min(2, "Full name is required"),
   email: z.string().email("Invalid email address"),
-  phone: z.string().min(7, "Phone number is required"),
-  companies: z.array(companySchema).min(1, "At least one company is required"),
+  phone: z.string().optional(),
 });
 
-const availableCompanies = [
-  { id: 1, name: "Acme Corp" },
-  { id: 2, name: "Globex Ltd" },
-  { id: 3, name: "Umbrella Inc" },
-  { id: 4, name: "Wayne Enterprises" },
-];
+type CompanyData = {
+  id: number;
+  company_tin: string;
+  company_name: string;
+  company_nationality_code?: string;
+};
 
-type Company = { companyname: string };
+type Module = { id: number; name: string; code: string };
+type Permission = { id: number; name: string; code: string };
+
 type PreviewWidgetProps = {
   open: boolean;
   onClose: () => void;
+  onSubmit: () => void;
+  submitting?: boolean;
   user: {
-    firstname: string;
-    lastname: string;
+    name: string;
     email: string;
     phone: string;
-    companies: Company[];
+    company: CompanyData | null;
+    modules: Array<{
+      module_id: number;
+      module_name: string;
+      permissions: string[];
+    }>;
   };
 };
 
 const PreviewWidget: React.FC<PreviewWidgetProps> = ({
   open,
   onClose,
+  onSubmit,
+  submitting = false,
   user,
 }) => {
   if (!open) return null;
@@ -74,7 +77,7 @@ const PreviewWidget: React.FC<PreviewWidgetProps> = ({
             <div className="flex items-center gap-2 text-gray-600">
               <User size={18} color="#666" />
               <span className="font-medium text-gray-700">Name:</span>
-              {user.firstname} {user.lastname}
+              {user.name}
             </div>
             <div className="flex items-center gap-2 text-gray-600">
               <Sms size={18} color="#666" />
@@ -84,26 +87,53 @@ const PreviewWidget: React.FC<PreviewWidgetProps> = ({
             <div className="flex items-center gap-2 text-gray-600">
               <Call size={18} color="#666" />
               <span className="font-medium text-gray-700">Phone:</span>
-              {user.phone}
+              {user.phone || "-"}
             </div>
             <div className="flex items-center gap-2 text-gray-600">
               <Building size={18} color="#666" />
-              <span className="font-medium text-gray-700">Companies:</span>
+              <span className="font-medium text-gray-700">Company:</span>
             </div>
-            <ul className="ml-8 list-disc">
-              {user.companies.map((c, idx) => (
-                <li key={idx}>{c.companyname}</li>
-              ))}
-            </ul>
+            <div className="ml-8 text-sm text-gray-700">
+              {user.company ? (
+                <div className="flex flex-col">
+                  <span className="font-medium">{user.company.company_name}</span>
+                  <span className="text-xs text-blue-700">{user.company.company_tin}</span>
+                </div>
+              ) : (
+                <span className="text-gray-500">No company selected</span>
+              )}
+            </div>
+
+            <div className="mt-4">
+              <div className="flex items-center gap-2 text-gray-600 mb-2">
+                <Layer size={18} color="#666" />
+                <span className="font-medium text-gray-700">Module Access:</span>
+              </div>
+              {user.modules.length === 0 ? (
+                <div className="ml-8 text-sm text-gray-500">No module permissions selected</div>
+              ) : (
+                <ul className="ml-8 list-disc">
+                  {user.modules.map((m) => (
+                    <li key={m.module_id}>
+                      <span className="font-medium">{m.module_name}</span>{" "}
+                      <span className="text-xs text-gray-500">
+                        ({m.permissions.join(", ")})
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
           </div>
         </div>
         {/* Action */}
         <div className="flex justify-end">
           <button
-            onClick={onClose}
-            className="px-6 py-2 rounded-md bg-blue-600 text-white font-medium hover:bg-blue-700 transition-colors"
+            onClick={onSubmit}
+            disabled={submitting}
+            className="px-6 py-2 rounded-md bg-blue-600 text-white font-medium hover:bg-blue-700 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
           >
-            Submit Officer
+            {submitting ? "Submitting..." : "Submit Employee"}
           </button>
         </div>
       </div>
@@ -111,97 +141,180 @@ const PreviewWidget: React.FC<PreviewWidgetProps> = ({
   );
 };
 
-export default function AddOfficerForm() {
+export default function AddOfficerForm({
+  onSuccess,
+}: {
+  onSuccess?: () => void;
+}) {
+  const [company, setCompany] = useState<CompanyData | null>(null);
+  const [modules, setModules] = useState<Module[]>([]);
+  const [permissions, setPermissions] = useState<Permission[]>([]);
+  const [loadingMeta, setLoadingMeta] = useState(true);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+
   // State for form inputs
   const [formData, setFormData] = useState({
-    firstname: "",
-    lastname: "",
+    name: "",
     email: "",
     phone: "",
-    companyIds: [] as number[],
   });
 
   // State for errors
   const [errors, setErrors] = useState<{
-    firstname?: string;
-    lastname?: string;
+    name?: string;
     email?: string;
     phone?: string;
-    companies: { companyname?: string }[];
   }>({
-    companies: [{}],
   });
 
   const [previewState, togglePreview] = useState(false);
   const [previewData, setPreviewData] = useState<any>(null);
 
+  // module_id -> set(permission_code)
+  const [modulePerms, setModulePerms] = useState<Record<number, string[]>>({});
+
+  useEffect(() => {
+    const load = async () => {
+      setLoadingMeta(true);
+      setSubmitError(null);
+      try {
+        const stored = localStorage.getItem("selectedCompany");
+        if (stored) setCompany(JSON.parse(stored));
+
+        const [modsRes, permsRes] = await Promise.all([
+          fetch("/api/modules"),
+          fetch("/api/permissions"),
+        ]);
+        const modsJson = await modsRes.json();
+        const permsJson = await permsRes.json();
+
+        setModules(Array.isArray(modsJson?.modules) ? modsJson.modules : []);
+        setPermissions(
+          Array.isArray(permsJson?.permissions) ? permsJson.permissions : []
+        );
+      } catch (e) {
+        setSubmitError("Failed to load modules/permissions.");
+      } finally {
+        setLoadingMeta(false);
+      }
+    };
+
+    load();
+
+    const handleCompanyChange = () => {
+      const updated = localStorage.getItem("selectedCompany");
+      if (updated) setCompany(JSON.parse(updated));
+    };
+    window.addEventListener("COMPANY_CHANGE_EVENT", handleCompanyChange);
+    window.addEventListener("storage", handleCompanyChange);
+    return () => {
+      window.removeEventListener("COMPANY_CHANGE_EVENT", handleCompanyChange);
+      window.removeEventListener("storage", handleCompanyChange);
+    };
+  }, []);
+
+  const selectedModulesPayload = useMemo(() => {
+    return Object.entries(modulePerms)
+      .map(([moduleId, perms]) => ({
+        module_id: Number(moduleId),
+        permissions: perms,
+      }))
+      .filter((m) => m.permissions.length > 0);
+  }, [modulePerms]);
+
+  const previewModules = useMemo(() => {
+    return selectedModulesPayload.map((m) => {
+      const mod = modules.find((x) => x.id === m.module_id);
+      return {
+        module_id: m.module_id,
+        module_name: mod?.name || `Module ${m.module_id}`,
+        permissions: m.permissions,
+      };
+    });
+  }, [modules, selectedModulesPayload]);
+
+  const togglePermission = (moduleId: number, permCode: string) => {
+    setModulePerms((prev) => {
+      const current = new Set(prev[moduleId] || []);
+      if (current.has(permCode)) current.delete(permCode);
+      else current.add(permCode);
+      return { ...prev, [moduleId]: Array.from(current) };
+    });
+  };
+
   // Handle form submission (for preview)
   const handlePreview = (e?: React.FormEvent) => {
     if (e) e.preventDefault();
 
-    // Map IDs to company objects for validation
-    const companies = formData.companyIds.map((id) => ({
-      companyname: availableCompanies.find((c) => c.id === id)?.name || "",
-    }));
-
     const result = userSchema.safeParse({
       ...formData,
-      companies,
     });
 
     if (!result.success) {
-      const fieldErrors: typeof errors = { companies: [] };
+      const fieldErrors: typeof errors = {};
       result.error.errors.forEach((err) => {
         if (Array.isArray(err.path)) {
-          if (err.path[0] === "companies" && err.path.length === 3) {
-            const idx = err.path[1] as number;
-            const field = err.path[2] as "companyname";
-            if (!fieldErrors.companies[idx]) fieldErrors.companies[idx] = {};
-            fieldErrors.companies[idx][field] = err.message;
-          } else if (err.path.length === 1) {
+          if (err.path.length === 1) {
             const field = err.path[0] as keyof typeof errors;
             (fieldErrors as any)[field] = err.message;
           }
         }
       });
-      fieldErrors.companies = companies.map(
-        (_, idx) => fieldErrors.companies[idx] || {}
-      );
       setErrors(fieldErrors);
       return;
     }
 
-    setErrors({ companies: companies.map(() => ({})) });
-    setPreviewData({ ...formData, companies });
+    setErrors({});
+    setPreviewData({
+      ...formData,
+      company,
+      modules: previewModules,
+    });
     togglePreview(true);
   };
 
   const handleInputChange = (
-    field: "firstname" | "lastname" | "email" | "phone",
+    field: "name" | "email" | "phone",
     value: string
   ) => {
     setFormData({ ...formData, [field]: value });
     setErrors({ ...errors, [field]: undefined });
   };
 
-  const handleCompanyCheckbox = (id: number) => {
-    setFormData((prev) => {
-      const alreadySelected = prev.companyIds.includes(id);
-      const newCompanyIds = alreadySelected
-        ? prev.companyIds.filter((cid) => cid !== id)
-        : [...prev.companyIds, id];
-
-      return {
-        ...prev,
-        companyIds: newCompanyIds,
+  const handleSubmit = async () => {
+    setSubmitError(null);
+    if (!company?.id) {
+      setSubmitError("No company selected. Please select a company first.");
+      return;
+    }
+    setSubmitting(true);
+    try {
+      const payload = {
+        company_id: company.id,
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone || undefined,
+        modules: selectedModulesPayload.length ? selectedModulesPayload : undefined,
       };
-    });
 
-    // Clear company errors when selection changes
-    setErrors((prev) => ({
-      ...prev,
-      companies: formData.companyIds.length ? [] : [{}],
-    }));
+      const res = await fetch("/api/manager/add-employee", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setSubmitError(data?.error || "Failed to add employee.");
+        return;
+      }
+      togglePreview(false);
+      if (onSuccess) onSuccess();
+    } catch (e) {
+      setSubmitError("Network error while adding employee.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -209,13 +322,13 @@ export default function AddOfficerForm() {
       <PreviewWidget
         open={previewState}
         onClose={() => togglePreview(false)}
+        onSubmit={handleSubmit}
+        submitting={submitting}
         user={
           previewData || {
             ...formData,
-            companies: formData.companyIds.map((id) => ({
-              companyname:
-                availableCompanies.find((c) => c.id === id)?.name || "",
-            })),
+            company,
+            modules: previewModules,
           }
         }
       />
@@ -225,49 +338,26 @@ export default function AddOfficerForm() {
         onSubmit={handlePreview}
       >
         <div className="flex flex-col gap-4 overflow-hidden overflow-y-auto max-h-[700px] pr-3">
-          <div className="flex flex-row gap-4">
-            {/* First Name */}
-            <div className="relative w-full">
-              <div className="text-sm py-2 w-full">First Name</div>
-              <input
-                type="text"
-                placeholder="Enter first name..."
-                value={formData.firstname}
-                onChange={(e) => handleInputChange("firstname", e.target.value)}
-                className={`w-full px-6 py-3.5 pr-12 border ${
-                  errors.firstname ? "border-red-500" : "border-zinc-300"
-                } bg-zinc-100 outline-blue-400 rounded-[8px] placeholder:text-zinc-400 text-zinc-500 placeholder:text-[15px]`}
-              />
-              <User
-                size="22"
-                color="#9F9FA9"
-                className="absolute top-13 right-5"
-              />
-              {errors.firstname && (
-                <p className="text-red-500 text-sm mt-1">{errors.firstname}</p>
-              )}
-            </div>
-            {/* Second Name */}
-            <div className="relative w-full">
-              <div className="text-sm py-2 w-full">Second Name</div>
-              <input
-                type="text"
-                placeholder="Enter second name..."
-                value={formData.lastname}
-                onChange={(e) => handleInputChange("lastname", e.target.value)}
-                className={`w-full px-6 py-3.5 pr-12 border ${
-                  errors.lastname ? "border-red-500" : "border-zinc-300"
-                } bg-zinc-100 outline-blue-400 rounded-[8px] placeholder:text-zinc-400 text-zinc-500 placeholder:text-[15px]`}
-              />
-              <User
-                size="22"
-                color="#9F9FA9"
-                className="absolute top-13 right-5"
-              />
-              {errors.lastname && (
-                <p className="text-red-500 text-sm mt-1">{errors.lastname}</p>
-              )}
-            </div>
+          {/* Full Name */}
+          <div className="relative w-full">
+            <div className="text-sm py-2 w-full">Full Name</div>
+            <input
+              type="text"
+              placeholder="Enter full name..."
+              value={formData.name}
+              onChange={(e) => handleInputChange("name", e.target.value)}
+              className={`w-full px-6 py-3.5 pr-12 border ${
+                errors.name ? "border-red-500" : "border-zinc-300"
+              } bg-zinc-100 outline-blue-400 rounded-[8px] placeholder:text-zinc-400 text-zinc-500 placeholder:text-[15px]`}
+            />
+            <User
+              size="22"
+              color="#9F9FA9"
+              className="absolute top-13 right-5"
+            />
+            {errors.name && (
+              <p className="text-red-500 text-sm mt-1">{errors.name}</p>
+            )}
           </div>
           {/* Email */}
           <div className="relative w-full">
@@ -311,42 +401,79 @@ export default function AddOfficerForm() {
               <p className="text-red-500 text-sm mt-1">{errors.phone}</p>
             )}
           </div>
-          {/* Companies */}
+          {/* Company */}
           <div>
-            <div className="text-sm py-2 w-full">Assign Companies</div>
-            <div className="flex flex-col gap-3">
-              {availableCompanies.map((company) => (
-                <div key={company.id} className="flex items-center space-x-2">
-                  <Checkbox
-                    id={`company-${company.id}`}
-                    checked={formData.companyIds.includes(company.id)}
-                          onCheckedChange={() => handleCompanyCheckbox(company.id)}
-                          className="cursor-pointer"
-                  />
-                  <label
-                    htmlFor={`company-${company.id}`}
-                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                  >
-                    {company.name}
-                  </label>
+            <div className="text-sm py-2 w-full">Company</div>
+            <div className="w-full border border-zinc-200 bg-white rounded-[8px] px-4 py-3 text-sm text-gray-700">
+              {company ? (
+                <div className="flex flex-col">
+                  <span className="font-medium">{company.company_name}</span>
+                  <span className="text-xs text-blue-700">{company.company_tin}</span>
                 </div>
-              ))}
-            </div>
-            {errors.companies.length > 0 &&
-              errors.companies.some((e) => e.companyname) && (
-                <p className="text-red-500 text-sm mt-1">
-                  {errors.companies[0]?.companyname ||
-                    "Please select at least one company"}
-                </p>
+              ) : (
+                <span className="text-gray-500">
+                  No company selected. Use the Company Picker on the right panel.
+                </span>
               )}
+            </div>
+          </div>
+
+          {/* Module permissions */}
+          <div>
+            <div className="text-sm py-2 w-full flex items-center gap-2">
+              <Chart size={18} color="#6B7280" />
+              Module Access
+            </div>
+            {loadingMeta ? (
+              <div className="text-sm text-gray-500">Loading modules and permissions...</div>
+            ) : modules.length === 0 ? (
+              <div className="text-sm text-gray-500">No modules available.</div>
+            ) : (
+              <div className="flex flex-col gap-4">
+                {modules.map((m) => (
+                  <div
+                    key={m.id}
+                    className="border border-zinc-200 rounded-[10px] bg-white p-4"
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="font-medium text-gray-800 text-sm">{m.name}</div>
+                      <div className="text-xs text-gray-500">{m.code}</div>
+                    </div>
+                    <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      {permissions.map((p) => (
+                        <div key={`${m.id}-${p.id}`} className="flex items-center space-x-2">
+                          <Checkbox
+                            id={`m-${m.id}-p-${p.id}`}
+                            checked={(modulePerms[m.id] || []).includes(p.code)}
+                            onCheckedChange={() => togglePermission(m.id, p.code)}
+                            className="cursor-pointer"
+                          />
+                          <label
+                            htmlFor={`m-${m.id}-p-${p.id}`}
+                            className="text-sm font-medium leading-none"
+                          >
+                            {p.name}
+                            <span className="text-xs text-gray-500 ml-2">({p.code})</span>
+                          </label>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
+        {submitError && (
+          <div className="text-sm text-red-500 mt-3">{submitError}</div>
+        )}
         <div className="w-full flex items-center justify-end">
           <button
             type="submit"
-            className="px-12 py-2 mt-4 bg-blue-500 text-white rounded-sm hover:bg-blue-600 cursor-pointer"
+            disabled={!company || submitting}
+            className="px-12 py-2 mt-4 bg-blue-500 text-white rounded-sm hover:bg-blue-600 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
           >
-            Submit Form
+            Preview
           </button>
         </div>
       </form>
