@@ -197,7 +197,7 @@ export default function LoginForm() {
           </div>
         ) : (
           t("common.login")
-        )}
+        )}d
       </button> */}
 
 <div className="flex flex-col sm:flex-row justify-between items-center gap-2 sm:gap-0">
