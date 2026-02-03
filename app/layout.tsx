@@ -8,8 +8,8 @@ import { SessionExpiredProvider } from "./services/SessionExpiredService";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "TCCIA",
-  description: "Tanzania Chamber of Commerce, Industry and Agriculture",
+  title: "TNCC",
+  description: "Tanzania National Chamber of Commerce",
 };
 
 export default function RootLayout({

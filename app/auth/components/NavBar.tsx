@@ -32,7 +32,7 @@ export default function NavBar() {
       <div className="flex items-center space-x-4 gap-3">
         <Image
           src="/icons/LOGO.png"
-          alt="TCCIA Logo"
+          alt="TNCC Logo"
           width={70}
           height={70}
           className="w-[50px] h-[50px] md:w-[70px] md:h-[70px]"

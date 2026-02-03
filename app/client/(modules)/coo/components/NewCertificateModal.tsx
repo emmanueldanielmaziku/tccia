@@ -63,7 +63,7 @@ export default function NewCertificateModal({
                 </div>
                 <p className="text-gray-600">
                   After submission, your application will be visible here in
-                  TCCIA for tracking and management.
+                  TNCC for tracking and management.
                 </p>
               </div>
 

@@ -44,7 +44,7 @@ function AuthContent() {
           <div className="w-full flex flex-col justify-center items-center">
             <div className="flex flex-col items-center justify-center gap-4 mt-[90px] max-w-[900px] w-full px-4 sm:px-6 md:px-8">
               <h1 className="text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl 2xl:text-5xl font-bold text-center bg-gradient-to-r from-blue-600 via-blue-500 to-blue-400 bg-clip-text text-transparent leading-tight px-2">
-                TANZANIA CHAMBER OF COMMERCE INDUSTRY AND AGRICULTURE
+                TANZANIA NATIONAL CHAMBER OF COMMERCE
               </h1>
               <TextGenerateEffect words={words} className="text-sm sm:text-base md:text-lg lg:text-xl text-gray-700 text-center italic px-2" />
             </div>

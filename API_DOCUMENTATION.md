@@ -1,8 +1,8 @@
-# TCCIA API Documentation
+# TNCC API Documentation
 
 **Base URL**: `https://tccia.kalen.co.tz`
 
-This documentation covers all the API endpoints used in the TCCIA frontend application. These are the exact endpoints that your Flutter mobile app should use with Dio.
+This documentation covers all the API endpoints used in the TNCC frontend application. These are the exact endpoints that your Flutter mobile app should use with Dio.
 
 ## Authentication
 
@@ -1011,11 +1011,11 @@ image_files: [File] (multiple files)
 ```dart
 import 'package:dio/dio.dart';
 
-class TCCIAApiService {
+class TNCCApiService {
   final Dio _dio = Dio();
   static const String baseUrl = 'https://tccia.kalen.co.tz';
   
-  TCCIAApiService() {
+  TNCCApiService() {
     _dio.options.baseUrl = baseUrl;
     _dio.options.connectTimeout = const Duration(seconds: 30);
     _dio.options.receiveTimeout = const Duration(seconds: 30);

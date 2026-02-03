@@ -61,7 +61,7 @@ export default function StatsBar() {
               <SelectContent>
                 <SelectGroup>
                   <SelectLabel>Companies</SelectLabel>
-                  <SelectItem value="apple">TCCIA COMPANY</SelectItem>
+                  <SelectItem value="apple">TNCC COMPANY</SelectItem>
                   <SelectItem value="banana">ABC COMPANY</SelectItem>
                   <SelectItem value="blueberry">AZANIA GROUP</SelectItem>
                   <SelectItem value="grapes">MO COMPANY</SelectItem>

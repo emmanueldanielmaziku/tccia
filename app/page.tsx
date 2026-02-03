@@ -20,7 +20,7 @@ export default function SplashScreen() {
         <div className="flex items-center justify-center relative">
           <img
             src="/icons/LOGO.png"
-            alt="TCCIA Logo"
+            alt="TNCC Logo"
             width={90}
             height={90}
             className="object-contain md:h-[150px] md:w-[150px]"

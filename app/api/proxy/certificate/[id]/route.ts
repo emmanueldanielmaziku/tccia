@@ -31,7 +31,7 @@ export async function GET(req: NextRequest, context: any) {
     const remoteRes = await fetch(remoteUrl, {
       headers: {
         Authorization: `Bearer ${token.trim()}`,
-        "User-Agent": "TCCIA-Frontend/1.0",
+        "User-Agent": "TNCC-Frontend/1.0",
       },
     });
 

@@ -160,7 +160,7 @@ export default function SideBar() {
           {isMenuOpen && (
             <div>
               <h1 className="font-bold text-lg md:text-xl text-gray-700 truncate">
-                TCCIA'S CLIENT
+                TNCC'S CLIENT
               </h1>
               <div className="text-sm md:text-base text-gray-500">{t("dashboard")}</div>
             </div>
