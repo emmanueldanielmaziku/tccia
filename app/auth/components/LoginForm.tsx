@@ -78,8 +78,9 @@ export default function LoginForm() {
       if (response.status === 403 && result.result?.need_otp_verification) {
         startOtp({
           login: data.login,
-          password: data.password,
-          message: result.result?.error || "Account not verified. Please enter the OTP sent to your phone/email.",
+          message:
+            result.result?.error ||
+            "Account not verified. Please enter the OTP sent to your phone/email.",
         });
         return;
       }
