@@ -47,7 +47,7 @@ export default function MobileInfoPage() {
         </div>
         <div className="flex flex-row gap-6 mb-8">
           <a
-            href="mailto:support@tccia.com"
+            href="mailto:support@tncc.com"
             className="flex flex-col items-center text-blue-600 hover:underline"
           >
             <Image

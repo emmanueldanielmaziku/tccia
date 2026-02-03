@@ -41,13 +41,13 @@ export default function NavBar() {
         {/* Desktop Menu */}
         <ul className="hidden md:flex space-x-12">
           <li>
-            <a href="https://tccia.or.tz/" className="hover:text-blue-500">
+            <a href="https://tncc.or.tz/" className="hover:text-blue-500">
               {tn("home")}
             </a>
           </li>
     
           <li>
-            <a href="https://tccia.or.tz/about-us/" className="hover:text-blue-500">
+            <a href="https://tncc.or.tz/about-us/" className="hover:text-blue-500">
               {tn("about")}
             </a>
           </li>
