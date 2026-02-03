@@ -186,7 +186,7 @@ export default function LoginForm() {
         )}
       </div>
 
-      {/* <button
+      <button
         type="submit"
         disabled={isSubmitting}
         className="bg-blue-500 text-white px-4 sm:px-6 py-2 sm:py-2.5 rounded-[6px] sm:rounded-[8px] text-xs sm:text-[15px] hover:bg-blue-600 cursor-pointer flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
@@ -197,8 +197,8 @@ export default function LoginForm() {
           </div>
         ) : (
           t("common.login")
-        )}d
-      </button> */}
+        )}
+      </button>
 
 <div className="flex flex-col sm:flex-row justify-between items-center gap-2 sm:gap-0">
 <div className="flex items-center space-x-2 sm:space-x-4">
