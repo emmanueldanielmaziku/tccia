@@ -6,7 +6,7 @@ This document provides the complete NTB flow implementation and API endpoints fo
 
 ### Backend API (Direct - Use These)
 ```
-https://tccia.kalen.co.tz/api
+https://tncc.kalen.co.tz/api
 ```
 
 ## NTB Flow Implementation
@@ -57,7 +57,7 @@ If "operator_type" = "others":
     ↓
 User fills form and submits
     ↓
-Call API: POST https://tccia.kalen.co.tz/api/user/update-profile
+Call API: POST https://tncc.kalen.co.tz/api/user/update-profile
     ↓
 On success: Switch to NTB List mode
     ↓
@@ -202,7 +202,7 @@ New NTB Form Mode
 ## 6. User Profile Endpoints (Required for NTB Flow)
 
 ### Get User Profile
-**Endpoint:** `GET https://tccia.kalen.co.tz/api/user_profile`
+**Endpoint:** `GET https://tncc.kalen.co.tz/api/user_profile`
 
 #### Headers
 ```
@@ -229,7 +229,7 @@ Authorization: Bearer {token}
 ```
 
 ### Update User Profile
-**Endpoint:** `POST https://tccia.kalen.co.tz/api/user/update-profile`
+**Endpoint:** `POST https://tncc.kalen.co.tz/api/user/update-profile`
 
 #### Headers
 ```
@@ -273,7 +273,7 @@ Authorization: Bearer {token}
 
 ## 1. Submit NTB Report
 
-**Endpoint:** `POST https://tccia.kalen.co.tz/api/ntb/create-with-files`
+**Endpoint:** `POST https://tncc.kalen.co.tz/api/ntb/create-with-files`
 
 ### Headers
 ```
@@ -402,7 +402,7 @@ formData.append('image_files', image1);
 
 ## 2. Get NTB List
 
-**Endpoint:** `GET https://tccia.kalen.co.tz/api/ntb/list`
+**Endpoint:** `GET https://tncc.kalen.co.tz/api/ntb/list`
 
 ### Headers
 ```
@@ -433,7 +433,7 @@ Authorization: Bearer {token}
 
 ## 3. Get NTB Details
 
-**Endpoint:** `GET https://tccia.kalen.co.tz/api/ntb/{id}`
+**Endpoint:** `GET https://tncc.kalen.co.tz/api/ntb/{id}`
 
 ### Headers
 ```
@@ -465,7 +465,7 @@ Authorization: Bearer {token}
 
 ## 4. Get NTB Types
 
-**Endpoint:** `GET https://tccia.kalen.co.tz/api/ntb/types`
+**Endpoint:** `GET https://tncc.kalen.co.tz/api/ntb/types`
 
 ### Success Response (200)
 ```json
@@ -492,7 +492,7 @@ Authorization: Bearer {token}
 
 ## 5. Get NTB Feedback
 
-**Endpoint:** `GET https://tccia.kalen.co.tz/api/ntb/report/web/feedback?tracking_code={code}`
+**Endpoint:** `GET https://tncc.kalen.co.tz/api/ntb/report/web/feedback?tracking_code={code}`
 
 ### Headers
 ```
@@ -539,7 +539,7 @@ formData.append('complaint_details', 'Customs officials are demanding additional
 formData.append('product_description', 'Agricultural machinery parts');
 formData.append('occurrence', 'Every shipment');
 
-const response = await fetch('https://tccia.kalen.co.tz/api/ntb/create-with-files', {
+const response = await fetch('https://tncc.kalen.co.tz/api/ntb/create-with-files', {
   method: 'POST',
   headers: {
     'Authorization': 'Bearer your-token-here'
@@ -552,7 +552,7 @@ const result = await response.json();
 
 ### Get NTB List
 ```javascript
-const response = await fetch('https://tccia.kalen.co.tz/api/ntb/list', {
+const response = await fetch('https://tncc.kalen.co.tz/api/ntb/list', {
   method: 'GET',
   headers: {
     'Authorization': 'Bearer your-token-here'
@@ -564,7 +564,7 @@ const result = await response.json();
 
 ### Get NTB Details
 ```javascript
-const response = await fetch('https://tccia.kalen.co.tz/api/ntb/123', {
+const response = await fetch('https://tncc.kalen.co.tz/api/ntb/123', {
   method: 'GET',
   headers: {
     'Authorization': 'Bearer your-token-here'
@@ -576,7 +576,7 @@ const result = await response.json();
 
 ### Get NTB Types
 ```javascript
-const response = await fetch('https://tccia.kalen.co.tz/api/ntb/types', {
+const response = await fetch('https://tncc.kalen.co.tz/api/ntb/types', {
   method: 'GET'
 });
 
@@ -585,7 +585,7 @@ const result = await response.json();
 
 ### Get NTB Feedback
 ```javascript
-const response = await fetch('https://tccia.kalen.co.tz/api/ntb/report/web/feedback?tracking_code=NTB-2024-001234', {
+const response = await fetch('https://tncc.kalen.co.tz/api/ntb/report/web/feedback?tracking_code=NTB-2024-001234', {
   method: 'GET',
   headers: {
     'Authorization': 'Bearer your-token-here'
@@ -597,7 +597,7 @@ const result = await response.json();
 
 ### Get User Profile
 ```javascript
-const response = await fetch('https://tccia.kalen.co.tz/api/user_profile', {
+const response = await fetch('https://tncc.kalen.co.tz/api/user_profile', {
   method: 'GET',
   headers: {
     'Authorization': 'Bearer your-token-here'
@@ -609,7 +609,7 @@ const result = await response.json();
 
 ### Update User Profile
 ```javascript
-const response = await fetch('https://tccia.kalen.co.tz/api/user/update-profile', {
+const response = await fetch('https://tncc.kalen.co.tz/api/user/update-profile', {
   method: 'POST',
   headers: {
     'Authorization': 'Bearer your-token-here',

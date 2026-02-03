@@ -181,7 +181,7 @@ export default function HelpDeskPortal({ onBack }: { onBack: () => void }) {
             </div>
             <div>
               <h2 className="text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">
-                Welcome to TCCIA Help Desk
+                Welcome to TNCC Help Desk
               </h2>
               <p className="text-lg text-gray-600 mt-3 max-w-2xl mx-auto">
                 We're here to help! Submit a support request or track an existing ticket.
@@ -198,7 +198,7 @@ export default function HelpDeskPortal({ onBack }: { onBack: () => void }) {
                   Submit Request
                 </h3>
                 <p className="text-gray-600 mb-6">
-                  Need help with TCCIA services? Submit a detailed support request and our team will assist you.
+                  Need help with TNCC services? Submit a detailed support request and our team will assist you.
                 </p>
                 <Button
                   className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-6 cursor-pointer rounded-[9px] transition-all duration-200 group-hover:scale-105"

@@ -1,7 +1,7 @@
 # NTB API Reference
 
 ## Overview
-This document records the NTB endpoints used by the frontend, together with the exact request payloads and response shapes observed in the current integration environment (`https://tccia.kalen.co.tz`).
+This document records the NTB endpoints used by the frontend, together with the exact request payloads and response shapes observed in the current integration environment (`https://tncc.kalen.co.tz`).
 
 ---
 

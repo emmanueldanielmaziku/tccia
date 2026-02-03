@@ -8,13 +8,13 @@ export default function MobileInfoPage() {
       <div className="flex flex-col items-center mt-10">
         <Image
           src="/icons/LOGO.png"
-          alt="TCCIA Logo"
+          alt="TNCC Logo"
           width={100}
           height={100}
           className="mb-4"
         />
         <h1 className="text-2xl md:text-4xl font-bold text-center text-blue-700 mb-2">
-          Welcome to TCCIA Portal
+          Welcome to TNCC Portal
         </h1>
         <h2 className="text-lg md:text-xl text-center text-gray-700 mb-6">
           For the best experience, please use our official mobile app.
@@ -47,7 +47,7 @@ export default function MobileInfoPage() {
         </div>
         <div className="flex flex-row gap-6 mb-8">
           <a
-            href="mailto:support@tccia.com"
+            href="mailto:support@tncc.com"
             className="flex flex-col items-center text-blue-600 hover:underline"
           >
             <Image
@@ -80,10 +80,10 @@ export default function MobileInfoPage() {
             width={24}
             height={24}
           />
-          <span>Tanzania Chamber of Commerce, Industry and Agriculture</span>
+          <span>Tanzania National Chamber of Commerce</span>
         </div>
         <span>
-          &copy; {new Date().getFullYear()} TCCIA. All rights reserved.
+          &copy; {new Date().getFullYear()} TNCC. All rights reserved.
         </span>
       </footer>
     </main>

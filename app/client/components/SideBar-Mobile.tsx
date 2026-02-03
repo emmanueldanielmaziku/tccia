@@ -127,7 +127,7 @@ export default function SideBarMobile() {
           <img src="/icons/LOGO.png" alt="Logo" className="w-15 h-15" />
           <div>
             <h1 className="font-bold text-xl text-gray-700 truncate">
-              TCCIA'S CLIENT
+              TNCC'S CLIENT
             </h1>
             <div className="text-gray-500">{t("dashboard")}</div>
           </div>

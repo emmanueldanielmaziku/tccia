@@ -143,7 +143,7 @@ export default function PaymentPopup({
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
                   <div className="flex flex-col">
                     <span className="text-gray-600 text-xs mb-1">Account Name</span>
-                    <span className="font-medium text-gray-900">TCCIA</span>
+                    <span className="font-medium text-gray-900">TNCC</span>
                   </div>
                   <div className="flex flex-col">
                     <span className="text-gray-600 text-xs mb-1">Account Number</span>
