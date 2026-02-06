@@ -92,6 +92,13 @@ export default function LoginForm() {
       }
 
       if (result.result?.token) {
+        // Store modules and permissions in localStorage for permission checks
+        if (result.result.modules) {
+          localStorage.setItem("userModules", JSON.stringify(result.result.modules));
+        }
+        if (result.result.companies) {
+          localStorage.setItem("userCompanies", JSON.stringify(result.result.companies));
+        }
         setIsSubmitting(false);
         router.push("/client/firm-management");
       } else {

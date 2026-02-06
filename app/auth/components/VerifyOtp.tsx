@@ -8,7 +8,7 @@ export default function VerifyOtp() {
   const tf = useTranslations("forms");
   const t = useTranslations();
   const { stopOtp, otpLogin, otpMessage, startOtp } = useOtpVerificationState();
-  const { toggleFormType } = useFormState();
+  const { toggleFormType, formType } = useFormState();
 
   const [login, setLogin] = useState(otpLogin ?? "");
   const [otp, setOtp] = useState("");
@@ -60,9 +60,10 @@ export default function VerifyOtp() {
       // Return to login
       setTimeout(() => {
         stopOtp();
-        // Ensure auth screen shows login
-        // If currently on register, toggle back
-        toggleFormType();
+        // Ensure auth screen shows login (only toggle if currently on register)
+        if (formType === "register") {
+          toggleFormType();
+        }
       }, 1200);
     } catch (err) {
       setError(err instanceof Error ? err.message : "OTP verification failed");
@@ -187,8 +188,10 @@ export default function VerifyOtp() {
         type="button"
         onClick={() => {
           stopOtp();
-          // Ensure login view
-          toggleFormType();
+          // Ensure login view (only toggle if currently on register)
+          if (formType === "register") {
+            toggleFormType();
+          }
         }}
         className="text-gray-600 text-sm underline"
       >

@@ -29,12 +29,16 @@ import { useRouter } from "next/navigation";
 
 import usePickerState from "../../services/PickerState";
 import { useRightSidebar } from "../../../contexts/RightSidebarContext";
+import { useUserPermissions } from "../../../hooks/useUserPermissions";
 
 export default function COO() {
   const { isRightSidebarOpen } = useRightSidebar();
+  const { canAdd } = useUserPermissions();
   const [verificationForm, toggleForm] = useState(false);
   const [isNewCertificateModalOpen, setIsNewCertificateModalOpen] =
     useState(false);
+  
+  const canAddCOO = canAdd("certificate_origin");
 
 
   const [searchQuery, setSearchQuery] = useState("");
@@ -459,8 +463,20 @@ export default function COO() {
                     <span className="sm:hidden">{isRefreshing ? "..." : "↻"}</span>
                   </button>
                   <button
-                    className="flex flex-row gap-1 sm:gap-2 justify-between items-center bg-blue-600 hover:bg-blue-500 text-white text-xs sm:text-sm rounded-[6px] sm:rounded-[7px] cursor-pointer px-2 sm:px-2 py-1.5 sm:py-[8px] w-full md:w-auto disabled:opacity-50 disabled:cursor-not-allowed"
-                    onClick={() => setIsNewCertificateModalOpen(true)}
+                    className={`flex flex-row gap-1 sm:gap-2 justify-between items-center text-white text-xs sm:text-sm rounded-[6px] sm:rounded-[7px] px-2 sm:px-2 py-1.5 sm:py-[8px] w-full md:w-auto ${
+                      canAddCOO
+                        ? "bg-blue-600 hover:bg-blue-500 cursor-pointer"
+                        : "bg-gray-400 cursor-not-allowed opacity-60"
+                    }`}
+                    onClick={() => {
+                      if (canAddCOO) setIsNewCertificateModalOpen(true);
+                    }}
+                    disabled={!canAddCOO}
+                    title={
+                      !canAddCOO
+                        ? "You don't have permission to add certificates of origin"
+                        : "Add new certificate of origin"
+                    }
                   >
                     <Add size="16" className="w-4 h-4 sm:w-5 sm:h-5" color="white" />
                     <span className="hidden sm:inline">New Certificate</span>

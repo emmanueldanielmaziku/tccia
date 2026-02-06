@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useMemo, useState } from "react";
 import { z } from "zod";
-import { Sms, Call, User, Building, Layer, Verify, Chart } from "iconsax-reactjs";
+import { Sms, Call, User, Building, Layer, Verify, Chart, Lock } from "iconsax-reactjs";
 import { Checkbox } from "@/components/ui/checkbox";
 
 const userSchema = z.object({
@@ -109,11 +109,13 @@ const PreviewWidget: React.FC<PreviewWidgetProps> = ({
                 <Layer size={18} color="#666" />
                 <span className="font-medium text-gray-700">Module Access:</span>
               </div>
-              {user.modules.length === 0 ? (
+              {user.modules.filter((m) => m.module_name !== "Company Registration").length === 0 ? (
                 <div className="ml-8 text-sm text-gray-500">No module permissions selected</div>
               ) : (
                 <ul className="ml-8 list-disc">
-                  {user.modules.map((m) => (
+                  {user.modules
+                    .filter((m) => m.module_name !== "Company Registration")
+                    .map((m) => (
                     <li key={m.module_id}>
                       <span className="font-medium">{m.module_name}</span>{" "}
                       <span className="text-xs text-gray-500">
@@ -189,7 +191,12 @@ export default function AddOfficerForm({
         const modsJson = await modsRes.json();
         const permsJson = await permsRes.json();
 
-        setModules(Array.isArray(modsJson?.modules) ? modsJson.modules : []);
+        // Filter out company_registration module
+        const allModules = Array.isArray(modsJson?.modules) ? modsJson.modules : [];
+        const filteredModules = allModules.filter(
+          (module: Module) => module.code !== "company_registration"
+        );
+        setModules(filteredModules);
         setPermissions(
           Array.isArray(permsJson?.permissions) ? permsJson.permissions : []
         );
@@ -304,10 +311,14 @@ export default function AddOfficerForm({
         body: JSON.stringify(payload),
       });
       const data = await res.json();
-      if (!res.ok) {
-        setSubmitError(data?.error || "Failed to add employee.");
+      
+      // Check for errors in response body even if status is 200
+      if (!res.ok || data?.result?.error || (data?.result?.success === false)) {
+        const errorMessage = data?.result?.error || data?.error || "Failed to add employee.";
+        setSubmitError(errorMessage);
         return;
       }
+      
       togglePreview(false);
       if (onSuccess) onSuccess();
     } catch (e) {
@@ -338,68 +349,71 @@ export default function AddOfficerForm({
         onSubmit={handlePreview}
       >
         <div className="flex flex-col gap-4 overflow-hidden overflow-y-auto max-h-[700px] pr-3">
-          {/* Full Name */}
-          <div className="relative w-full">
-            <div className="text-sm py-2 w-full">Full Name</div>
-            <input
-              type="text"
-              placeholder="Enter full name..."
-              value={formData.name}
-              onChange={(e) => handleInputChange("name", e.target.value)}
-              className={`w-full px-6 py-3.5 pr-12 border ${
-                errors.name ? "border-red-500" : "border-zinc-300"
-              } bg-zinc-100 outline-blue-400 rounded-[8px] placeholder:text-zinc-400 text-zinc-500 placeholder:text-[15px]`}
-            />
-            <User
-              size="22"
-              color="#9F9FA9"
-              className="absolute top-13 right-5"
-            />
-            {errors.name && (
-              <p className="text-red-500 text-sm mt-1">{errors.name}</p>
-            )}
-          </div>
-          {/* Email */}
-          <div className="relative w-full">
-            <div className="text-sm py-2 w-full">Email Address</div>
-            <input
-              type="email"
-              placeholder="Enter email address..."
-              value={formData.email}
-              onChange={(e) => handleInputChange("email", e.target.value)}
-              className={`w-full px-6 py-3.5 pr-12 border ${
-                errors.email ? "border-red-500" : "border-zinc-300"
-              } bg-zinc-100 outline-blue-400 rounded-[8px] placeholder:text-zinc-400 text-zinc-500 placeholder:text-[15px]`}
-            />
-            <Sms
-              size="22"
-              color="#9F9FA9"
-              className="absolute top-13 right-5"
-            />
-            {errors.email && (
-              <p className="text-red-500 text-sm mt-1">{errors.email}</p>
-            )}
-          </div>
-          {/* Phone */}
-          <div className="relative w-full">
-            <div className="text-sm py-2 w-full">Phone Number</div>
-            <input
-              type="tel"
-              placeholder="Enter phone number..."
-              value={formData.phone}
-              onChange={(e) => handleInputChange("phone", e.target.value)}
-              className={`w-full px-6 py-3.5 pr-12 border ${
-                errors.phone ? "border-red-500" : "border-zinc-300"
-              } bg-zinc-100 outline-blue-400 rounded-[8px] placeholder:text-zinc-400 text-zinc-500 placeholder:text-[15px]`}
-            />
-            <Call
-              size="22"
-              color="#9F9FA9"
-              className="absolute top-13 right-5"
-            />
-            {errors.phone && (
-              <p className="text-red-500 text-sm mt-1">{errors.phone}</p>
-            )}
+          {/* Primary info row */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {/* Full Name */}
+            <div className="relative w-full">
+              <div className="text-sm py-2 w-full">Full Name</div>
+              <input
+                type="text"
+                placeholder="Enter full name..."
+                value={formData.name}
+                onChange={(e) => handleInputChange("name", e.target.value)}
+                className={`w-full px-6 py-3.5 pr-12 border ${
+                  errors.name ? "border-red-500" : "border-zinc-300"
+                } bg-zinc-100 outline-blue-400 rounded-[8px] placeholder:text-zinc-400 text-zinc-500 placeholder:text-[15px]`}
+              />
+              <User
+                size="22"
+                color="#9F9FA9"
+                className="absolute top-13 right-5"
+              />
+              {errors.name && (
+                <p className="text-red-500 text-sm mt-1">{errors.name}</p>
+              )}
+            </div>
+            {/* Email */}
+            <div className="relative w-full">
+              <div className="text-sm py-2 w-full">Email Address</div>
+              <input
+                type="email"
+                placeholder="Enter email address..."
+                value={formData.email}
+                onChange={(e) => handleInputChange("email", e.target.value)}
+                className={`w-full px-6 py-3.5 pr-12 border ${
+                  errors.email ? "border-red-500" : "border-zinc-300"
+                } bg-zinc-100 outline-blue-400 rounded-[8px] placeholder:text-zinc-400 text-zinc-500 placeholder:text-[15px]`}
+              />
+              <Sms
+                size="22"
+                color="#9F9FA9"
+                className="absolute top-13 right-5"
+              />
+              {errors.email && (
+                <p className="text-red-500 text-sm mt-1">{errors.email}</p>
+              )}
+            </div>
+            {/* Phone */}
+            <div className="relative w-full">
+              <div className="text-sm py-2 w-full">Phone Number</div>
+              <input
+                type="tel"
+                placeholder="Enter phone number..."
+                value={formData.phone}
+                onChange={(e) => handleInputChange("phone", e.target.value)}
+                className={`w-full px-6 py-3.5 pr-12 border ${
+                  errors.phone ? "border-red-500" : "border-zinc-300"
+                } bg-zinc-100 outline-blue-400 rounded-[8px] placeholder:text-zinc-400 text-zinc-500 placeholder:text-[15px]`}
+              />
+              <Call
+                size="22"
+                color="#9F9FA9"
+                className="absolute top-13 right-5"
+              />
+              {errors.phone && (
+                <p className="text-red-500 text-sm mt-1">{errors.phone}</p>
+              )}
+            </div>
           </div>
           {/* Company */}
           <div>
@@ -424,6 +438,14 @@ export default function AddOfficerForm({
               <Chart size={18} color="#6B7280" />
               Module Access
             </div>
+            <div className="text-xs text-gray-700 bg-gray-50 border border-dashed border-gray-200 rounded-md px-3 py-2 mb-3 leading-relaxed">
+              <p className="mb-1 font-medium text-gray-800">Notes for Module Access:</p>
+              <ul className="list-disc pl-4 space-y-1">
+                <li>Leave blank if the employee should not have access to any module.</li>
+                <li>Select specific permissions under each module to limit access.</li>
+                <li>If the employee needs full access to a module, select all permissions for that module.</li>
+              </ul>
+            </div>
             {loadingMeta ? (
               <div className="text-sm text-gray-500">Loading modules and permissions...</div>
             ) : modules.length === 0 ? (
@@ -439,18 +461,44 @@ export default function AddOfficerForm({
                       <div className="font-medium text-gray-800 text-sm">{m.name}</div>
                       <div className="text-xs text-gray-500">{m.code}</div>
                     </div>
+                    {(() => {
+                      const selectedPerms = modulePerms[m.id] || [];
+                      const isRestricted = selectedPerms.length === 0;
+                      return (
+                        <div className="mt-3 mb-2 flex items-center gap-2 text-xs text-gray-600">
+                          <Checkbox
+                            id={`m-${m.id}-restricted`}
+                            checked={isRestricted}
+                            disabled
+                            className="cursor-default border-blue-400 data-[state=checked]:bg-blue-400 data-[state=checked]:border-blue-400"
+                          />
+                          <label
+                            htmlFor={`m-${m.id}-restricted`}
+                            className="flex items-center gap-2 cursor-default select-none"
+                          >
+                            <Lock size={14} />
+                            <span className="text-sm text-gray-600">
+                              Restricted by default if no permissions are selected.
+                            </span>
+                          </label>
+                        </div>
+                      );
+                    })()}
                     <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3">
                       {permissions.map((p) => (
-                        <div key={`${m.id}-${p.id}`} className="flex items-center space-x-2">
+                        <div
+                          key={`${m.id}-${p.id}`}
+                          className="flex items-center space-x-2 cursor-pointer rounded-md py-1 transition-colors"
+                        >
                           <Checkbox
                             id={`m-${m.id}-p-${p.id}`}
                             checked={(modulePerms[m.id] || []).includes(p.code)}
                             onCheckedChange={() => togglePermission(m.id, p.code)}
-                            className="cursor-pointer"
+                            className="cursor-pointer border-blue-300 data-[state=checked]:bg-blue-500 data-[state=checked]:border-blue-500"
                           />
                           <label
                             htmlFor={`m-${m.id}-p-${p.id}`}
-                            className="text-sm font-medium leading-none"
+                            className="text-sm font-medium leading-none cursor-pointer hover:text-blue-600 transition-colors"
                           >
                             {p.name}
                             <span className="text-xs text-gray-500 ml-2">({p.code})</span>

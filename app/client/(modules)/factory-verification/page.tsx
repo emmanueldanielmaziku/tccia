@@ -36,6 +36,7 @@ import { Download, UserPlus } from "lucide-react";
 import { useRightSidebar } from "../../../contexts/RightSidebarContext";
 import { useApiWithSessionHandling } from "../../../hooks/useApiWithSessionHandling";
 import { handleSessionError } from "../../../utils/sessionErrorHandler";
+import { useUserPermissions } from "../../../hooks/useUserPermissions";
 
 interface Product {
   sn: number;
@@ -94,7 +95,10 @@ const getStatusBadgeClass = (status: string) => {
 export default function FactoryVerification() {
   const { isRightSidebarOpen } = useRightSidebar();
   const { fetchWithSessionHandling } = useApiWithSessionHandling();
+  const { canAdd } = useUserPermissions();
   const [verificationForm, toggleForm] = useState(false);
+  
+  const canAddFactoryVerification = canAdd("factory_verification");
   const [discardBoxState, togglediscardBox] = useState(false);
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
@@ -496,8 +500,20 @@ export default function FactoryVerification() {
                     <span className="sm:hidden lg:hidden">{loading ? "..." : "↻"}</span>
                   </button>
                   <button
-                    className="flex flex-row gap-1 sm:gap-2 lg:gap-3 justify-center items-center bg-blue-600 hover:bg-blue-500 text-white text-xs sm:text-sm rounded-[5px] sm:rounded-[6px] cursor-pointer px-2 sm:px-3 h-[38px] w-full lg:w-auto"
-                    onClick={() => toggleForm(true)}
+                    className={`flex flex-row gap-1 sm:gap-2 lg:gap-3 justify-center items-center text-white text-xs sm:text-sm rounded-[5px] sm:rounded-[6px] px-2 sm:px-3 h-[38px] w-full lg:w-auto ${
+                      canAddFactoryVerification
+                        ? "bg-blue-600 hover:bg-blue-500 cursor-pointer"
+                        : "bg-gray-400 cursor-not-allowed opacity-60"
+                    }`}
+                    onClick={() => {
+                      if (canAddFactoryVerification) toggleForm(true);
+                    }}
+                    disabled={!canAddFactoryVerification}
+                    title={
+                      !canAddFactoryVerification
+                        ? "You don't have permission to add factory verification"
+                        : "Add new factory verification"
+                    }
                   >
                     <Add size="16" className="w-4 h-4 sm:w-5 sm:h-5" color="white" />
                     <span className="hidden sm:inline">New Product</span>

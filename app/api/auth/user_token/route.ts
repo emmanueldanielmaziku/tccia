@@ -80,6 +80,11 @@ export async function POST(request: Request) {
         result: {
           token: data.result.token,
           uid: data.result.uid,
+          modules: data.result.modules || [],
+          companies: data.result.companies || [],
+          user_type: data.result.user_type,
+          user_role: data.result.user_role,
+          name: data.result.name,
         },
       });
     }

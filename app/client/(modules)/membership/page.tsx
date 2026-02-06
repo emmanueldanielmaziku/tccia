@@ -7,14 +7,19 @@ import AlertBox from "../factory-verification/components/AlertBox";
 import StatsBar from "./components/StatsBar";
 import MembershipApplication from "./components/MembershipApplication";
 import MembershipProgress from "./components/MembershipProgress";
+import { useUserPermissions } from "../../../hooks/useUserPermissions";
 
 export default function Membership() {
+  const { canAdd, canView } = useUserPermissions();
   const [showForm, setShowForm] = useState(false);
   const [discardBoxState, setDiscardBoxState] = useState(false);
   const [selectedTin, setSelectedTin] = useState<string | null>(null);
   const [hasApplication, setHasApplication] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
   const [applicationData, setApplicationData] = useState<any>(null);
+  
+  const canAddMembership = canAdd("membership");
+  const canViewMembership = canView("membership");
 
   useEffect(() => {
     const storedCompany = localStorage.getItem("selectedCompany");
@@ -90,21 +95,23 @@ export default function Membership() {
                     </button>
                     <button
                       className={`flex flex-row gap-2 lg:gap-3 justify-center lg:justify-between items-center text-sm rounded-[6px] px-4 lg:px-5 py-2 w-full sm:w-auto ${
-                        hasApplication
+                        hasApplication || !canAddMembership
                           ? "bg-gray-300 text-gray-500 cursor-not-allowed"
                           : "bg-blue-600 hover:bg-blue-500 text-white cursor-pointer"
                       }`}
                       onClick={() => {
-                        if (!hasApplication) setShowForm(true);
+                        if (!hasApplication && canAddMembership) setShowForm(true);
                       }}                
-                      disabled={hasApplication}
+                      disabled={hasApplication || !canAddMembership}
                       title={
-                        hasApplication
+                        !canAddMembership
+                          ? "You don't have permission to add membership applications"
+                          : hasApplication
                           ? "You already have a membership application"
                           : "Start a new application"
                       }
                     >
-                      {hasApplication ? (
+                      {hasApplication || !canAddMembership ? (
                         <Lock size={18} className="lg:w-5 lg:h-5" color="#6b7280" />
                       ) : (
                         <Add size={18} className="lg:w-5 lg:h-5" color="white" />
