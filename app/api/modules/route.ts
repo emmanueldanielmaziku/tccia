@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 
-const API_BASE_URL = "https://tcpdev.kalen.co.tz";
+const API_BASE_URL = "https://tccia.kalen.co.tz";
 
 const STATIC_MODULES = [
   { id: 1, name: "Company Registration", code: "company_registration" },

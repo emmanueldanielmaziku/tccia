@@ -286,7 +286,7 @@ export default function COO() {
     application_code_number?: string
   ) => {
     const certType = getCertificateType(application_code_number || "");
-    const certificateUrl = `https://tcpdev.kalen.co.tz/certificate_of_origin/static/certificate/${certType}/index.html?id=${aid}`;
+    const certificateUrl = `https://tccia.kalen.co.tz/certificate_of_origin/static/certificate/${certType}/index.html?id=${aid}`;
     window.open(certificateUrl, "_blank");
   };
 
