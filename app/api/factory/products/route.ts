@@ -96,11 +96,12 @@ export async function POST(request: Request) {
       return NextResponse.json({
         success: true,
         verifications: data.verifications,
+        pagination: data.pagination,
         message: data.message || "Factory verifications fetched successfully",
       });
     }
 
-    // Shape 2: flat products[] list (as seen in logs)
+    // Shape 2: new format with products[], pagination, and message
     if (Array.isArray(data.products)) {
       // Wrap products into a single pseudo-verification so the frontend
       // mapping logic can stay unchanged.
@@ -116,6 +117,7 @@ export async function POST(request: Request) {
       return NextResponse.json({
         success: true,
         verifications,
+        pagination: data.pagination,
         message: data.message || "Factory products fetched successfully",
       });
     }

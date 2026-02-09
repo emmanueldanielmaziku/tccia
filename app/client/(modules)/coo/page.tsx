@@ -351,7 +351,9 @@ export default function COO() {
   ).length;
 
   const approvedCount = certificateData.filter(
-    (certificate) => certificate.message_info.status === "Approved"
+    (certificate) => 
+      certificate.message_info.status === "Approved" ||
+      certificate.message_info.status === "Certified"
   ).length;
 
   return (
@@ -401,6 +403,7 @@ export default function COO() {
                           <SelectGroup>
                             <SelectItem value="all">All Status</SelectItem>
                             <SelectItem value="approved">Approved</SelectItem>
+                            <SelectItem value="certified">Certified</SelectItem>
                             <SelectItem value="pending">Pending</SelectItem>
                           </SelectGroup>
                         </SelectContent>
@@ -571,7 +574,9 @@ export default function COO() {
                         }. ${certificate.message_info.party_name}`}</div>
                         <div
                           className={`border-[0.5px] text-[10px] sm:text-[12px] rounded-[30px] px-2 sm:px-4 py-1 ${
-                            certificate.message_info.status === "Approved" || certificate.message_info.status === "Paid"
+                            certificate.message_info.status === "Approved" || 
+                            certificate.message_info.status === "Paid" ||
+                            certificate.message_info.status === "Certified"
                               ? "bg-green-50 border-green-200 text-green-600"
                               : "bg-orange-50 border-orange-200 text-orange-600"
                           }`}
@@ -655,7 +660,8 @@ export default function COO() {
                           </button>
                           <button
                             disabled={
-                              certificate.message_info.status != "Approved"
+                              certificate.message_info.status !== "Approved" &&
+                              certificate.message_info.status !== "Certified"
                             }
                             onClick={() =>
                               handlePrintCertificate(

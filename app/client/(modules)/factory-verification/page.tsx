@@ -225,8 +225,8 @@ export default function FactoryVerification() {
               verification_id: verification.id,
               verification_reference: verification.reference,
               // What we actually display in the status badge:
-              // prefer verification.state when present, otherwise fall back to product.state
-              verification_state: verification.state || product.state || "",
+              // prefer verification.state when present, otherwise use product.application_state
+              verification_state: verification.state || product.application_state || "",
             }))
         );
 
