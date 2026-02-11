@@ -166,19 +166,19 @@ export default function COO() {
             approval_date_and_time: cert.header?.[0]?.send_date_and_time || "",
 
             // Party Information
-            party_uuid: cert.party?.[0]?.party_uuid || "",
-            party_type_code: cert.party?.[0]?.party_type_code || "",
-            party_country_code: cert.party?.[0]?.party_country_code || "",
-            party_name: cert.party?.[0]?.party_name || "",
-            party_tin: cert.party?.[0]?.party_tin || "",
+            party_uuid: cert.party?.[2]?.party_uuid || "",
+            party_type_code: cert.party?.[2]?.party_type_code || "",
+            party_country_code: cert.party?.[2]?.party_country_code || "",
+            party_name: cert.party?.[2]?.party_name || "",
+            party_tin: cert.party?.[2]?.party_tin || "",
             party_physical_address:
-              cert.party?.[0]?.party_physical_address || "",
+              cert.party?.[2]?.party_physical_address || "",
             party_contact_officer_name:
-              cert.party?.[0]?.party_contact_officer_name || "",
+              cert.party?.[2]?.party_contact_officer_name || "",
             party_contact_officer_telephone_number:
-              cert.party?.[0]?.party_contact_officer_telephone_number || "",
+              cert.party?.[2]?.party_contact_officer_telephone_number || "",
             party_contact_officer_email:
-              cert.party?.[0]?.party_contact_officer_email || "",
+              cert.party?.[2]?.party_contact_officer_email || "",
           },
           transport: (cert.transport || []).map((t: any) => ({
             ...t,
