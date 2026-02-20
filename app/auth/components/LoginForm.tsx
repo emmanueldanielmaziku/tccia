@@ -10,7 +10,7 @@ import { Call, InfoCircle, Sms } from "iconsax-reactjs";
 import { useTranslations } from "next-intl";
 import { useApiWithSessionHandling } from "../../hooks/useApiWithSessionHandling";
 import { handleSessionError } from "../../utils/sessionErrorHandler";
-import { useOtpVerificationState } from "../services/FormStates";
+import { useOtpVerificationState, usePasswordChangeState } from "../services/FormStates";
 
 
 const schema = z.object({
@@ -46,6 +46,7 @@ export default function LoginForm() {
   const { toggleFormType } = useFormState();
   const { resetForm } = useResetFormState();
   const { startOtp } = useOtpVerificationState();
+  const { startPasswordChange } = usePasswordChangeState();
   const t = useTranslations();
   const tf = useTranslations("forms");
   const { fetchWithSessionHandling } = useApiWithSessionHandling();
@@ -74,6 +75,20 @@ export default function LoginForm() {
       const result = await response.json();
       console.log("Login response:", result);
 
+      // Password change required - check both status code and response body
+      if (result.result?.need_password_change === true || (response.status === 403 && result.result?.need_password_change)) {
+        console.log("Password change required, starting password change flow");
+        startPasswordChange({
+          login: data.login,
+          message:
+            result.result?.error ||
+            "Password change required. Please change your password before proceeding.",
+          user_role: result.result?.user_role || null,
+        });
+        setIsSubmitting(false);
+        return;
+      }
+
       // OTP verification required
       if (response.status === 403 && result.result?.need_otp_verification) {
         startOtp({
@@ -99,8 +114,54 @@ export default function LoginForm() {
         if (result.result.companies) {
           localStorage.setItem("userCompanies", JSON.stringify(result.result.companies));
         }
+        
+        // Store user info for easy access
+        if (result.result.name) {
+          localStorage.setItem("userName", result.result.name);
+        }
+        if (result.result.user_role) {
+          localStorage.setItem("userRole", result.result.user_role);
+        }
+        if (result.result.user_type) {
+          localStorage.setItem("userType", result.result.user_type);
+        }
+        
+        // Dispatch event to notify other components of login
+        window.dispatchEvent(new Event("USER_LOGIN_EVENT"));
+        
         setIsSubmitting(false);
-        router.push("/client/firm-management");
+        
+        // Find first accessible module to redirect to
+        const getFirstAccessibleRoute = () => {
+          if (!result.result.modules || !Array.isArray(result.result.modules)) {
+            return "/client";
+          }
+          
+          // Map module codes to routes
+          const moduleRouteMap: Record<string, string> = {
+            company_registration: "/client/firm-management",
+            factory_verification: "/client/factory-verification",
+            certificate_origin: "/client/coo",
+            membership: "/client/membership",
+          };
+          
+          // Check each module to find first one with can_view permission
+          for (const module of result.result.modules) {
+            if (module.code && module.permissions) {
+              const hasViewPermission = module.permissions.some(
+                (p: any) => p.code === "can_view"
+              );
+              if (hasViewPermission && moduleRouteMap[module.code]) {
+                return moduleRouteMap[module.code];
+              }
+            }
+          }
+          
+          // Fallback to dashboard if no accessible module found
+          return "/client";
+        };
+        
+        router.push(getFirstAccessibleRoute());
       } else {
         throw new Error(tf("messages.invalidResponse"));
       }

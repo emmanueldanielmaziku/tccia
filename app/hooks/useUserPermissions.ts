@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState, useEffect } from "react";
 
 interface Permission {
   id: number;
@@ -18,8 +18,23 @@ interface Module {
 /**
  * Hook to check user module permissions
  * Returns functions to check if user can view or add for specific modules
+ * Automatically refreshes when login data is updated
  */
 export function useUserPermissions() {
+  const [refreshKey, setRefreshKey] = useState(0);
+
+  // Listen for login events to refresh modules
+  useEffect(() => {
+    const handleLogin = () => {
+      setRefreshKey((prev) => prev + 1);
+    };
+
+    window.addEventListener("USER_LOGIN_EVENT", handleLogin);
+    return () => {
+      window.removeEventListener("USER_LOGIN_EVENT", handleLogin);
+    };
+  }, []);
+
   const modules = useMemo<Module[]>(() => {
     if (typeof window === "undefined") return [];
     
@@ -31,7 +46,7 @@ export function useUserPermissions() {
       console.error("Error parsing user modules:", error);
       return [];
     }
-  }, []);
+  }, [refreshKey]);
 
   /**
    * Check if user has a specific permission for a module

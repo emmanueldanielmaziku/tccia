@@ -306,6 +306,7 @@ export default function EmployeesManagement() {
       return;
     }
     
+    const newActiveStatus = !employee.active;
     setTogglingStatus(employee.id);
     try {
       const res = await fetchWithSessionHandling("/api/manager/toggle-employee-status", {
@@ -314,22 +315,46 @@ export default function EmployeesManagement() {
         body: JSON.stringify({
           employee_id: employee.id,
           company_id: selectedCompany.id,
-          active: !employee.active,
+          active: newActiveStatus,
         }),
       });
       
       const data = await res.json();
       
-      if (!res.ok || data?.result?.error || data?.result?.success === false || data?.error || data?.success === false) {
-        toast.error(
-          formatError(data?.result?.error || data?.error || data?.message) || "Failed to update employee status."
-        );
+      // Handle both simple format { success, message, ... } and JSON-RPC format { result: { ... } }
+      // Check for explicit error indicators
+      const hasExplicitError = 
+        data?.result?.error || 
+        data?.result?.success === false || 
+        data?.error || 
+        data?.success === false;
+      
+      // Check for explicit success indicators
+      const hasExplicitSuccess = 
+        data?.success === true || 
+        data?.result?.success === true;
+      
+      // If response is not OK or has explicit errors, treat as failure
+      if (!res.ok || hasExplicitError) {
+        const errorMessage = 
+          data?.result?.error || 
+          data?.error || 
+          data?.message || 
+          data?.result?.message ||
+          "Failed to update employee status.";
+        toast.error(formatError(errorMessage));
         return;
       }
       
+      // If response is OK but no explicit success/error, assume success
+      // If explicit success is present, that's good too
+      // Only fail if we have explicit errors (already handled above)
+      
       toast.success(
-        `Employee ${!employee.active ? "activated" : "deactivated"} successfully!`
+        `Employee ${newActiveStatus ? "activated" : "deactivated"} successfully!`
       );
+      
+      // Refresh the employee list to show updated status
       await fetchEmployees(currentPage);
     } catch (err) {
       toast.error(formatError(err) || "Network error while updating employee status.");

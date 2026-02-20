@@ -24,6 +24,15 @@ import usetinFormState from "../services/companytinformState";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
+// Company from login response
+interface LoginCompany {
+  id: number;
+  company_tin: string;
+  name: string;
+  state: string;
+}
+
+// Company from API response (full details)
 interface Company {
   id: number;
   company_tin: string;
@@ -73,6 +82,55 @@ export default function CompanyPicker() {
       setIsLoading(true);
       setError(null);
 
+      // First, try to get companies from login response (stored in localStorage)
+      const loginCompaniesStr = localStorage.getItem("userCompanies");
+      if (loginCompaniesStr) {
+        try {
+          const loginCompanies: LoginCompany[] = JSON.parse(loginCompaniesStr);
+          
+          // Convert login company format to Company format for compatibility
+          const convertedCompanies: Company[] = loginCompanies.map((lc) => ({
+            id: lc.id,
+            company_tin: lc.company_tin,
+            company_name: lc.name,
+            company_nationality_code: "",
+            company_registration_type_code: "",
+            company_fax_number: "",
+            company_postal_base_address: "",
+            company_postal_detail_address: "",
+            company_physical_address: "",
+            company_email: "",
+            company_postal_code: "",
+            company_telephone_number: "",
+            company_description: "",
+            state: lc.state,
+          }));
+
+          if (convertedCompanies.length > 0) {
+            setCompanies(convertedCompanies);
+
+            // Restore selected company if it exists
+            const storedCompany = localStorage.getItem("selectedCompany");
+            if (storedCompany) {
+              const parsedCompany = JSON.parse(storedCompany);
+              if (
+                convertedCompanies.some(
+                  (c) => c.company_tin === parsedCompany.company_tin
+                )
+              ) {
+                setSelectedCompany(parsedCompany.company_tin);
+              }
+            }
+            setIsLoading(false);
+            return;
+          }
+        } catch (parseError) {
+          console.error("Error parsing login companies:", parseError);
+          // Fall through to API fetch
+        }
+      }
+
+      // Fallback: Fetch from API if no login companies available
       const response = await fetch("/api/companies/list", {
         method: "POST",
         headers: {
@@ -124,6 +182,18 @@ export default function CompanyPicker() {
   useEffect(() => {
     fetchCompanies();
   }, [router]);
+
+  // Listen for login events to refresh companies
+  useEffect(() => {
+    const handleLogin = () => {
+      fetchCompanies();
+    };
+
+    window.addEventListener("USER_LOGIN_EVENT", handleLogin);
+    return () => {
+      window.removeEventListener("USER_LOGIN_EVENT", handleLogin);
+    };
+  }, []);
 
   useEffect(() => {
     const onStorage = (e: StorageEvent) => {

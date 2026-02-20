@@ -18,6 +18,28 @@ export async function POST(request: Request) {
     const data = await response.json();
     console.log("User token result:", data);
 
+    // If backend indicates password change required, pass it through as 403
+    // Check regardless of HTTP status code - backend might return 200 with need_password_change flag
+    if (data?.need_password_change === true || data?.result?.need_password_change === true) {
+      const err =
+        data?.error ||
+        data?.result?.error ||
+        data?.message ||
+        "Password change required. Please change your password before proceeding.";
+      return NextResponse.json(
+        {
+          jsonrpc: "2.0",
+          id: null,
+          result: {
+            error: err,
+            need_password_change: true,
+            user_role: data?.result?.user_role || data?.user_role,
+          },
+        },
+        { status: 403 }
+      );
+    }
+
     // If backend indicates OTP verification required, pass it through as 403
     if (
       response.status === 403 ||

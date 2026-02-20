@@ -167,6 +167,18 @@ export default function FactoryVerification() {
     fetchProducts();
   }, []);
 
+  useEffect(() => {
+    const handleCompanyChange = () => {
+      setError(null);
+      setIsEmpty(false);
+      fetchProducts();
+    };
+
+    window.addEventListener("COMPANY_CHANGE_EVENT", handleCompanyChange);
+    return () =>
+      window.removeEventListener("COMPANY_CHANGE_EVENT", handleCompanyChange);
+  }, []);
+
   const fetchProducts = async () => {
     try {
       setLoading(true);

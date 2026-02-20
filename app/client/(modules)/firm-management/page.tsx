@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect, useMemo } from "react";
+import { useRouter } from "next/navigation";
 import NavBar from "../../components/NavBar";
 import ProgressTracker from "../firm-management/components/StatsBar";
 import {
@@ -25,6 +26,7 @@ import {
 } from "@/components/ui/select";
 import usetinFormState from "../../services/companytinformState";
 import { useRightSidebar } from "../../../contexts/RightSidebarContext";
+import { useUserPermissions } from "../../../hooks/useUserPermissions";
 
 type Company = {
   id: number;
@@ -46,6 +48,8 @@ type Company = {
 export default function FirmManagement() {
   const { tinformState, toggleCompanyTinForm } = usetinFormState();
   const { isRightSidebarOpen } = useRightSidebar();
+  const { canView, getUserModules } = useUserPermissions();
+  const router = useRouter();
   const [discardBoxState, togglediscardBox] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
@@ -67,6 +71,7 @@ export default function FirmManagement() {
   const [registrationTypeFilter, setRegistrationTypeFilter] =
     useState("__all__");
   const [stateFilter, setStateFilter] = useState("__all__");
+  const [accessChecked, setAccessChecked] = useState(false);
 
   const fetchCompanies = async () => {
     setLoading(true);
@@ -143,6 +148,43 @@ export default function FirmManagement() {
         });
     });
   }, [companies]);
+
+  // Check access control - redirect if user doesn't have access to company_registration
+  useEffect(() => {
+    // Wait a bit for localStorage to be available
+    const checkAccess = () => {
+      const hasAccess = canView("company_registration");
+      
+      if (!hasAccess) {
+        // Find first accessible module or redirect to dashboard
+        const userModules = getUserModules();
+        const moduleRouteMap: Record<string, string> = {
+          factory_verification: "/client/factory-verification",
+          certificate_origin: "/client/coo",
+          membership: "/client/membership",
+        };
+        
+        // Try to find first accessible module
+        const accessibleModule = userModules.find((m) => 
+          canView(m.code) && moduleRouteMap[m.code]
+        );
+        
+        if (accessibleModule && moduleRouteMap[accessibleModule.code]) {
+          router.push(moduleRouteMap[accessibleModule.code]);
+        } else {
+          // Fallback to dashboard
+          router.push("/client");
+        }
+      } else {
+        setAccessChecked(true);
+      }
+    };
+
+    // Small delay to ensure localStorage is populated
+    const timer = setTimeout(checkAccess, 100);
+    return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Only run once on mount
 
   // Unique options for dropdowns
   const nationalityOptions = useMemo(
@@ -241,6 +283,19 @@ export default function FirmManagement() {
   const handlePreviousPage = () => {
     if (currentPage > 1) setCurrentPage(currentPage - 1);
   };
+
+  // Don't render content until access is checked and granted
+  // Show loading state while checking access
+  if (!accessChecked) {
+    return (
+      <main className="w-full h-[97vh] rounded-[12px] sm:rounded-[14px] overflow-hidden bg-white border-[1px] border-gray-200 shadow-sm relative">
+        <NavBar title={"Company Registration"} />
+        <div className="flex items-center justify-center h-full">
+          <div className="text-gray-500">Loading...</div>
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main className="w-full h-[97vh] rounded-[12px] sm:rounded-[14px] overflow-hidden bg-white border-[1px] border-gray-200 shadow-sm relative">

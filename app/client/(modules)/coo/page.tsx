@@ -40,7 +40,6 @@ export default function COO() {
   
   const canAddCOO = canAdd("certificate_origin");
 
-
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [dateSort, setDateSort] = useState("newest");

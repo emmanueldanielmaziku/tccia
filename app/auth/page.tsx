@@ -9,12 +9,13 @@ import ResetPassword from "./components/ResetPassword";
 import NewPassword from "./components/NewPassword";
 import HelpDeskPortal from "./components/HelpDeskPortal";
 import VerifyOtp from "./components/VerifyOtp";
+import ChangePassword from "./components/ChangePassword";
 import {
   useActivateAccountState,
   useFormState,
   useResetFormState,
 } from "./services/FormStates";
-import { useOtpVerificationState } from "./services/FormStates";
+import { useOtpVerificationState, usePasswordChangeState } from "./services/FormStates";
 import { useAuthLayoutState } from "./services/AuthLayoutState";
 import { useSearchParams } from "next/navigation";
 import { Suspense } from "react";
@@ -28,6 +29,7 @@ function AuthContent() {
   const { formTypo } = useResetFormState();
   const { isActivated } = useActivateAccountState();
   const { otpActive } = useOtpVerificationState();
+  const { passwordChangeActive } = usePasswordChangeState();
   const { showHelpDesk, setShowHelpDesk } = useAuthLayoutState();
 
   const handleBackToAuth = () => {
@@ -48,7 +50,9 @@ function AuthContent() {
               </h1>
               <TextGenerateEffect words={words} className="text-sm sm:text-base md:text-lg lg:text-xl text-gray-700 text-center italic px-2" />
             </div>
-            {otpActive ? (
+            {passwordChangeActive ? (
+              <ChangePassword />
+            ) : otpActive ? (
               <VerifyOtp />
             ) : isActivated ? (
               <ActivateAccount />

@@ -65,3 +65,34 @@ export const useOtpVerificationState = create<OtpVerificationState>((set) => ({
       otpMessage: null,
     }),
 }));
+
+// Password Change Flow
+interface PasswordChangeState {
+  passwordChangeActive: boolean;
+  passwordChangeLogin: string | null;
+  passwordChangeMessage: string | null;
+  passwordChangeUserRole: string | null;
+  startPasswordChange: (args: { login: string; message?: string | null; user_role?: string | null }) => void;
+  stopPasswordChange: () => void;
+}
+
+export const usePasswordChangeState = create<PasswordChangeState>((set) => ({
+  passwordChangeActive: false,
+  passwordChangeLogin: null,
+  passwordChangeMessage: null,
+  passwordChangeUserRole: null,
+  startPasswordChange: ({ login, message, user_role }) =>
+    set({
+      passwordChangeActive: true,
+      passwordChangeLogin: login,
+      passwordChangeMessage: message ?? null,
+      passwordChangeUserRole: user_role ?? null,
+    }),
+  stopPasswordChange: () =>
+    set({
+      passwordChangeActive: false,
+      passwordChangeLogin: null,
+      passwordChangeMessage: null,
+      passwordChangeUserRole: null,
+    }),
+}));
