@@ -187,6 +187,11 @@ export default function SideBar() {
       }
     }
 
+    // Traders should have access to Company Registration even without the module in their modules array
+    if (userRole === "trader" && item.id === "Company Registration") {
+      return false;
+    }
+
     // If module has a code, check if user has access to it
     if (item.moduleCode) {
       return !canView(item.moduleCode);
