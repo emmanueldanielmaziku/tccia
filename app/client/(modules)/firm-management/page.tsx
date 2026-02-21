@@ -153,7 +153,11 @@ export default function FirmManagement() {
   useEffect(() => {
     // Wait a bit for localStorage to be available
     const checkAccess = () => {
-      const hasAccess = canView("company_registration");
+      // Get user role from localStorage
+      const userRole = typeof window !== "undefined" ? localStorage.getItem("userRole") : null;
+      
+      // Traders should have access to Company Registration even without the module in their modules array
+      const hasAccess = userRole === "trader" || canView("company_registration");
       
       if (!hasAccess) {
         // Find first accessible module or redirect to dashboard
