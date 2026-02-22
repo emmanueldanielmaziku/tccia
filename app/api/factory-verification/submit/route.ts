@@ -32,7 +32,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const payload = {
+    const payload: any = {
       company_tin: company_tin,
       applicant_name: formData.applicant_name,
       applicant_phone: formData.applicant_phone,
@@ -46,6 +46,11 @@ export async function POST(request: Request) {
         description: product.description,
       })),
     };
+
+    // Include particulars_of_goods if provided
+    if (formData.particulars_of_goods) {
+      payload.particulars_of_goods = formData.particulars_of_goods;
+    }
 
     console.log("Submitting factory verification:", payload);
 

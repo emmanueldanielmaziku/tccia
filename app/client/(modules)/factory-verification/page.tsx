@@ -731,7 +731,8 @@ export default function FactoryVerification() {
                                 >
                                     View
                                 </button>
-                                  <button
+                                  {/* Dealers button hidden */}
+                                  {/* <button
                                     onClick={() => handleOpenAgentsModal(product)}
                                     disabled={product.verification_state !== "approved"}
                                     className={`px-2 lg:px-3 py-1 lg:py-1.5 text-xs font-medium rounded-md transition-colors ${
@@ -746,7 +747,7 @@ export default function FactoryVerification() {
                                     }
                                   >
                                     Dealers
-                                  </button>
+                                  </button> */}
                                 </div>
                               </td>
                             </tr>
@@ -823,7 +824,8 @@ export default function FactoryVerification() {
                               >
                                 Review Report
                               </button>
-                              <button
+                              {/* Dealers button hidden */}
+                              {/* <button
                                 onClick={() => handleOpenAgentsModal(product)}
                                 disabled={product.verification_state !== "approved"}
                                 className={`w-full px-3 py-2 text-xs font-medium rounded-md transition-colors ${
@@ -838,7 +840,7 @@ export default function FactoryVerification() {
                                 }
                               >
                                 Dealers
-                              </button>
+                              </button> */}
                             </div>
                           </div>
                         </div>

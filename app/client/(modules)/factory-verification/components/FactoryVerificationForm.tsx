@@ -34,6 +34,26 @@ interface FormProduct {
   manufacturer_id?: number;
 }
 
+interface ParticularsOfGoods {
+  production_process: string;
+  materials_imported: string;
+  materials_eac_origin: string;
+  containers_packing: string;
+  import_duty_paid: string;
+  direct_labour_costs: string;
+  ex_factory_costs: string;
+  exterior_packing_cost: string;
+  profit_markup: string;
+  wholesale_price: string;
+  declaration_name_designation: string;
+  declaration_firm_name: string;
+  declaration_physical_location: string;
+  declaration_address: string;
+  certification_place_date: string;
+  certification_name_signature: string;
+  action: string;
+}
+
 interface FormData {
   products: FormProduct[];
   expected_inspection_date: string;
@@ -350,6 +370,7 @@ function PreviewWidget({
   onFormClose,
   onRefreshList,
   userType,
+  particularsOfGoods,
 }: {
   open: boolean;
   onClose: () => void;
@@ -358,6 +379,7 @@ function PreviewWidget({
   onFormClose?: () => void;
   onRefreshList?: () => void;
   userType: ("exporter" | "manufacturer" | "")[];
+  particularsOfGoods: ParticularsOfGoods | null;
 }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -404,7 +426,7 @@ function PreviewWidget({
         "expected_inspection_date raw:",
         validFormData.expected_inspection_date
       );
-      const payload = {
+      const payload: any = {
         company_tin,
         applicant_name: validFormData.applicant_name,
         applicant_phone: validFormData.applicant_phone,
@@ -421,6 +443,16 @@ function PreviewWidget({
           description: product.description,
         })),
       };
+
+      // Include particulars_of_goods if product_category is "manufactured"
+      const hasManufacturedProduct = validFormData.products.some(
+        (product: FormProduct) => product.product_category?.toLowerCase() === "manufactured"
+      );
+      
+      if (hasManufacturedProduct && particularsOfGoods) {
+        payload.particulars_of_goods = particularsOfGoods;
+      }
+
       console.log("payload to be sent:", payload);
       const response = await fetch("/api/factory-verification/submit", {
         method: "POST",
@@ -696,6 +728,144 @@ function PreviewWidget({
                       </div>
                     </div>
                   ))}
+
+                  {/* Particulars of Goods Section */}
+                  {particularsOfGoods && formData.products.some(
+                    (product) => product.product_category?.toLowerCase() === "manufactured"
+                  ) && (
+                    <div className="border border-gray-200 rounded-lg p-3 sm:p-4 bg-white shadow-sm mt-4">
+                      <div className="font-semibold text-green-700 mb-3 text-sm sm:text-base">
+                        PART A
+                      </div>
+                      <div className="font-semibold text-gray-700 mb-3 text-sm sm:text-base">
+                        Particulars of the Goods in Respect of which Evidence of Origin is required
+                      </div>
+                      <div className="space-y-3 text-xs sm:text-sm">
+                        <div>
+                          <span className="text-gray-700 font-medium">Production process(es) carried out:</span>
+                          <p className="text-gray-800 mt-1 whitespace-pre-wrap">
+                            {particularsOfGoods.production_process || "-"}
+                          </p>
+                        </div>
+                        <div>
+                          <span className="text-gray-700 font-medium">Materials imported from outside the Partner State used in the manufacture of the goods described in the Certificate, their respective customs values and HS Codes:</span>
+                          <p className="text-gray-800 mt-1 whitespace-pre-wrap">
+                            {particularsOfGoods.materials_imported || "-"}
+                          </p>
+                        </div>
+                        <div>
+                          <span className="text-gray-700 font-medium">Materials of East African Community origin used in the manufacture of the goods described in the Certificate, the respective custom value and HS Codes:</span>
+                          <p className="text-gray-800 mt-1 whitespace-pre-wrap">
+                            {particularsOfGoods.materials_eac_origin || "-"}
+                          </p>
+                        </div>
+                        <div>
+                          <span className="text-gray-700 font-medium">Containers or other forms of interior packing normally sold with the goods at retail level or the materials used in their manufacture, their origin, customs values and HS Codes:</span>
+                          <p className="text-gray-800 mt-1 whitespace-pre-wrap">
+                            {particularsOfGoods.containers_packing || "-"}
+                          </p>
+                        </div>
+                        <div>
+                          <span className="text-gray-700 font-medium">Import duty, if any, paid on the materials imported from outside the Partner State:</span>
+                          <p className="text-gray-800 mt-1 whitespace-pre-wrap">
+                            {particularsOfGoods.import_duty_paid || "-"}
+                          </p>
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-3 sm:gap-x-6 gap-y-2">
+                          <div>
+                            <span className="text-gray-700 font-medium">Direct labour costs and factory overheads:</span>{" "}
+                            <span className="font-medium text-gray-800">
+                              {particularsOfGoods.direct_labour_costs || "-"}
+                            </span>
+                          </div>
+                          <div>
+                            <span className="text-gray-700 font-medium">Ex-factory costs of the goods produced:</span>{" "}
+                            <span className="font-medium text-gray-800">
+                              {particularsOfGoods.ex_factory_costs || "-"}
+                            </span>
+                          </div>
+                          <div>
+                            <span className="text-gray-700 font-medium">The cost of exterior packing:</span>{" "}
+                            <span className="font-medium text-gray-800">
+                              {particularsOfGoods.exterior_packing_cost || "-"}
+                            </span>
+                          </div>
+                          <div>
+                            <span className="text-gray-700 font-medium">Profit mark-up on the goods produced:</span>{" "}
+                            <span className="font-medium text-gray-800">
+                              {particularsOfGoods.profit_markup || "-"}
+                            </span>
+                          </div>
+                          <div className="sm:col-span-2">
+                            <span className="text-gray-700 font-medium">The wholesale price of the goods in the country of manufacture:</span>{" "}
+                            <span className="font-medium text-gray-800">
+                              {particularsOfGoods.wholesale_price || "-"}
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Declaration Section */}
+                        <div className="mt-4 pt-4 border-t border-gray-200">
+                          <div className="font-semibold text-gray-700 mb-2 text-sm sm:text-base">
+                            Declaration
+                          </div>
+                          <div className="text-xs sm:text-sm text-gray-600 italic mb-3">
+                            Declare that the above details and statements are correct and that they are furnished in cognizance of the requirements of the Rules of Origin.
+                          </div>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-3 sm:gap-x-6 gap-y-2">
+                            <div>
+                              <span className="text-gray-700 font-medium">Name and Designation:</span>{" "}
+                              <span className="font-medium text-gray-800">
+                                {particularsOfGoods.declaration_name_designation || "-"}
+                              </span>
+                            </div>
+                            <div>
+                              <span className="text-gray-700 font-medium">Name of the Firm:</span>{" "}
+                              <span className="font-medium text-gray-800">
+                                {particularsOfGoods.declaration_firm_name || "-"}
+                              </span>
+                            </div>
+                            <div>
+                              <span className="text-gray-700 font-medium">Physical Location:</span>{" "}
+                              <span className="font-medium text-gray-800">
+                                {particularsOfGoods.declaration_physical_location || "-"}
+                              </span>
+                            </div>
+                            <div className="sm:col-span-2">
+                              <span className="text-gray-700 font-medium">Address:</span>{" "}
+                              <span className="font-medium text-gray-800">
+                                {particularsOfGoods.declaration_address || "-"}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* PART B - Certification Section */}
+                        <div className="mt-4 pt-4 border-t border-gray-200">
+                          <div className="font-semibold text-green-700 mb-2 text-sm sm:text-base">
+                            PART B – Certification
+                          </div>
+                          <div className="text-xs sm:text-sm text-gray-600 italic mb-3">
+                            It is hereby certified, on the basis of control carried out that the declaration by the exporter is correct.
+                          </div>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-3 sm:gap-x-6 gap-y-2">
+                            <div>
+                              <span className="text-gray-700 font-medium">Place and Date:</span>{" "}
+                              <span className="font-medium text-gray-800">
+                                {particularsOfGoods.certification_place_date || "-"}
+                              </span>
+                            </div>
+                            <div>
+                              <span className="text-gray-700 font-medium">Name and Signature:</span>{" "}
+                              <span className="font-medium text-gray-800">
+                                {particularsOfGoods.certification_name_signature || "-"}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -789,12 +959,31 @@ export default function FactoryVerificationForm({
     applicant_name?: string;
     applicant_phone?: string;
     applicant_email?: string;
+    particularsOfGoods?: {
+      production_process?: string;
+      materials_imported?: string;
+      materials_eac_origin?: string;
+      containers_packing?: string;
+      import_duty_paid?: string;
+      direct_labour_costs?: string;
+      ex_factory_costs?: string;
+      exterior_packing_cost?: string;
+      profit_markup?: string;
+      wholesale_price?: string;
+      declaration_name_designation?: string;
+      declaration_firm_name?: string;
+      declaration_physical_location?: string;
+      declaration_address?: string;
+      certification_place_date?: string;
+      certification_name_signature?: string;
+    };
   }>({
     products: [{}],
     expected_inspection_date: undefined,
     applicant_name: undefined,
     applicant_phone: undefined,
     applicant_email: undefined,
+    particularsOfGoods: undefined,
   });
 
   const [previewState, togglePreview] = useState(false);
@@ -808,6 +997,47 @@ export default function FactoryVerificationForm({
   );
   const [open, setOpen] = useState(false);
   const [userType, setUserType] = useState<("exporter" | "manufacturer" | "")[]>([]);
+  const [particularsOfGoods, setParticularsOfGoods] = useState<ParticularsOfGoods | null>(null);
+
+  // Helper function to get default particulars object
+  const getDefaultParticulars = (): ParticularsOfGoods => ({
+    production_process: "",
+    materials_imported: "",
+    materials_eac_origin: "",
+    containers_packing: "",
+    import_duty_paid: "",
+    direct_labour_costs: "",
+    ex_factory_costs: "",
+    exterior_packing_cost: "",
+    profit_markup: "",
+    wholesale_price: "",
+    declaration_name_designation: "",
+    declaration_firm_name: "",
+    declaration_physical_location: "",
+    declaration_address: "",
+    certification_place_date: "",
+    certification_name_signature: "",
+    action: "submit",
+  });
+
+  // Helper function to update particulars safely
+  const updateParticulars = (field: keyof ParticularsOfGoods, value: string) => {
+    setParticularsOfGoods({
+      ...(particularsOfGoods || getDefaultParticulars()),
+      [field]: value,
+    });
+    // Clear error for this field when user starts typing
+    if (errors.particularsOfGoods && errors.particularsOfGoods[field as keyof typeof errors.particularsOfGoods]) {
+      const newErrors = { ...errors };
+      if (newErrors.particularsOfGoods) {
+        delete newErrors.particularsOfGoods[field as keyof typeof newErrors.particularsOfGoods];
+        if (Object.keys(newErrors.particularsOfGoods).length === 0) {
+          newErrors.particularsOfGoods = undefined;
+        }
+      }
+      setErrors(newErrors);
+    }
+  };
 
   useEffect(() => {
     setManufacturerSearch((prev) =>
@@ -826,6 +1056,18 @@ export default function FactoryVerificationForm({
       formData.products.map((_, i) => prev[i] || "")
     );
   }, [formData.products.length]);
+
+  // Initialize particularsOfGoods if product is manufactured but particulars is null
+  useEffect(() => {
+    if (formData.products.length > 0) {
+      const firstProduct = formData.products[0];
+      if (firstProduct.product_category?.toLowerCase() === "manufactured" && !particularsOfGoods) {
+        setParticularsOfGoods(getDefaultParticulars());
+      } else if (firstProduct.product_category?.toLowerCase() !== "manufactured" && particularsOfGoods) {
+        setParticularsOfGoods(null);
+      }
+    }
+  }, [formData.products]);
 
   useEffect(() => {
     formData.products.forEach((_, idx) => {
@@ -959,6 +1201,65 @@ export default function FactoryVerificationForm({
     return errors;
   };
 
+  const validateParticularsOfGoods = (): any => {
+    const errors: any = {};
+    
+    if (!particularsOfGoods) {
+      return null; // No validation needed if form is not displayed
+    }
+
+    if (!particularsOfGoods.production_process?.trim()) {
+      errors.production_process = "Production process is required";
+    }
+    if (!particularsOfGoods.materials_imported?.trim()) {
+      errors.materials_imported = "Materials imported is required";
+    }
+    if (!particularsOfGoods.materials_eac_origin?.trim()) {
+      errors.materials_eac_origin = "Materials EAC origin is required";
+    }
+    if (!particularsOfGoods.containers_packing?.trim()) {
+      errors.containers_packing = "Containers/packing is required";
+    }
+    if (!particularsOfGoods.import_duty_paid?.trim()) {
+      errors.import_duty_paid = "Import duty paid is required";
+    }
+    if (!particularsOfGoods.direct_labour_costs?.trim()) {
+      errors.direct_labour_costs = "Direct labour costs is required";
+    }
+    if (!particularsOfGoods.ex_factory_costs?.trim()) {
+      errors.ex_factory_costs = "Ex-factory costs is required";
+    }
+    if (!particularsOfGoods.exterior_packing_cost?.trim()) {
+      errors.exterior_packing_cost = "Exterior packing cost is required";
+    }
+    if (!particularsOfGoods.profit_markup?.trim()) {
+      errors.profit_markup = "Profit mark-up is required";
+    }
+    if (!particularsOfGoods.wholesale_price?.trim()) {
+      errors.wholesale_price = "Wholesale price is required";
+    }
+    if (!particularsOfGoods.declaration_name_designation?.trim()) {
+      errors.declaration_name_designation = "Declaration name and designation is required";
+    }
+    if (!particularsOfGoods.declaration_firm_name?.trim()) {
+      errors.declaration_firm_name = "Declaration firm name is required";
+    }
+    if (!particularsOfGoods.declaration_physical_location?.trim()) {
+      errors.declaration_physical_location = "Declaration physical location is required";
+    }
+    if (!particularsOfGoods.declaration_address?.trim()) {
+      errors.declaration_address = "Declaration address is required";
+    }
+    if (!particularsOfGoods.certification_place_date?.trim()) {
+      errors.certification_place_date = "Certification place and date is required";
+    }
+    if (!particularsOfGoods.certification_name_signature?.trim()) {
+      errors.certification_name_signature = "Certification name and signature is required";
+    }
+
+    return Object.keys(errors).length > 0 ? errors : null;
+  };
+
   const handlePreview = (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     const newErrors: any = {
@@ -969,6 +1270,7 @@ export default function FactoryVerificationForm({
       applicant_name: undefined,
       applicant_phone: undefined,
       applicant_email: undefined,
+      particularsOfGoods: undefined,
     };
     if (!formData.expected_inspection_date.trim()) {
       newErrors.expected_inspection_date =
@@ -977,11 +1279,24 @@ export default function FactoryVerificationForm({
     // Validate applicant fields
     const applicantFieldErrors = validateApplicantFields(formData);
     Object.assign(newErrors, applicantFieldErrors);
+    
+    // Validate particulars of goods if form is displayed (product is manufactured)
+    const hasManufacturedProduct = formData.products.some(
+      (product) => product.product_category?.toLowerCase() === "manufactured"
+    );
+    if (hasManufacturedProduct) {
+      const particularsErrors = validateParticularsOfGoods();
+      if (particularsErrors) {
+        newErrors.particularsOfGoods = particularsErrors;
+      }
+    }
+    
     const hasErrors =
       newErrors.expected_inspection_date ||
       newErrors.applicant_name ||
       newErrors.applicant_phone ||
       newErrors.applicant_email ||
+      newErrors.particularsOfGoods ||
       newErrors.products.some(
         (productErrors: any) => Object.keys(productErrors).length > 0
       );
@@ -995,6 +1310,7 @@ export default function FactoryVerificationForm({
       applicant_name: undefined,
       applicant_phone: undefined,
       applicant_email: undefined,
+      particularsOfGoods: undefined,
     });
     getFormSummary();
     togglePreview(true);
@@ -1046,6 +1362,14 @@ export default function FactoryVerificationForm({
       updatedErrors.products[idx].product_category = undefined;
       updatedErrors.products[idx].unity_of_measure = undefined;
       setErrors(updatedErrors);
+    }
+
+    // Initialize particulars_of_goods if product_category is "manufactured"
+    // Note: getDefaultParticulars is defined in the component, so we inline it here
+    if (product.product_category?.toLowerCase() === "manufactured") {
+      setParticularsOfGoods(getDefaultParticulars());
+    } else {
+      setParticularsOfGoods(null);
     }
   };
 
@@ -1163,6 +1487,7 @@ export default function FactoryVerificationForm({
         onFormClose={onFormClose}
         onRefreshList={onRefreshList}
         userType={userType}
+        particularsOfGoods={particularsOfGoods}
       />
 
       <HSCodeWidget open={open} onClose={() => setOpen(false)} />
@@ -1524,6 +1849,399 @@ export default function FactoryVerificationForm({
                 )}
               </div>
 
+              {/* Particulars of Goods Form - Only show for manufactured products */}
+              {product.product_category?.toLowerCase() === "manufactured" && (
+                <div className="flex flex-col w-full mt-4 border-t border-gray-300 pt-4">
+                  <div className="text-lg font-semibold text-gray-800 mb-2">
+                    PART A
+                  </div>
+                  <div className="text-base font-semibold text-gray-700 mb-2">
+                    Particulars of the Goods in Respect of which Evidence of Origin is required
+                  </div>
+                  <div className="text-sm text-gray-600 mb-4 italic bg-blue-50 p-3 rounded-md border border-blue-200">
+                    These fields should be filled during the inspection phase. They are not mandatory for submitting the application, but are recommended to be completed before finalizing the verification.
+                  </div>
+                  
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="flex flex-col sm:col-span-2">
+                      <label className="text-sm text-gray-700 mb-1 font-medium">
+                        Production process(es) carried out <span className="text-red-500">*</span>
+                      </label>
+                      <textarea
+                        placeholder="Describe the production process(es) carried out"
+                        rows={3}
+                        value={particularsOfGoods?.production_process || ""}
+                        onChange={(e) => updateParticulars("production_process", e.target.value)}
+                        className={`w-full border text-sm ${
+                          errors.particularsOfGoods?.production_process
+                            ? "border-red-500"
+                            : "border-zinc-300"
+                        } bg-white focus:outline-none rounded-md placeholder:text-zinc-400 text-zinc-500 px-3 py-2 resize-none`}
+                      />
+                      {errors.particularsOfGoods?.production_process && (
+                        <p className="text-red-500 text-xs mt-1">
+                          {errors.particularsOfGoods.production_process}
+                        </p>
+                      )}
+                    </div>
+
+                    <div className="flex flex-col sm:col-span-2">
+                      <label className="text-sm text-gray-700 mb-1 font-medium">
+                        Materials imported from outside the Partner State used in the manufacture of the goods described in the Certificate, their respective customs values and HS Codes <span className="text-red-500">*</span>
+                      </label>
+                      <textarea
+                        placeholder="List materials imported from outside the Partner State, their customs values and HS Codes"
+                        rows={3}
+                        value={particularsOfGoods?.materials_imported || ""}
+                        onChange={(e) => updateParticulars("materials_imported", e.target.value)}
+                        className={`w-full border text-sm ${
+                          errors.particularsOfGoods?.materials_imported
+                            ? "border-red-500"
+                            : "border-zinc-300"
+                        } bg-white focus:outline-none rounded-md placeholder:text-zinc-400 text-zinc-500 px-3 py-2 resize-none`}
+                      />
+                      {errors.particularsOfGoods?.materials_imported && (
+                        <p className="text-red-500 text-xs mt-1">
+                          {errors.particularsOfGoods.materials_imported}
+                        </p>
+                      )}
+                    </div>
+
+                    <div className="flex flex-col sm:col-span-2">
+                      <label className="text-sm text-gray-700 mb-1 font-medium">
+                        Materials of East African Community origin used in the manufacture of the goods described in the Certificate, the respective custom value and HS Codes <span className="text-red-500">*</span>
+                      </label>
+                      <textarea
+                        placeholder="List materials of EAC origin, their customs values and HS Codes"
+                        rows={3}
+                        value={particularsOfGoods?.materials_eac_origin || ""}
+                        onChange={(e) => updateParticulars("materials_eac_origin", e.target.value)}
+                        className={`w-full border text-sm ${
+                          errors.particularsOfGoods?.materials_eac_origin
+                            ? "border-red-500"
+                            : "border-zinc-300"
+                        } bg-white focus:outline-none rounded-md placeholder:text-zinc-400 text-zinc-500 px-3 py-2 resize-none`}
+                      />
+                      {errors.particularsOfGoods?.materials_eac_origin && (
+                        <p className="text-red-500 text-xs mt-1">
+                          {errors.particularsOfGoods.materials_eac_origin}
+                        </p>
+                      )}
+                    </div>
+
+                    <div className="flex flex-col sm:col-span-2">
+                      <label className="text-sm text-gray-700 mb-1 font-medium">
+                        Containers or other forms of interior packing normally sold with the goods at retail level or the materials used in their manufacture, their origin, customs values and HS Codes <span className="text-red-500">*</span>
+                      </label>
+                      <textarea
+                        placeholder="Describe containers or interior packing, their origin, customs values and HS Codes"
+                        rows={3}
+                        value={particularsOfGoods?.containers_packing || ""}
+                        onChange={(e) => updateParticulars("containers_packing", e.target.value)}
+                        className={`w-full border text-sm ${
+                          errors.particularsOfGoods?.containers_packing
+                            ? "border-red-500"
+                            : "border-zinc-300"
+                        } bg-white focus:outline-none rounded-md placeholder:text-zinc-400 text-zinc-500 px-3 py-2 resize-none`}
+                      />
+                      {errors.particularsOfGoods?.containers_packing && (
+                        <p className="text-red-500 text-xs mt-1">
+                          {errors.particularsOfGoods.containers_packing}
+                        </p>
+                      )}
+                    </div>
+
+                    <div className="flex flex-col sm:col-span-2">
+                      <label className="text-sm text-gray-700 mb-1 font-medium">
+                        Import duty, if any, paid on the materials imported from outside the Partner State <span className="text-red-500">*</span>
+                      </label>
+                      <textarea
+                        placeholder="Details of import duties paid on materials imported from outside the Partner State"
+                        rows={2}
+                        value={particularsOfGoods?.import_duty_paid || ""}
+                        onChange={(e) => updateParticulars("import_duty_paid", e.target.value)}
+                        className={`w-full border text-sm ${
+                          errors.particularsOfGoods?.import_duty_paid
+                            ? "border-red-500"
+                            : "border-zinc-300"
+                        } bg-white focus:outline-none rounded-md placeholder:text-zinc-400 text-zinc-500 px-3 py-2 resize-none`}
+                      />
+                      {errors.particularsOfGoods?.import_duty_paid && (
+                        <p className="text-red-500 text-xs mt-1">
+                          {errors.particularsOfGoods.import_duty_paid}
+                        </p>
+                      )}
+                    </div>
+
+                    <div className="flex flex-col">
+                      <label className="text-sm text-gray-700 mb-1 font-medium">
+                        Direct labour costs and factory overheads <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="Enter direct labour costs and factory overheads"
+                        value={particularsOfGoods?.direct_labour_costs || ""}
+                        onChange={(e) => updateParticulars("direct_labour_costs", e.target.value)}
+                        className={`w-full px-3 py-2 border text-sm ${
+                          errors.particularsOfGoods?.direct_labour_costs
+                            ? "border-red-500"
+                            : "border-zinc-300"
+                        } bg-white focus:outline-none rounded-md placeholder:text-zinc-400 text-zinc-500`}
+                      />
+                      {errors.particularsOfGoods?.direct_labour_costs && (
+                        <p className="text-red-500 text-xs mt-1">
+                          {errors.particularsOfGoods.direct_labour_costs}
+                        </p>
+                      )}
+                    </div>
+
+                    <div className="flex flex-col">
+                      <label className="text-sm text-gray-700 mb-1 font-medium">
+                        Ex-factory costs of the goods produced <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="Enter ex-factory costs"
+                        value={particularsOfGoods?.ex_factory_costs || ""}
+                        onChange={(e) => updateParticulars("ex_factory_costs", e.target.value)}
+                        className={`w-full px-3 py-2 border text-sm ${
+                          errors.particularsOfGoods?.ex_factory_costs
+                            ? "border-red-500"
+                            : "border-zinc-300"
+                        } bg-white focus:outline-none rounded-md placeholder:text-zinc-400 text-zinc-500`}
+                      />
+                      {errors.particularsOfGoods?.ex_factory_costs && (
+                        <p className="text-red-500 text-xs mt-1">
+                          {errors.particularsOfGoods.ex_factory_costs}
+                        </p>
+                      )}
+                    </div>
+
+                    <div className="flex flex-col">
+                      <label className="text-sm text-gray-700 mb-1 font-medium">
+                        The cost of exterior packing <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="Enter cost of exterior packing"
+                        value={particularsOfGoods?.exterior_packing_cost || ""}
+                        onChange={(e) => updateParticulars("exterior_packing_cost", e.target.value)}
+                        className={`w-full px-3 py-2 border text-sm ${
+                          errors.particularsOfGoods?.exterior_packing_cost
+                            ? "border-red-500"
+                            : "border-zinc-300"
+                        } bg-white focus:outline-none rounded-md placeholder:text-zinc-400 text-zinc-500`}
+                      />
+                      {errors.particularsOfGoods?.exterior_packing_cost && (
+                        <p className="text-red-500 text-xs mt-1">
+                          {errors.particularsOfGoods.exterior_packing_cost}
+                        </p>
+                      )}
+                    </div>
+
+                    <div className="flex flex-col">
+                      <label className="text-sm text-gray-700 mb-1 font-medium">
+                        Profit mark-up on the goods produced <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="Enter profit mark-up"
+                        value={particularsOfGoods?.profit_markup || ""}
+                        onChange={(e) => updateParticulars("profit_markup", e.target.value)}
+                        className={`w-full px-3 py-2 border text-sm ${
+                          errors.particularsOfGoods?.profit_markup
+                            ? "border-red-500"
+                            : "border-zinc-300"
+                        } bg-white focus:outline-none rounded-md placeholder:text-zinc-400 text-zinc-500`}
+                      />
+                      {errors.particularsOfGoods?.profit_markup && (
+                        <p className="text-red-500 text-xs mt-1">
+                          {errors.particularsOfGoods.profit_markup}
+                        </p>
+                      )}
+                    </div>
+
+                    <div className="flex flex-col">
+                      <label className="text-sm text-gray-700 mb-1 font-medium">
+                        The wholesale price of the goods in the country of manufacture <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="Enter wholesale price"
+                        value={particularsOfGoods?.wholesale_price || ""}
+                        onChange={(e) => updateParticulars("wholesale_price", e.target.value)}
+                        className={`w-full px-3 py-2 border text-sm ${
+                          errors.particularsOfGoods?.wholesale_price
+                            ? "border-red-500"
+                            : "border-zinc-300"
+                        } bg-white focus:outline-none rounded-md placeholder:text-zinc-400 text-zinc-500`}
+                      />
+                      {errors.particularsOfGoods?.wholesale_price && (
+                        <p className="text-red-500 text-xs mt-1">
+                          {errors.particularsOfGoods.wholesale_price}
+                        </p>
+                      )}
+                    </div>
+
+                    {/* Declaration Section */}
+                    <div className="flex flex-col sm:col-span-2 mt-4 pt-4 border-t border-gray-300">
+                      <div className="text-base font-semibold text-gray-700 mb-4">
+                        Declaration
+                      </div>
+                      <div className="text-sm text-gray-600 mb-4 italic">
+                        Declare that the above details and statements are correct and that they are furnished in cognizance of the requirements of the Rules of Origin.
+                      </div>
+                      
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div className="flex flex-col">
+                          <label className="text-sm text-gray-700 mb-1 font-medium">
+                            Name and Designation <span className="text-red-500">*</span>
+                          </label>
+                          <input
+                            type="text"
+                            placeholder="Enter name and designation"
+                            value={particularsOfGoods?.declaration_name_designation || ""}
+                            onChange={(e) => updateParticulars("declaration_name_designation", e.target.value)}
+                            className={`w-full px-3 py-2 border text-sm ${
+                              errors.particularsOfGoods?.declaration_name_designation
+                                ? "border-red-500"
+                                : "border-zinc-300"
+                            } bg-white focus:outline-none rounded-md placeholder:text-zinc-400 text-zinc-500`}
+                          />
+                          {errors.particularsOfGoods?.declaration_name_designation && (
+                            <p className="text-red-500 text-xs mt-1">
+                              {errors.particularsOfGoods.declaration_name_designation}
+                            </p>
+                          )}
+                        </div>
+
+                        <div className="flex flex-col">
+                          <label className="text-sm text-gray-700 mb-1 font-medium">
+                            Name of the Firm <span className="text-red-500">*</span>
+                          </label>
+                          <input
+                            type="text"
+                            placeholder="Enter firm name"
+                            value={particularsOfGoods?.declaration_firm_name || ""}
+                            onChange={(e) => updateParticulars("declaration_firm_name", e.target.value)}
+                            className={`w-full px-3 py-2 border text-sm ${
+                              errors.particularsOfGoods?.declaration_firm_name
+                                ? "border-red-500"
+                                : "border-zinc-300"
+                            } bg-white focus:outline-none rounded-md placeholder:text-zinc-400 text-zinc-500`}
+                          />
+                          {errors.particularsOfGoods?.declaration_firm_name && (
+                            <p className="text-red-500 text-xs mt-1">
+                              {errors.particularsOfGoods.declaration_firm_name}
+                            </p>
+                          )}
+                        </div>
+
+                        <div className="flex flex-col">
+                          <label className="text-sm text-gray-700 mb-1 font-medium">
+                            Physical Location <span className="text-red-500">*</span>
+                          </label>
+                          <input
+                            type="text"
+                            placeholder="Enter physical location"
+                            value={particularsOfGoods?.declaration_physical_location || ""}
+                            onChange={(e) => updateParticulars("declaration_physical_location", e.target.value)}
+                            className={`w-full px-3 py-2 border text-sm ${
+                              errors.particularsOfGoods?.declaration_physical_location
+                                ? "border-red-500"
+                                : "border-zinc-300"
+                            } bg-white focus:outline-none rounded-md placeholder:text-zinc-400 text-zinc-500`}
+                          />
+                          {errors.particularsOfGoods?.declaration_physical_location && (
+                            <p className="text-red-500 text-xs mt-1">
+                              {errors.particularsOfGoods.declaration_physical_location}
+                            </p>
+                          )}
+                        </div>
+
+                        <div className="flex flex-col">
+                          <label className="text-sm text-gray-700 mb-1 font-medium">
+                            Address <span className="text-red-500">*</span>
+                          </label>
+                          <textarea
+                            placeholder="Enter address"
+                            rows={2}
+                            value={particularsOfGoods?.declaration_address || ""}
+                            onChange={(e) => updateParticulars("declaration_address", e.target.value)}
+                            className={`w-full border text-sm ${
+                              errors.particularsOfGoods?.declaration_address
+                                ? "border-red-500"
+                                : "border-zinc-300"
+                            } bg-white focus:outline-none rounded-md placeholder:text-zinc-400 text-zinc-500 px-3 py-2 resize-none`}
+                          />
+                          {errors.particularsOfGoods?.declaration_address && (
+                            <p className="text-red-500 text-xs mt-1">
+                              {errors.particularsOfGoods.declaration_address}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* PART B - Certification Section */}
+                    <div className="flex flex-col sm:col-span-2 mt-4 pt-4 border-t border-gray-300">
+                      <div className="text-base font-semibold text-gray-700 mb-2">
+                        PART B – Certification
+                      </div>
+                      <div className="text-sm text-gray-600 mb-4 italic">
+                        It is hereby certified, on the basis of control carried out that the declaration by the exporter is correct.
+                      </div>
+                      
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div className="flex flex-col">
+                          <label className="text-sm text-gray-700 mb-1 font-medium">
+                            Place and Date <span className="text-red-500">*</span>
+                          </label>
+                          <input
+                            type="text"
+                            placeholder="Enter place and date"
+                            value={particularsOfGoods?.certification_place_date || ""}
+                            onChange={(e) => updateParticulars("certification_place_date", e.target.value)}
+                            className={`w-full px-3 py-2 border text-sm ${
+                              errors.particularsOfGoods?.certification_place_date
+                                ? "border-red-500"
+                                : "border-zinc-300"
+                            } bg-white focus:outline-none rounded-md placeholder:text-zinc-400 text-zinc-500`}
+                          />
+                          {errors.particularsOfGoods?.certification_place_date && (
+                            <p className="text-red-500 text-xs mt-1">
+                              {errors.particularsOfGoods.certification_place_date}
+                            </p>
+                          )}
+                        </div>
+
+                        <div className="flex flex-col">
+                          <label className="text-sm text-gray-700 mb-1 font-medium">
+                            Name and Signature <span className="text-red-500">*</span>
+                          </label>
+                          <input
+                            type="text"
+                            placeholder="Enter name and signature"
+                            value={particularsOfGoods?.certification_name_signature || ""}
+                            onChange={(e) => updateParticulars("certification_name_signature", e.target.value)}
+                            className={`w-full px-3 py-2 border text-sm ${
+                              errors.particularsOfGoods?.certification_name_signature
+                                ? "border-red-500"
+                                : "border-zinc-300"
+                            } bg-white focus:outline-none rounded-md placeholder:text-zinc-400 text-zinc-500`}
+                          />
+                          {errors.particularsOfGoods?.certification_name_signature && (
+                            <p className="text-red-500 text-xs mt-1">
+                              {errors.particularsOfGoods.certification_name_signature}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {formData.products.length > 1 && (
                 <button
                   type="button"
@@ -1538,16 +2256,6 @@ export default function FactoryVerificationForm({
             </div>
           ))}
 
-          <div>
-            <button
-              type="button"
-              onClick={handleAddProduct}
-              className="flex flex-row justify-center items-center gap-2 cursor-pointer border border-dashed border-gray-400 py-3 text-gray-500 text-sm bg-gray-50 hover:bg-gray-100 rounded-md w-full transition-colors"
-            >
-              <Add size={20} color="gray" />
-              Add another product
-            </button>
-          </div>
 
           <div className="w-full flex items-center justify-center sm:justify-end mt-4">
             <button
