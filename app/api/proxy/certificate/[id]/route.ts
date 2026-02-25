@@ -3,11 +3,14 @@ import { cookies } from "next/headers";
 
 const REMOTE_BASE_URL = "https://tccia.kalen.co.tz/api";
 
-export async function GET(req: NextRequest, context: any) {
+export async function GET(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
-    const id = context.params?.id;
+    const { id } = await params;
     console.log("Certificate download requested for ID:", id);
-    
+
     if (!id) {
       console.error("No certificate ID provided");
       return NextResponse.json({ error: "Missing certificate ID" }, { status: 400 });

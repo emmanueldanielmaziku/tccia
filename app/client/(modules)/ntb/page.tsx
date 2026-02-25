@@ -417,7 +417,7 @@ export default function NTB() {
 
   const fetchSpecificLocations = async (locationId: number) => {
     try {
-      const response = await fetch(`/api/locations/specific/${locationId}`);
+      const response = await fetch(`/api/ntb/locations/specific/${locationId}`);
       const data = await response.json();
       if (data.success) {
         setSpecificLocations(data.data || []);
