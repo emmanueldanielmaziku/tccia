@@ -10,7 +10,8 @@
     "logoutMessage": "Una uhakika unataka kutoka?",
     "createAccount": "Unda akaunti mpya",
     "forgotPassword": "Umesahau nywila yako?",
-    "resetPassword": "Weka upya nywila"
+    "resetPassword": "Weka upya nywila",
+    "verifyAccount": "Thibitisha Akaunti"
   },
   "nav": {
     "notifications": "Arifa",

@@ -10,7 +10,8 @@
     "logoutMessage": "Are you sure you want to logout?",
     "createAccount": "Create new account",
     "forgotPassword": "Forgot your password?",
-    "resetPassword": "Reset password"
+    "resetPassword": "Reset password",
+    "verifyAccount": "Verify Account"
   },
   "nav": {
     "notifications": "Notifications",
