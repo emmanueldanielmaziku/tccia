@@ -19,7 +19,12 @@
     "home": "Home",
     "membership": "Membership Application",
     "about": "About Us",
-    "help": "IT Support"
+    "help": "IT Support",
+    "hsCodesList": "HS Codes list",
+    "reportNTB": "Report NTB",
+    "viewProfile": "View Profile",
+    "refreshProfile": "Refresh Profile",
+    "signOut": "Sign Out"
   },
   "sidebar": {
     "modules": "Modules",
@@ -35,7 +40,14 @@
     "businessComplaints": "Business Complaints",
     "reportProblem": "IT Support",
     "profile": "Profile",
-    "settings": "Settings"
+    "settings": "Settings",
+    "dashboardTitle": "TNCC's Client",
+    "lockMessages": {
+      "selectCompany": "Select a company to access this module",
+      "accessRestrictedEmployee": "Access restricted for employees",
+      "noModuleAccess": "You don't have access to this module",
+      "accessRestricted": "Access restricted"
+    }
   },
   "forms": {
     "labels": {
@@ -43,7 +55,10 @@
       "lastName": "Last name",
       "phoneNumber": "Phone number",
       "emailOrPhone": "Email or Phone number",
-      "role": "Please select your role"
+      "role": "Please select your role",
+      "currentPassword": "Current Password",
+      "newPassword": "New Password",
+      "confirmNewPassword": "Confirm New Password"
     },
     "placeholders": {
       "firstName": "First name",
@@ -52,7 +67,10 @@
       "enterPhone": "Enter your phone number",
       "enterEmailOrPhone": "Enter your email or phone number",
       "selectRole": "Select your role",
-      "enterPassword": "Enter your password"
+      "enterPassword": "Enter your password",
+      "enterCurrentPassword": "Enter current password",
+      "enterNewPassword": "Enter new password",
+      "confirmNewPassword": "Confirm new password"
     },
     "buttons": {
       "register": "Create Account",
@@ -67,7 +85,10 @@
       "registrationFailed": "Registration failed. Please try again.",
       "registrationSuccess": "Registration successful! Redirecting to login page...",
       "checkRequiredFields": "Please check all required fields and try again.",
-      "invalidResponse": "Invalid response from server"
+      "invalidResponse": "Invalid response from server",
+      "passwordChangeTitle": "Change Password",
+      "passwordChangeSuccess": "Password changed successfully! Please login with your new password.",
+      "passwordChangeFailed": "Failed to change password"
     },
     "validation": {
       "firstNameRequired": "First name is required",
@@ -80,7 +101,9 @@
       "passwordLetters": "Password must contain letters",
       "passwordNumbers": "Password must contain numbers",
       "passwordComplexity": "Password must contain uppercase, lowercase, numbers, and special characters",
-      "passwordRequired": "Password is required"
+      "passwordRequired": "Password is required",
+      "currentPasswordRequired": "Current password is required",
+      "passwordsDoNotMatch": "Passwords do not match"
     }
   },
   "stats": {

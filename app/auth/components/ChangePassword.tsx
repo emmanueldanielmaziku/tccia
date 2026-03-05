@@ -115,10 +115,10 @@ export default function ChangePassword() {
       result = await response.json();
 
       if (!response.ok || result.result?.error) {
-        throw new Error(result.result?.error || "Failed to change password");
+        throw new Error(result.result?.error || tf("messages.passwordChangeFailed"));
       }
 
-      setSuccess("Password changed successfully! Please login with your new password.");
+      setSuccess(tf("messages.passwordChangeSuccess"));
 
       // Return to login after successful password change
       setTimeout(() => {
@@ -141,7 +141,7 @@ export default function ChangePassword() {
     >
       <div className="w-full flex flex-row justify-between items-center space-x-4">
         <div className="text-gray-700 font-semibold text-sm sm:text-[16px] md:text-2xl">
-          Change Password
+          {tf("messages.passwordChangeTitle")}
         </div>
       </div>
 
@@ -171,12 +171,12 @@ export default function ChangePassword() {
       {!isEmployee && (
         <div className="relative flex flex-col gap-1 w-full">
           <label htmlFor="old_password" className="text-gray-700 text-xs sm:text-sm font-medium">
-            Current Password
+            {tf("labels.currentPassword")}
           </label>
           <input
             id="old_password"
             type={showOldPassword ? "text" : "password"}
-            placeholder="Enter current password"
+            placeholder={tf("placeholders.enterCurrentPassword")}
             {...register("old_password")}
             className="w-full px-4 sm:px-6 py-2 sm:py-2.5 pr-10 sm:pr-12 border border-zinc-300 bg-zinc-100 outline-blue-400 rounded-[6px] sm:rounded-[8px] placeholder:text-zinc-400 placeholder:text-xs sm:placeholder:text-[15px]"
           />
@@ -193,7 +193,7 @@ export default function ChangePassword() {
           </button>
           {errors.old_password && (
             <p className="text-red-500 text-[10px] sm:text-[12px] absolute left-0 top-[60px] sm:top-[70px]">
-              {errors.old_password.message}
+              {tf("validation.currentPasswordRequired")}
             </p>
           )}
         </div>
@@ -201,12 +201,12 @@ export default function ChangePassword() {
 
       <div className="relative flex flex-col gap-1 w-full">
         <label htmlFor="new_password" className="text-gray-700 text-xs sm:text-sm font-medium">
-          New Password
+          {tf("labels.newPassword")}
         </label>
         <input
           id="new_password"
           type={showNewPassword ? "text" : "password"}
-          placeholder="Enter new password"
+          placeholder={tf("placeholders.enterNewPassword")}
           {...register("new_password")}
           className="w-full px-4 sm:px-6 py-2 sm:py-2.5 pr-10 sm:pr-12 border border-zinc-300 bg-zinc-100 outline-blue-400 rounded-[6px] sm:rounded-[8px] placeholder:text-zinc-400 placeholder:text-xs sm:placeholder:text-[15px]"
         />
@@ -223,7 +223,11 @@ export default function ChangePassword() {
         </button>
         {errors.new_password && (
           <p className="text-red-500 text-[10px] sm:text-[12px] absolute left-0 top-[60px] sm:top-[70px]">
-            {errors.new_password.message}
+            {errors.new_password.type === "min"
+              ? tf("validation.passwordMinLength")
+              : errors.new_password.type === "regex"
+              ? tf("validation.passwordLetters")
+              : tf("validation.passwordNumbers")}
           </p>
         )}
       </div>
@@ -233,12 +237,12 @@ export default function ChangePassword() {
           htmlFor="confirm_password"
           className="text-gray-700 text-xs sm:text-sm font-medium"
         >
-          Confirm New Password
+          {tf("labels.confirmNewPassword")}
         </label>
         <input
           id="confirm_password"
           type={showConfirmPassword ? "text" : "password"}
-          placeholder="Confirm new password"
+          placeholder={tf("placeholders.confirmNewPassword")}
           {...register("confirm_password")}
           className="w-full px-4 sm:px-6 py-2 sm:py-2.5 pr-10 sm:pr-12 border border-zinc-300 bg-zinc-100 outline-blue-400 rounded-[6px] sm:rounded-[8px] placeholder:text-zinc-400 placeholder:text-xs sm:placeholder:text-[15px]"
         />
@@ -255,7 +259,7 @@ export default function ChangePassword() {
         </button>
         {errors.confirm_password && (
           <p className="text-red-500 text-[10px] sm:text-[12px] absolute left-0 top-[60px] sm:top-[70px]">
-            {errors.confirm_password.message}
+            {tf("validation.passwordsDoNotMatch")}
           </p>
         )}
       </div>

@@ -19,7 +19,12 @@
     "home": "Nyumbani",
     "membership": "Maombi ya Uanachama",
     "about": "Kuhusu Sisi",
-    "help": "Msaada wa IT"
+    "help": "Msaada wa IT",
+    "hsCodesList": "Orodha ya HS Codes",
+    "reportNTB": "Ripoti NTB",
+    "viewProfile": "Tazama Wasifu",
+    "refreshProfile": "Onyesha upya Wasifu",
+    "signOut": "Toka"
   },
   "sidebar": {
     "modules": "Moduli",
@@ -35,7 +40,14 @@
     "businessComplaints": "Malalamiko ya Biashara",
     "reportProblem": "Msaada wa IT",
     "profile": "Wasifu",
-    "settings": "Mipangilio"
+    "settings": "Mipangilio",
+    "dashboardTitle": "Mteja wa TNCC",
+    "lockMessages": {
+      "selectCompany": "Chagua kampuni ili kufikia moduli hii",
+      "accessRestrictedEmployee": "Ufikiaji umewekewa mipaka kwa wafanyakazi",
+      "noModuleAccess": "Huna ruhusa ya kufikia moduli hii",
+      "accessRestricted": "Ufikiaji umewekewa mipaka"
+    }
   },
   "forms": {
     "labels": {
@@ -43,7 +55,10 @@
       "lastName": "Jina la familia",
       "phoneNumber": "Namba ya simu",
       "emailOrPhone": "Barua pepe au Namba ya simu",
-      "role": "Tafadhali chagua jukumu lako"
+      "role": "Tafadhali chagua jukumu lako",
+      "currentPassword": "Nywila ya sasa",
+      "newPassword": "Nywila mpya",
+      "confirmNewPassword": "Thibitisha nywila mpya"
     },
     "placeholders": {
       "firstName": "Jina la kwanza",
@@ -52,7 +67,10 @@
       "enterPhone": "Weka namba yako ya simu",
       "enterEmailOrPhone": "Weka barua pepe au namba yako ya simu",
       "selectRole": "Chagua jukumu lako",
-      "enterPassword": "Weka nywila yako"
+      "enterPassword": "Weka nywila yako",
+      "enterCurrentPassword": "Weka nywila ya sasa",
+      "enterNewPassword": "Weka nywila mpya",
+      "confirmNewPassword": "Thibitisha nywila mpya"
     },
     "buttons": {
       "register": "Unda Akaunti",
@@ -67,7 +85,10 @@
       "registrationFailed": "Usajili haukufaulu. Tafadhali jaribu tena.",
       "registrationSuccess": "Usajili umefanikiwa! Inaelekeza kwenye ukurasa wa kuingia...",
       "checkRequiredFields": "Tafadhali angalia sehemu zote zinazohitajika na jaribu tena.",
-      "invalidResponse": "Jibu batili kutoka kwa seva"
+      "invalidResponse": "Jibu batili kutoka kwa seva",
+      "passwordChangeTitle": "Badili Nywila",
+      "passwordChangeSuccess": "Nywila imebadilishwa kwa mafanikio! Tafadhali ingia kwa kutumia nywila mpya.",
+      "passwordChangeFailed": "Imeshindikana kubadili nywila"
     },
     "validation": {
       "firstNameRequired": "Jina la kwanza linahitajika",
@@ -80,7 +101,9 @@
       "passwordLetters": "Nywila lazima iwe na herufi",
       "passwordNumbers": "Nywila lazima iwe na namba",
       "passwordComplexity": "Nywila lazima iwe na herufi kubwa, ndogo, namba, na wahusika maalum",
-      "passwordRequired": "Nywila inahitajika"
+      "passwordRequired": "Nywila inahitajika",
+      "currentPasswordRequired": "Nywila ya sasa inahitajika",
+      "passwordsDoNotMatch": "Nenosiri halilingani"
     }
   },
   "stats": {

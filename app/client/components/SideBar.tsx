@@ -220,7 +220,7 @@ export default function SideBar() {
           {isMenuOpen && (
             <div>
               <h1 className="font-bold text-lg md:text-xl text-gray-700 truncate">
-                TNCC'S CLIENT
+                {t("dashboardTitle")}
               </h1>
               <div className="text-sm md:text-base text-gray-500">{t("dashboard")}</div>
             </div>
@@ -253,14 +253,14 @@ export default function SideBar() {
               const isLocked = isModuleAccessLocked || isCompanyLocked;
 
               // Determine lock message
-              let lockMessage = "Select a company to access this module";
+              let lockMessage = t("lockMessages.selectCompany");
               if (isModuleAccessLocked) {
                 if (userRole === "employee" && (item.id === "Company Registration" || item.id === "Employees Management")) {
-                  lockMessage = "Access restricted for employees";
+                  lockMessage = t("lockMessages.accessRestrictedEmployee");
                 } else if (item.moduleCode) {
-                  lockMessage = "You don't have access to this module";
+                  lockMessage = t("lockMessages.noModuleAccess");
                 } else {
-                  lockMessage = "Access restricted";
+                  lockMessage = t("lockMessages.accessRestricted");
                 }
               }
 

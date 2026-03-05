@@ -107,7 +107,7 @@ export default function NavBar({ title }: NavBarProps) {
           className="hidden md:flex items-center px-4 py-2 text-sm font-medium text-blue-600 border-[0.5px] border-blue-200 cursor-pointer hover:text-blue-700 bg-transparent hover:bg-blue-50 rounded-lg transition-colors duration-200 mr-4"
           onClick={() => setShowHSCodeWidget(true)}
         >
-          HS Codes list
+          {tn("hsCodesList")}
         </Button>
         {showHSCodeWidget &&
           createPortal(
@@ -122,7 +122,7 @@ export default function NavBar({ title }: NavBarProps) {
           href="/client/ntb"
           className="hidden md:flex items-center px-4 py-2 text-sm font-medium text-blue-600 border-[0.5px] border-blue-200 cursor-pointer hover:text-blue-700 bg-transparent hover:bg-blue-50 rounded-lg transition-colors duration-200 mr-4"
         >
-          Report NTB
+          {tn("reportNTB")}
         </Link>
 
         <DropdownMenu open={langDrop} onOpenChange={toggleDropBox}>
@@ -210,13 +210,13 @@ export default function NavBar({ title }: NavBarProps) {
               </div>
             </div>
             <DropdownMenuItem onClick={() => router.push("/client/profile")}>
-              View Profile
+              {tn("viewProfile")}
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => refreshUserProfile()}>
-              Refresh Profile
+              {tn("refreshProfile")}
             </DropdownMenuItem>
             <DropdownMenuItem className="text-red-600" onClick={toggleAlert}>
-              Sign Out
+              {tn("signOut")}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
