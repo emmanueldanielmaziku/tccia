@@ -37,6 +37,7 @@ export async function POST(request: Request) {
       applicant_name: formData.applicant_name,
       applicant_phone: formData.applicant_phone,
       applicant_email: formData.applicant_email,
+      trade_region: formData.trade_region,
       suggested_inspection_date: formData.suggested_inspection_date
         ? formData.suggested_inspection_date
         : null,

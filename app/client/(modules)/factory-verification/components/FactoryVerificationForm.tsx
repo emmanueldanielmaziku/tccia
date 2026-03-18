@@ -11,6 +11,14 @@ import {
 import { DatePicker } from "@/components/ui/date-picker";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import HSCodeWidget from "./HSCodeWidget";
 
 interface Product {
@@ -60,6 +68,13 @@ interface FormData {
   applicant_name: string;
   applicant_phone: string;
   applicant_email: string;
+  trade_region: number | null;
+}
+
+interface OriginCriterion {
+  id: number;
+  name: string;
+  code_number: string;
 }
 
 const productSchema = z.object({
@@ -371,6 +386,7 @@ function PreviewWidget({
   onRefreshList,
   userType,
   particularsOfGoods,
+  originCriterions,
 }: {
   open: boolean;
   onClose: () => void;
@@ -380,6 +396,7 @@ function PreviewWidget({
   onRefreshList?: () => void;
   userType: ("exporter" | "manufacturer" | "")[];
   particularsOfGoods: ParticularsOfGoods | null;
+  originCriterions: OriginCriterion[];
 }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -431,6 +448,7 @@ function PreviewWidget({
         applicant_name: validFormData.applicant_name,
         applicant_phone: validFormData.applicant_phone,
         applicant_email: validFormData.applicant_email,
+        trade_region: validFormData.trade_region,
         suggested_inspection_date: validFormData.expected_inspection_date
           ? formatDateToDDMMYYYY(validFormData.expected_inspection_date)
           : null,
@@ -631,6 +649,15 @@ function PreviewWidget({
                         ? formatDateToDDMMYYYY(
                             formData.expected_inspection_date
                           )
+                        : "Not specified"}
+                    </span>
+                  </div>
+                  <div className="break-words">
+                    <span className="text-gray-600">Trade Region:</span>{" "}
+                    <span className="font-medium text-gray-800">
+                      {formData.trade_region
+                        ? originCriterions.find((o) => o.id === formData.trade_region)
+                            ?.name || `#${formData.trade_region}`
                         : "Not specified"}
                     </span>
                   </div>
@@ -943,6 +970,7 @@ export default function FactoryVerificationForm({
     applicant_name: "",
     applicant_phone: "",
     applicant_email: "",
+    trade_region: null,
   });
 
   const [errors, setErrors] = useState<{
@@ -959,6 +987,7 @@ export default function FactoryVerificationForm({
     applicant_name?: string;
     applicant_phone?: string;
     applicant_email?: string;
+    trade_region?: string;
     particularsOfGoods?: {
       production_process?: string;
       materials_imported?: string;
@@ -983,6 +1012,7 @@ export default function FactoryVerificationForm({
     applicant_name: undefined,
     applicant_phone: undefined,
     applicant_email: undefined,
+    trade_region: undefined,
     particularsOfGoods: undefined,
   });
 
@@ -998,6 +1028,39 @@ export default function FactoryVerificationForm({
   const [open, setOpen] = useState(false);
   const [userType, setUserType] = useState<("exporter" | "manufacturer" | "")[]>([]);
   const [particularsOfGoods, setParticularsOfGoods] = useState<ParticularsOfGoods | null>(null);
+  const [originCriterions, setOriginCriterions] = useState<OriginCriterion[]>([]);
+  const [originCriterionsLoading, setOriginCriterionsLoading] = useState(false);
+  const [originCriterionsError, setOriginCriterionsError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let alive = true;
+    const load = async () => {
+      setOriginCriterionsLoading(true);
+      setOriginCriterionsError(null);
+      try {
+        const res = await fetch("/api/origin-criterions", { method: "GET" });
+        const data = await res.json();
+        if (!alive) return;
+        const list = Array.isArray(data?.origin_criterions)
+          ? (data.origin_criterions as OriginCriterion[])
+          : Array.isArray(data?.originCriterions)
+          ? (data.originCriterions as OriginCriterion[])
+          : [];
+        setOriginCriterions(list);
+      } catch (e) {
+        if (!alive) return;
+        setOriginCriterions([]);
+        setOriginCriterionsError("Failed to load trade regions");
+      } finally {
+        if (!alive) return;
+        setOriginCriterionsLoading(false);
+      }
+    };
+    load();
+    return () => {
+      alive = false;
+    };
+  }, []);
 
   // Helper function to get default particulars object
   const getDefaultParticulars = (): ParticularsOfGoods => ({
@@ -1270,11 +1333,15 @@ export default function FactoryVerificationForm({
       applicant_name: undefined,
       applicant_phone: undefined,
       applicant_email: undefined,
+      trade_region: undefined,
       particularsOfGoods: undefined,
     };
     if (!formData.expected_inspection_date.trim()) {
       newErrors.expected_inspection_date =
         "Expected inspection date is required";
+    }
+    if (!formData.trade_region) {
+      newErrors.trade_region = "Trade region is required";
     }
     // Validate applicant fields
     const applicantFieldErrors = validateApplicantFields(formData);
@@ -1296,6 +1363,7 @@ export default function FactoryVerificationForm({
       newErrors.applicant_name ||
       newErrors.applicant_phone ||
       newErrors.applicant_email ||
+      newErrors.trade_region ||
       newErrors.particularsOfGoods ||
       newErrors.products.some(
         (productErrors: any) => Object.keys(productErrors).length > 0
@@ -1310,6 +1378,7 @@ export default function FactoryVerificationForm({
       applicant_name: undefined,
       applicant_phone: undefined,
       applicant_email: undefined,
+      trade_region: undefined,
       particularsOfGoods: undefined,
     });
     getFormSummary();
@@ -1436,6 +1505,7 @@ export default function FactoryVerificationForm({
       applicant_name: formData.applicant_name.trim(),
       applicant_phone: formData.applicant_phone.trim(),
       applicant_email: formData.applicant_email.trim(),
+      trade_region: formData.trade_region,
     };
   };
 
@@ -1488,6 +1558,7 @@ export default function FactoryVerificationForm({
         onRefreshList={onRefreshList}
         userType={userType}
         particularsOfGoods={particularsOfGoods}
+        originCriterions={originCriterions}
       />
 
       <HSCodeWidget open={open} onClose={() => setOpen(false)} />
@@ -1584,6 +1655,54 @@ export default function FactoryVerificationForm({
               {errors.expected_inspection_date && (
                 <p className="text-red-500 text-xs">
                   {errors.expected_inspection_date}
+                </p>
+              )}
+            </div>
+          </div>
+
+          {/* Trade Region Section */}
+          <div className="space-y-2 border-b border-gray-200 pb-4">
+            <div className="text-base text-md font-semibold text-gray-600">
+              Trade Region
+            </div>
+            <div className="flex flex-col gap-2 w-full">
+              <label className="text-sm text-gray-600">
+                Select trade region (where product will be shipped/traded){" "}
+                <span className="text-red-500">*</span>
+              </label>
+              <Select
+                value={formData.trade_region ? String(formData.trade_region) : ""}
+                onValueChange={(value) => {
+                  const id = value ? Number(value) : null;
+                  setFormData({ ...formData, trade_region: Number.isFinite(id as number) ? (id as number) : null });
+                  if (errors.trade_region) {
+                    setErrors({ ...errors, trade_region: undefined });
+                  }
+                }}
+                disabled={originCriterionsLoading}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue
+                    placeholder={
+                      originCriterionsLoading
+                        ? "Loading trade regions..."
+                        : "Select trade region"
+                    }
+                  />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    {originCriterions.map((o) => (
+                      <SelectItem key={String(o.id)} value={String(o.id)}>
+                        {o.name}
+                      </SelectItem>
+                    ))}
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+              {(originCriterionsError || errors.trade_region) && (
+                <p className="text-red-500 text-xs">
+                  {errors.trade_region || originCriterionsError}
                 </p>
               )}
             </div>
