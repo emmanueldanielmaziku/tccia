@@ -13,7 +13,7 @@ export default function NavBar() {
   const { formType, toggleFormType } = useFormState();
   const { language, toggleLanguage } = useLangState();
   const [langDrop, toggleDropBox] = useState(false);
-  const { setShowHelpDesk } = useAuthLayoutState();
+  const { setShowHelpDesk, setShowCertificateValidity } = useAuthLayoutState();
   const t = useTranslations();
   const tn = useTranslations("nav");
 
@@ -27,7 +27,8 @@ export default function NavBar() {
   };
 
   return (
-    <nav className="flex items-center justify-between px-6 md:px-14 py-3.5 text-gray-600 border-b-[0.5] border-solid border-gray-200 z-100 backdrop-blur-sm fixed t-0 shadow-md w-full">
+    <>
+      <nav className="flex items-center justify-between px-6 md:px-14 py-3.5 text-gray-600 border-b-[0.5] border-solid border-gray-200 z-100 backdrop-blur-sm fixed t-0 shadow-md w-full">
       {/* Logo */}
       <div className="flex items-center space-x-4 gap-3">
         <Image
@@ -50,6 +51,15 @@ export default function NavBar() {
             <a href="https://tncc.or.tz/about-us/" className="hover:text-blue-500">
               {tn("about")}
             </a>
+          </li>
+          <li>
+            <button
+              type="button"
+              onClick={() => setShowCertificateValidity(true)}
+              className="hover:text-blue-500"
+            >
+              {tn("certificateValidity")}
+            </button>
           </li>
           <li>
             <button onClick={handleHelpClick} className="hover:text-blue-500">
@@ -176,6 +186,18 @@ export default function NavBar() {
                 {tn("about")}
               </a>
             </li>
+            <li className="border-b border-gray-300 pb-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setShowCertificateValidity(true);
+                  setIsMenuOpen(false);
+                }}
+                className="hover:text-blue-500 display-block text-left w-full"
+              >
+                {tn("certificateValidity")}
+              </button>
+            </li>
 
             <li className="border-b border-transparent pb-2">
               <button
@@ -188,6 +210,7 @@ export default function NavBar() {
           </ul>
         </div>
       )}
-    </nav>
+      </nav>
+    </>
   );
 }

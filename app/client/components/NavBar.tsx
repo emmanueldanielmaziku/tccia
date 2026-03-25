@@ -6,6 +6,7 @@ import {
   ArrowDown2,
   HamburgerMenu,
   ProfileCircle,
+  SearchNormal1,
 } from "iconsax-reactjs";
 import useMenuState from "../services/MenuState";
 import useLangState from "@/app/services/LanguageState";
@@ -25,7 +26,8 @@ import SideBarMobile from "./SideBar-Mobile";
 import Link from "next/link";
 import HSCodeWidget from "../(modules)/factory-verification/components/HSCodeWidget";
 import { createPortal } from "react-dom";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import CertificateValidityModal from "./CertificateValidityModal";
 
 type NavBarProps = {
   title: string;
@@ -33,6 +35,7 @@ type NavBarProps = {
 
 export default function NavBar({ title }: NavBarProps) {
   const router = useRouter();
+  const pathname = usePathname();
   const { isMenuOpen, toggleMenu } = useMenuState();
   const { language, toggleLanguage } = useLangState();
   const { alertState, toggleAlert } = useLogState();
@@ -40,6 +43,7 @@ export default function NavBar({ title }: NavBarProps) {
   const [langDrop, toggleDropBox] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [sheetOpen, setSheetOpen] = useState(false);
+  const [isCertificateValidityOpen, setIsCertificateValidityOpen] = useState(false);
   const t = useTranslations();
   const tn = useTranslations("nav");
   const [showHSCodeWidget, setShowHSCodeWidget] = useState(false);
@@ -53,7 +57,8 @@ export default function NavBar({ title }: NavBarProps) {
   }, []);
 
   return (
-    <nav className="bg-gray-50/5 flex flex-row justify-between items-center absolute z-20 h-[60px] sm:h-[65px] left-0 right-0 top-0 border-b-[1px] border-b-gray-200 px-2 sm:px-4 w-full backdrop-blur-md">
+    <>
+      <nav className="bg-gray-50/5 flex flex-row justify-between items-center absolute z-20 h-[60px] sm:h-[65px] left-0 right-0 top-0 border-b-[1px] border-b-gray-200 px-2 sm:px-4 w-full backdrop-blur-md">
       <div className="flex items-center flex-row">
         <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
           <SheetTrigger asChild>
@@ -124,6 +129,24 @@ export default function NavBar({ title }: NavBarProps) {
         >
           {tn("reportNTB")}
         </Link>
+
+        {/* Certificate Validity Check link (only on COO module) */}
+        {pathname?.startsWith("/client/coo") && (
+          <button
+            type="button"
+            onClick={() => setIsCertificateValidityOpen(true)}
+            className="flex items-center justify-center md:justify-start px-2 md:px-4 py-2 text-sm font-medium text-blue-600 border-[0.5px] border-blue-200 cursor-pointer hover:text-blue-700 bg-transparent hover:bg-blue-50 rounded-lg transition-colors duration-200 mr-4 w-[45px] md:w-auto"
+          >
+            <SearchNormal1
+              size={18}
+              color="currentColor"
+              className="md:hidden"
+            />
+            <span className="hidden md:inline">
+              {tn("certificateValidity")}
+            </span>
+          </button>
+        )}
 
         <DropdownMenu open={langDrop} onOpenChange={toggleDropBox}>
           <DropdownMenuTrigger asChild>
@@ -221,6 +244,11 @@ export default function NavBar({ title }: NavBarProps) {
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
-    </nav>
+      </nav>
+      <CertificateValidityModal
+        open={isCertificateValidityOpen}
+        onOpenChange={setIsCertificateValidityOpen}
+      />
+    </>
   );
 }

@@ -9,21 +9,29 @@ import usePickerState from "../services/PickerState";
 import { RightSidebarProvider } from "../../contexts/RightSidebarContext";
 import { SessionTimeoutProvider } from "../../contexts/SessionTimeoutContext";
 import { ResponsiveSidebarHandler } from "./ResponsiveSidebarHandler";
+import { usePathname } from "next/navigation";
 
 // Component that uses the responsive sidebar hook
 function ClientLayoutWithResponsiveSidebar({ children }: { children: React.ReactNode }) {
   const { alertState } = useLogState();
   const { pickerState, forceShowPicker } = usePickerState();
+  const pathname = usePathname();
+
+  const isPublicClientRoute =
+    pathname?.startsWith("/client/ntb") ||
+    pathname?.startsWith("/client/certificate-validity");
 
   useEffect(() => {
-    forceShowPicker();
-  }, [forceShowPicker]);
+    if (!isPublicClientRoute) {
+      forceShowPicker();
+    }
+  }, [forceShowPicker, isPublicClientRoute]);
 
   return (
     <>
       <ResponsiveSidebarHandler />
       {alertState && <AlertBox isLogout={true} />}
-      {pickerState && <CompanyPicker />}
+      {pickerState && !isPublicClientRoute && <CompanyPicker />}
       <SideBar />
       <section className="flex-1 bg-gray-50 pr-2 sm:pr-4">{children}</section>
     </>

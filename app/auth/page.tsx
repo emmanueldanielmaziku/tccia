@@ -10,6 +10,7 @@ import NewPassword from "./components/NewPassword";
 import HelpDeskPortal from "./components/HelpDeskPortal";
 import VerifyOtp from "./components/VerifyOtp";
 import ChangePassword from "./components/ChangePassword";
+import CertificateValidityForm from "./components/CertificateValidityForm";
 import {
   useActivateAccountState,
   useFormState,
@@ -30,10 +31,15 @@ function AuthContent() {
   const { isActivated } = useActivateAccountState();
   const { otpActive } = useOtpVerificationState();
   const { passwordChangeActive } = usePasswordChangeState();
-  const { showHelpDesk, setShowHelpDesk } = useAuthLayoutState();
+  const { showHelpDesk, setShowHelpDesk, showCertificateValidity, setShowCertificateValidity } =
+    useAuthLayoutState();
 
   const handleBackToAuth = () => {
     setShowHelpDesk(false);
+  };
+
+  const handleBackToAuthHome = () => {
+    setShowCertificateValidity(false);
   };
 
   return (
@@ -42,6 +48,8 @@ function AuthContent() {
       <div className="flex-1 flex items-center justify-center px-4 py-8">
         {showHelpDesk ? (
           <HelpDeskPortal onBack={handleBackToAuth} />
+        ) : showCertificateValidity ? (
+          <CertificateValidityForm onBack={handleBackToAuthHome} />
         ) : (
           <div className="w-full flex flex-col justify-center items-center">
             <div className="flex flex-col items-center justify-center gap-4 mt-[90px] max-w-[900px] w-full px-4 sm:px-6 md:px-8">
