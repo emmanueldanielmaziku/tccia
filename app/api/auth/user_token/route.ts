@@ -96,17 +96,18 @@ export async function POST(request: Request) {
         path: "/",
       });
 
+      const r = data.result ?? {};
       return NextResponse.json({
         jsonrpc: "2.0",
         id: null,
         result: {
-          token: data.result.token,
-          uid: data.result.uid,
-          modules: data.result.modules || [],
-          companies: data.result.companies || [],
-          user_type: data.result.user_type,
-          user_role: data.result.user_role,
-          name: data.result.name,
+          token: r.token,
+          uid: r.uid,
+          modules: r.modules ?? r.user_modules ?? [],
+          companies: r.companies ?? r.user_companies ?? [],
+          user_type: r.user_type,
+          user_role: r.user_role,
+          name: r.name,
         },
       });
     }

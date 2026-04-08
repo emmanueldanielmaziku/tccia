@@ -161,8 +161,8 @@ function PreviewWidget({
     }
 
     if (resendCooldown > 0) {
-      const minutes = Math.ceil(resendCooldown / 60);
-      const seconds = resendCooldown % 60;
+      const minutes = Math.floor(resendCooldown / 60);
+      const seconds = (resendCooldown % 60).toString().padStart(2, "0");
       setOtpError(`Please wait ${minutes}m ${seconds}s before resending OTP.`);
       return;
     }
@@ -430,7 +430,7 @@ function PreviewWidget({
                       : "bg-green-600 text-white hover:bg-green-700 cursor-pointer disabled:opacity-50"
                   }`}
                 >
-                  {isResending ? "Resending..." : resendCooldown > 0 ? `Resend OTP (${Math.ceil(resendCooldown / 60)}m ${resendCooldown % 60}s)` : "Resend OTP"}
+                  {isResending ? "Resending..." : resendCooldown > 0 ? `Resend OTP (${Math.floor(resendCooldown / 60)}m ${(resendCooldown % 60).toString().padStart(2, "0")}s)` : "Resend OTP"}
                 </button>
                 <button
                   type="submit"

@@ -107,12 +107,20 @@ export default function LoginForm() {
       }
 
       if (result.result?.token) {
+        const loginPayload = result.result as Record<string, unknown>;
+        const modules =
+          (Array.isArray(loginPayload.modules) ? loginPayload.modules : null) ??
+          (Array.isArray(loginPayload.user_modules) ? loginPayload.user_modules : null);
+        const companies =
+          (Array.isArray(loginPayload.companies) ? loginPayload.companies : null) ??
+          (Array.isArray(loginPayload.user_companies) ? loginPayload.user_companies : null);
+
         // Store modules and permissions in localStorage for permission checks
-        if (result.result.modules) {
-          localStorage.setItem("userModules", JSON.stringify(result.result.modules));
+        if (modules) {
+          localStorage.setItem("userModules", JSON.stringify(modules));
         }
-        if (result.result.companies) {
-          localStorage.setItem("userCompanies", JSON.stringify(result.result.companies));
+        if (companies) {
+          localStorage.setItem("userCompanies", JSON.stringify(companies));
         }
         
         // Store user info for easy access
@@ -133,7 +141,7 @@ export default function LoginForm() {
         
         // Find first accessible module to redirect to
         const getFirstAccessibleRoute = () => {
-          if (!result.result.modules || !Array.isArray(result.result.modules)) {
+          if (!modules || !Array.isArray(modules)) {
             return "/client";
           }
           
@@ -146,13 +154,20 @@ export default function LoginForm() {
           };
           
           // Check each module to find first one with can_view permission
-          for (const module of result.result.modules) {
-            if (module.code && module.permissions) {
+          for (const module of modules as Array<{
+            code?: string;
+            module_code?: string;
+            permissions?: unknown[];
+          }>) {
+            const code = module.code ?? module.module_code;
+            if (code && module.permissions) {
               const hasViewPermission = module.permissions.some(
-                (p: any) => p.code === "can_view"
+                (p: unknown) =>
+                  (typeof p === "string" && p === "can_view") ||
+                  (typeof p === "object" && p !== null && "code" in p && (p as { code?: string }).code === "can_view")
               );
-              if (hasViewPermission && moduleRouteMap[module.code]) {
-                return moduleRouteMap[module.code];
+              if (hasViewPermission && moduleRouteMap[code]) {
+                return moduleRouteMap[code];
               }
             }
           }

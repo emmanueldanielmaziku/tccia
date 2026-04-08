@@ -55,10 +55,15 @@ export function useUserPermissions() {
    * @returns boolean
    */
   const hasPermission = (moduleCode: string, permissionCode: string): boolean => {
-    const module = modules.find((m) => m.code === moduleCode);
+    const module = modules.find(
+      (m) => m.code === moduleCode || (m as { module_code?: string }).module_code === moduleCode
+    );
     if (!module) return false;
     
-    return module.permissions.some((p) => p.code === permissionCode);
+    return module.permissions.some((p) => {
+      if (typeof p === "string") return p === permissionCode;
+      return p.code === permissionCode;
+    });
   };
 
   /**
