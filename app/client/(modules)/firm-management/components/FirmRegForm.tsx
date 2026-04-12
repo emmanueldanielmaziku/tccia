@@ -34,6 +34,7 @@ type SendCodeResponse = {
     status?: string;
     data?: { verification_code?: string };
     message?: string;
+    error?: string;
   };
 };
 
