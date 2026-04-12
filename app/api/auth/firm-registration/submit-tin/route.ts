@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 
-const API_BASE_URL = "https://tccia.kalen.co.tz";
+const API_BASE_URL = "https://staff.tncc.co.tz";
 
 export async function POST(request: Request) {
   try {
@@ -37,7 +37,7 @@ export async function POST(request: Request) {
     );
 
     const data = await response.json();
-    // console.log(data);
+    console.log(data);
 
     if (data.result?.status === "error" && data.result?.error) {
       return NextResponse.json(
