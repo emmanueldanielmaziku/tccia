@@ -38,64 +38,6 @@ type SendCodeResponse = {
   };
 };
 
-/** Relays OTP via Next.js SMTP when backend email is unavailable (server-side send). */
-async function relayFirmOtpEmail(
-  companyData: CompanyData,
-  apiJson: SendCodeResponse
-) {
-  const code = apiJson.result?.data?.verification_code;
-  const email = companyData.company_email?.trim();
-  if (!code || !email) return;
-  try {
-    await fetch("/api/mail/firm-registration-otp", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        to: email,
-        verification_code: code,
-        company_name: companyData.company_name,
-        company_tin: companyData.company_tin,
-      }),
-    });
-  } catch {
-    // Non-blocking for registration flow
-  }
-}
-
-/** Relays OTP via messaging-service.co.tz SMS API (server-side). */
-async function relayFirmOtpSms(
-  companyData: CompanyData,
-  apiJson: SendCodeResponse
-) {
-  const code = apiJson.result?.data?.verification_code;
-  const phone = companyData.company_phone?.trim();
-  if (!code || !phone) return;
-  try {
-    await fetch("/api/sms/firm-registration-otp", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        to: phone,
-        verification_code: code,
-        company_name: companyData.company_name,
-        company_tin: companyData.company_tin,
-      }),
-    });
-  } catch {
-    // Non-blocking for registration flow
-  }
-}
-
-async function relayFirmOtpChannels(
-  companyData: CompanyData,
-  apiJson: SendCodeResponse
-) {
-  await Promise.all([
-    relayFirmOtpEmail(companyData, apiJson),
-    relayFirmOtpSms(companyData, apiJson),
-  ]);
-}
-
 function PreviewWidget({
   open,
   onClose,
@@ -220,9 +162,6 @@ function PreviewWidget({
       const result = (await response.json()) as SendCodeResponse;
 
       if (result.result?.status === "success") {
-        if (companyData) {
-          await relayFirmOtpChannels(companyData, result);
-        }
         setShowOtpInput(true);
         setOtpError(undefined);
         setOtpMessage(result.result?.message);
@@ -271,9 +210,6 @@ function PreviewWidget({
       const result = (await response.json()) as SendCodeResponse;
 
       if (result.result?.status === "success") {
-        if (companyData) {
-          await relayFirmOtpChannels(companyData, result);
-        }
         setResendAttempts(prev => prev + 1);
         setOtpMessage(result.result?.message || `OTP resent successfully. Attempts remaining: ${MAX_RESEND_ATTEMPTS - resendAttempts - 1}`);
         setOtpError(undefined);
@@ -472,43 +408,22 @@ function PreviewWidget({
                 <h3 className="text-lg font-semibold text-gray-700 mb-2">
                   OTP Verification
                 </h3>
-                {otpMessage ? (
-                  <div className="text-sm mb-4 space-y-3">
-                    <p className="text-blue-600">{otpMessage}</p>
-                    <div className="text-gray-700 border-t border-blue-100 pt-3 space-y-2">
-                      <p>
-                        <span className="font-medium text-gray-800">Email:</span>{" "}
-                        We&apos;ve sent the verification code to{" "}
-                        <span className="font-semibold text-gray-900 break-all">
-                          {companyData.company_email?.trim() || "your registered email"}
-                        </span>
-                        .
-                      </p>
-                      <p>
-                        <span className="font-medium text-gray-800">SMS:</span>{" "}
-                        We&apos;ve also sent an OTP by text message to{" "}
-                        <span className="font-semibold text-gray-900">
-                          {companyData.company_phone?.trim() || "your registered phone number"}
-                        </span>
-                        .
-                      </p>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="text-sm text-gray-500 mb-4 space-y-2">
-                    <p>
-                      A verification code has been sent to{" "}
-                      <span className="font-medium text-gray-700 break-all">
-                        {companyData.company_email?.trim() || "your registered email"}
-                      </span>{" "}
-                      and by SMS to{" "}
-                      <span className="font-medium text-gray-700">
-                        {companyData.company_phone?.trim() || "your registered phone number"}
-                      </span>
-                      .
-                    </p>
-                  </div>
-                )}
+                <div className="text-sm mb-4 space-y-2">
+                  <p className={otpMessage ? "text-blue-600" : "text-gray-500"}>
+                    {otpMessage || "A verification code has been sent."}
+                  </p>
+                  <p className="text-gray-600">
+                    OTP sent to Email:{" "}
+                    <span className="font-medium text-gray-800 break-all">
+                      {companyData.company_email?.trim() || "N/A"}
+                    </span>
+                    {" "}and SMS:{" "}
+                    <span className="font-medium text-gray-800">
+                      {companyData.company_phone?.trim() || "N/A"}
+                    </span>
+                    .
+                  </p>
+                </div>
                 <div className="relative">
                   <input
                     type="text"

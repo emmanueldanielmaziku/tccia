@@ -32,7 +32,6 @@ yarn-error.log*
 
 # env files — ignore by default; allow committing `.env` only if you explicitly need to (remove after).
 .env*
-!.env
 
 # vercel
 .vercel
