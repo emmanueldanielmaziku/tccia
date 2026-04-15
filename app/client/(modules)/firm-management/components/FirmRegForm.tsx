@@ -38,6 +38,50 @@ type SendCodeResponse = {
   };
 };
 
+/**
+ * Refresh client-side access/session caches after successful company registration.
+ * This helps sidebar/company picker react immediately without full re-login.
+ */
+async function refreshAccessAfterCompanyRegistration() {
+  try {
+    const [companiesRes, permissionsRes] = await Promise.all([
+      fetch("/api/companies/list", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+      }),
+      fetch("/api/permissions"),
+    ]);
+
+    if (companiesRes.ok) {
+      const companiesJson = await companiesRes.json();
+      const companies =
+        companiesJson?.data?.companies ??
+        companiesJson?.result?.data?.companies ??
+        companiesJson?.companies;
+      if (Array.isArray(companies)) {
+        localStorage.setItem("userCompanies", JSON.stringify(companies));
+      }
+    }
+
+    if (permissionsRes.ok) {
+      const permissionsJson = await permissionsRes.json();
+      const modules =
+        permissionsJson?.modules ??
+        permissionsJson?.user_modules ??
+        permissionsJson?.result?.modules ??
+        permissionsJson?.data?.modules;
+      if (Array.isArray(modules)) {
+        localStorage.setItem("userModules", JSON.stringify(modules));
+      }
+    }
+
+    // Re-run permission/membership guards that subscribe to login refresh.
+    window.dispatchEvent(new Event("USER_LOGIN_EVENT"));
+  } catch {
+    // Non-blocking refresh; registration success flow should continue.
+  }
+}
+
 function PreviewWidget({
   open,
   onClose,
@@ -271,6 +315,8 @@ function PreviewWidget({
           window.dispatchEvent(new Event("COMPANY_CHANGE_EVENT"));
           window.dispatchEvent(new Event("COMPANY_REGISTERED_EVENT"));
         }
+
+        await refreshAccessAfterCompanyRegistration();
         
         setTimeout(() => {
           onConfirm(otp);
