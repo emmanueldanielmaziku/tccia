@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 
-const API_BASE_URL = "https://staff.tncc.or.tz";
+const API_BASE_URL = "https://tccia.kalen.co.tz";
 
 export async function GET() {
   try {
