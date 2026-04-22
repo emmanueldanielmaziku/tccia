@@ -42,14 +42,8 @@ export default function NavBar() {
         {/* Desktop Menu */}
         <ul className="hidden md:flex space-x-12">
           <li>
-            <a href="https://tncc.or.tz/" className="hover:text-blue-500">
+            <a href="/auth" className="hover:text-blue-500">
               {tn("home")}
-            </a>
-          </li>
-    
-          <li>
-            <a href="https://tncc.or.tz/about-us/" className="hover:text-blue-500">
-              {tn("about")}
             </a>
           </li>
           <li>
@@ -172,18 +166,10 @@ export default function NavBar() {
           <ul className="flex flex-col items-left space-y-4 py-4 text-sm">
             <li className="border-b border-gray-300 pb-2">
               <a
-                href="/auth/login"
+                href="/auth"
                 className="hover:text-blue-500 display-block"
               >
                 {tn("home")}
-              </a>
-            </li>
-            <li className="border-b border-gray-300 pb-2">
-              <a
-                href="/auth/register"
-                className="hover:text-blue-500 display-block"
-              >
-                {tn("about")}
               </a>
             </li>
             <li className="border-b border-gray-300 pb-2">

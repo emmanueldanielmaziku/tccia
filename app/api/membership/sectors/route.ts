@@ -1,11 +1,12 @@
 import { NextResponse } from "next/server";
 
-const API_BASE_URL = "https://tccia.kalen.co.tz";
+const API_BASE_URL = "https://staff.tncc.or.tz";
 
 export async function GET() {
   try {
     const res = await fetch(`${API_BASE_URL}/api/membership/sectors`);
     const data = await res.json();
+        console.log(data);
     return NextResponse.json(data);
   } catch (error) {
     return NextResponse.json(

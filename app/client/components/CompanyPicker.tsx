@@ -77,6 +77,20 @@ export default function CompanyPicker() {
   const [open, setOpen] = useState(false);
   const [showJoinMembershipError, setShowJoinMembershipError] = useState(false);
 
+  const persistSelectedCompany = (company: Company) => {
+    const companySession = {
+      id: company.id,
+      company_tin: company.company_tin,
+      company_name: company.company_name,
+      company_nationality_code: company.company_nationality_code,
+      company_registration_type_code: company.company_registration_type_code,
+      company_email: company.company_email,
+      company_telephone_number: company.company_telephone_number,
+    };
+    localStorage.setItem("selectedCompany", JSON.stringify(companySession));
+    window.dispatchEvent(new Event("COMPANY_CHANGE_EVENT"));
+  };
+
   const fetchCompanies = async () => {
     try {
       setIsLoading(true);
@@ -111,6 +125,7 @@ export default function CompanyPicker() {
 
             // Restore selected company if it exists
             const storedCompany = localStorage.getItem("selectedCompany");
+            let restoredSelection = false;
             if (storedCompany) {
               const parsedCompany = JSON.parse(storedCompany);
               if (
@@ -119,6 +134,16 @@ export default function CompanyPicker() {
                 )
               ) {
                 setSelectedCompany(parsedCompany.company_tin);
+                restoredSelection = true;
+              }
+            }
+
+            // Fallback: auto-select first available company if none is selected
+            if (!restoredSelection) {
+              const firstCompany = convertedCompanies[0];
+              if (firstCompany) {
+                setSelectedCompany(firstCompany.company_tin);
+                persistSelectedCompany(firstCompany);
               }
             }
             setIsLoading(false);
@@ -155,6 +180,7 @@ export default function CompanyPicker() {
         setCompanies(data.data.companies);
 
         const storedCompany = localStorage.getItem("selectedCompany");
+        let restoredSelection = false;
         if (storedCompany) {
           const parsedCompany = JSON.parse(storedCompany);
           if (
@@ -163,6 +189,16 @@ export default function CompanyPicker() {
             )
           ) {
             setSelectedCompany(parsedCompany.company_tin);
+            restoredSelection = true;
+          }
+        }
+
+        // Fallback: auto-select first available company if none is selected
+        if (!restoredSelection) {
+          const firstCompany = data.data.companies[0];
+          if (firstCompany) {
+            setSelectedCompany(firstCompany.company_tin);
+            persistSelectedCompany(firstCompany);
           }
         }
       } else {
@@ -200,7 +236,10 @@ export default function CompanyPicker() {
       if (e.key === "selectedCompany") {
         const storedCompany = localStorage.getItem("selectedCompany");
         if (storedCompany) {
-          setSelectedCompany(JSON.parse(storedCompany));
+          const parsedCompany = JSON.parse(storedCompany);
+          setSelectedCompany(parsedCompany.company_tin ?? "");
+        } else {
+          setSelectedCompany("");
         }
       }
     };
@@ -226,18 +265,7 @@ export default function CompanyPicker() {
       (company) => company.company_tin === value
     );
     if (selectedCompanyData) {
-      const companySession = {
-        id: selectedCompanyData.id,
-        company_tin: selectedCompanyData.company_tin,
-        company_name: selectedCompanyData.company_name,
-        company_nationality_code: selectedCompanyData.company_nationality_code,
-        company_registration_type_code:
-          selectedCompanyData.company_registration_type_code,
-        company_email: selectedCompanyData.company_email,
-        company_telephone_number: selectedCompanyData.company_telephone_number,
-      };
-      localStorage.setItem("selectedCompany", JSON.stringify(companySession));
-      window.dispatchEvent(new Event("COMPANY_CHANGE_EVENT"));
+      persistSelectedCompany(selectedCompanyData);
     }
   };
 
@@ -248,20 +276,7 @@ export default function CompanyPicker() {
       );
 
       if (selectedCompanyData) {
-        const companySession = {
-          id: selectedCompanyData.id,
-          company_tin: selectedCompanyData.company_tin,
-          company_name: selectedCompanyData.company_name,
-          company_nationality_code:
-            selectedCompanyData.company_nationality_code,
-          company_registration_type_code:
-            selectedCompanyData.company_registration_type_code,
-          company_email: selectedCompanyData.company_email,
-          company_telephone_number:
-            selectedCompanyData.company_telephone_number,
-        };
-        localStorage.setItem("selectedCompany", JSON.stringify(companySession));
-        window.dispatchEvent(new Event("COMPANY_CHANGE_EVENT"));
+        persistSelectedCompany(selectedCompanyData);
         hidePicker();
       }
     }

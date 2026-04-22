@@ -74,6 +74,7 @@ export default function SideBar() {
     if (currentPath.includes("/client/ntb")) return "Non-Tariff Barrier";
     if (currentPath.includes("/client/business-complaints")) return "Business Complaints";
     if (currentPath.includes("/client/report")) return "IT Support";
+    if (currentPath.includes("/client/tccia-wallet")) return "TCCIA Wallet";
     if (currentPath.includes("/client/profile")) return "Profile";
     return "Company Registration";
   };
@@ -162,6 +163,14 @@ export default function SideBar() {
       route: "/client/report",
       moduleCode: null, // Always accessible
       alwaysAccessible: true,
+    },
+    {
+      id: "TCCIA Wallet",
+      translationKey: "tcciaWallet",
+      icon: Box,
+      route: "/client/tccia-wallet",
+      moduleCode: "tccia_wallet",
+      alwaysAccessible: false,
     },
     {
       id: "Profile",

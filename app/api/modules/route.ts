@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 
-const API_BASE_URL = "https://tccia.kalen.co.tz";
+const API_BASE_URL = "https://staff.tncc.or.tz";
 
 const STATIC_MODULES = [
   { id: 1, name: "Company Registration", code: "company_registration" },
@@ -9,6 +9,7 @@ const STATIC_MODULES = [
   { id: 3, name: "Certificate of Origin", code: "certificate_origin" },
   { id: 4, name: "Membership", code: "membership" },
   { id: 5, name: "Employee Management", code: "employee_management" },
+  { id: 6, name: "TCCIA Wallet", code: "tccia_wallet" },
 ];
 
 export async function GET(_request: NextRequest) {
