@@ -212,6 +212,61 @@
     "lastUpdated": "Last Updated",
     "latestCommunication": "Latest Communication"
   },
+  "companyPicker": {
+    "quickMenuTitle": "Quick Menu (COO & NTB)",
+    "quickMenuDescription": "Please select the company you want to work with. You can change it later.",
+    "selectCompany": "Select a company",
+    "searchCompany": "Search company...",
+    "loadingCompanies": "Loading companies...",
+    "noCompaniesFound": "No companies found",
+    "companies": "Companies",
+    "selectOrRegisterCompany": "Please select company or register your company first.",
+    "continue": "Continue",
+    "registerCompany": "Register Company",
+    "joinMembership": "Join Membership",
+    "registerCompanyFirst": "Please register a company first"
+  },
+  "membershipSidebar": {
+    "categoryServicesList": "Category and Services List",
+    "categoryServicesDescription": "Browse all membership categories, subcategories, and their services in one place.",
+    "viewServicesOffered": "View Services Offered",
+    "supportDescription": "Need help or have questions about membership? Our support team is here to assist you.",
+    "contactSupport": "Contact Support",
+    "modalDescription": "Browse all membership categories, subcategories, and their services."
+  },
+  "membershipApplication": {
+    "noApplicationTitle": "No Membership Application Found",
+    "noApplicationDescription": "There is no membership application for this TIN.",
+    "noApplicationHint": "Start a new application to become a member."
+  },
+  "sessionExpired": {
+    "title": "Session Expired",
+    "message": "Your session has expired. Please log in again.",
+    "redirectingIn": "Redirecting in",
+    "seconds": "seconds",
+    "acknowledge": "Okay, Understood",
+    "redirectingToLogin": "Redirecting to login page..."
+  },
+  "profile": {
+    "redirectingIn": "Redirecting in"
+  },
+  "firmManagementModule": {
+    "title": "Company Registration",
+    "searchFirms": "Search firms...",
+    "allStates": "All States",
+    "refreshCompaniesList": "Refresh companies list",
+    "refreshing": "Refreshing...",
+    "refresh": "Refresh",
+    "addCompany": "Add Company",
+    "totalProducts": "Total Products",
+    "totalCertificatesOfOrigin": "Total Certificates of Origin"
+  },
+  "pagination": {
+    "pageOf": "Page {currentPage} of {totalPages}",
+    "previous": "Previous",
+    "next": "Next",
+    "total": "total"
+  },
   "ntb": {
     "title": "Report & Track NTB Issues",
     "welcome": "Welcome to NTB Reporting Portal",
@@ -262,8 +317,42 @@
     "submitNTBHeading": "Submit NTB Report",
     "submitNTB": "Report any non-tariff barrier you encounter. Fill out the form with detailed information about the issue.",
     "trackNTBHeading": "Track NTB Status",
+    "listTitle": "Non-Tariff Barriers (NTB)",
+    "listDescription": "Track and report non-tariff barriers affecting your trade",
+    "reportsCount": "{count} reports",
+    "refresh": "Refresh",
+    "newNtbReport": "New NTB Report",
+    "noReportsFound": "No NTB Reports Found",
+    "noReportsDescription": "You haven't submitted any NTB reports yet.",
+    "submitFirstReport": "Submit Your First NTB Report",
+    "reportLabel": "NTB Report",
+    "resolvedClosed": "Resolved & Closed",
+    "reportedOn": "Reported on",
+    "incident": "incident",
+    "attachmentsLabel": "Attachments",
+    "imposingCountry": "Imposing Country",
+    "reportingCountry": "Reporting Country",
+    "locationType": "Location Type",
+    "specificLocation": "Specific Location",
+    "occurrence": "Occurrence",
+    "costRange": "Cost Range",
+    "hasAttachments": "Has Attachments",
+    "notSpecified": "Not specified",
+    "yes": "Yes",
+    "no": "No",
+    "rated": "Rated",
+    "rateService": "Rate Service",
+    "viewDetails": "View Details",
     "saveTrackingTip": "⚠️ Important: Save the tracking code provided after submission to track your report later.",
     "useTrackingTip": "💡 Tip: Use the tracking code from your submission confirmation to monitor progress.",
+    "sidebar": {
+      "viewReportsTitle": "View NTB Reports",
+      "viewReportsDescription": "View all your submitted NTB reports and their current status.",
+      "viewReportsHint": "Track the progress of your reported non-tariff barriers.",
+      "submitNewTitle": "Submit New NTB",
+      "submitNewDescription": "Report a new non-tariff barrier affecting your trade activities.",
+      "submitNewHint": "Provide detailed information about the barrier and its impact."
+    },
     "help": {
       "title": "Need help?",
       "description": "Contact us for assistance.",
@@ -276,6 +365,18 @@
     "removeFile": "Remove file",
     "supportedFormats": "Supported formats: PDF, DOC, DOCX, JPG, JPEG, PNG",
     "maxFileSize": "Maximum file size: 10MB"
+    ,
+    "profileCompletion": {
+      "title": "Complete Your Profile",
+      "description": "Please complete your profile information to access NTB features",
+      "countryOfResidence": "Country of Residence",
+      "selectCountry": "Select country",
+      "operatorType": "Operator Type",
+      "selectOperatorType": "Select operator type",
+      "gender": "Gender",
+      "selectGender": "Select gender",
+      "completeProfile": "Complete Profile"
+    }
   },
   "businessComplaints": {
     "title": "Report & Track Business Complaints",
@@ -327,6 +428,65 @@
     "submitNTBHeading": "Submit Complaint",
     "submitNTB": "Report any business complaint you encounter. Fill out the form with detailed information about the issue.",
     "trackNTBHeading": "Track Complaint Status",
+    "listTitle": "Business Complaints",
+    "listDescription": "Track and report business complaints affecting your operations",
+    "reportsCount": "{count} reports",
+    "refresh": "Refresh",
+    "newReport": "New Business Complaint",
+    "newReportDescription": "Report a non-tariff barrier affecting your trade",
+    "noReportsFound": "No Business Complaints Found",
+    "noReportsDescription": "You haven't submitted any business complaints yet.",
+    "submitFirstReport": "Submit Your First Business Complaint",
+    "resolvedClosed": "Resolved & Closed",
+    "reportedOn": "Reported on",
+    "incident": "incident",
+    "attachmentsLabel": "Attachments",
+    "hasAttachments": "Has Attachments",
+    "yes": "Yes",
+    "no": "No",
+    "notSpecified": "Not specified",
+    "rated": "Rated",
+    "rateService": "Rate Service",
+    "viewDetails": "View Details",
+    "region": "Region",
+    "district": "District",
+    "locationType": "Location Type",
+    "specificLocation": "Specific Location",
+    "occurrence": "Occurrence",
+    "costRange": "Cost Range",
+    "reportDetails": "Business Complaint Details",
+    "complaintDetails": "Complaint Details",
+    "reporterInformation": "Reporter Information",
+    "newComplaint": "New Business Complaint",
+    "complaintDetailsDescription": "Complaint Details & Description",
+    "loadingProfile": "Loading profile...",
+    "noDistrictsAvailable": "No districts available",
+    "refreshPageTryAgain": "Refresh this page and try again",
+    "status": {
+      "submitted": "Submitted",
+      "review": "Review (Focal Persons)",
+      "inProgress": "In Progress",
+      "intendedResolved": "Intended Resolved",
+      "unintendedResolved": "Unintended Resolved",
+      "resolved": "Resolved",
+      "closed": "Closed"
+    },
+    "occurrenceOptions": {
+      "firstTime": "First time",
+      "onceBefore": "Once before",
+      "aFewTimes": "A few times",
+      "everyMonth": "Every month",
+      "everyWeek": "Every week",
+      "everyDay": "Every day"
+    },
+    "sidebar": {
+      "viewReportsTitle": "View Business Complaints",
+      "viewReportsDescription": "View all your submitted business complaints and their current status.",
+      "viewReportsHint": "Track the progress of your submitted complaints.",
+      "submitNewTitle": "Submit New Complaint",
+      "submitNewDescription": "Report a new business complaint affecting your operations.",
+      "submitNewHint": "Provide detailed information about the barrier and its impact."
+    },
     "saveTrackingTip": "⚠️ Important: Save the tracking code provided after submission to track your complaint later.",
     "useTrackingTip": "💡 Tip: Use the tracking code from your submission confirmation to monitor progress.",
     "help": {
@@ -341,5 +501,17 @@
     "removeFile": "Remove file",
     "supportedFormats": "Supported formats: PDF, DOC, DOCX, JPG, JPEG, PNG",
     "maxFileSize": "Maximum file size: 10MB"
+    ,
+    "profileCompletion": {
+      "title": "Complete Your Profile",
+      "description": "Please complete your profile information to access Business Complaints features",
+      "countryOfResidence": "Country of Residence",
+      "selectCountry": "Select country",
+      "operatorType": "Operator Type",
+      "selectOperatorType": "Select operator type",
+      "gender": "Gender",
+      "selectGender": "Select gender",
+      "completeProfile": "Complete Profile"
+    }
   }
 }

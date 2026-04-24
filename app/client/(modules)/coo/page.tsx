@@ -30,8 +30,10 @@ import { useRouter } from "next/navigation";
 import usePickerState from "../../services/PickerState";
 import { useRightSidebar } from "../../../contexts/RightSidebarContext";
 import { useUserPermissions } from "../../../hooks/useUserPermissions";
+import { useTranslations } from "next-intl";
 
 export default function COO() {
+  const tp = useTranslations("pagination");
   const { isRightSidebarOpen } = useRightSidebar();
   const { canAdd } = useUserPermissions();
   const [verificationForm, toggleForm] = useState(false);
@@ -715,7 +717,7 @@ export default function COO() {
             {(!verificationForm || totalPages > 1) && (
               <div className="flex flex-col sm:flex-row justify-between items-center gap-3 sm:gap-4 mt-4 bg-white/35 backdrop-blur-md w-full p-3 sm:p-4">
                 <span className="text-sm sm:text-base text-gray-600 order-2 sm:order-1">
-                  Page {currentPage} of {totalPages}
+                  {tp("pageOf", { currentPage, totalPages })}
                 </span>
 
                 <div className="flex flex-row justify-between items-center gap-3 sm:gap-4 md:gap-8 order-1 sm:order-2">
@@ -728,7 +730,7 @@ export default function COO() {
                         : "bg-blue-500 text-white hover:bg-blue-600 cursor-pointer"
                     }`}
                   >
-                    <span className="hidden sm:inline">Previous</span>
+                    <span className="hidden sm:inline">{tp("previous")}</span>
                     <span className="sm:hidden">←</span>
                   </button>
                   <button
@@ -740,7 +742,7 @@ export default function COO() {
                         : "bg-blue-500 text-white hover:bg-blue-600 cursor-pointer"
                     }`}
                   >
-                    <span className="hidden sm:inline">Next</span>
+                    <span className="hidden sm:inline">{tp("next")}</span>
                     <span className="sm:hidden">→</span>
                   </button>
                 </div>

@@ -3,6 +3,13 @@ import React, { useState, useRef, useEffect } from "react";
 
 // Global flag to prevent multiple session expired calls across all components
 let globalSessionExpiredFlag = false;
+const EXCLUDED_AUTH_CHECK_PATHS = [
+  '/api/auth/user_token',
+  '/api/request-password-reset',
+  '/api/reset-password',
+  '/api/logout',
+  '/api/location/ip',
+];
 
 export function useApiWithSessionHandling() {
   const { showSessionExpired, resetSessionExpired } = useSessionExpired();
@@ -33,14 +40,14 @@ export function useApiWithSessionHandling() {
 
     try {
       const response = await fetch(url, options);
+      const shouldSkipAuthCheck = EXCLUDED_AUTH_CHECK_PATHS.some((path) =>
+        url.includes(path)
+      );
       
       // Check for session expiration (403 Forbidden or 401 Unauthorized)
       // But exclude authentication endpoints where 401 is expected for login failures
       if ((response.status === 403 || response.status === 401) && 
-          !url.includes('/api/auth/user_token') &&
-          !url.includes('/api/request-password-reset') &&
-          !url.includes('/api/reset-password') &&
-          !url.includes('/api/logout')) {
+          !shouldSkipAuthCheck) {
         
         // Enhanced authentication error detection
         try {

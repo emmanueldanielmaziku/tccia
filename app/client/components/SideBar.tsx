@@ -277,7 +277,7 @@ export default function SideBar() {
                 <div key={item.id} className="w-full flex flex-col items-end">
                   {isLocked ? (
                     <div
-                      className="flex flex-row items-center h-[45px] md:h-[55px] w-full relative justify-between gap-1 md:gap-2 px-3 md:px-4 rounded-[6px] md:rounded-[8px] lg:rounded-[10px] border-[0.5px] border-gray-200 bg-gray-100 cursor-not-allowed opacity-60"
+                      className="flex flex-row items-center h-[40px] md:h-[46px] w-full relative justify-between gap-1 md:gap-2 px-3 md:px-4 rounded-[6px] md:rounded-[8px] lg:rounded-[10px] border-[0.5px] border-gray-200 bg-gray-100 cursor-not-allowed opacity-60"
                       title={lockMessage}
                     >
                       <div className="flex flex-row items-center gap-1 md:gap-2">
@@ -294,7 +294,7 @@ export default function SideBar() {
                     <Link
                       href={item.route}
                       onClick={() => handleTabClick(item.id)}
-                      className={`cursor-pointer flex flex-row items-center h-[45px] md:h-[55px] w-full relative ${
+                      className={`cursor-pointer flex flex-row items-center h-[40px] md:h-[46px] w-full relative ${
                         isMenuOpen ? "justify-between" : "justify-center"
                       } gap-1 md:gap-2 px-3 md:px-4 rounded-[6px] md:rounded-[8px] lg:rounded-[10px] border-[0.5px] ${
                         selectedTab === item.id
@@ -352,7 +352,7 @@ export default function SideBar() {
         </Link> */}
         <button
           onClick={toggleAlert}
-          className={`cursor-pointer flex flex-row items-center h-[55px] w-full relative ${
+          className={`cursor-pointer flex flex-row items-center h-[46px] w-full relative ${
             isMenuOpen ? "justify-between" : "justify-center"
           } md:gap-2 px-4 rounded-[8px] md:rounded-[10px] border-[0.5px] border-gray-200 hover:bg-blue-50 hover:border-blue-300`}
         >

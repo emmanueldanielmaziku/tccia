@@ -23,6 +23,7 @@ import { cn } from "@/lib/utils";
 import usetinFormState from "../services/companytinformState";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
 // Company from login response
 interface LoginCompany {
@@ -67,6 +68,7 @@ interface ApiResponse {
 }
 
 export default function CompanyPicker() {
+  const t = useTranslations("companyPicker");
   const router = useRouter();
   const { togglePicker, hidePicker } = usePickerState();
   const { tinformState, toggleCompanyTinForm } = usetinFormState();
@@ -303,7 +305,7 @@ export default function CompanyPicker() {
     if (!selectedCompany) {
       // If no companies exist, redirect to firm registration
       if (companies.length === 0) {
-        toast.info("Please register a company first");
+        toast.info(t("registerCompanyFirst"));
         router.push("/client/firm-management");
         hidePicker();
         return;
@@ -324,12 +326,11 @@ export default function CompanyPicker() {
         <div className="flex flex-row justify-start items-center gap-2">
           <Building size="23" color="gray" variant="Outline" />
           <div className="text-xl font-semibold text-gray-600">
-            Quick Menu (COO & NTB)
+            {t("quickMenuTitle")}
           </div>
         </div>
         <div className="text-gray-600">
-          Please select the company you want to work with. You can change it
-          later.
+          {t("quickMenuDescription")}
         </div>
         <div className="flex flex-row items-center w-full">
           <Popover open={open} onOpenChange={setOpen}>
@@ -347,19 +348,19 @@ export default function CompanyPicker() {
                 {selectedCompany
                   ? companies.find((c) => c.company_tin === selectedCompany)
                       ?.company_name
-                  : "Select a company"}
+                  : t("selectCompany")}
                 <ChevronDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-[385px] max-w-[90vw] p-0">
               <Command>
-                <CommandInput placeholder="Search company..." className="h-9" />
+                <CommandInput placeholder={t("searchCompany")} className="h-9" />
                 <CommandList>
                   {isLoading ? (
                     <CommandEmpty>
                       <div className="flex items-center gap-2">
                         <Loader2 className="h-4 w-4 animate-spin" />
-                        Loading companies...
+                        {t("loadingCompanies")}
                       </div>
                     </CommandEmpty>
                   ) : error ? (
@@ -367,9 +368,9 @@ export default function CompanyPicker() {
                       <div className="text-red-500">{error}</div>
                     </CommandEmpty>
                   ) : companies.length === 0 ? (
-                    <CommandEmpty>No companies found</CommandEmpty>
+                    <CommandEmpty>{t("noCompaniesFound")}</CommandEmpty>
                   ) : (
-                    <CommandGroup heading="Companies">
+                    <CommandGroup heading={t("companies")}>
                       {companies.map((company) => (
                         <CommandItem
                           key={company.id}
@@ -399,7 +400,7 @@ export default function CompanyPicker() {
         </div>
         {showJoinMembershipError && (
           <p className="text-[12px] text-red-600 mt-1 block text-center bg-red-100 border-[1px] border-red-400 rounded-[7px] p-2">
-            Please select company or register your company first.
+            {t("selectOrRegisterCompany")}
           </p>
         )}
         <div className="flex flex-col items-center w-full gap-3 mt-2">
@@ -414,7 +415,7 @@ export default function CompanyPicker() {
                 Loading...
               </div>
             ) : (
-              "Continue"
+              t("continue")
             )}
           </button>
 
@@ -424,7 +425,7 @@ export default function CompanyPicker() {
               disabled={isLoading}
               className="border-[1px] text-[14px] border-blue-600 bg-blue-500 text-white w-full rounded-[7px] py-3 cursor-pointer hover:bg-blue-600 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Register Company
+              {t("registerCompany")}
             </button>
           )}
 
@@ -433,7 +434,7 @@ export default function CompanyPicker() {
             disabled={isLoading}
             className="border-[1px] text-[14px] border-blue-600 bg-blue-500 text-white w-full rounded-[7px] py-3 cursor-pointer hover:bg-blue-600 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Join Membership
+            {t("joinMembership")}
           </button>
 
           <div className="flex flex-row items-center w-full gap-3">

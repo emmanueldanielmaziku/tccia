@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { CloseCircle, Clock, Shield } from "iconsax-reactjs";
+import { useTranslations } from "next-intl";
 
 interface SessionExpiredPopupProps {
   isOpen: boolean;
@@ -11,6 +12,7 @@ export default function SessionExpiredPopup({
   isOpen,
   onClose,
 }: SessionExpiredPopupProps) {
+  const t = useTranslations("sessionExpired");
   const [countdown, setCountdown] = useState(10);
 
   useEffect(() => {
@@ -44,7 +46,7 @@ export default function SessionExpiredPopup({
             <div className="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center">
               <Shield size={16} color="#dc2626" variant="Bold" />
             </div>
-            <h2 className="text-base font-semibold text-red-900">Session Expired</h2>
+            <h2 className="text-base font-semibold text-red-900">{t("title")}</h2>
           </div>
           <button
             onClick={onClose}
@@ -60,17 +62,17 @@ export default function SessionExpiredPopup({
             {/* Message */}
             <div className="space-y-1">
               <p className="text-gray-600 text-sm">
-                Your session has expired. Please log in again.
+                {t("message")}
               </p>
             </div>
 
             {/* Countdown Timer */}
             <div className="flex items-center justify-center space-x-2 py-2">
-              <span className="text-xs text-gray-500">Redirecting in</span>
+              <span className="text-xs text-gray-500">{t("redirectingIn")}</span>
               <div className="flex items-center justify-center w-8 h-8 bg-red-100 rounded-full">
                 <span className="text-sm font-bold text-red-600">{countdown}</span>
               </div>
-              <span className="text-xs text-gray-500">seconds</span>
+              <span className="text-xs text-gray-500">{t("seconds")}</span>
             </div>
 
             {/* Action Button */}
@@ -78,7 +80,7 @@ export default function SessionExpiredPopup({
               onClick={onClose}
               className="w-full bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 text-sm"
             >
-              Okay, Understood
+              {t("acknowledge")}
             </button>
           </div>
         </div>
@@ -87,7 +89,7 @@ export default function SessionExpiredPopup({
         <div className="px-4 pb-4">
           <div className="text-center">
             <p className="text-xs text-gray-400">
-              Redirecting to login page...
+              {t("redirectingToLogin")}
             </p>
           </div>
         </div>

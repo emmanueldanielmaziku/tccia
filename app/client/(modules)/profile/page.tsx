@@ -642,7 +642,7 @@ export default function ProfilePage() {
 
                           {/* Countdown */}
                           <div className="flex items-center justify-center gap-2 text-sm text-gray-600">
-                            <span>Redirecting in</span>
+                            <span>{t("profile.redirectingIn")}</span>
                             <div className="flex items-center justify-center w-8 h-8 bg-blue-50 rounded-lg">
                               <span className="text-base font-semibold text-blue-600">{redirectCountdown}</span>
                             </div>

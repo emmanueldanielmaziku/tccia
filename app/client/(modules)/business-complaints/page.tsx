@@ -102,17 +102,17 @@ const COST_RANGES = [
   "5000+",
 ];
 
-const STATUS_LABELS: Record<string, string> = {
-  submitted: "Submitted",
-  review: "Review (Focal Persons)",
-  assignment: "In Progress",
-  in_progress: "In Progress",
-  "in progress": "In Progress",
-  intended_resolved: "Intended Resolved",
-  unintended_resolved: "Unintended Resolved",
-  resolved: "Resolved",
-  done: "Resolved",
-  closed: "Closed",
+const STATUS_LABEL_KEYS: Record<string, string> = {
+  submitted: "status.submitted",
+  review: "status.review",
+  assignment: "status.inProgress",
+  in_progress: "status.inProgress",
+  "in progress": "status.inProgress",
+  intended_resolved: "status.intendedResolved",
+  unintended_resolved: "status.unintendedResolved",
+  resolved: "status.resolved",
+  done: "status.resolved",
+  closed: "status.closed",
 };
 
 const OCCURRENCE_OPTIONS = [
@@ -576,9 +576,45 @@ export default function BusinessComplaints() {
   };
 
   // Geolocation functions
+  const detectLocationByIp = async () => {
+    try {
+      const response = await fetch('/api/location/ip', { cache: 'no-store' });
+      const data = await response.json();
+
+      if (!response.ok || !data?.success || !data?.data) {
+        throw new Error(data?.message || 'IP location lookup failed');
+      }
+
+      const { latitude, longitude, city, region, country } = data.data;
+      const locationLabel = [city, region].filter(Boolean).join(', ');
+      const addressLabel = [city, region, country].filter(Boolean).join(', ');
+
+      setForm((prev) => ({
+        ...prev,
+        latitude: String(latitude),
+        longitude: String(longitude),
+        location_accuracy: 'low',
+        location_address: addressLabel || prev.location_address,
+        location: locationLabel || country || prev.location,
+        google_place_id: '',
+      }));
+
+      setLocationPermission('granted');
+      setShowLocationInstructions(false);
+      toast.info('Using approximate location from IP address.');
+      return true;
+    } catch (error) {
+      console.log('IP location fallback failed:', error);
+      return false;
+    }
+  };
+
   const detectCurrentLocation = async () => {
     if (!navigator.geolocation) {
-      toast.error('Geolocation is not supported by this browser');
+      const fallbackWorked = await detectLocationByIp();
+      if (!fallbackWorked) {
+        toast.error('Geolocation is not supported by this browser');
+      }
       return;
     }
 
@@ -662,7 +698,12 @@ export default function BusinessComplaints() {
       // Don't log the full error object to console as it's noisy
       console.log('Location detection failed:', error.code === 1 ? 'Permission denied' : error.code === 2 ? 'Position unavailable' : error.code === 3 ? 'Timeout' : 'Unknown error');
       setLocationPermission('denied');
-      
+
+      const fallbackWorked = await detectLocationByIp();
+      if (fallbackWorked) {
+        return;
+      }
+
       if (error.code === 1) {
         // Permission denied - show a subtle warning
         toast.warning('Location access denied. You can enable it later when submitting the form.');
@@ -686,8 +727,11 @@ export default function BusinessComplaints() {
         setLocationPermission(result.state);
         
         if (result.state === 'denied') {
-          // Permission was previously denied, show instructions
-          setShowLocationInstructions(true);
+          // Permission was previously denied, try IP-based fallback first
+          const fallbackWorked = await detectLocationByIp();
+          if (!fallbackWorked) {
+            setShowLocationInstructions(true);
+          }
         } else if (result.state === 'granted') {
           // Already granted, just detect location
           detectCurrentLocation();
@@ -1065,16 +1109,32 @@ export default function BusinessComplaints() {
 
   const formatStatus = (state: string) => {
     const key = state.toLowerCase();
-    if (STATUS_LABELS[key]) {
-      return STATUS_LABELS[key];
+    if (STATUS_LABEL_KEYS[key]) {
+      return t(STATUS_LABEL_KEYS[key] as any);
     }
     return state.split(' ').map(word =>
       word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
     ).join(' ');
   };
 
+  const formatOccurrence = (value?: string) => {
+    if (!value) return t("notSpecified");
+
+    const key = value.toLowerCase().trim();
+    const occurrenceMap: Record<string, string> = {
+      "first time": "occurrenceOptions.firstTime",
+      "once before": "occurrenceOptions.onceBefore",
+      "a few times": "occurrenceOptions.aFewTimes",
+      "every month": "occurrenceOptions.everyMonth",
+      "every week": "occurrenceOptions.everyWeek",
+      "every day": "occurrenceOptions.everyDay",
+    };
+
+    return occurrenceMap[key] ? t(occurrenceMap[key] as any) : value;
+  };
+
   const resolveLocationOfIncidenceName = (ntb: any) => {
-    if (!ntb) return "Not specified";
+    if (!ntb) return t("notSpecified");
 
     if (ntb.location_of_incidence?.display_name) {
       return ntb.location_of_incidence.display_name;
@@ -1104,11 +1164,11 @@ export default function BusinessComplaints() {
       return ntb.location_type;
     }
 
-    return "Not specified";
+    return t("notSpecified");
   };
 
   const resolveSpecificLocationName = (ntb: any) => {
-    if (!ntb) return "Not specified";
+    if (!ntb) return t("notSpecified");
 
     if (typeof ntb.specific_location === "string") {
       const trimmed = ntb.specific_location.trim();
@@ -1141,7 +1201,7 @@ export default function BusinessComplaints() {
       }
     }
 
-    return "Not specified";
+    return t("notSpecified");
   };
 
   const parseRatingValue = (rating: any): number | null => {
@@ -1187,7 +1247,7 @@ export default function BusinessComplaints() {
         <div className="flex items-center justify-center h-full">
           <div className="text-center">
             <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-            <p className="text-gray-600">Loading profile...</p>
+            <p className="text-gray-600">{t("loadingProfile")}</p>
           </div>
         </div>
       </main>
@@ -1212,10 +1272,10 @@ export default function BusinessComplaints() {
                       </div>
                       <div>
                         <CardTitle className="text-xl text-gray-900">
-                          Complete Your Profile
+                          {t("profileCompletion.title")}
                         </CardTitle>
                         <CardDescription className="text-[14px]">
-                          Please complete your profile information to access Business Complaints features
+                          {t("profileCompletion.description")}
                         </CardDescription>
                       </div>
                     </div>
@@ -1227,7 +1287,7 @@ export default function BusinessComplaints() {
                       <div className="flex flex-row gap-4 justify-between">
                         <div className="space-y-2">
                           <Label className="text-sm font-medium text-gray-700">
-                            Country of Residence <span className="text-red-500">*</span>
+                            {t("profileCompletion.countryOfResidence")} <span className="text-red-500">*</span>
                           </Label>
                           <Select
                             value={profileForm.country_of_residence}
@@ -1235,7 +1295,7 @@ export default function BusinessComplaints() {
                             required
                           >
                             <SelectTrigger className="h-10 w-[240px] rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500">
-                              <SelectValue placeholder="Select country" />
+                              <SelectValue placeholder={t("profileCompletion.selectCountry")} />
                             </SelectTrigger>
                             <SelectContent>
                               {countries.map((country) => (
@@ -1249,7 +1309,7 @@ export default function BusinessComplaints() {
 
                         <div className="space-y-2">
                           <Label className="text-sm font-medium text-gray-700">
-                            Operator Type <span className="text-red-500">*</span>
+                            {t("profileCompletion.operatorType")} <span className="text-red-500">*</span>
                           </Label>
                           <Select
                             value={profileForm.operator_type}
@@ -1258,7 +1318,7 @@ export default function BusinessComplaints() {
                             required
                           >
                             <SelectTrigger className="h-10 rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500 w-[240px]">
-                              <SelectValue placeholder="Select operator type" />
+                              <SelectValue placeholder={t("profileCompletion.selectOperatorType")} />
                             </SelectTrigger>
                             <SelectContent>
                               {OPERATOR_TYPES.map((type) => (
@@ -1272,7 +1332,7 @@ export default function BusinessComplaints() {
 
                         <div className="space-y-2">
                           <Label className="text-sm font-medium text-gray-700">
-                            Gender <span className="text-red-500">*</span>
+                            {t("profileCompletion.gender")} <span className="text-red-500">*</span>
                           </Label>
                           <Select
                             value={profileForm.gender}
@@ -1280,7 +1340,7 @@ export default function BusinessComplaints() {
                             required
                           >
                             <SelectTrigger className="h-10 rounded-[9px] border-gray-200 w-[240px] focus:border-blue-500 focus:ring-blue-500">
-                              <SelectValue placeholder="Select gender" />
+                              <SelectValue placeholder={t("profileCompletion.selectGender")} />
                             </SelectTrigger>
                             <SelectContent>
                               {GENDER_OPTIONS.map((gender) => (
@@ -1322,7 +1382,7 @@ export default function BusinessComplaints() {
                               Updating...
                             </>
                           ) : (
-                            "Complete Profile"
+                            t("profileCompletion.completeProfile")
                           )}
                         </Button>
                       </div>
@@ -1337,13 +1397,13 @@ export default function BusinessComplaints() {
               <div className="flex justify-between items-center mb-8">
                 <div>
                   <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                    Business Complaints
+                    {t("listTitle")}
                   </h1>
                   <p className="text-gray-600">
-                    Track and report non-tariff barriers affecting your trade
+                    {t("listDescription")}
                     {ntbList.length > 0 && (
                       <span className="ml-2 text-blue-600 font-medium">
-                        ({ntbList.length} report{ntbList.length !== 1 ? 's' : ''})
+                        ({t("reportsCount", { count: ntbList.length })})
                       </span>
                     )}
                   </p>
@@ -1356,14 +1416,14 @@ export default function BusinessComplaints() {
                     disabled={loading}
                   >
                     <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
-                    Refresh
+                    {t("refresh")}
                   </Button>
                   <Button
                     onClick={() => setMode('new')}
                     className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-md flex items-center gap-2 cursor-pointer"
                   >
                     <Plus className="w-4 h-4" />
-                    New Business Complaint
+                    {t("newReport")}
                   </Button>
                 </div>
               </div>
@@ -1432,16 +1492,16 @@ export default function BusinessComplaints() {
                       <FileText className="w-8 h-8 text-gray-400" />
                     </div>
                     <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                      No Business Complaints Found
+                      {t("noReportsFound")}
                     </h3>
                     <p className="text-gray-600 mb-6">
-                      You haven't submitted any business complaints yet.
+                      {t("noReportsDescription")}
                     </p>
                     <Button
                       onClick={() => setMode('new')}
                       className="bg-blue-600 hover:bg-blue-700 text-white mx-auto cursor-pointer"
                     >
-                      Submit Your First Business Complaint
+                      {t("submitFirstReport")}
                     </Button>
                   </Card>
                 ) : (
@@ -1490,7 +1550,7 @@ export default function BusinessComplaints() {
                                 {isResolved && (
                                   <span className="inline-flex items-center gap-1 text-xs font-medium text-green-700 bg-green-100 px-2 py-0.5 rounded-full">
                                     <CheckCircle2 className="w-3.5 h-3.5" />
-                                    Resolved & Closed
+                                    {t("resolvedClosed")}
                                   </span>
                                 )}
                               </div>
@@ -1498,11 +1558,11 @@ export default function BusinessComplaints() {
                                 {ntb.ntb_type}
                               </h3>
                               <p className="text-gray-600 text-sm">
-                                Reported on <strong>{new Date(ntb.submission_date).toLocaleDateString()}</strong>
+                                {t("reportedOn")} <strong>{new Date(ntb.submission_date).toLocaleDateString()}</strong>
                                 {ntb.date_of_incident && (
                                   <span className="text-gray-500">
                                     {" "}
-                                    (incident: {new Date(ntb.date_of_incident).toLocaleDateString()})
+                                    ({t("incident")}: {new Date(ntb.date_of_incident).toLocaleDateString()})
                                   </span>
                                 )}
                               </p>
@@ -1513,47 +1573,47 @@ export default function BusinessComplaints() {
                                 {formatStatus(ntb.state)}
                               </Badge>
                               <div className="text-xs text-gray-500">
-                                Attachments: {ntb.attachment_count || 0}
+                                {t("attachmentsLabel")}: {ntb.attachment_count || 0}
                               </div>
                             </div>
                           </div>
 
                           <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 text-sm">
                             <div className="space-y-1">
-                              <span className="text-xs uppercase tracking-wide text-gray-500">Region</span>
+                              <span className="text-xs uppercase tracking-wide text-gray-500">{t("region")}</span>
                               <p className="font-medium text-gray-800">
                                 {typeof ntb.region === 'string' 
                                   ? ntb.region 
-                                  : ntb.region?.name || "Not specified"}
+                                  : ntb.region?.name || t("notSpecified")}
                               </p>
                             </div>
                             <div className="space-y-1">
-                              <span className="text-xs uppercase tracking-wide text-gray-500">District</span>
+                              <span className="text-xs uppercase tracking-wide text-gray-500">{t("district")}</span>
                               <p className="font-medium text-gray-800">
                                 {typeof ntb.district === 'string' 
                                   ? ntb.district 
-                                  : ntb.district?.name || "Not specified"}
+                                  : ntb.district?.name || t("notSpecified")}
                               </p>
                             </div>
                             <div className="space-y-1">
-                              <span className="text-xs uppercase tracking-wide text-gray-500">Location Type</span>
+                              <span className="text-xs uppercase tracking-wide text-gray-500">{t("locationType")}</span>
                               <p className="font-medium text-gray-800">{resolveLocationOfIncidenceName(ntb)}</p>
                             </div>
                             <div className="space-y-1">
-                              <span className="text-xs uppercase tracking-wide text-gray-500">Specific Location</span>
+                              <span className="text-xs uppercase tracking-wide text-gray-500">{t("specificLocation")}</span>
                               <p className="font-medium text-gray-800">{resolveSpecificLocationName(ntb)}</p>
                             </div>
                             <div className="space-y-1">
-                              <span className="text-xs uppercase tracking-wide text-gray-500">Occurrence</span>
-                              <p className="font-medium text-gray-800">{ntb.occurrence}</p>
+                              <span className="text-xs uppercase tracking-wide text-gray-500">{t("occurrence")}</span>
+                              <p className="font-medium text-gray-800">{formatOccurrence(ntb.occurrence)}</p>
                             </div>
                             <div className="space-y-1">
-                              <span className="text-xs uppercase tracking-wide text-gray-500">Cost Range</span>
-                              <p className="font-medium text-gray-800">{ntb.cost_value_range || "Not specified"}</p>
+                              <span className="text-xs uppercase tracking-wide text-gray-500">{t("costRange")}</span>
+                              <p className="font-medium text-gray-800">{ntb.cost_value_range || t("notSpecified")}</p>
                             </div>
                             <div className="space-y-1">
-                              <span className="text-xs uppercase tracking-wide text-gray-500">Has Attachments</span>
-                              <p className="font-medium text-gray-800">{ntb.has_attachments ? "Yes" : "No"}</p>
+                              <span className="text-xs uppercase tracking-wide text-gray-500">{t("hasAttachments")}</span>
+                              <p className="font-medium text-gray-800">{ntb.has_attachments ? t("yes") : t("no")}</p>
                             </div>
                           </div>
 
@@ -1584,7 +1644,7 @@ export default function BusinessComplaints() {
                                 </div>
                                 <span className="text-sm font-semibold">{ratingValue} / 5</span>
                                 <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full">
-                                  Rated
+                                  {t("rated")}
                                 </span>
                               </div>
                               {ratingComment && (
@@ -1601,7 +1661,7 @@ export default function BusinessComplaints() {
                                 onClick={() => openFeedbackModal(ntb)}
                               >
                                 <Star className="w-4 h-4" />
-                                Rate Service
+                                {t("rateService")}
                               </Button>
                             )}
                             <Button
@@ -1612,7 +1672,7 @@ export default function BusinessComplaints() {
                               disabled={detailLoading}
                             >
                               <Eye className="w-4 h-4" />
-                              View Details
+                              {t("viewDetails")}
                             </Button>
                           </div>
                         </CardContent>
@@ -1638,7 +1698,7 @@ export default function BusinessComplaints() {
                   </Button>
                   <div>
                     <h2 className="text-2xl font-bold text-gray-900">{selectedNtb.report_reference}</h2>
-                    <p className="text-gray-600">Business Complaint Details</p>
+                    <p className="text-gray-600">{t("reportDetails")}</p>
                   </div>
                 </div>
 
@@ -1662,7 +1722,7 @@ export default function BusinessComplaints() {
                             <p className="font-medium">
                               {typeof selectedNtb.business_complain_type === 'object' && selectedNtb.business_complain_type?.name
                                 ? selectedNtb.business_complain_type.name
-                                : selectedNtb.business_complain_type || selectedNtb.ntb_type?.name || selectedNtb.ntb_type || 'Not specified'}
+                                : selectedNtb.business_complain_type || selectedNtb.ntb_type?.name || selectedNtb.ntb_type || t("notSpecified")}
                             </p>
                           </div>
                           <div>
@@ -1674,7 +1734,7 @@ export default function BusinessComplaints() {
                             <p className="font-medium">
                               {typeof selectedNtb.region === 'string' 
                                 ? selectedNtb.region 
-                                : selectedNtb.region?.name || 'Not specified'}
+                                : selectedNtb.region?.name || t("notSpecified")}
                             </p>
                           </div>
                           <div>
@@ -1682,7 +1742,7 @@ export default function BusinessComplaints() {
                             <p className="font-medium">
                               {typeof selectedNtb.district === 'string' 
                                 ? selectedNtb.district 
-                                : selectedNtb.district?.name || 'Not specified'}
+                                : selectedNtb.district?.name || t("notSpecified")}
                             </p>
                           </div>
                           <div>
@@ -1706,27 +1766,27 @@ export default function BusinessComplaints() {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <div>
                             <Label className="text-sm font-medium text-gray-500">Cost Value Range</Label>
-                            <p className="font-medium">{selectedNtb.cost_value_range || "Not specified"}</p>
+                            <p className="font-medium">{selectedNtb.cost_value_range || t("notSpecified")}</p>
                           </div>
                           <div>
                             <Label className="text-sm font-medium text-gray-500">Exact Loss Value</Label>
                             <p className="font-medium">
                               {selectedNtb.exact_loss_value && selectedNtb.exact_loss_value > 0
                                 ? `$${selectedNtb.exact_loss_value.toLocaleString()}`
-                                : "Not specified"}
+                                : t("notSpecified")}
                             </p>
                           </div>
                           <div>
                             <Label className="text-sm font-medium text-gray-500">Time Lost Range</Label>
-                            <p className="font-medium">{selectedNtb.time_lost_range || "Not specified"}</p>
+                            <p className="font-medium">{selectedNtb.time_lost_range || t("notSpecified")}</p>
                           </div>
                           <div>
                             <Label className="text-sm font-medium text-gray-500">Money Lost Range</Label>
-                            <p className="font-medium">{selectedNtb.money_lost_range || "Not specified"}</p>
+                            <p className="font-medium">{selectedNtb.money_lost_range || t("notSpecified")}</p>
                           </div>
                           <div>
                             <Label className="text-sm font-medium text-gray-500">Occurrence</Label>
-                            <p className="font-medium">{selectedNtb.occurrence || "Not specified"}</p>
+                            <p className="font-medium">{selectedNtb.occurrence || t("notSpecified")}</p>
                           </div>
                         </div>
                         {selectedNtb.loss_calculation_description && (
@@ -1741,7 +1801,7 @@ export default function BusinessComplaints() {
                     {/* Complaint Details */}
                     <Card className="border-[0.5px] shadow-[0_0_0px_rgba(0,0,0,0.1)]">
                       <CardHeader>
-                        <CardTitle className="text-lg">Complaint Details</CardTitle>
+                        <CardTitle className="text-lg">{t("complaintDetails")}</CardTitle>
                       </CardHeader>
                       <CardContent>
                         <div className="prose prose-sm max-w-none whitespace-pre-wrap">
@@ -1774,7 +1834,7 @@ export default function BusinessComplaints() {
                     {selectedNtb.reporter_info && (
                       <Card className="border-[0.5px] shadow-[0_0_0px_rgba(0,0,0,0.1)]">
                         <CardHeader>
-                          <CardTitle className="text-lg">Reporter Information</CardTitle>
+                          <CardTitle className="text-lg">{t("reporterInformation")}</CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-3">
                           <div>
@@ -1868,7 +1928,7 @@ export default function BusinessComplaints() {
                     {selectedNtb.attachments && selectedNtb.attachments.total_count > 0 && (
                       <Card className="border-[0.5px] shadow-[0_0_0px_rgba(0,0,0,0.1)]">
                         <CardHeader>
-                          <CardTitle className="text-lg">Attachments ({selectedNtb.attachments.total_count})</CardTitle>
+                          <CardTitle className="text-lg">{t("attachments")} ({selectedNtb.attachments.total_count})</CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-4">
                           {selectedNtb.attachments.documents && selectedNtb.attachments.documents.length > 0 && (
@@ -1959,10 +2019,10 @@ export default function BusinessComplaints() {
                       </div>
                       <div>
                         <CardTitle className="text-xl text-gray-900">
-                          New Business Complaint
+                          {t("newReport")}
                         </CardTitle>
                         <CardDescription className="text-[14px]">
-                          Report a non-tariff barrier affecting your trade
+                          {t("newReportDescription")}
                         </CardDescription>
                       </div>
                     </div>
@@ -2049,7 +2109,7 @@ export default function BusinessComplaints() {
                                 !form.region_id 
                                   ? "Select region first" 
                                   : districts.length === 0 
-                                    ? "No districts available" 
+                                    ? t("noDistrictsAvailable")
                                     : "Select district"
                               } />
                             </SelectTrigger>
@@ -2123,7 +2183,7 @@ export default function BusinessComplaints() {
                       {/* Complaint Details - Start with Description */}
                       <div className="space-y-3">
                         <Label className="text-sm font-medium text-gray-700">
-                          Complaint Details & Description <span className="text-red-500">*</span>
+                          {t("complaintDetailsDescription")} <span className="text-red-500">*</span>
                         </Label>
                         <div className="border border-gray-200 rounded-xl bg-white overflow-hidden focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500">
                           <div className="flex gap-1 border-b border-gray-100 px-4 py-3 bg-gray-50">
@@ -2770,7 +2830,7 @@ export default function BusinessComplaints() {
               <ol className="text-sm text-gray-700 space-y-2 list-decimal list-inside mb-4">
                 <li>Click the lock icon in your browser's address bar</li>
                 <li>Find "Location" and set it to "Allow"</li>
-                <li>Refresh this page and try again</li>
+                <li>{t("refreshPageTryAgain")}</li>
               </ol>
 
               {/* Action Button */}

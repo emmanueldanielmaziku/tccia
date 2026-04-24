@@ -25,6 +25,7 @@ import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { Skeleton } from "@/components/ui/skeleton";
 import MembershipApplicationForm from "./MembershipApplicationForm";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { useTranslations } from "next-intl";
 
 interface Director {
   id: number;
@@ -98,6 +99,7 @@ export default function MembershipApplication({
   onHasApplication?: (has: boolean) => void;
   onDataChange?: (data: ApplicationData | null) => void;
 }) {
+  const t = useTranslations("membershipApplication");
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState<ApplicationData | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -314,13 +316,13 @@ export default function MembershipApplication({
         </div>
         <Alert className="w-full max-w-md mx-auto border-0 bg-white text-center flex flex-col items-center">
           <AlertTitle className="text-lg font-semibold text-blue-800 w-full text-center">
-            No Membership Application Found
+            {t("noApplicationTitle")}
           </AlertTitle>
           <AlertDescription className="mt-2 text-gray-600 w-full text-center flex flex-col items-center">
-            There is no membership application for this TIN.
+            {t("noApplicationDescription")}
             <br />
             <span className="block mt-2 text-xs text-blue-500">
-              Start a new application to become a member.
+              {t("noApplicationHint")}
             </span>
             {/* <button
               className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition text-xs font-semibold"

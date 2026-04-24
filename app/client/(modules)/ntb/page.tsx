@@ -534,9 +534,45 @@ export default function NTB() {
   };
 
   // Geolocation functions
+  const detectLocationByIp = async () => {
+    try {
+      const response = await fetch('/api/location/ip', { cache: 'no-store' });
+      const data = await response.json();
+
+      if (!response.ok || !data?.success || !data?.data) {
+        throw new Error(data?.message || 'IP location lookup failed');
+      }
+
+      const { latitude, longitude, city, region, country } = data.data;
+      const locationLabel = [city, region].filter(Boolean).join(', ');
+      const addressLabel = [city, region, country].filter(Boolean).join(', ');
+
+      setForm((prev) => ({
+        ...prev,
+        latitude: String(latitude),
+        longitude: String(longitude),
+        location_accuracy: 'low',
+        location_address: addressLabel || prev.location_address,
+        location: locationLabel || country || prev.location,
+        google_place_id: '',
+      }));
+
+      setLocationPermission('granted');
+      setShowLocationInstructions(false);
+      toast.info('Using approximate location from IP address.');
+      return true;
+    } catch (error) {
+      console.log('IP location fallback failed:', error);
+      return false;
+    }
+  };
+
   const detectCurrentLocation = async () => {
     if (!navigator.geolocation) {
-      toast.error('Geolocation is not supported by this browser');
+      const fallbackWorked = await detectLocationByIp();
+      if (!fallbackWorked) {
+        toast.error('Geolocation is not supported by this browser');
+      }
       return;
     }
 
@@ -616,7 +652,12 @@ export default function NTB() {
       // Don't log the full error object to console as it's noisy
       console.log('Location detection failed:', error.code === 1 ? 'Permission denied' : error.code === 2 ? 'Position unavailable' : error.code === 3 ? 'Timeout' : 'Unknown error');
       setLocationPermission('denied');
-      
+
+      const fallbackWorked = await detectLocationByIp();
+      if (fallbackWorked) {
+        return;
+      }
+
       if (error.code === 1) {
         // Permission denied - show a subtle warning
         toast.warning('Location access denied. You can enable it later when submitting the form.');
@@ -640,8 +681,11 @@ export default function NTB() {
         setLocationPermission(result.state);
         
         if (result.state === 'denied') {
-          // Permission was previously denied, show instructions
-          setShowLocationInstructions(true);
+          // Permission was previously denied, try IP-based fallback first
+          const fallbackWorked = await detectLocationByIp();
+          if (!fallbackWorked) {
+            setShowLocationInstructions(true);
+          }
         } else if (result.state === 'granted') {
           // Already granted, just detect location
           detectCurrentLocation();
@@ -1009,7 +1053,7 @@ export default function NTB() {
   };
 
   const resolveLocationOfIncidenceName = (ntb: any) => {
-    if (!ntb) return "Not specified";
+    if (!ntb) return t("notSpecified");
 
     if (ntb.location_of_incidence?.display_name) {
       return ntb.location_of_incidence.display_name;
@@ -1039,11 +1083,11 @@ export default function NTB() {
       return ntb.location_type;
     }
 
-    return "Not specified";
+    return t("notSpecified");
   };
 
   const resolveSpecificLocationName = (ntb: any) => {
-    if (!ntb) return "Not specified";
+    if (!ntb) return t("notSpecified");
 
     if (typeof ntb.specific_location === "string") {
       const trimmed = ntb.specific_location.trim();
@@ -1076,7 +1120,7 @@ export default function NTB() {
       }
     }
 
-    return "Not specified";
+    return t("notSpecified");
   };
 
   const parseRatingValue = (rating: any): number | null => {
@@ -1147,10 +1191,10 @@ export default function NTB() {
                       </div>
                       <div>
                         <CardTitle className="text-xl text-gray-900">
-                          Complete Your Profile
+                          {t("profileCompletion.title")}
                         </CardTitle>
                         <CardDescription className="text-[14px]">
-                          Please complete your profile information to access NTB features
+                          {t("profileCompletion.description")}
                         </CardDescription>
                       </div>
                     </div>
@@ -1162,7 +1206,7 @@ export default function NTB() {
                       <div className="flex flex-row gap-4 justify-between">
                         <div className="space-y-2">
                           <Label className="text-sm font-medium text-gray-700">
-                            Country of Residence <span className="text-red-500">*</span>
+                            {t("profileCompletion.countryOfResidence")} <span className="text-red-500">*</span>
                           </Label>
                           <Select
                             value={profileForm.country_of_residence}
@@ -1170,7 +1214,7 @@ export default function NTB() {
                             required
                           >
                             <SelectTrigger className="h-10 w-[240px] rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500">
-                              <SelectValue placeholder="Select country" />
+                              <SelectValue placeholder={t("profileCompletion.selectCountry")} />
                             </SelectTrigger>
                             <SelectContent>
                               {countries.map((country) => (
@@ -1184,7 +1228,7 @@ export default function NTB() {
 
                         <div className="space-y-2">
                           <Label className="text-sm font-medium text-gray-700">
-                            Operator Type <span className="text-red-500">*</span>
+                            {t("profileCompletion.operatorType")} <span className="text-red-500">*</span>
                           </Label>
                           <Select
                             value={profileForm.operator_type}
@@ -1193,7 +1237,7 @@ export default function NTB() {
                             required
                           >
                             <SelectTrigger className="h-10 rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500 w-[240px]">
-                              <SelectValue placeholder="Select operator type" />
+                              <SelectValue placeholder={t("profileCompletion.selectOperatorType")} />
                             </SelectTrigger>
                             <SelectContent>
                               {OPERATOR_TYPES.map((type) => (
@@ -1207,7 +1251,7 @@ export default function NTB() {
 
                         <div className="space-y-2">
                           <Label className="text-sm font-medium text-gray-700">
-                            Gender <span className="text-red-500">*</span>
+                            {t("profileCompletion.gender")} <span className="text-red-500">*</span>
                           </Label>
                           <Select
                             value={profileForm.gender}
@@ -1215,7 +1259,7 @@ export default function NTB() {
                             required
                           >
                             <SelectTrigger className="h-10 rounded-[9px] border-gray-200 w-[240px] focus:border-blue-500 focus:ring-blue-500">
-                              <SelectValue placeholder="Select gender" />
+                              <SelectValue placeholder={t("profileCompletion.selectGender")} />
                             </SelectTrigger>
                             <SelectContent>
                               {GENDER_OPTIONS.map((gender) => (
@@ -1257,7 +1301,7 @@ export default function NTB() {
                               Updating...
                             </>
                           ) : (
-                            "Complete Profile"
+                            t("profileCompletion.completeProfile")
                           )}
                         </Button>
                       </div>
@@ -1272,13 +1316,13 @@ export default function NTB() {
               <div className="flex justify-between items-center mb-8">
                 <div>
                   <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                    Non-Tariff Barriers (NTB)
+                    {t("listTitle")}
                   </h1>
                   <p className="text-gray-600">
-                    Track and report non-tariff barriers affecting your trade
+                    {t("listDescription")}
                     {ntbList.length > 0 && (
                       <span className="ml-2 text-blue-600 font-medium">
-                        ({ntbList.length} report{ntbList.length !== 1 ? 's' : ''})
+                        ({t("reportsCount", { count: ntbList.length })})
                       </span>
                     )}
                   </p>
@@ -1291,14 +1335,14 @@ export default function NTB() {
                     disabled={loading}
                   >
                     <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
-                    Refresh
+                    {t("refresh")}
                   </Button>
                   <Button
                     onClick={() => setMode('new')}
                     className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-md flex items-center gap-2 cursor-pointer"
                   >
                     <Plus className="w-4 h-4" />
-                    New NTB Report
+                    {t("newNtbReport")}
                   </Button>
                 </div>
               </div>
@@ -1367,16 +1411,16 @@ export default function NTB() {
                       <FileText className="w-8 h-8 text-gray-400" />
                     </div>
                     <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                      No NTB Reports Found
+                      {t("noReportsFound")}
                     </h3>
                     <p className="text-gray-600 mb-6">
-                      You haven't submitted any NTB reports yet.
+                      {t("noReportsDescription")}
                     </p>
                     <Button
                       onClick={() => setMode('new')}
                       className="bg-blue-600 hover:bg-blue-700 text-white mx-auto cursor-pointer"
                     >
-                      Submit Your First NTB Report
+                      {t("submitFirstReport")}
                     </Button>
                   </Card>
                 ) : (
@@ -1418,14 +1462,14 @@ export default function NTB() {
                           <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
                             <div className="space-y-2">
                               <div className="flex flex-wrap items-center gap-2">
-                                <span className="text-xs uppercase tracking-wide text-gray-500">NTB Report</span>
+                                <span className="text-xs uppercase tracking-wide text-gray-500">{t("reportLabel")}</span>
                                 <span className="text-xs font-semibold bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">
                                   {ntb.report_reference}
                                 </span>
                                 {isResolved && (
                                   <span className="inline-flex items-center gap-1 text-xs font-medium text-green-700 bg-green-100 px-2 py-0.5 rounded-full">
                                     <CheckCircle2 className="w-3.5 h-3.5" />
-                                    Resolved & Closed
+                                    {t("resolvedClosed")}
                                   </span>
                                 )}
                               </div>
@@ -1433,11 +1477,11 @@ export default function NTB() {
                                 {ntb.ntb_type}
                               </h3>
                               <p className="text-gray-600 text-sm">
-                                Reported on <strong>{new Date(ntb.submission_date).toLocaleDateString()}</strong>
+                                {t("reportedOn")} <strong>{new Date(ntb.submission_date).toLocaleDateString()}</strong>
                                 {ntb.date_of_incident && (
                                   <span className="text-gray-500">
                                     {" "}
-                                    (incident: {new Date(ntb.date_of_incident).toLocaleDateString()})
+                                    ({t("incident")}: {new Date(ntb.date_of_incident).toLocaleDateString()})
                                   </span>
                                 )}
                               </p>
@@ -1448,47 +1492,47 @@ export default function NTB() {
                                 {formatStatus(ntb.state)}
                               </Badge>
                               <div className="text-xs text-gray-500">
-                                Attachments: {ntb.attachment_count || 0}
+                                {t("attachmentsLabel")}: {ntb.attachment_count || 0}
                               </div>
                             </div>
                           </div>
 
                           <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 text-sm">
                             <div className="space-y-1">
-                              <span className="text-xs uppercase tracking-wide text-gray-500">Imposing Country</span>
+                              <span className="text-xs uppercase tracking-wide text-gray-500">{t("imposingCountry")}</span>
                               <p className="font-medium text-gray-800">
                                 {typeof ntb.reported_country === 'string' 
                                   ? ntb.reported_country 
-                                  : ntb.reported_country?.name || "Not specified"}
+                                  : ntb.reported_country?.name || t("notSpecified")}
                               </p>
                             </div>
                             <div className="space-y-1">
-                              <span className="text-xs uppercase tracking-wide text-gray-500">Reporting Country</span>
+                              <span className="text-xs uppercase tracking-wide text-gray-500">{t("reportingCountry")}</span>
                               <p className="font-medium text-gray-800">
                                 {typeof ntb.reporting_country === 'string' 
                                   ? ntb.reporting_country 
-                                  : ntb.reporting_country?.name || "Not specified"}
+                                  : ntb.reporting_country?.name || t("notSpecified")}
                               </p>
                             </div>
                             <div className="space-y-1">
-                              <span className="text-xs uppercase tracking-wide text-gray-500">Location Type</span>
+                              <span className="text-xs uppercase tracking-wide text-gray-500">{t("locationType")}</span>
                               <p className="font-medium text-gray-800">{resolveLocationOfIncidenceName(ntb)}</p>
                             </div>
                             <div className="space-y-1">
-                              <span className="text-xs uppercase tracking-wide text-gray-500">Specific Location</span>
+                              <span className="text-xs uppercase tracking-wide text-gray-500">{t("specificLocation")}</span>
                               <p className="font-medium text-gray-800">{resolveSpecificLocationName(ntb)}</p>
                             </div>
                             <div className="space-y-1">
-                              <span className="text-xs uppercase tracking-wide text-gray-500">Occurrence</span>
+                              <span className="text-xs uppercase tracking-wide text-gray-500">{t("occurrence")}</span>
                               <p className="font-medium text-gray-800">{ntb.occurrence}</p>
                             </div>
                             <div className="space-y-1">
-                              <span className="text-xs uppercase tracking-wide text-gray-500">Cost Range</span>
-                              <p className="font-medium text-gray-800">{ntb.cost_value_range || "Not specified"}</p>
+                              <span className="text-xs uppercase tracking-wide text-gray-500">{t("costRange")}</span>
+                              <p className="font-medium text-gray-800">{ntb.cost_value_range || t("notSpecified")}</p>
                             </div>
                             <div className="space-y-1">
-                              <span className="text-xs uppercase tracking-wide text-gray-500">Has Attachments</span>
-                              <p className="font-medium text-gray-800">{ntb.has_attachments ? "Yes" : "No"}</p>
+                              <span className="text-xs uppercase tracking-wide text-gray-500">{t("hasAttachments")}</span>
+                              <p className="font-medium text-gray-800">{ntb.has_attachments ? t("yes") : t("no")}</p>
                             </div>
                           </div>
 
@@ -1519,7 +1563,7 @@ export default function NTB() {
                                 </div>
                                 <span className="text-sm font-semibold">{ratingValue} / 5</span>
                                 <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full">
-                                  Rated
+                                  {t("rated")}
                                 </span>
                               </div>
                               {ratingComment && (
@@ -1536,7 +1580,7 @@ export default function NTB() {
                                 onClick={() => openFeedbackModal(ntb)}
                               >
                                 <Star className="w-4 h-4" />
-                                Rate Service
+                                {t("rateService")}
                               </Button>
                             )}
                             <Button
@@ -1547,7 +1591,7 @@ export default function NTB() {
                               disabled={detailLoading}
                             >
                               <Eye className="w-4 h-4" />
-                              View Details
+                              {t("viewDetails")}
                             </Button>
                           </div>
                         </CardContent>

@@ -87,15 +87,15 @@ export default function StatsBar() {
                   <div className="flex items-center gap-1 mb-1">
                     <DocumentText size={18} color="#138abd" />
                     <h4 className="font-semibold text-gray-700 text-[13px]">
-                      View Business Complaints
+                      {t("sidebar.viewReportsTitle")}
                     </h4>
                   </div>
                   <p className="text-gray-600 text-[10px] md:text-[13px] leading-relaxed mb-3 text-left">
-                    View all your submitted business complaints and their current status.
+                    {t("sidebar.viewReportsDescription")}
                   </p>
                   <div className="bg-blue-50 border-[0.5px] border-blue-200 rounded-lg p-3">
                     <p className="text-blue-800 text-[10px] md:text-[12px] text-left font-medium leading-relaxed">
-                      Track the progress of your submitted complaints.
+                      {t("sidebar.viewReportsHint")}
                     </p>
                   </div>
                 </div>
@@ -105,15 +105,15 @@ export default function StatsBar() {
                   <div className="flex items-center gap-1 mb-1">
                     <DocumentText size={18} color="#059669" />
                     <h4 className="font-semibold text-gray-700 text-[13px]">
-                      Submit New Complaint
+                      {t("sidebar.submitNewTitle")}
                     </h4>
                   </div>
                   <p className="text-gray-600 text-[10px] md:text-[13px] leading-relaxed mb-3 text-left">
-                    Report a new business complaint affecting your operations.
+                    {t("sidebar.submitNewDescription")}
                   </p>
                   <div className="bg-green-50 border-[0.5px] border-green-200 rounded-lg p-3">
                     <p className="text-green-800 text-[10px] md:text-[12px] text-left font-medium leading-relaxed">
-                      Provide detailed information about the barrier and its impact.
+                      {t("sidebar.submitNewHint")}
                     </p>
                   </div>
                 </div>

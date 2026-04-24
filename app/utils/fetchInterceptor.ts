@@ -1,6 +1,12 @@
 let originalFetch: typeof fetch;
 let sessionExpiredHandler: (() => void) | null = null;
 
+const EXCLUDED_AUTH_CHECK_PATHS = [
+  '/api/auth/user_token',
+  '/api/request-password-reset',
+  '/api/reset-password',
+  '/api/location/ip',
+];
 
 if (typeof window !== 'undefined') {
   originalFetch = window.fetch;
@@ -14,12 +20,14 @@ export function setupFetchInterceptor(handler: () => void) {
     window.fetch = async (input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
       try {
         const response = await originalFetch(input, init);
+        const requestUrl = input.toString();
+        const shouldSkipAuthCheck = EXCLUDED_AUTH_CHECK_PATHS.some((path) =>
+          requestUrl.includes(path)
+        );
        
         // Only trigger session expired for authenticated endpoints, not login
         if ((response.status === 401 || response.status === 403) && 
-            !input.toString().includes('/api/auth/user_token') &&
-            !input.toString().includes('/api/request-password-reset') &&
-            !input.toString().includes('/api/reset-password')) {
+            !shouldSkipAuthCheck) {
           
           // Check if response contains authentication error indicators
           const clonedResponse = response.clone();
@@ -43,7 +51,7 @@ export function setupFetchInterceptor(handler: () => void) {
             if (isAuthError) {
               console.log("🔴 Fetch interceptor: Authentication error detected", {
                 status: response.status,
-                url: input,
+                url: requestUrl,
                 errorData: responseData
               });
               if (sessionExpiredHandler) {
@@ -53,7 +61,7 @@ export function setupFetchInterceptor(handler: () => void) {
             }
           } catch (jsonError) {
             // If response is not JSON, fall back to status code check
-            console.log("🔴 Fetch interceptor: Session expired detected (status-based), status:", response.status, "URL:", input);
+            console.log("🔴 Fetch interceptor: Session expired detected (status-based), status:", response.status, "URL:", requestUrl);
             if (sessionExpiredHandler) {
               console.log("🔴 Calling session expired handler");
               sessionExpiredHandler();

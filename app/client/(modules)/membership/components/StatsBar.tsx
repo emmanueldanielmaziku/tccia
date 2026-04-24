@@ -16,6 +16,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { useTranslations } from "next-intl";
 
 interface CompanyData {
   id: number;
@@ -34,6 +35,7 @@ function CategoryNotebookModal({
   open: boolean;
   onClose: () => void;
 }) {
+  const t = useTranslations("membershipSidebar");
   const [loading, setLoading] = useState(false);
   const [categories, setCategories] = useState<any[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -74,9 +76,7 @@ function CategoryNotebookModal({
             Category and Services Notebook
           </h2>
         </div>
-        <p className="mb-4 text-gray-600">
-          Browse all membership categories, subcategories, and their services.
-        </p>
+        <p className="mb-4 text-gray-600">{t("modalDescription")}</p>
         {loading ? (
           <div className="text-center py-8 text-blue-600">Loading...</div>
         ) : error ? (
@@ -145,6 +145,7 @@ function CategoryNotebookModal({
 }
 
 export default function StatsBar() {
+  const t = useTranslations("membershipSidebar");
   const [expanded, setExpanded] = useState(true);
   const [selectedCompany, setSelectedCompany] = useState<CompanyData | null>(
     null
@@ -252,18 +253,17 @@ export default function StatsBar() {
               <div className="flex items-center gap-2">
                 <Book size={24} color="gray" variant="Bulk" />
                 <span className="font-bold text-gray-700 text-base">
-                  Category and Services List
+                  {t("categoryServicesList")}
                 </span>
               </div>
               <div className="text-xs text-gray-600 text-center">
-                Browse all membership categories, subcategories, and their
-                services in one place.
+                {t("categoryServicesDescription")}
               </div>
               <button
                 className="mt-2 px-5 py-3 cursor-pointer bg-blue-600 hover:bg-blue-700 text-white rounded-md text-xs font-semibold shadow-sm"
                 onClick={() => setNotebookOpen(true)}
               >
-                View Services Offered
+                {t("viewServicesOffered")}
               </button>
             </div>
           )}
@@ -344,11 +344,10 @@ export default function StatsBar() {
           {expanded && (
             <>
               <p className="text-gray-700 text-[13px] md:text-[13px] leading-relaxed">
-                Need help or have questions about membership? Our support team
-                is here to assist you.
+                {t("supportDescription")}
               </p>
               <button className="border-[1px] rounded-[8px] border-zinc-600 text-zinc-600 px-6 md:px-8 py-2 text-[12px] md:text-[14px] w-full cursor-pointer hover:bg-zinc-600 hover:text-white transition-colors duration-200">
-                Contact Support
+                {t("contactSupport")}
               </button>
             </>
           )}

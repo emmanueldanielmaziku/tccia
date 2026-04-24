@@ -16,6 +16,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Checkbox } from "@/components/ui/checkbox";
+import { useTranslations } from "next-intl";
 import {
   Dialog,
   DialogContent,
@@ -52,6 +53,7 @@ type Module = { id: number; name: string; code: string };
 type Permission = { id: number; name: string; code: string };
 
 export default function EmployeesManagement() {
+  const tp = useTranslations("pagination");
   const formatError = (err: unknown) => {
     if (!err) return "An error occurred.";
     if (typeof err === "string") return err;
@@ -809,7 +811,7 @@ export default function EmployeesManagement() {
                         {addEmployeeForm ? null : (
                             <div className="flex justify-between items-center mt-4 bg-white/35 backdrop-blur-md w-full">
                                 <span className="text-gray-600">
-                                    Page {currentPage} of {totalPages} ({totalRecords} total)
+                                    {tp("pageOf", { currentPage, totalPages })} ({totalRecords} {tp("total")})
                                 </span>
 
                                 <div className="flex flex-row justify-between items-center gap-8">
@@ -822,7 +824,7 @@ export default function EmployeesManagement() {
                                                 : "bg-blue-500 text-white hover:bg-blue-600 cursor-pointer"
                                         }`}
                                     >
-                                        Previous
+                                        {tp("previous")}
                                     </button>
                                     <button
                                         onClick={handleNextPage}
@@ -833,7 +835,7 @@ export default function EmployeesManagement() {
                                                 : "bg-blue-500 text-white hover:bg-blue-600 cursor-pointer"
                                         }`}
                                     >
-                                        Next
+                                        {tp("next")}
                                     </button>
                                 </div>
                             </div>

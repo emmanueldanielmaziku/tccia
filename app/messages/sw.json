@@ -213,8 +213,42 @@
     "submitNTBHeading": "Wasilisha Ripoti ya NTB",
     "submitNTB": "Ripoti kizuizi chochote kisicho cha kiforodha unachokutana nacho. Jaza fomu kwa maelezo kamili ya tatizo.",
     "trackNTBHeading": "Fatilia Hali ya NTB",
+    "listTitle": "Vizuizi Visivyo vya Kiforodha (NTB)",
+    "listDescription": "Fatilia na ripoti vizuizi visivyo vya kiforodha vinavyoathiri biashara yako",
+    "reportsCount": "ripoti {count}",
+    "refresh": "Onyesha upya",
+    "newNtbReport": "Ripoti Mpya ya NTB",
+    "noReportsFound": "Hakuna Ripoti za NTB Zilizopatikana",
+    "noReportsDescription": "Bado hujawasilisha ripoti zozote za NTB.",
+    "submitFirstReport": "Wasilisha Ripoti Yako ya Kwanza ya NTB",
+    "reportLabel": "Ripoti ya NTB",
+    "resolvedClosed": "Imetatuliwa na Kufungwa",
+    "reportedOn": "Imeripotiwa tarehe",
+    "incident": "tukio",
+    "attachmentsLabel": "Viambatanisho",
+    "imposingCountry": "Nchi Inayoweka Kizuizi",
+    "reportingCountry": "Nchi Inayoripoti",
+    "locationType": "Aina ya Eneo",
+    "specificLocation": "Eneo Mahususi",
+    "occurrence": "Marudio",
+    "costRange": "Kiwango cha Gharama",
+    "hasAttachments": "Ina Viambatanisho",
+    "notSpecified": "Haijabainishwa",
+    "yes": "Ndiyo",
+    "no": "Hapana",
+    "rated": "Imekadiriwa",
+    "rateService": "Kadiria Huduma",
+    "viewDetails": "Tazama Maelezo",
     "saveTrackingTip": "⚠️ Muhimu: Hifadhi nambari ya ufuatiliaji utakayopewa baada ya kuwasilisha ili kufuatilia ripoti yako baadaye.",
     "useTrackingTip": "💡 Dokezo: Tumia nambari ya ufuatiliaji kutoka kwenye uthibitisho wa kuwasilisha kufuatilia maendeleo.",
+    "sidebar": {
+      "viewReportsTitle": "Tazama Ripoti za NTB",
+      "viewReportsDescription": "Tazama ripoti zako zote za NTB ulizowasilisha na hali yake ya sasa.",
+      "viewReportsHint": "Fatilia maendeleo ya vizuizi visivyo vya kiforodha ulivyoripoti.",
+      "submitNewTitle": "Wasilisha NTB Mpya",
+      "submitNewDescription": "Ripoti kizuizi kipya kisicho cha kiforodha kinachoathiri shughuli zako za biashara.",
+      "submitNewHint": "Toa maelezo ya kina kuhusu kizuizi hicho na athari zake."
+    },
     "help": {
       "title": "Unahitaji msaada?",
       "description": "Wasiliana nasi kwa msaada.",
@@ -227,6 +261,18 @@
     "removeFile": "Ondoa faili",
     "supportedFormats": "Miundo inayoungwa mkono: PDF, DOC, DOCX, JPG, JPEG, PNG",
     "maxFileSize": "Ukubwa wa juu wa faili: 10MB"
+    ,
+    "profileCompletion": {
+      "title": "Kamilisha Wasifu Wako",
+      "description": "Tafadhali kamilisha taarifa za wasifu wako ili kufikia huduma za NTB",
+      "countryOfResidence": "Nchi unayoishi",
+      "selectCountry": "Chagua nchi",
+      "operatorType": "Aina ya Mwendeshaji",
+      "selectOperatorType": "Chagua aina ya mwendeshaji",
+      "gender": "Jinsia",
+      "selectGender": "Chagua jinsia",
+      "completeProfile": "Kamilisha Wasifu"
+    }
   },
   "businessComplaints": {
     "title": "Ripoti & Fatilia Malalamiko ya Biashara",
@@ -278,6 +324,65 @@
     "submitNTBHeading": "Wasilisha Malalamiko",
     "submitNTB": "Ripoti malalamiko yoyote ya biashara unayokutana nayo. Jaza fomu kwa maelezo kamili kuhusu tatizo.",
     "trackNTBHeading": "Fatilia Hali ya Malalamiko",
+    "listTitle": "Malalamiko ya Biashara",
+    "listDescription": "Fatilia na ripoti malalamiko ya biashara yanayoathiri shughuli zako",
+    "reportsCount": "ripoti {count}",
+    "refresh": "Onyesha upya",
+    "newReport": "Malalamiko Mapya ya Biashara",
+    "newReportDescription": "Ripoti kizuizi kisicho cha kiforodha kinachoathiri biashara yako",
+    "noReportsFound": "Hakuna Malalamiko ya Biashara Yaliyopatikana",
+    "noReportsDescription": "Bado hujawasilisha malalamiko yoyote ya biashara.",
+    "submitFirstReport": "Wasilisha Malalamiko Yako ya Kwanza",
+    "resolvedClosed": "Imetatuliwa na Kufungwa",
+    "reportedOn": "Imeripotiwa tarehe",
+    "incident": "tukio",
+    "attachmentsLabel": "Viambatanisho",
+    "hasAttachments": "Ina Viambatanisho",
+    "yes": "Ndiyo",
+    "no": "Hapana",
+    "notSpecified": "Haijabainishwa",
+    "rated": "Imekadiriwa",
+    "rateService": "Kadiria Huduma",
+    "viewDetails": "Tazama Maelezo",
+    "region": "Mkoa",
+    "district": "Wilaya",
+    "locationType": "Aina ya Eneo",
+    "specificLocation": "Eneo Mahususi",
+    "occurrence": "Marudio",
+    "costRange": "Kiwango cha Gharama",
+    "reportDetails": "Maelezo ya Malalamiko ya Biashara",
+    "complaintDetails": "Maelezo ya Malalamiko",
+    "reporterInformation": "Taarifa za Mtoa Malalamiko",
+    "newComplaint": "Malalamiko Mapya ya Biashara",
+    "complaintDetailsDescription": "Maelezo na Maelezo ya Kina ya Malalamiko",
+    "loadingProfile": "Inapakia wasifu...",
+    "noDistrictsAvailable": "Hakuna wilaya zilizopatikana",
+    "refreshPageTryAgain": "Onyesha upya ukurasa huu na ujaribu tena",
+    "status": {
+      "submitted": "Imewasilishwa",
+      "review": "Mapitio (Wataalamu)",
+      "inProgress": "Inaendelea",
+      "intendedResolved": "Imetatuliwa Kwa Makusudi",
+      "unintendedResolved": "Imetatuliwa Bila Makusudi",
+      "resolved": "Imetatuliwa",
+      "closed": "Imefungwa"
+    },
+    "occurrenceOptions": {
+      "firstTime": "Mara ya kwanza",
+      "onceBefore": "Mara moja kabla",
+      "aFewTimes": "Mara chache",
+      "everyMonth": "Kila mwezi",
+      "everyWeek": "Kila wiki",
+      "everyDay": "Kila siku"
+    },
+    "sidebar": {
+      "viewReportsTitle": "Tazama Malalamiko ya Biashara",
+      "viewReportsDescription": "Tazama malalamiko yako yote ya biashara uliyowasilisha na hali yake ya sasa.",
+      "viewReportsHint": "Fatilia maendeleo ya malalamiko uliyowasilisha.",
+      "submitNewTitle": "Wasilisha Malalamiko Mapya",
+      "submitNewDescription": "Ripoti malalamiko mapya ya biashara yanayoathiri shughuli zako.",
+      "submitNewHint": "Toa maelezo ya kina kuhusu tatizo na athari zake."
+    },
     "saveTrackingTip": "⚠️ Muhimu: Hifadhi nambari ya ufuatiliaji utakayopewa baada ya kuwasilisha ili kufuatilia malalamiko yako baadaye.",
     "useTrackingTip": "💡 Dokezo: Tumia nambari ya ufuatiliaji kutoka kwenye uthibitisho wa kuwasilisha kufuatilia maendeleo.",
     "help": {
@@ -292,6 +397,18 @@
     "removeFile": "Ondoa faili",
     "supportedFormats": "Miundo inayoungwa mkono: PDF, DOC, DOCX, JPG, JPEG, PNG",
     "maxFileSize": "Ukubwa wa juu wa faili: 10MB"
+    ,
+    "profileCompletion": {
+      "title": "Kamilisha Wasifu Wako",
+      "description": "Tafadhali kamilisha taarifa za wasifu wako ili kufikia huduma za Malalamiko ya Biashara",
+      "countryOfResidence": "Nchi unayoishi",
+      "selectCountry": "Chagua nchi",
+      "operatorType": "Aina ya Mwendeshaji",
+      "selectOperatorType": "Chagua aina ya mwendeshaji",
+      "gender": "Jinsia",
+      "selectGender": "Chagua jinsia",
+      "completeProfile": "Kamilisha Wasifu"
+    }
   },
   "helpdesk": {
     "title": "Msaada wa IT",
@@ -342,5 +459,60 @@
     "submitted": "Imewasilishwa",
     "lastUpdated": "Imesasishwa Mwisho",
     "latestCommunication": "Mawasiliano ya Hivi Karibuni"
+  },
+  "companyPicker": {
+    "quickMenuTitle": "Menyu ya Haraka (COO & NTB)",
+    "quickMenuDescription": "Tafadhali chagua kampuni unayotaka kuitumia. Unaweza kubadilisha baadaye.",
+    "selectCompany": "Chagua kampuni",
+    "searchCompany": "Tafuta kampuni...",
+    "loadingCompanies": "Inapakia kampuni...",
+    "noCompaniesFound": "Hakuna kampuni zilizopatikana",
+    "companies": "Kampuni",
+    "selectOrRegisterCompany": "Tafadhali chagua kampuni au sajili kampuni yako kwanza.",
+    "continue": "Endelea",
+    "registerCompany": "Sajili Kampuni",
+    "joinMembership": "Jiunge na Uanachama",
+    "registerCompanyFirst": "Tafadhali sajili kampuni kwanza"
+  },
+  "membershipSidebar": {
+    "categoryServicesList": "Orodha ya Kategoria na Huduma",
+    "categoryServicesDescription": "Vinjari kategoria zote za uanachama, vikundi vidogo, na huduma zake mahali pamoja.",
+    "viewServicesOffered": "Tazama Huduma Zinazotolewa",
+    "supportDescription": "Unahitaji msaada au una maswali kuhusu uanachama? Timu yetu ya msaada iko tayari kukusaidia.",
+    "contactSupport": "Wasiliana na Msaada",
+    "modalDescription": "Vinjari kategoria zote za uanachama, vikundi vidogo, na huduma zake."
+  },
+  "membershipApplication": {
+    "noApplicationTitle": "Hakuna Maombi ya Uanachama Yaliyopatikana",
+    "noApplicationDescription": "Hakuna maombi ya uanachama kwa TIN hii.",
+    "noApplicationHint": "Anza ombi jipya ili uwe mwanachama."
+  },
+  "sessionExpired": {
+    "title": "Muda wa Kikao Umeisha",
+    "message": "Muda wako wa kikao umeisha. Tafadhali ingia tena.",
+    "redirectingIn": "Inaelekeza baada ya",
+    "seconds": "sekunde",
+    "acknowledge": "Sawa, Nimeelewa",
+    "redirectingToLogin": "Inaelekeza kwenye ukurasa wa kuingia..."
+  },
+  "profile": {
+    "redirectingIn": "Inaelekeza baada ya"
+  },
+  "firmManagementModule": {
+    "title": "Usajili wa Kampuni",
+    "searchFirms": "Tafuta kampuni...",
+    "allStates": "Hali zote",
+    "refreshCompaniesList": "Onyesha upya orodha ya kampuni",
+    "refreshing": "Inaonyesha upya...",
+    "refresh": "Onyesha upya",
+    "addCompany": "Ongeza Kampuni",
+    "totalProducts": "Jumla ya Bidhaa",
+    "totalCertificatesOfOrigin": "Jumla ya Vyeti vya Asili"
+  },
+  "pagination": {
+    "pageOf": "Ukurasa wa {currentPage} kati ya {totalPages}",
+    "previous": "Iliyotangulia",
+    "next": "Inayofuata",
+    "total": "jumla"
   }
 }

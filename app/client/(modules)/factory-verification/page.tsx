@@ -37,6 +37,7 @@ import { useRightSidebar } from "../../../contexts/RightSidebarContext";
 import { useApiWithSessionHandling } from "../../../hooks/useApiWithSessionHandling";
 import { handleSessionError } from "../../../utils/sessionErrorHandler";
 import { useUserPermissions } from "../../../hooks/useUserPermissions";
+import { useTranslations } from "next-intl";
 
 interface Product {
   sn: number;
@@ -93,6 +94,7 @@ const getStatusBadgeClass = (status: string) => {
 };
 
 export default function FactoryVerification() {
+  const tp = useTranslations("pagination");
   const { isRightSidebarOpen } = useRightSidebar();
   const { fetchWithSessionHandling } = useApiWithSessionHandling();
   const { canAdd } = useUserPermissions();
@@ -856,7 +858,7 @@ export default function FactoryVerification() {
             {verificationForm ? null : (
               <div className="flex flex-col lg:flex-row justify-between items-center mt-4 bg-white/35 backdrop-blur-md w-full p-3 lg:p-4 gap-3 lg:gap-0">
                 <span className="text-sm lg:text-base text-gray-600 order-2 lg:order-1">
-                  Page {currentPage} of {totalPages}
+                  {tp("pageOf", { currentPage, totalPages })}
                 </span>
 
                 <div className="flex flex-row justify-between items-center gap-3 lg:gap-8 order-1 lg:order-2">
@@ -869,7 +871,7 @@ export default function FactoryVerification() {
                         : "bg-blue-500 text-white hover:bg-blue-600 cursor-pointer"
                     }`}
                   >
-                    <span className="hidden lg:inline">Previous</span>
+                    <span className="hidden lg:inline">{tp("previous")}</span>
                     <span className="lg:hidden">←</span>
                   </button>
                   <button
@@ -881,7 +883,7 @@ export default function FactoryVerification() {
                         : "bg-blue-500 text-white hover:bg-blue-600 cursor-pointer"
                     }`}
                   >
-                    <span className="hidden lg:inline">Next</span>
+                    <span className="hidden lg:inline">{tp("next")}</span>
                     <span className="lg:hidden">→</span>
                   </button>
                 </div>

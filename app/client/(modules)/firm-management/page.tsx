@@ -27,6 +27,7 @@ import {
 import usetinFormState from "../../services/companytinformState";
 import { useRightSidebar } from "../../../contexts/RightSidebarContext";
 import { useUserPermissions } from "../../../hooks/useUserPermissions";
+import { useTranslations } from "next-intl";
 
 type Company = {
   id: number;
@@ -46,6 +47,8 @@ type Company = {
 };
 
 export default function FirmManagement() {
+  const t = useTranslations("firmManagementModule");
+  const tp = useTranslations("pagination");
   const { tinformState, toggleCompanyTinForm } = usetinFormState();
   const { isRightSidebarOpen } = useRightSidebar();
   const { canView, getUserModules } = useUserPermissions();
@@ -293,7 +296,8 @@ export default function FirmManagement() {
   if (!accessChecked) {
     return (
       <main className="w-full h-[97vh] rounded-[12px] sm:rounded-[14px] overflow-hidden bg-white border-[1px] border-gray-200 shadow-sm relative">
-        <NavBar title={"Company Registration"} />
+        <NavBar title={t("title")} />
+        
         <div className="flex items-center justify-center h-full">
           <div className="text-gray-500">Loading...</div>
         </div>
@@ -312,7 +316,7 @@ export default function FirmManagement() {
         />
       )}
 
-      <NavBar title={"Company Registration"} />
+      <NavBar title={t("title")} />
 
       {/* Content */}
       <section className="flex flex-col lg:flex-row flex-1">
@@ -330,7 +334,7 @@ export default function FirmManagement() {
                     <label className="flex justify-center items-center w-full lg:w-auto relative">
                       <input
                         type="text"
-                        placeholder="Search firms..."
+                        placeholder={t("searchFirms")}
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         className="w-full lg:w-auto border-[0.5px] border-zinc-300 focus:outline-2 focus:outline-blue-400 rounded-[8px] sm:rounded-[9px] pl-5 sm:pl-6 lg:pl-8 pr-2 sm:pr-2.5 py-1 sm:py-1.5 lg:py-2 text-xs sm:text-sm placeholder:text-xs sm:placeholder:text-sm"
@@ -349,7 +353,7 @@ export default function FirmManagement() {
                       </SelectTrigger>
                       <SelectContent>
                         <SelectGroup>
-                          <SelectItem value="__all__">All States</SelectItem>
+                          <SelectItem value="__all__">{t("allStates")}</SelectItem>
                           {stateOptions.map((state) => (
                             <SelectItem key={state} value={state}>
                               {state}
@@ -368,14 +372,14 @@ export default function FirmManagement() {
                       }`}
                       onClick={fetchCompanies}
                       disabled={refreshing}
-                      title="Refresh companies list"
+                      title={t("refreshCompaniesList")}
                     >
                       <Refresh
                         size={16}
                         className={`sm:w-[18px] sm:h-[18px] ${refreshing ? "animate-spin" : ""}`}
                         color="#36568a"
                       />
-                      <span className="hidden sm:inline">{refreshing ? "Refreshing..." : "Refresh"}</span>
+                      <span className="hidden sm:inline">{refreshing ? t("refreshing") : t("refresh")}</span>
                       <span className="sm:hidden">{refreshing ? "..." : "↻"}</span>
                     </button>
                     <button
@@ -383,7 +387,7 @@ export default function FirmManagement() {
                       onClick={() => toggleCompanyTinForm()}
                     >
                       <Add size="16" className="w-4 h-4 sm:w-5 sm:h-5" color="white" />
-                      <span className="hidden sm:inline">Add Company</span>
+                      <span className="hidden sm:inline">{t("addCompany")}</span>
                       <span className="sm:hidden">Add</span>
                     </button>
                   </div>
@@ -511,7 +515,7 @@ export default function FirmManagement() {
                         <div className="flex flex-row w-full justify-between items-center gap-2">
                           <div className="flex flex-row justify-start items-center gap-1 min-w-0 flex-1">
                             <Box size={16} className="sm:w-[18px] sm:h-[18px] flex-shrink-0" color="#36568a" />
-                            <span className="text-xs sm:text-sm truncate">Total Products</span>
+                              <span className="text-xs sm:text-sm truncate">{t("totalProducts")}</span>
                           </div>
                           <div className="hidden sm:block flex-1 mx-2 sm:mx-4 border-t border-dashed border-zinc-400 h-0" />
                           <div className="text-xs sm:text-sm font-semibold text-gray-700 flex-shrink-0">
@@ -526,7 +530,7 @@ export default function FirmManagement() {
                           <div className="flex flex-row justify-start items-center gap-1 min-w-0 flex-1">
                             <ArchiveBook size={16} className="sm:w-[18px] sm:h-[18px] flex-shrink-0" color="#36568a" />
                             <span className="text-xs sm:text-sm truncate">
-                              Total Certificates of Origin
+                              {t("totalCertificatesOfOrigin")}
                             </span>
                           </div>
                           <div className="hidden sm:block flex-1 mx-2 sm:mx-4 border-t border-dashed border-zinc-400 h-0" />
@@ -550,7 +554,7 @@ export default function FirmManagement() {
             {tinformState ? null : (
               <div className="flex flex-col sm:flex-row justify-between items-center gap-3 sm:gap-4 mt-4 bg-white/35 backdrop-blur-md w-full p-3 sm:p-4">
                 <span className="text-sm sm:text-base text-gray-600 order-2 sm:order-1">
-                  Page {currentPage} of {totalPages}
+                  {tp("pageOf", { currentPage, totalPages })}
                 </span>
 
                 <div className="flex flex-row justify-between items-center gap-3 sm:gap-4 sm:gap-8 order-1 sm:order-2">
@@ -563,7 +567,7 @@ export default function FirmManagement() {
                         : "bg-blue-500 text-white hover:bg-blue-600 cursor-pointer"
                     }`}
                   >
-                    <span className="hidden sm:inline">Previous</span>
+                    <span className="hidden sm:inline">{tp("previous")}</span>
                     <span className="sm:hidden">←</span>
                   </button>
                   <button
@@ -575,7 +579,7 @@ export default function FirmManagement() {
                         : "bg-blue-500 text-white hover:bg-blue-600 cursor-pointer"
                     }`}
                   >
-                    <span className="hidden sm:inline">Next</span>
+                    <span className="hidden sm:inline">{tp("next")}</span>
                     <span className="sm:hidden">→</span>
                   </button>
                 </div>

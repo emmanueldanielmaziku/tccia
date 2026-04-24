@@ -6,6 +6,7 @@ import { Add, CloseCircle, MoreCircle, SearchNormal1 } from "iconsax-reactjs";
 import AlertBox from "../factory-verification/components/AlertBox";
 import CFASelectForm from "./components/CFASelectForm";
 import { useRightSidebar } from "../../../contexts/RightSidebarContext";
+import { useTranslations } from "next-intl";
 
 // Sample employees data
 const employeesData = [
@@ -222,6 +223,7 @@ const employeesData = [
 ];
 
 export default function EmployeesManagement() {
+  const tp = useTranslations("pagination");
   const { isRightSidebarOpen } = useRightSidebar();
   const [addEmployeeForm, setAddEmployeeForm] = useState(false);
     const [discardBoxState, setDiscardBoxState] = useState(false);
@@ -381,7 +383,7 @@ export default function EmployeesManagement() {
               {addEmployeeForm ? null : (
                 <div className="flex justify-between items-center mt-4 bg-white/35 backdrop-blur-md w-full">
                   <span className="text-gray-600">
-                    Page {currentPage} of {totalPages}
+                    {tp("pageOf", { currentPage, totalPages })}
                   </span>
 
                   <div className="flex flex-row justify-between items-center gap-8">
@@ -394,7 +396,7 @@ export default function EmployeesManagement() {
                           : "bg-blue-500 text-white hover:bg-blue-600 cursor-pointer"
                       }`}
                     >
-                      Previous
+                      {tp("previous")}
                     </button>
                     <button
                       onClick={handleNextPage}
@@ -405,7 +407,7 @@ export default function EmployeesManagement() {
                           : "bg-blue-500 text-white hover:bg-blue-600 cursor-pointer"
                       }`}
                     >
-                      Next
+                      {tp("next")}
                     </button>
                   </div>
                 </div>

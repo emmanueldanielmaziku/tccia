@@ -269,7 +269,7 @@ export default function SideBarMobile() {
                 <div key={item.id} className="w-full flex flex-col items-end">
                   {isLocked ? (
                     <div
-                      className="flex flex-row items-center h-[55px] w-full relative justify-between md:gap-2 px-4 rounded-[8px] md:rounded-[10px] border-[0.5px] border-gray-200 bg-gray-100 cursor-not-allowed opacity-60"
+                      className="flex flex-row items-center h-[46px] w-full relative justify-between md:gap-2 px-4 rounded-[8px] md:rounded-[10px] border-[0.5px] border-gray-200 bg-gray-100 cursor-not-allowed opacity-60"
                       title={lockMessage}
                     >
                       <div className="flex flex-row items-center gap-2">
@@ -284,7 +284,7 @@ export default function SideBarMobile() {
                     <Link
                       href={item.route}
                       onClick={() => handleTabClick(item.id)}
-                      className={`cursor-pointer flex flex-row items-center h-[55px] w-full relative justify-between md:gap-2 px-4 rounded-[8px] md:rounded-[10px] border-[0.5px] ${
+                      className={`cursor-pointer flex flex-row items-center h-[46px] w-full relative justify-between md:gap-2 px-4 rounded-[8px] md:rounded-[10px] border-[0.5px] ${
                         selectedTab === item.id
                           ? "bg-blue-100 border-blue-500"
                           : "border-gray-200 hover:bg-blue-50 hover:border-blue-300"
@@ -325,7 +325,7 @@ export default function SideBarMobile() {
               toggleMenu();
             }
           }}
-          className={`cursor-pointer flex flex-row items-center h-[55px] w-full relative justify-between md:gap-2 px-4 md:rounded-[10px] rounded-[8px] border-[0.5px] border-gray-200 hover:bg-blue-50 hover:border-blue-300`}
+          className={`cursor-pointer flex flex-row items-center h-[46px] w-full relative justify-between md:gap-2 px-4 md:rounded-[10px] rounded-[8px] border-[0.5px] border-gray-200 hover:bg-blue-50 hover:border-blue-300`}
         >
           <div className="flex flex-row items-center gap-2">
             <Setting2 size="20" color="#364153" />
@@ -341,7 +341,7 @@ export default function SideBarMobile() {
               toggleMenu();
             }
           }}
-          className={`cursor-pointer flex flex-row items-center h-[55px] w-full relative justify-between md:gap-2 px-4 rounded-[8px] md:rounded-[10px] border-[0.5px] border-gray-200 hover:bg-blue-50 hover:border-blue-300`}
+          className={`cursor-pointer flex flex-row items-center h-[46px] w-full relative justify-between md:gap-2 px-4 rounded-[8px] md:rounded-[10px] border-[0.5px] border-gray-200 hover:bg-blue-50 hover:border-blue-300`}
         >
           <div className="flex flex-row items-center gap-2">
             <LogoutCurve size="20" color="#364153" />
