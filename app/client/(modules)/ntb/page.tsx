@@ -28,6 +28,7 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
+import { SearchableCombobox } from "@/components/ui/searchable-combobox";
 import { useState, useEffect } from "react";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
@@ -1870,22 +1871,16 @@ export default function NTB() {
                           <Label className="text-sm font-medium text-gray-700">
                             NTB Type <span className="text-red-500">*</span>
                           </Label>
-                          <Select
+                          <SearchableCombobox
                             value={form.ntb_type_id}
-                            onValueChange={(value) => handleChange("ntb_type_id", value)}
-                            required
-                          >
-                            <SelectTrigger className="h-12 rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500 py-3">
-                              <SelectValue placeholder="Select NTB type" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {ntbTypes.map((type) => (
-                                <SelectItem key={type.id} value={type.id.toString()} title={type.description}>
-                                  {type.name}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
+                            onChange={(value) => handleChange("ntb_type_id", value)}
+                            placeholder="Select NTB type"
+                            searchPlaceholder="Search NTB type..."
+                            options={ntbTypes.map((type) => ({
+                              value: type.id.toString(),
+                              label: type.name,
+                            }))}
+                          />
                         </div>
 
                         <div className="space-y-3">
@@ -1908,44 +1903,32 @@ export default function NTB() {
                           <Label className="text-sm font-medium text-gray-700">
                             Imposing Country <span className="text-red-500">*</span>
                           </Label>
-                          <Select
+                          <SearchableCombobox
                             value={form.reported_country_id}
-                            onValueChange={(value) => handleChange("reported_country_id", value)}
-                            required
-                          >
-                            <SelectTrigger className="h-12 rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500 py-3">
-                              <SelectValue placeholder="Select imposing country" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {countries.map((country) => (
-                                <SelectItem key={country.id} value={String(country.id)}>
-                                  {country.name}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
+                            onChange={(value) => handleChange("reported_country_id", value)}
+                            placeholder="Select imposing country"
+                            searchPlaceholder="Search country..."
+                            options={countries.map((country) => ({
+                              value: String(country.id),
+                              label: country.name,
+                            }))}
+                          />
                         </div>
 
                         <div className="space-y-3">
                           <Label className="text-sm font-medium text-gray-700">
                             Reporting Country <span className="text-red-500">*</span>
                           </Label>
-                          <Select
+                          <SearchableCombobox
                             value={form.reporting_country_id}
-                            onValueChange={(value) => handleChange("reporting_country_id", value)}
-                            required
-                          >
-                            <SelectTrigger className="h-12 rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500 py-3">
-                              <SelectValue placeholder="Select reporting country" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {countries.map((country) => (
-                                <SelectItem key={country.id} value={String(country.id)}>
-                                  {country.name}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
+                            onChange={(value) => handleChange("reporting_country_id", value)}
+                            placeholder="Select reporting country"
+                            searchPlaceholder="Search country..."
+                            options={countries.map((country) => ({
+                              value: String(country.id),
+                              label: country.name,
+                            }))}
+                          />
                         </div>
                       </div>
 
@@ -1955,54 +1938,47 @@ export default function NTB() {
                           <Label className="text-sm font-medium text-gray-700">
                             Location of Incidence <span className="text-red-500">*</span>
                           </Label>
-                          <Select
+                          <SearchableCombobox
                             value={form.location_of_incidence_id}
-                            onValueChange={(value) => {
+                            onChange={(value) => {
                               handleChange("location_of_incidence_id", value);
                               handleChange("specific_location_id", "");
                             }}
                             disabled={!form.reported_country_id || locationIncidences.length === 0}
-                          >
-                            <SelectTrigger className="h-12 rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500 py-3">
-                              <SelectValue placeholder={
-                                !form.reported_country_id 
-                                  ? "Select imposing country first" 
-                                  : locationIncidences.length === 0 
-                                    ? "Loading locations..." 
-                                    : "Select location of incidence"
-                              } />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {locationIncidences.map((location) => (
-                                <SelectItem key={location.id} value={String(location.id)}>
-                                  {location.display_name || location.name}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
+                            placeholder={
+                              !form.reported_country_id
+                                ? "Select imposing country first"
+                                : locationIncidences.length === 0
+                                ? "Loading locations..."
+                                : "Select location of incidence"
+                            }
+                            searchPlaceholder="Search location..."
+                            options={locationIncidences.map((location) => ({
+                              value: String(location.id),
+                              label: location.display_name || location.name,
+                            }))}
+                          />
                         </div>
 
                         <div className="space-y-3">
                           <Label className="text-sm font-medium text-gray-700">
                             Specific Location <span className="text-red-500">*</span>
                           </Label>
-                          <Select
+                          <SearchableCombobox
                             value={form.specific_location_id}
-                            onValueChange={(value) => handleChange("specific_location_id", value)}
+                            onChange={(value) => handleChange("specific_location_id", value)}
                             disabled={!form.location_of_incidence_id || specificLocations.length === 0}
-                          >
-                            <SelectTrigger className="h-12 rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500 py-3">
-                              <SelectValue placeholder={specificLocations.length > 0 ? "Select specific location" : "Select location of incidence first"} />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {specificLocations.map((location) => (
-                                <SelectItem key={location.id} value={String(location.id)}>
-                                  {location.name}
-                                  {location.code ? ` (${location.code})` : ""}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
+                            placeholder={
+                              specificLocations.length > 0
+                                ? "Select specific location"
+                                : "Select location of incidence first"
+                            }
+                            searchPlaceholder="Search specific location..."
+                            options={specificLocations.map((location) => ({
+                              value: String(location.id),
+                              label: `${location.name}${location.code ? ` (${location.code})` : ""}`,
+                            }))}
+                          />
                         </div>
                       </div>
                       {/* Complaint Details - Start with Description */}

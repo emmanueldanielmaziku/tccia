@@ -28,6 +28,7 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
+import { SearchableCombobox } from "@/components/ui/searchable-combobox";
 import { useState, useEffect } from "react";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
@@ -2038,22 +2039,16 @@ export default function BusinessComplaints() {
                           <Label className="text-sm font-medium text-gray-700">
                             Complaint Type <span className="text-red-500">*</span>
                           </Label>
-                          <Select
+                          <SearchableCombobox
                             value={form.ntb_type_id}
-                            onValueChange={(value) => handleChange("ntb_type_id", value)}
-                            required
-                          >
-                            <SelectTrigger className="h-12 rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500 py-3">
-                              <SelectValue placeholder="Select complaint type" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {ntbTypes.map((type) => (
-                                <SelectItem key={type.id} value={type.id.toString()} title={type.description}>
-                                  {type.name}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
+                            onChange={(value) => handleChange("ntb_type_id", value)}
+                            placeholder="Select complaint type"
+                            searchPlaceholder="Search complaint type..."
+                            options={ntbTypes.map((type) => ({
+                              value: type.id.toString(),
+                              label: type.name,
+                            }))}
+                          />
                         </div>
 
                         <div className="space-y-3">
@@ -2076,51 +2071,39 @@ export default function BusinessComplaints() {
                           <Label className="text-sm font-medium text-gray-700">
                             Region <span className="text-red-500">*</span>
                           </Label>
-                          <Select
+                          <SearchableCombobox
                             value={form.region_id}
-                            onValueChange={(value) => handleChange("region_id", value)}
-                            required
-                          >
-                            <SelectTrigger className="h-12 rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500 py-3">
-                              <SelectValue placeholder="Select region" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {regions.map((region) => (
-                                <SelectItem key={region.id} value={String(region.id)}>
-                                  {region.name}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
+                            onChange={(value) => handleChange("region_id", value)}
+                            placeholder="Select region"
+                            searchPlaceholder="Search region..."
+                            options={regions.map((region) => ({
+                              value: String(region.id),
+                              label: region.name,
+                            }))}
+                          />
                         </div>
 
                         <div className="space-y-3">
                           <Label className="text-sm font-medium text-gray-700">
                             District <span className="text-red-500">*</span>
                           </Label>
-                          <Select
+                          <SearchableCombobox
                             value={form.district_id}
-                            onValueChange={(value) => handleChange("district_id", value)}
-                            required
+                            onChange={(value) => handleChange("district_id", value)}
                             disabled={!form.region_id || districts.length === 0}
-                          >
-                            <SelectTrigger className="h-12 rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500 py-3">
-                              <SelectValue placeholder={
-                                !form.region_id 
-                                  ? "Select region first" 
-                                  : districts.length === 0 
-                                    ? t("noDistrictsAvailable")
-                                    : "Select district"
-                              } />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {districts.map((district) => (
-                                <SelectItem key={district.id} value={String(district.id)}>
-                                  {district.name}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
+                            placeholder={
+                              !form.region_id
+                                ? "Select region first"
+                                : districts.length === 0
+                                ? t("noDistrictsAvailable")
+                                : "Select district"
+                            }
+                            searchPlaceholder="Search district..."
+                            options={districts.map((district) => ({
+                              value: String(district.id),
+                              label: district.name,
+                            }))}
+                          />
                         </div>
                       </div>
 
@@ -2130,54 +2113,47 @@ export default function BusinessComplaints() {
                           <Label className="text-sm font-medium text-gray-700">
                             Location of Incidence <span className="text-red-500">*</span>
                           </Label>
-                          <Select
+                          <SearchableCombobox
                             value={form.location_of_incidence_id}
-                            onValueChange={(value) => {
+                            onChange={(value) => {
                               handleChange("location_of_incidence_id", value);
                               handleChange("specific_location_id", "");
                             }}
                             disabled={!form.region_id || locationIncidences.length === 0}
-                          >
-                            <SelectTrigger className="h-12 rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500 py-3">
-                              <SelectValue placeholder={
-                                !form.region_id 
-                                  ? "Select region first" 
-                                  : locationIncidences.length === 0 
-                                    ? "Loading locations..." 
-                                    : "Select location of incidence"
-                              } />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {locationIncidences.map((location) => (
-                                <SelectItem key={location.id} value={String(location.id)}>
-                                  {location.display_name || location.name}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
+                            placeholder={
+                              !form.region_id
+                                ? "Select region first"
+                                : locationIncidences.length === 0
+                                ? "Loading locations..."
+                                : "Select location of incidence"
+                            }
+                            searchPlaceholder="Search location..."
+                            options={locationIncidences.map((location) => ({
+                              value: String(location.id),
+                              label: location.display_name || location.name,
+                            }))}
+                          />
                         </div>
 
                         <div className="space-y-3">
                           <Label className="text-sm font-medium text-gray-700">
                             Specific Location <span className="text-red-500">*</span>
                           </Label>
-                          <Select
+                          <SearchableCombobox
                             value={form.specific_location_id}
-                            onValueChange={(value) => handleChange("specific_location_id", value)}
+                            onChange={(value) => handleChange("specific_location_id", value)}
                             disabled={!form.location_of_incidence_id || specificLocations.length === 0}
-                          >
-                            <SelectTrigger className="h-12 rounded-[9px] border-gray-200 focus:border-blue-500 focus:ring-blue-500 py-3">
-                              <SelectValue placeholder={specificLocations.length > 0 ? "Select specific location" : "Select location of incidence first"} />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {specificLocations.map((location) => (
-                                <SelectItem key={location.id} value={String(location.id)}>
-                                  {location.name}
-                                  {location.code ? ` (${location.code})` : ""}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
+                            placeholder={
+                              specificLocations.length > 0
+                                ? "Select specific location"
+                                : "Select location of incidence first"
+                            }
+                            searchPlaceholder="Search specific location..."
+                            options={specificLocations.map((location) => ({
+                              value: String(location.id),
+                              label: `${location.name}${location.code ? ` (${location.code})` : ""}`,
+                            }))}
+                          />
                         </div>
                       </div>
                       {/* Complaint Details - Start with Description */}
