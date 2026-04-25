@@ -95,7 +95,7 @@ export default function NewCertificateModal({
             Close
           </button>
           <a
-            href="https://ntanesw-dev.tra.go.tz/"
+            href="https://tanesw.tra.go.tz/ptle/"
             target="_blank"
             rel="noopener noreferrer"
             className="px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
