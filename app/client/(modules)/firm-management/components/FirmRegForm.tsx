@@ -44,34 +44,30 @@ type SendCodeResponse = {
  */
 async function refreshAccessAfterCompanyRegistration() {
   try {
-    const [companiesRes, permissionsRes] = await Promise.all([
-      fetch("/api/companies/list", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-      }),
-      fetch("/api/permissions"),
-    ]);
+    const response = await fetch("/api/user_token_details");
 
-    if (companiesRes.ok) {
-      const companiesJson = await companiesRes.json();
-      const companies =
-        companiesJson?.data?.companies ??
-        companiesJson?.result?.data?.companies ??
-        companiesJson?.companies;
-      if (Array.isArray(companies)) {
-        localStorage.setItem("userCompanies", JSON.stringify(companies));
+    if (response.ok) {
+      const data = await response.json();
+
+      // Update companies in localStorage
+      if (data.companies && Array.isArray(data.companies)) {
+        localStorage.setItem("userCompanies", JSON.stringify(data.companies));
       }
-    }
 
-    if (permissionsRes.ok) {
-      const permissionsJson = await permissionsRes.json();
-      const modules =
-        permissionsJson?.modules ??
-        permissionsJson?.user_modules ??
-        permissionsJson?.result?.modules ??
-        permissionsJson?.data?.modules;
-      if (Array.isArray(modules)) {
-        localStorage.setItem("userModules", JSON.stringify(modules));
+      // Update modules in localStorage
+      if (data.modules && Array.isArray(data.modules)) {
+        localStorage.setItem("userModules", JSON.stringify(data.modules));
+      }
+
+      // Update other user details if needed
+      if (data.name) {
+        localStorage.setItem("userName", data.name);
+      }
+      if (data.user_role) {
+        localStorage.setItem("userRole", data.user_role);
+      }
+      if (data.user_type) {
+        localStorage.setItem("userType", data.user_type);
       }
     }
 
@@ -138,9 +134,11 @@ function PreviewWidget({
       }
 
       if (savedCooldown && savedTimestamp) {
-        const elapsed = Math.floor((Date.now() - parseInt(savedTimestamp)) / 1000);
+        const elapsed = Math.floor(
+          (Date.now() - parseInt(savedTimestamp)) / 1000,
+        );
         const remaining = parseInt(savedCooldown) - elapsed;
-        
+
         if (remaining > 0) {
           setResendCooldown(remaining);
         } else {
@@ -150,7 +148,12 @@ function PreviewWidget({
         }
       }
     }
-  }, [companyData?.company_tin, STORAGE_KEY_ATTEMPTS, STORAGE_KEY_COOLDOWN, STORAGE_KEY_TIMESTAMP]);
+  }, [
+    companyData?.company_tin,
+    STORAGE_KEY_ATTEMPTS,
+    STORAGE_KEY_COOLDOWN,
+    STORAGE_KEY_TIMESTAMP,
+  ]);
 
   // Save attempts to browser storage
   useEffect(() => {
@@ -168,14 +171,19 @@ function PreviewWidget({
       localStorage.removeItem(STORAGE_KEY_COOLDOWN);
       localStorage.removeItem(STORAGE_KEY_TIMESTAMP);
     }
-  }, [resendCooldown, companyData?.company_tin, STORAGE_KEY_COOLDOWN, STORAGE_KEY_TIMESTAMP]);
+  }, [
+    resendCooldown,
+    companyData?.company_tin,
+    STORAGE_KEY_COOLDOWN,
+    STORAGE_KEY_TIMESTAMP,
+  ]);
 
   // Handle cooldown timer
   useEffect(() => {
     let interval: NodeJS.Timeout;
     if (resendCooldown > 0) {
       interval = setInterval(() => {
-        setResendCooldown(prev => {
+        setResendCooldown((prev) => {
           if (prev <= 1) {
             return 0;
           }
@@ -212,7 +220,9 @@ function PreviewWidget({
         setResendCooldown(RESEND_COOLDOWN_SECONDS); // Start cooldown timer (5 minutes)
       } else {
         setOtpError(
-          result.result?.error || result.result?.message || "Failed to send OTP"
+          result.result?.error ||
+            result.result?.message ||
+            "Failed to send OTP",
         );
         setOtpMessage(undefined);
       }
@@ -226,7 +236,9 @@ function PreviewWidget({
 
   const handleResendOtp = async () => {
     if (resendAttempts >= MAX_RESEND_ATTEMPTS) {
-      setOtpError(`Maximum resend attempts (${MAX_RESEND_ATTEMPTS}) reached. Please contact support.`);
+      setOtpError(
+        `Maximum resend attempts (${MAX_RESEND_ATTEMPTS}) reached. Please contact support.`,
+      );
       return;
     }
 
@@ -239,7 +251,7 @@ function PreviewWidget({
 
     setIsResending(true);
     setOtpError(undefined);
-    
+
     try {
       const response = await fetch("/api/auth/firm-registration/send-code", {
         method: "POST",
@@ -254,13 +266,18 @@ function PreviewWidget({
       const result = (await response.json()) as SendCodeResponse;
 
       if (result.result?.status === "success") {
-        setResendAttempts(prev => prev + 1);
-        setOtpMessage(result.result?.message || `OTP resent successfully. Attempts remaining: ${MAX_RESEND_ATTEMPTS - resendAttempts - 1}`);
+        setResendAttempts((prev) => prev + 1);
+        setOtpMessage(
+          result.result?.message ||
+            `OTP resent successfully. Attempts remaining: ${MAX_RESEND_ATTEMPTS - resendAttempts - 1}`,
+        );
         setOtpError(undefined);
         setResendCooldown(RESEND_COOLDOWN_SECONDS); // Start 5-minute cooldown timer after successful resend
       } else {
         setOtpError(
-          result.result?.error || result.result?.message || "Failed to resend OTP"
+          result.result?.error ||
+            result.result?.message ||
+            "Failed to resend OTP",
         );
       }
     } catch (error) {
@@ -298,7 +315,7 @@ function PreviewWidget({
       if (apiResult.status === "success") {
         setShowSuccess(true);
         setOtpError(undefined);
-        
+
         // Auto-select the newly registered company
         if (apiResult.data) {
           const newCompany = apiResult.data;
@@ -307,17 +324,21 @@ function PreviewWidget({
             company_tin: newCompany.company_tin,
             company_name: newCompany.company_name,
             company_nationality_code: newCompany.company_nationality_code,
-            company_registration_type_code: newCompany.company_registration_type_code,
+            company_registration_type_code:
+              newCompany.company_registration_type_code,
             company_email: newCompany.company_email,
             company_telephone_number: newCompany.company_telephone_number,
           };
-          localStorage.setItem("selectedCompany", JSON.stringify(companySession));
+          localStorage.setItem(
+            "selectedCompany",
+            JSON.stringify(companySession),
+          );
           window.dispatchEvent(new Event("COMPANY_CHANGE_EVENT"));
           window.dispatchEvent(new Event("COMPANY_REGISTERED_EVENT"));
         }
 
         await refreshAccessAfterCompanyRegistration();
-        
+
         setTimeout(() => {
           onConfirm(otp);
         }, 2000);
@@ -375,19 +396,27 @@ function PreviewWidget({
           <div className="mb-6 grid grid-cols-2 gap-4 text-sm text-gray-700">
             <div className="flex flex-col gap-1">
               <span className="font-medium text-gray-700">Company Name:</span>
-              <span className="text-gray-600">{companyData.company_name || "N/A"}</span>
+              <span className="text-gray-600">
+                {companyData.company_name || "N/A"}
+              </span>
             </div>
             <div className="flex flex-col gap-1">
               <span className="font-medium text-gray-700">TIN Number:</span>
-              <span className="text-gray-600">{companyData.company_tin || "N/A"}</span>
+              <span className="text-gray-600">
+                {companyData.company_tin || "N/A"}
+              </span>
             </div>
             <div className="flex flex-col gap-1">
               <span className="font-medium text-gray-700">Email:</span>
-              <span className="text-gray-600">{companyData.company_email || "N/A"}</span>
+              <span className="text-gray-600">
+                {companyData.company_email || "N/A"}
+              </span>
             </div>
             <div className="flex flex-col gap-1">
               <span className="font-medium text-gray-700">Phone:</span>
-              <span className="text-gray-600">{companyData.company_phone || "N/A"}</span>
+              <span className="text-gray-600">
+                {companyData.company_phone || "N/A"}
+              </span>
             </div>
             <div className="flex flex-col gap-1">
               <span className="font-medium text-gray-700">
@@ -399,7 +428,9 @@ function PreviewWidget({
             </div>
             <div className="flex flex-col gap-1">
               <span className="font-medium text-gray-700">Description:</span>
-              <span className="text-gray-600">{companyData.description || "N/A"}</span>
+              <span className="text-gray-600">
+                {companyData.description || "N/A"}
+              </span>
             </div>
             <div className="flex flex-col gap-1">
               <span className="font-medium text-gray-700">
@@ -419,11 +450,15 @@ function PreviewWidget({
             </div>
             <div className="flex flex-col gap-1">
               <span className="font-medium text-gray-700">Fax Number:</span>
-              <span className="text-gray-600">{companyData.fax_number || "N/A"}</span>
+              <span className="text-gray-600">
+                {companyData.fax_number || "N/A"}
+              </span>
             </div>
             <div className="flex flex-col gap-1">
               <span className="font-medium text-gray-700">Postal Code:</span>
-              <span className="text-gray-600">{companyData.postal_code || "N/A"}</span>
+              <span className="text-gray-600">
+                {companyData.postal_code || "N/A"}
+              </span>
             </div>
             <div className="flex flex-col gap-1">
               <span className="font-medium text-gray-700">Postal Address:</span>
@@ -433,7 +468,9 @@ function PreviewWidget({
             </div>
             <div className="flex flex-col gap-1">
               <span className="font-medium text-gray-700">Postal Detail:</span>
-              <span className="text-gray-600">{companyData.postal_detail || "N/A"}</span>
+              <span className="text-gray-600">
+                {companyData.postal_detail || "N/A"}
+              </span>
             </div>
           </div>
 
@@ -462,8 +499,8 @@ function PreviewWidget({
                     OTP sent to Email:{" "}
                     <span className="font-medium text-gray-800 break-all">
                       {companyData.company_email?.trim() || "N/A"}
-                    </span>
-                    {" "}and SMS:{" "}
+                    </span>{" "}
+                    and SMS:{" "}
                     <span className="font-medium text-gray-800">
                       {companyData.company_phone?.trim() || "N/A"}
                     </span>
@@ -476,7 +513,9 @@ function PreviewWidget({
                     value={otp}
                     onChange={(e) => {
                       // Only allow numbers and limit to 6 digits
-                      const value = e.target.value.replace(/[^0-9]/g, '').slice(0, 6);
+                      const value = e.target.value
+                        .replace(/[^0-9]/g, "")
+                        .slice(0, 6);
                       setOtp(value);
                       setOtpError(undefined);
                     }}
@@ -490,13 +529,18 @@ function PreviewWidget({
                     <p className="text-red-500 text-sm mt-1">{otpError}</p>
                   )}
                 </div>
-                
+
                 {/* Attempt Counter */}
                 <div className="mt-4 text-sm text-gray-600">
                   {resendAttempts < MAX_RESEND_ATTEMPTS ? (
-                    <span>Resend attempts remaining: {MAX_RESEND_ATTEMPTS - resendAttempts}</span>
+                    <span>
+                      Resend attempts remaining:{" "}
+                      {MAX_RESEND_ATTEMPTS - resendAttempts}
+                    </span>
                   ) : (
-                    <span className="text-red-600">Maximum resend attempts reached</span>
+                    <span className="text-red-600">
+                      Maximum resend attempts reached
+                    </span>
                   )}
                 </div>
               </div>
@@ -504,14 +548,22 @@ function PreviewWidget({
                 <button
                   type="button"
                   onClick={handleResendOtp}
-                  disabled={isResending || resendAttempts >= MAX_RESEND_ATTEMPTS || resendCooldown > 0}
+                  disabled={
+                    isResending ||
+                    resendAttempts >= MAX_RESEND_ATTEMPTS ||
+                    resendCooldown > 0
+                  }
                   className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
                     resendAttempts >= MAX_RESEND_ATTEMPTS || resendCooldown > 0
                       ? "bg-gray-300 text-gray-500 cursor-not-allowed"
                       : "bg-green-600 text-white hover:bg-green-700 cursor-pointer disabled:opacity-50"
                   }`}
                 >
-                  {isResending ? "Resending..." : resendCooldown > 0 ? `Resend OTP (${Math.floor(resendCooldown / 60)}m ${(resendCooldown % 60).toString().padStart(2, "0")}s)` : "Resend OTP"}
+                  {isResending
+                    ? "Resending..."
+                    : resendCooldown > 0
+                      ? `Resend OTP (${Math.floor(resendCooldown / 60)}m ${(resendCooldown % 60).toString().padStart(2, "0")}s)`
+                      : "Resend OTP"}
                 </button>
                 <button
                   type="submit"
@@ -561,58 +613,66 @@ export default function FirmRegForm({
   const fetchCompanyData = async (tin: string) => {
     setIsLoading(true);
     setError(undefined);
-    
+
     try {
-      const response = await retryFetch("/api/auth/firm-registration/submit-tin", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
+      const response = await retryFetch(
+        "/api/auth/firm-registration/submit-tin",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            company_tin: tin,
+          }),
         },
-        body: JSON.stringify({
-          company_tin: tin,
-        }),
-      }, {
-        maxRetries: 2,
-        retryDelay: 2000,
-        timeout: 10000,
-        onRetry: (retryCount, maxRetries) => {
-          setError(`Request timed out. Retrying... (${retryCount}/${maxRetries})`);
+        {
+          maxRetries: 2,
+          retryDelay: 2000,
+          timeout: 10000,
+          onRetry: (retryCount, maxRetries) => {
+            setError(
+              `Request timed out. Retrying... (${retryCount}/${maxRetries})`,
+            );
+          },
+          onTimeout: () => {
+            setError(
+              "Request timed out after multiple attempts. Please check your connection and try again.",
+            );
+          },
         },
-        onTimeout: () => {
-          setError("Request timed out after multiple attempts. Please check your connection and try again.");
-        }
-      });
+      );
 
       const result = await response.json();
       console.log(result);
 
       if (result.result?.status === "success") {
         const data = result.result.data;
-        
+
         // Validate that essential company fields are present
         // Business TINs may return incomplete data, so we need to validate
         if (!data || !data.company_name || !data.company_tin) {
           setError(
-            "Invalid TIN. Only Company TINs are allowed. Business TINs cannot be registered. Please enter a valid Company TIN."
+            "Invalid TIN. Only Company TINs are allowed. Business TINs cannot be registered. Please enter a valid Company TIN.",
           );
           setCompanyData(null);
           return;
         }
-        
+
         // Additional validation for required fields
         const missingFields = [];
         if (!data.company_email) missingFields.push("email");
         if (!data.company_phone) missingFields.push("phone");
         if (!data.physical_address) missingFields.push("physical address");
-        
+
         if (missingFields.length > 0) {
           setError(
-            `Incomplete company data. Missing: ${missingFields.join(", ")}. Only valid Company TINs with complete information can be registered.`
+            `Incomplete company data. Missing: ${missingFields.join(", ")}. Only valid Company TINs with complete information can be registered.`,
           );
           setCompanyData(null);
           return;
         }
-        
+
         setCompanyData(data);
         togglePreview(true);
         setError(undefined); // Clear any previous errors
@@ -629,7 +689,7 @@ export default function FirmRegForm({
       }
     } catch (error) {
       console.error("Error fetching company data:", error);
-      
+
       if (error instanceof Error && error.message.includes("timed out")) {
         // Error message already set by onTimeout callback
       } else {
