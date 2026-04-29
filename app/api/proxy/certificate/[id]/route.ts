@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 
-const REMOTE_BASE_URL = "https://tccia.kalen.co.tz/api";
+const REMOTE_BASE_URL = "https://staff.tncc.or.tz/api";
 
 export async function GET(
   req: NextRequest,
@@ -28,7 +28,7 @@ export async function GET(
       return NextResponse.json({ error: "Authentication required" }, { status: 401 });
     }
 
-    const remoteUrl = `${REMOTE_BASE_URL}/membership/certificate/${id}`;
+    const remoteUrl = `${REMOTE_BASE_URL}/membership/certificate/${id}/download`;
     console.log("Requesting certificate from:", remoteUrl);
 
     const remoteRes = await fetch(remoteUrl, {
