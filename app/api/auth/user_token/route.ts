@@ -86,6 +86,7 @@ export async function POST(request: Request) {
         secure: process.env.NODE_ENV === "production",
         sameSite: "strict",
         path: "/",
+        maxAge: 30 * 60,
       });
 
       // Store uid
@@ -94,6 +95,7 @@ export async function POST(request: Request) {
         secure: process.env.NODE_ENV === "production",
         sameSite: "strict",
         path: "/",
+        maxAge: 30 * 60,
       });
 
       const r = data.result ?? {};

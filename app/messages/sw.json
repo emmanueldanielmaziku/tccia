@@ -40,7 +40,7 @@
     "nonTariffBarrier": "Kizuizi cha Usiokuwa na Usambazaji",
     "businessComplaints": "Malalamiko ya Biashara",
     "reportProblem": "Msaada wa IT",
-    "tcciaWallet": "Mkoba wa TCCIA",
+    "tnccWallet": "Mkoba wa TNCC",
     "profile": "Wasifu",
     "settings": "Mipangilio",
     "dashboardTitle": "Mteja wa TNCC",
@@ -111,6 +111,7 @@
   "stats": {
     "dashboard": "Dashibodi",
     "firmStatistics": "Takwimu za Kampuni",
+    "productsStatistics": "Takwimu za Bidhaa",
     "certificateStatistics": "Takwimu za Vyeti cha Asili",
     "total": "Jumla",
     "pending": "Inasubiri",
@@ -162,7 +163,7 @@
       "logoutConfirm": "Uko karibu kutoka kwenye mfumo kwa kutoka, una uhakika?"
     }
   },
-  
+
   "ntb": {
     "title": "Ripoti & Fatilia Masuala ya NTB",
     "welcome": "Karibu kwenye Portal ya Kuripoti NTB",
@@ -260,8 +261,7 @@
     "fileUploaded": "Faili imepakiwa",
     "removeFile": "Ondoa faili",
     "supportedFormats": "Miundo inayoungwa mkono: PDF, DOC, DOCX, JPG, JPEG, PNG",
-    "maxFileSize": "Ukubwa wa juu wa faili: 10MB"
-    ,
+    "maxFileSize": "Ukubwa wa juu wa faili: 10MB",
     "profileCompletion": {
       "title": "Kamilisha Wasifu Wako",
       "description": "Tafadhali kamilisha taarifa za wasifu wako ili kufikia huduma za NTB",
@@ -396,8 +396,7 @@
     "fileUploaded": "Faili imepakiwa",
     "removeFile": "Ondoa faili",
     "supportedFormats": "Miundo inayoungwa mkono: PDF, DOC, DOCX, JPG, JPEG, PNG",
-    "maxFileSize": "Ukubwa wa juu wa faili: 10MB"
-    ,
+    "maxFileSize": "Ukubwa wa juu wa faili: 10MB",
     "profileCompletion": {
       "title": "Kamilisha Wasifu Wako",
       "description": "Tafadhali kamilisha taarifa za wasifu wako ili kufikia huduma za Malalamiko ya Biashara",

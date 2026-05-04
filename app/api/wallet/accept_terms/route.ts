@@ -1,9 +1,10 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "https://tccia.kalen.co.tz";
+const API_BASE_URL =
+  process.env.NEXT_PUBLIC_API_BASE_URL || "https://tccia.kalen.co.tz";
 
-export async function POST() {
+export async function POST(request: Request) {
   try {
     const cookieStore = await cookies();
     const token = cookieStore.get("token")?.value;
@@ -11,7 +12,17 @@ export async function POST() {
     if (!token) {
       return NextResponse.json(
         { success: false, message: "Unauthorized" },
-        { status: 401 }
+        { status: 401 },
+      );
+    }
+
+    const body = await request.json();
+    const { company_id } = body;
+
+    if (!company_id) {
+      return NextResponse.json(
+        { success: false, message: "Company ID is required" },
+        { status: 400 },
       );
     }
 
@@ -21,7 +32,7 @@ export async function POST() {
         Authorization: `Bearer ${token.trim()}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({}),
+      body: JSON.stringify({ company_id }),
     });
 
     const data = await response.json();
@@ -29,7 +40,7 @@ export async function POST() {
   } catch {
     return NextResponse.json(
       { success: false, message: "Failed to accept wallet terms." },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

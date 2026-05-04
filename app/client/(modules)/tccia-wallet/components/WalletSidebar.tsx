@@ -1,11 +1,11 @@
+"use client";
+
 import {
-  Chart,
-  Layer,
   Lifebuoy,
-  Verify,
   SidebarLeft,
   SidebarRight,
   Building,
+  Wallet,
 } from "iconsax-reactjs";
 
 import {
@@ -18,7 +18,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useState, useEffect } from "react";
-import Stat from "./Stats";
 import { useTranslations } from "next-intl";
 
 interface CompanyData {
@@ -30,23 +29,16 @@ interface CompanyData {
   company_email: string;
   company_telephone_number: string;
 }
-export interface StatsData {
-  total: number;
-  submitted: number;
-  approved: number;
-}
 
-export default function StatsBar({
-  stats,
+export default function WalletSidebar({
   onCompanyChange,
+  balance,
 }: {
-  stats: StatsData;
   onCompanyChange?: () => void;
+  balance: string | number;
 }) {
   const [expanded, setExpanded] = useState(true);
-  const [selectedCompany, setSelectedCompany] = useState<CompanyData | null>(
-    null
-  );
+  const [selectedCompany, setSelectedCompany] = useState<CompanyData | null>(null);
   const [companies, setCompanies] = useState<CompanyData[]>([]);
   const t = useTranslations("stats");
 
@@ -71,6 +63,26 @@ export default function StatsBar({
       } catch (err) {}
     };
     fetchCompanies();
+
+    const handleCompanyChange = () => {
+      const updatedCompany = localStorage.getItem("selectedCompany");
+      if (updatedCompany) {
+        setSelectedCompany(JSON.parse(updatedCompany));
+      }
+    };
+    window.addEventListener("COMPANY_CHANGE_EVENT", handleCompanyChange);
+    window.addEventListener("storage", handleCompanyChange);
+
+    const handleCompanyListUpdated = () => {
+      fetchCompanies();
+    };
+    window.addEventListener("COMPANY_LIST_UPDATED", handleCompanyListUpdated);
+
+    return () => {
+      window.removeEventListener("COMPANY_CHANGE_EVENT", handleCompanyChange);
+      window.removeEventListener("storage", handleCompanyChange);
+      window.removeEventListener("COMPANY_LIST_UPDATED", handleCompanyListUpdated);
+    };
   }, []);
 
   const handleCompanyChange = (value: string) => {
@@ -128,38 +140,36 @@ export default function StatsBar({
       </div>
 
       <div className="w-full flex flex-col gap-8">
-        {/* Products Statistics */}
+        {/* Available Balance */}
         <div className="w-full">
           {expanded && (
             <div className="font-semibold pb-3.5 text-gray-600 text-[14px]">
-              {t("productsStatistics")}
+              Available Balance
             </div>
           )}
           <div
-            className={`grid ${
-              expanded
-                ? "grid-cols-1 sm:grid-cols-3 gap-4"
-                : "grid-cols-1 gap-2"
+            className={`w-full flex flex-col items-center justify-center border-[0.5px] rounded-xl bg-blue-50/50 border-blue-200 transition-all duration-300 ${
+              expanded ? "px-5 md:px-6 py-5 md:py-6" : "px-2 py-2"
             }`}
           >
-            <Stat
-              value={stats.total.toString()}
-              title={t("total")}
-              icon={Chart}
-              minimized={!expanded}
-            />
-            <Stat
-              value={stats.submitted.toString()}
-              title={t("pending")}
-              icon={Layer}
-              minimized={!expanded}
-            />
-            <Stat
-              value={stats.approved.toString()}
-              title={t("approved")}
-              icon={Verify}
-              minimized={!expanded}
-            />
+            <div
+              className={`bg-blue-100 rounded-full flex items-center justify-center transition-all duration-300 ${
+                expanded
+                  ? "w-[60px] h-[60px] mb-3"
+                  : "w-[40px] h-[40px]"
+              }`}
+            >
+              <Wallet
+                variant="Bulk"
+                size={expanded ? 32 : 20}
+                color="#2563eb"
+              />
+            </div>
+            {expanded && (
+              <div className="text-3xl font-bold text-blue-700">
+                {String(balance)}
+              </div>
+            )}
           </div>
         </div>
 
@@ -206,7 +216,7 @@ export default function StatsBar({
                 value={selectedCompany?.company_tin || ""}
               >
                 <SelectTrigger className="w-full border-[1px] border-blue-300 rounded-[8px] text-blue-600 py-4 md:py-5 cursor-pointer hover:bg-gray-50 shadow-sm text-sm md:text-[14px] transition-colors duration-200">
-                  <SelectValue placeholder={t("switchCompany")} className="" />
+                  <SelectValue placeholder={t("switchCompany")} />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectGroup>
@@ -231,30 +241,19 @@ export default function StatsBar({
 
       {/* Help Section */}
       {expanded && (
-        <div
-          className={`flex flex-col gap-4 border-[0.5px] rounded-xl bg-gray-100/80 w-full transition-all duration-300 ${
-            expanded ? "px-5 md:px-6 py-5 md:py-6" : "px-2 py-2"
-          }`}
-        >
+        <div className="flex flex-col gap-4 border-[0.5px] rounded-xl bg-gray-100/80 w-full transition-all duration-300 px-5 md:px-6 py-5 md:py-6">
           <div className="flex flex-row items-center gap-2.5">
             <Lifebuoy size={20} color="#364153" />
-            {expanded && (
-              <h5 className="text-gray-700 text-[15px] md:text-[16px] font-medium">
-                {t("help.title")}
-              </h5>
-            )}
+            <h5 className="text-gray-700 text-[15px] md:text-[16px] font-medium">
+              {t("help.title")}
+            </h5>
           </div>
-
-          {expanded && (
-            <>
-              <p className="text-gray-700 text-[13px] md:text-[14px] leading-relaxed">
-                {t("help.description")}
-              </p>
-              <button className="border-[1px] rounded-[8px] border-zinc-600 text-zinc-600 px-6 md:px-8 py-2.5 text-[13px] md:text-[14px] w-full cursor-pointer hover:bg-zinc-600 hover:text-white transition-colors duration-200">
-                {t("help.contactButton")}
-              </button>
-            </>
-          )}
+          <p className="text-gray-700 text-[13px] md:text-[14px] leading-relaxed">
+            {t("help.description")}
+          </p>
+          <button className="border-[1px] rounded-[8px] border-zinc-600 text-zinc-600 px-6 md:px-8 py-2.5 text-[13px] md:text-[14px] w-full cursor-pointer hover:bg-zinc-600 hover:text-white transition-colors duration-200">
+            {t("help.contactButton")}
+          </button>
         </div>
       )}
     </div>

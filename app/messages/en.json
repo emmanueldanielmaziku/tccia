@@ -40,7 +40,7 @@
     "nonTariffBarrier": "Non-Tariff Barrier",
     "businessComplaints": "Business Complaints",
     "reportProblem": "IT Support",
-    "tcciaWallet": "TCCIA Wallet",
+    "tnccWallet": "TNCC Wallet",
     "profile": "Profile",
     "settings": "Settings",
     "dashboardTitle": "TNCC's Client",
@@ -112,6 +112,7 @@
     "dashboard": "Dashboard",
     "certificateStatistics": "COO Statistics",
     "firmStatistics": "Firm Statistics",
+    "productsStatistics": "Products Statistics",
     "total": "Total",
     "approved": "Approved",
     "submitted": "Submitted",
@@ -364,8 +365,7 @@
     "fileUploaded": "File uploaded",
     "removeFile": "Remove file",
     "supportedFormats": "Supported formats: PDF, DOC, DOCX, JPG, JPEG, PNG",
-    "maxFileSize": "Maximum file size: 10MB"
-    ,
+    "maxFileSize": "Maximum file size: 10MB",
     "profileCompletion": {
       "title": "Complete Your Profile",
       "description": "Please complete your profile information to access NTB features",
@@ -500,8 +500,7 @@
     "fileUploaded": "File uploaded",
     "removeFile": "Remove file",
     "supportedFormats": "Supported formats: PDF, DOC, DOCX, JPG, JPEG, PNG",
-    "maxFileSize": "Maximum file size: 10MB"
-    ,
+    "maxFileSize": "Maximum file size: 10MB",
     "profileCompletion": {
       "title": "Complete Your Profile",
       "description": "Please complete your profile information to access Business Complaints features",

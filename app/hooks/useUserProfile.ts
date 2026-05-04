@@ -28,6 +28,7 @@ interface UserProfile {
   branch_count: number;
   groups: string[];
   has_branch_access: boolean;
+  company_id?: number;
 }
 
 interface StoredUserData {
@@ -105,6 +106,7 @@ export function useUserProfile() {
           branch_count: result.data.branch_count || 0,
           groups: result.data.groups || [],
           has_branch_access: result.data.has_branch_access || false,
+          company_id: result.data.company_id,
         };
 
         // Store data with timestamp
@@ -112,10 +114,10 @@ export function useUserProfile() {
           data: userData,
           timestamp: Date.now(),
         };
-        
+
         localStorage.setItem(
           "userProfile",
-          JSON.stringify(userDataWithTimestamp)
+          JSON.stringify(userDataWithTimestamp),
         );
         setUserProfile(userData);
         setLoading(false);
@@ -128,10 +130,10 @@ export function useUserProfile() {
         setLoading(false);
         return;
       }
-      
+
       console.error("Error fetching user profile:", err);
       setError(
-        err instanceof Error ? err.message : "Failed to fetch user profile"
+        err instanceof Error ? err.message : "Failed to fetch user profile",
       );
       setLoading(false);
     }

@@ -52,6 +52,7 @@ export default function COO() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [paymentLoading, setPaymentLoading] = useState<{[key: string]: boolean}>({});
+  const [paymentResult, setPaymentResult] = useState<{[key: string]: {type: "success" | "info" | "error"; message: string} | null}>({});
   const { togglePicker, hidePicker } = usePickerState();
   const itemsPerPage = 20;
   const router = useRouter();
@@ -314,30 +315,91 @@ export default function COO() {
       return;
     }
 
-    // Set loading state for this specific certificate
     setPaymentLoading(prev => ({ ...prev, [invoiceNumber]: true }));
+    setPaymentResult(prev => ({ ...prev, [invoiceNumber]: null }));
 
     try {
-      console.log("Fetching checksum for invoice:", invoiceNumber);
-      
-      const response = await fetch(`/api/checksum?invoice_number=${encodeURIComponent(invoiceNumber)}`);
+      let companyId = null;
+      try {
+        const stored = localStorage.getItem("selectedCompany");
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          companyId = parsed?.id ?? null;
+        }
+      } catch {}
+
+      const response = await fetch("/api/wallet/pay_via_wallet", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          payment_reference: invoiceNumber,
+          company_id: companyId,
+        }),
+        credentials: "include",
+      });
+
       const result = await response.json();
 
-      if (result.status === "success" && result.data?.checksum) {
-        // Redirect to CRDB payment gateway with checksum
-        const paymentUrl = `https://crdb-gateway.vercel.app/${result.data.checksum}`;
-        console.log("Redirecting to payment gateway:", paymentUrl);
-        window.open(paymentUrl, '_blank');
+      if (result.success) {
+        const data = result.data;
+        if (data?.payment_state === "paid" && data?.amount_paid) {
+          setPaymentResult(prev => ({
+            ...prev,
+            [invoiceNumber]: {
+              type: "success",
+              message: `${data.invoice_name}: Paid TZS ${data.amount_paid.toLocaleString()} — Balance: TZS ${data.balance.toLocaleString()}`,
+            },
+          }));
+        } else if (data?.payment_state === "paid") {
+          setPaymentResult(prev => ({
+            ...prev,
+            [invoiceNumber]: {
+              type: "info",
+              message: result.message || "Invoice is already paid.",
+            },
+          }));
+        } else {
+          setPaymentResult(prev => ({
+            ...prev,
+            [invoiceNumber]: {
+              type: "success",
+              message: result.message || "Payment processed successfully.",
+            },
+          }));
+        }
       } else {
-        const errorMessage = result.error || "Failed to fetch payment details. Please try again.";
-        alert(errorMessage);
-        console.error("Checksum fetch failed:", result);
+        if (result.error_code === "INSUFFICIENT_BALANCE") {
+          const d = result.data;
+          setPaymentResult(prev => ({
+            ...prev,
+            [invoiceNumber]: {
+              type: "error",
+              message: `Insufficient balance. Required: TZS ${d.required.toLocaleString()}, Available: TZS ${d.available.toLocaleString()}`,
+            },
+          }));
+        } else {
+          setPaymentResult(prev => ({
+            ...prev,
+            [invoiceNumber]: {
+              type: "error",
+              message: result.message || "Payment failed. Please try again.",
+            },
+          }));
+        }
       }
+
+      setTimeout(() => {
+        setPaymentResult(prev => ({ ...prev, [invoiceNumber]: null }));
+      }, 8000);
     } catch (error) {
-      console.error("Payment error:", error);
-      alert("An error occurred while processing payment. Please try again.");
+      setPaymentResult(prev => ({
+        ...prev,
+        [invoiceNumber]: {
+          type: "error",
+          message: "An error occurred while processing payment. Please try again.",
+        },
+      }));
     } finally {
-      // Clear loading state
       setPaymentLoading(prev => ({ ...prev, [invoiceNumber]: false }));
     }
   };
@@ -675,8 +737,7 @@ export default function COO() {
                             <Printer size="14" className="sm:w-4 sm:h-4" color="white" />
                             Print
                           </button>
-                          {/* Pay button temporarily disabled per request */}
-                          {/* {certificate.invoice?.[0]?.invoice_number ? (
+                          {certificate.invoice?.[0]?.invoice_number ? (
                             <button
                               onClick={() => handlePayment(certificate)}
                               disabled={paymentLoading[certificate.invoice[0].invoice_number]}
@@ -699,9 +760,21 @@ export default function COO() {
                               <MoneyRecive size="16" color="#9CA3AF" />
                               Invoice Pending
                             </div>
-                          )} */}
+                          )}
                         </div>
                       </div>
+
+                      {certificate.invoice?.[0]?.invoice_number && paymentResult[certificate.invoice[0].invoice_number] && (
+                        <div className={`mt-3 px-4 py-2.5 rounded-md text-sm ${
+                          paymentResult[certificate.invoice[0].invoice_number]!.type === "success"
+                            ? "bg-green-50 border border-green-200 text-green-700"
+                            : paymentResult[certificate.invoice[0].invoice_number]!.type === "info"
+                            ? "bg-yellow-50 border border-yellow-200 text-yellow-700"
+                            : "bg-red-50 border border-red-200 text-red-600"
+                        }`}>
+                          {paymentResult[certificate.invoice[0].invoice_number]!.message}
+                        </div>
+                      )}
 
                       <div className="flex items-center justify-center px-3 py-1.5 text-xs font-medium text-blue-800 bg-blue-50 border border-blue-100 shadow-sm rounded-bl-md rounded-br-md">
                         {getCertificateType(

@@ -66,15 +66,19 @@ export default function SideBar() {
 
   // Function to get the active tab based on current pathname
   const getActiveTabFromPathname = (currentPath: string) => {
-    if (currentPath.includes("/client/firm-management")) return "Company Registration";
-    if (currentPath.includes("/client/factory-verification")) return "Factory Verification";
+    if (currentPath.includes("/client/firm-management"))
+      return "Company Registration";
+    if (currentPath.includes("/client/factory-verification"))
+      return "Factory Verification";
     if (currentPath.includes("/client/coo")) return "Certificate of Origin";
-    if (currentPath.includes("/client/employees")) return "Employees Management";
+    if (currentPath.includes("/client/employees"))
+      return "Employees Management";
     if (currentPath.includes("/client/membership")) return "Membership";
     if (currentPath.includes("/client/ntb")) return "Non-Tariff Barrier";
-    if (currentPath.includes("/client/business-complaints")) return "Business Complaints";
+    if (currentPath.includes("/client/business-complaints"))
+      return "Business Complaints";
     if (currentPath.includes("/client/report")) return "IT Support";
-    if (currentPath.includes("/client/tccia-wallet")) return "TCCIA Wallet";
+    if (currentPath.includes("/client/tccia-wallet")) return "TNCC Wallet";
     if (currentPath.includes("/client/profile")) return "Profile";
     return "Company Registration";
   };
@@ -90,7 +94,7 @@ export default function SideBar() {
       setCompanySelected(!!localStorage.getItem("selectedCompany"));
     };
     window.addEventListener("COMPANY_CHANGE_EVENT", handleCompanyChange);
-  
+
     window.addEventListener("storage", handleCompanyChange);
     return () => {
       window.removeEventListener("COMPANY_CHANGE_EVENT", handleCompanyChange);
@@ -165,12 +169,12 @@ export default function SideBar() {
       alwaysAccessible: true,
     },
     {
-      id: "TCCIA Wallet",
-      translationKey: "tcciaWallet",
+      id: "TNCC Wallet",
+      translationKey: "tnccWallet",
       icon: Box,
       route: "/client/tccia-wallet",
       moduleCode: "tccia_wallet",
-      alwaysAccessible: false,
+      alwaysAccessible: true,
     },
     {
       id: "Profile",
@@ -179,11 +183,11 @@ export default function SideBar() {
       route: "/client/profile",
       moduleCode: null, // Always accessible
       alwaysAccessible: true,
-    }
+    },
   ];
 
   // Check if a menu item should be locked
-  const isModuleLocked = (item: typeof menuItems[0]): boolean => {
+  const isModuleLocked = (item: (typeof menuItems)[0]): boolean => {
     // Profile, IT Support, Business Complaints, and NTB are always accessible
     if (item.alwaysAccessible) {
       return false;
@@ -191,7 +195,10 @@ export default function SideBar() {
 
     // For employees, lock Company Registration and Employees Management by default
     if (userRole === "employee") {
-      if (item.id === "Company Registration" || item.id === "Employees Management") {
+      if (
+        item.id === "Company Registration" ||
+        item.id === "Employees Management"
+      ) {
         return true;
       }
     }
@@ -225,20 +232,28 @@ export default function SideBar() {
       <div className="flex flex-col">
         {/* Logo */}
         <div className="flex flex-row justify-start items-center gap-2 md:gap-4">
-          <img src="/icons/LOGO.png" alt="Logo" className="w-12 h-12 md:w-15 md:h-15" />
+          <img
+            src="/icons/LOGO.png"
+            alt="Logo"
+            className="w-12 h-12 md:w-15 md:h-15"
+          />
           {isMenuOpen && (
             <div>
               <h1 className="font-bold text-lg md:text-xl text-gray-700 truncate">
                 {t("dashboardTitle")}
               </h1>
-              <div className="text-sm md:text-base text-gray-500">{t("dashboard")}</div>
+              <div className="text-sm md:text-base text-gray-500">
+                {t("dashboard")}
+              </div>
             </div>
           )}
         </div>
 
         {/* Modules */}
         <div className="mt-6 md:mt-8">
-          <h2 className="text-xs md:text-sm text-gray-500 mb-3 md:mb-4">{t("modules")}</h2>
+          <h2 className="text-xs md:text-sm text-gray-500 mb-3 md:mb-4">
+            {t("modules")}
+          </h2>
           <div className="flex flex-col gap-2 md:gap-2.5">
             {menuItems.map((item) => {
               const isFirmManagement = item.id === "Company Registration";
@@ -249,7 +264,7 @@ export default function SideBar() {
 
               // Check if module is locked due to permissions or role restrictions
               const isModuleAccessLocked = isModuleLocked(item);
-              
+
               // Check if module is locked due to no company selected (for modules that require company)
               const isCompanyLocked =
                 !companySelected &&
@@ -264,7 +279,11 @@ export default function SideBar() {
               // Determine lock message
               let lockMessage = t("lockMessages.selectCompany");
               if (isModuleAccessLocked) {
-                if (userRole === "employee" && (item.id === "Company Registration" || item.id === "Employees Management")) {
+                if (
+                  userRole === "employee" &&
+                  (item.id === "Company Registration" ||
+                    item.id === "Employees Management")
+                ) {
                   lockMessage = t("lockMessages.accessRestrictedEmployee");
                 } else if (item.moduleCode) {
                   lockMessage = t("lockMessages.noModuleAccess");
@@ -281,14 +300,22 @@ export default function SideBar() {
                       title={lockMessage}
                     >
                       <div className="flex flex-row items-center gap-1 md:gap-2">
-                        <item.icon size="18" className="md:w-5 md:h-5" color="#b0b0b0" />
+                        <item.icon
+                          size="18"
+                          className="md:w-5 md:h-5"
+                          color="#b0b0b0"
+                        />
                         {isMenuOpen && (
                           <span className="text-gray-400 text-xs md:text-sm truncate">
                             {t(item.translationKey)}
                           </span>
                         )}
                       </div>
-                      <Lock size="16" className="md:w-[18px] md:h-[18px]" color="#b0b0b0" />
+                      <Lock
+                        size="16"
+                        className="md:w-[18px] md:h-[18px]"
+                        color="#b0b0b0"
+                      />
                     </div>
                   ) : (
                     <Link

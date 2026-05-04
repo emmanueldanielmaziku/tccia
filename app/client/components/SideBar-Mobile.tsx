@@ -77,14 +77,17 @@ export default function SideBarMobile() {
 
   // Function to get the active tab based on current pathname
   const getActiveTabFromPathname = (currentPath: string) => {
-    if (currentPath.includes("/client/firm-management")) return "Company Registration";
-    if (currentPath.includes("/client/factory-verification")) return "Factory Verification";
+    if (currentPath.includes("/client/firm-management"))
+      return "Company Registration";
+    if (currentPath.includes("/client/factory-verification"))
+      return "Factory Verification";
     if (currentPath.includes("/client/coo")) return "Certificate of Origin";
     if (currentPath.includes("/client/membership")) return "Membership";
     if (currentPath.includes("/client/ntb")) return "Non-Tariff Barrier";
-    if (currentPath.includes("/client/business-complaints")) return "Business Complaints";
+    if (currentPath.includes("/client/business-complaints"))
+      return "Business Complaints";
     if (currentPath.includes("/client/report")) return "IT Support";
-    if (currentPath.includes("/client/tccia-wallet")) return "TCCIA Wallet";
+    if (currentPath.includes("/client/tccia-wallet")) return "TNCC Wallet";
     if (currentPath.includes("/client/profile")) return "Profile";
     return "Company Registration";
   };
@@ -162,12 +165,12 @@ export default function SideBarMobile() {
       alwaysAccessible: true,
     },
     {
-      id: "TCCIA Wallet",
-      translationKey: "tcciaWallet",
+      id: "TNCC Wallet",
+      translationKey: "tnccWallet",
       icon: Box,
       route: "/client/tccia-wallet",
       moduleCode: "tccia_wallet",
-      alwaysAccessible: false,
+      alwaysAccessible: true,
     },
     {
       id: "Profile",
@@ -180,7 +183,7 @@ export default function SideBarMobile() {
   ];
 
   // Check if a menu item should be locked
-  const isModuleLocked = (item: typeof menuItems[0]): boolean => {
+  const isModuleLocked = (item: (typeof menuItems)[0]): boolean => {
     // Profile, IT Support, Business Complaints, and NTB are always accessible
     if (item.alwaysAccessible) {
       return false;
@@ -188,7 +191,10 @@ export default function SideBarMobile() {
 
     // For employees, lock Company Registration and Employees Management by default
     if (userRole === "employee") {
-      if (item.id === "Company Registration" || item.id === "Employees Management") {
+      if (
+        item.id === "Company Registration" ||
+        item.id === "Employees Management"
+      ) {
         return true;
       }
     }
@@ -213,9 +219,7 @@ export default function SideBarMobile() {
   };
 
   return (
-    <div
-      className="bg-gray-50 h-full z-50 p-6 flex flex-col justify-between transition-all duration-300 w-[340px]"
-    >
+    <div className="bg-gray-50 h-full z-50 p-6 flex flex-col justify-between transition-all duration-300 w-[340px]">
       <div className="flex flex-col">
         {/* Logo */}
         <div className="flex flex-row justify-start items-center gap-4">
@@ -241,7 +245,7 @@ export default function SideBarMobile() {
 
               // Check if module is locked due to permissions or role restrictions
               const isModuleAccessLocked = isModuleLocked(item);
-              
+
               // Check if module is locked due to no company selected (for modules that require company)
               const isCompanyLocked =
                 !companySelected &&
@@ -256,7 +260,11 @@ export default function SideBarMobile() {
               // Determine lock message
               let lockMessage = t("lockMessages.selectCompany");
               if (isModuleAccessLocked) {
-                if (userRole === "employee" && (item.id === "Company Registration" || item.id === "Employees Management")) {
+                if (
+                  userRole === "employee" &&
+                  (item.id === "Company Registration" ||
+                    item.id === "Employees Management")
+                ) {
                   lockMessage = t("lockMessages.accessRestrictedEmployee");
                 } else if (item.moduleCode) {
                   lockMessage = t("lockMessages.noModuleAccess");
@@ -301,7 +309,9 @@ export default function SideBarMobile() {
                       <div className="flex flex-row items-center gap-2">
                         <item.icon
                           size="20"
-                          color={selectedTab === item.id ? "#0561f5" : "#364153"}
+                          color={
+                            selectedTab === item.id ? "#0561f5" : "#364153"
+                          }
                         />
                         <span className="text-gray-700 text-sm truncate">
                           {t(item.translationKey)}

@@ -17,32 +17,32 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-    const { company_id, amount } = body;
+    const { payment_reference, company_id } = body;
 
-    if (!company_id || !amount) {
+    if (!payment_reference) {
       return NextResponse.json(
-        { success: false, message: "Company ID and amount are required" },
+        { success: false, message: "payment_reference is required" },
         { status: 400 },
       );
     }
 
-    const response = await fetch(`${API_BASE_URL}/api/wallet/deposit`, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token.trim()}`,
-        "Content-Type": "application/json",
+    const response = await fetch(
+      `${API_BASE_URL}/api/wallet/pay_via_wallet`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token.trim()}`,
+        },
+        body: JSON.stringify({ payment_reference, company_id }),
       },
-      body: JSON.stringify({
-        company_id,
-        amount: Number(amount),
-      }),
-    });
+    );
 
     const data = await response.json();
     return NextResponse.json(data, { status: response.status });
   } catch {
     return NextResponse.json(
-      { success: false, message: "Failed to initiate wallet deposit." },
+      { success: false, message: "Failed to process wallet payment." },
       { status: 500 },
     );
   }
