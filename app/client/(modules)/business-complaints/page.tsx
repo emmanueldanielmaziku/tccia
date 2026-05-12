@@ -200,7 +200,7 @@ export default function BusinessComplaints() {
   const { userProfile, loading: profileLoading, updateUserProfile } = useUserProfile();
   const [mode, setMode] = useState<"profile" | "list" | "new" | "detail">("profile");
   const [ntbList, setNtbList] = useState<any[]>([]);
-  const [ntbTypes, setNtbTypes] = useState<{id: number, name: string, description: string}[]>([]);
+  const [ntbTypes, setNtbTypes] = useState<{id: number, name: string, description: string, subtypes?: {id: number, name: string}[]}[]>([]);
   const [countries, setCountries] = useState<Country[]>([]);
   const [regions, setRegions] = useState<Region[]>([]);
   const [districts, setDistricts] = useState<District[]>([]);
@@ -241,6 +241,7 @@ export default function BusinessComplaints() {
   });
   const [form, setForm] = useState({
     ntb_type_id: "",
+    ntb_subtype_id: "",
     date_of_incident: "",
     region_id: "",
     district_id: "",
@@ -391,12 +392,12 @@ export default function BusinessComplaints() {
 
   const fetchNTBTypes = async () => {
     try {
-      const response = await fetch('/api/ntb/types');
+      const response = await fetch('/api/business_complain/types');
       const data = await response.json();
       if (data.success) {
         setNtbTypes(data.data || []);
       } else {
-        console.error('Error fetching NTB types:', data.error);
+        console.error('Error fetching business complaint types:', data.error);
         
         setNtbTypes([
           { id: 1, name: "Administrative issues", description: "Issues related to administrative procedures and bureaucracy" },
@@ -405,13 +406,13 @@ export default function BusinessComplaints() {
           { id: 4, name: "Import Licensing", description: "Issues with import licensing requirements and procedures" },
           { id: 5, name: "Length/Costly customs procedures", description: "Delays and excessive costs in customs clearance" },
           { id: 6, name: "Poor testing/Inspection Facilities", description: "Inadequate testing and inspection infrastructure" },
-          { id: 7, name: "Administrative fee & levies", description: "Excessive or unclear administrative fees and charges" },
+          { id: 7, name: "Administrative fee and levies", description: "Excessive or unclear administrative fees and charges" },
           { id: 8, name: "Lack of clarity on border Procedures", description: "Unclear or inconsistent border crossing procedures" },
-          { id: 9, name: "Others", description: "Other types of non-tariff barriers not listed above" },
+          { id: 10, name: "Others", description: "Other types of non-tariff barriers not listed above" },
         ]);
       }
     } catch (error) {
-      console.error('Error fetching NTB types:', error);
+      console.error('Error fetching business complaint types:', error);
       // Use fallback types if API fails
       setNtbTypes([
         { id: 1, name: "Administrative issues", description: "Issues related to administrative procedures and bureaucracy" },
@@ -420,9 +421,9 @@ export default function BusinessComplaints() {
         { id: 4, name: "Import Licensing", description: "Issues with import licensing requirements and procedures" },
         { id: 5, name: "Length/Costly customs procedures", description: "Delays and excessive costs in customs clearance" },
         { id: 6, name: "Poor testing/Inspection Facilities", description: "Inadequate testing and inspection infrastructure" },
-        { id: 7, name: "Administrative fee & levies", description: "Excessive or unclear administrative fees and charges" },
+        { id: 7, name: "Administrative fee and levies", description: "Excessive or unclear administrative fees and charges" },
         { id: 8, name: "Lack of clarity on border Procedures", description: "Unclear or inconsistent border crossing procedures" },
-        { id: 9, name: "Others", description: "Other types of non-tariff barriers not listed above" },
+        { id: 10, name: "Others", description: "Other types of non-tariff barriers not listed above" },
       ]);
     }
   };
@@ -533,7 +534,11 @@ export default function BusinessComplaints() {
   };
 
   const handleChange = (field: string, value: string) => {
-    setForm((prev) => ({ ...prev, [field]: value }));
+    setForm((prev) => ({
+      ...prev,
+      [field]: value,
+      ...(field === "ntb_type_id" ? { ntb_subtype_id: "" } : {}),
+    }));
   };
 
   const handleProfileChange = (field: string, value: string) => {
@@ -960,6 +965,7 @@ export default function BusinessComplaints() {
         }
       }
       if (form.loss_calculation_description) payload.loss_calculation_description = form.loss_calculation_description;
+      if (form.ntb_subtype_id) payload.business_complain_subtype_id = parseInt(form.ntb_subtype_id);
       
       // Add optional location fields (convert to strings as per API spec)
       if (form.latitude) payload.latitude = String(form.latitude);
@@ -1012,6 +1018,7 @@ export default function BusinessComplaints() {
   const resetForm = () => {
     setForm({
       ntb_type_id: "",
+      ntb_subtype_id: "",
       date_of_incident: "",
       region_id: "",
       district_id: "",
@@ -2064,6 +2071,34 @@ export default function BusinessComplaints() {
                           />
                         </div>
                       </div>
+
+                      {/* Subtype (optional, shown when selected type has subtypes) */}
+                      {(() => {
+                        const selectedType = ntbTypes.find(t => t.id.toString() === form.ntb_type_id);
+                        const subtypes = selectedType?.subtypes;
+                        if (subtypes && subtypes.length > 0) {
+                          return (
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                              <div className="space-y-3">
+                                <Label className="text-sm font-medium text-gray-700">
+                                  Complaint Subtype
+                                </Label>
+                                <SearchableCombobox
+                                  value={form.ntb_subtype_id}
+                                  onChange={(value) => handleChange("ntb_subtype_id", value)}
+                                  placeholder="Select subtype (optional)"
+                                  searchPlaceholder="Search subtype..."
+                                  options={subtypes.map((st) => ({
+                                    value: st.id.toString(),
+                                    label: st.name,
+                                  }))}
+                                />
+                              </div>
+                            </div>
+                          );
+                        }
+                        return null;
+                      })()}
 
                       {/* Region and District Fields Row */}
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

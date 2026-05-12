@@ -195,7 +195,7 @@ export default function NTB() {
   const { userProfile, loading: profileLoading, updateUserProfile } = useUserProfile();
   const [mode, setMode] = useState<"profile" | "list" | "new" | "detail">("profile");
   const [ntbList, setNtbList] = useState<any[]>([]);
-  const [ntbTypes, setNtbTypes] = useState<{id: number, name: string, description: string}[]>([]);
+  const [ntbTypes, setNtbTypes] = useState<{id: number, name: string, description: string, subtypes?: {id: number, name: string}[]}[]>([]);
   const [countries, setCountries] = useState<Country[]>([]);
   const [locationIncidences, setLocationIncidences] = useState<LocationIncidence[]>([]);
   const [specificLocations, setSpecificLocations] = useState<SpecificLocation[]>([]);
@@ -234,6 +234,7 @@ export default function NTB() {
   });
   const [form, setForm] = useState({
     ntb_type_id: "",
+    ntb_subtype_id: "",
     date_of_incident: "",
     reported_country_id: "",
     reporting_country_id: "",
@@ -491,7 +492,11 @@ export default function NTB() {
   };
 
   const handleChange = (field: string, value: string) => {
-    setForm((prev) => ({ ...prev, [field]: value }));
+    setForm((prev) => ({
+      ...prev,
+      [field]: value,
+      ...(field === "ntb_type_id" ? { ntb_subtype_id: "" } : {}),
+    }));
   };
 
   const handleProfileChange = (field: string, value: string) => {
@@ -898,6 +903,7 @@ export default function NTB() {
       if (form.money_lost_range) payload.money_lost_range = form.money_lost_range;
       if (form.exact_loss_value) payload.exact_loss_value = parseFloat(form.exact_loss_value);
       if (form.loss_calculation_description) payload.loss_calculation_description = form.loss_calculation_description;
+      if (form.ntb_subtype_id) payload.ntb_subtype_id = parseInt(form.ntb_subtype_id);
       
       // Add optional location fields
       if (form.latitude) payload.latitude = form.latitude;
@@ -948,6 +954,7 @@ export default function NTB() {
   const resetForm = () => {
     setForm({
       ntb_type_id: "",
+      ntb_subtype_id: "",
       date_of_incident: "",
       reported_country_id: "",
       reporting_country_id: "",
@@ -1896,6 +1903,34 @@ export default function NTB() {
                           />
                         </div>
                       </div>
+
+                      {/* Subtype (optional, shown when selected type has subtypes) */}
+                      {(() => {
+                        const selectedType = ntbTypes.find(t => t.id.toString() === form.ntb_type_id);
+                        const subtypes = selectedType?.subtypes;
+                        if (subtypes && subtypes.length > 0) {
+                          return (
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                              <div className="space-y-3">
+                                <Label className="text-sm font-medium text-gray-700">
+                                  NTB Subtype
+                                </Label>
+                                <SearchableCombobox
+                                  value={form.ntb_subtype_id}
+                                  onChange={(value) => handleChange("ntb_subtype_id", value)}
+                                  placeholder="Select subtype (optional)"
+                                  searchPlaceholder="Search subtype..."
+                                  options={subtypes.map((st) => ({
+                                    value: st.id.toString(),
+                                    label: st.name,
+                                  }))}
+                                />
+                              </div>
+                            </div>
+                          );
+                        }
+                        return null;
+                      })()}
 
                       {/* Country Fields Row */}
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import AlertBox from "./AlertBox";
 import CompanyPicker from "./CompanyPicker";
 import SideBar from "./SideBar";
@@ -16,16 +16,19 @@ function ClientLayoutWithResponsiveSidebar({ children }: { children: React.React
   const { alertState } = useLogState();
   const { pickerState, forceShowPicker } = usePickerState();
   const pathname = usePathname();
+  const hasCheckedPicker = useRef(false);
 
   const isPublicClientRoute =
     pathname?.startsWith("/client/ntb") ||
-    pathname?.startsWith("/client/certificate-validity");
+    pathname?.startsWith("/client/certificate-validity") ||
+    pathname?.startsWith("/client/business-complaints");
 
   useEffect(() => {
-    if (!isPublicClientRoute) {
+    if (!hasCheckedPicker.current && !isPublicClientRoute) {
+      hasCheckedPicker.current = true;
       forceShowPicker();
     }
-  }, [forceShowPicker, isPublicClientRoute]);
+  }, []);
 
   return (
     <>

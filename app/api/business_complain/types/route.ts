@@ -1,37 +1,20 @@
 import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
 
 const API_BASE_URL = "https://staff.tncc.or.tz";
 
-export async function GET(request: Request) {
+export async function GET() {
   try {
-    const cookieStore = await cookies();
-    const token = cookieStore.get("token");
-
-    if (!token) {
-      return NextResponse.json(
-        {
-          status: "error",
-          error: "Unauthorized - Missing authentication",
-        },
-        { status: 401 }
-      );
-    }
-
-    const apiUrl = `${API_BASE_URL}/api/ntb/list`;
-    console.log("Fetching NTB list from:", apiUrl);
+    const apiUrl = `${API_BASE_URL}/api/business_complain/types`;
+    console.log("Fetching business complaint types from:", apiUrl);
 
     const response = await fetch(apiUrl, {
       method: "GET",
-      headers: {
-        Authorization: `Bearer ${token.value.trim()}`,
-      },
     });
 
     if (!response.ok) {
       const errorText = await response.text();
       console.error(
-        "API response not ok:",
+        "Business complaint types API response not ok:",
         response.status,
         response.statusText
       );
@@ -61,57 +44,47 @@ export async function GET(request: Request) {
     }
 
     const data = await response.json();
-    // Handle JSON-RPC response structure
+    console.log("Business complaint types API response:", data);
+
     if (data.jsonrpc && data.result) {
-      if (data.result.status === "success" || data.result.success) {
+      if (data.result.status === "success") {
         return NextResponse.json({
           success: true,
-          status: "success",
           data: data.result.data || [],
-          count: data.result.count,
-          message: data.result.message || "NTB list fetched successfully",
+          count: data.result.count ?? (Array.isArray(data.result.data) ? data.result.data.length : 0),
         });
       } else {
         return NextResponse.json(
           {
             success: false,
-            status: "error",
-            error: data.result.message || "Failed to fetch NTB list",
+            error: data.result.message || "Failed to fetch business complaint types",
           },
           { status: 400 }
         );
       }
     }
 
-    // Handle standard response structure
-    if (data.status === "success" || data.success) {
+    if (data.success) {
       return NextResponse.json({
         success: true,
-        status: "success",
-        data: data.data || data.result || [],
-        count: data.count,
-        message: data.message || "NTB list fetched successfully",
+        data: data.data || [],
+        count: data.count ?? (Array.isArray(data.data) ? data.data.length : 0),
       });
     }
 
-    // Fallback for other response structures
     return NextResponse.json({
       success: true,
-      status: "success",
       data: Array.isArray(data) ? data : [],
       count: Array.isArray(data) ? data.length : 0,
-      message: "NTB list fetched successfully",
     });
-
   } catch (error) {
-    console.error("NTB list fetch error:", error);
+    console.error("Business complaint types fetch error:", error);
     return NextResponse.json(
       {
         success: false,
-        status: "error",
         error: "Internal server error",
       },
       { status: 500 }
     );
   }
-} 
+}
