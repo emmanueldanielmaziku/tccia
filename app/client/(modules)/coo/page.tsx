@@ -2,7 +2,7 @@
 import { useState, useEffect, useRef, useMemo } from "react";
 import NavBar from "../../components/NavBar";
 import ProgressTracker from "./components/StatsBar";
-import NewCertificateModal from "./components/NewCertificateModal";
+// import NewCertificateModal from "./components/NewCertificateModal";
 import {
   Add,
   CloseCircle,
@@ -37,8 +37,7 @@ export default function COO() {
   const { isRightSidebarOpen } = useRightSidebar();
   const { canAdd } = useUserPermissions();
   const [verificationForm, toggleForm] = useState(false);
-  const [isNewCertificateModalOpen, setIsNewCertificateModalOpen] =
-    useState(false);
+  const [isNewCertificateMode, setIsNewCertificateMode] = useState(false);
   
   const canAddCOO = canAdd("certificate_origin");
 
@@ -280,6 +279,19 @@ export default function COO() {
 
   const handleViewCertificate = (certificate: any) => {
     setSelectedCertificate(certificate);
+    setIsNewCertificateMode(false);
+    toggleForm(true);
+  };
+
+  const handleCreateNewCertificate = () => {
+    setIsNewCertificateMode(true);
+    setSelectedCertificate({
+      message_info: {},
+      transport: [],
+      invoice: [],
+      item: [],
+      attachment: [],
+    });
     toggleForm(true);
   };
 
@@ -432,7 +444,7 @@ export default function COO() {
               {verificationForm ? (
                 <div className="font-semibold antialiased text-sm sm:text-base lg:text-[18px] text-zinc-600 pl-2 sm:pl-3">
                   {selectedCertificate
-                    ? "Certificate Preview"
+                    ? "Certificate of Origin Application Form"
                     : "Certificate of Origin List"}
                 </div>
               ) : (
@@ -535,7 +547,7 @@ export default function COO() {
                         : "bg-gray-400 cursor-not-allowed opacity-60"
                     }`}
                     onClick={() => {
-                      if (canAddCOO) setIsNewCertificateModalOpen(true);
+                      if (canAddCOO) handleCreateNewCertificate();
                     }}
                     disabled={!canAddCOO}
                     title={
@@ -598,7 +610,7 @@ export default function COO() {
                     </div>
                     <button
                       className="flex flex-row gap-2 items-center bg-blue-500 hover:bg-blue-600 text-white px-5 py-2 rounded-md shadow transition"
-                      onClick={() => setIsNewCertificateModalOpen(true)}
+                      onClick={handleCreateNewCertificate}
                     >
                       <Add size={18} color="white" />
                       Create New Certificate
@@ -619,7 +631,7 @@ export default function COO() {
                     </div>
                     <button
                       className="flex flex-row gap-2 items-center bg-blue-500 hover:bg-blue-600 text-white px-5 py-2 rounded-md shadow transition"
-                      onClick={() => setIsNewCertificateModalOpen(true)}
+                      onClick={handleCreateNewCertificate}
                     >
                       <Add size={18} color="white" />
                       Create New Certificate
@@ -835,10 +847,10 @@ export default function COO() {
           />
         )}
       </section>
-      <NewCertificateModal
+      {/* <NewCertificateModal
         isOpen={isNewCertificateModalOpen}
         onClose={() => setIsNewCertificateModalOpen(false)}
-      />
+      /> */}
       {/* PaymentPopup component removed - now redirecting to external payment gateway */}
     </main>
   );

@@ -9,7 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { DocumentDownload, DocumentText } from "iconsax-reactjs";
+import { Add, CloseCircle, DocumentDownload, DocumentText } from "iconsax-reactjs";
 
 interface COOFormProps {
   certificateData?: any;
@@ -32,8 +32,40 @@ export default function COOForm({ certificateData }: COOFormProps) {
     attachment = [],
   } = certificateData;
 
+  
   const [selectedManufacturer, setSelectedManufacturer] = useState("");
   const manufacturers = ["Manufacturer A", "Manufacturer B", "Manufacturer C"];
+
+  interface NewAttachment {
+    id: string;
+    typeCode: string;
+    file: File | null;
+  }
+
+  const [newAttachments, setNewAttachments] = useState<NewAttachment[]>([
+    { id: crypto.randomUUID(), typeCode: "", file: null },
+  ]);
+
+  const addAttachmentRow = () => {
+    setNewAttachments((prev) => [
+      ...prev,
+      { id: crypto.randomUUID(), typeCode: "", file: null },
+    ]);
+  };
+
+  const removeAttachmentRow = (id: string) => {
+    setNewAttachments((prev) => prev.filter((a) => a.id !== id));
+  };
+
+  const updateAttachmentField = (
+    id: string,
+    field: keyof NewAttachment,
+    value: string | File | null
+  ) => {
+    setNewAttachments((prev) =>
+      prev.map((a) => (a.id === id ? { ...a, [field]: value } : a))
+    );
+  };
 
   return (
     <div className="flex flex-col w-full h-full overflow-hidden">
@@ -54,8 +86,7 @@ export default function COOForm({ certificateData }: COOFormProps) {
                 <input
                   type="text"
                   value={safeValue(message_info.application_uuid)}
-                  disabled
-                  className="w-full px-4 py-2.5 border border-zinc-200 bg-gray-50 rounded-[8px] text-gray-600"
+                  className="w-full px-4 py-2.5 border border-zinc-200 bg-white rounded-[8px] text-gray-900"
                 />
               </div>
               <div className="flex flex-col gap-1">
@@ -65,8 +96,7 @@ export default function COOForm({ certificateData }: COOFormProps) {
                 <input
                   type="text"
                   value={safeValue(message_info.organization_code)}
-                  disabled
-                  className="w-full px-4 py-2.5 border border-zinc-200 bg-gray-50 rounded-[8px] text-gray-600"
+                  className="w-full px-4 py-2.5 border border-zinc-200 bg-white rounded-[8px] text-gray-900"
                 />
               </div>
               <div className="flex flex-col gap-1">
@@ -76,8 +106,7 @@ export default function COOForm({ certificateData }: COOFormProps) {
                 <input
                   type="text"
                   value={safeValue(message_info.certificate_type_id)}
-                  disabled
-                  className="w-full px-4 py-2.5 border border-zinc-200 bg-gray-50 rounded-[8px] text-gray-600"
+                  className="w-full px-4 py-2.5 border border-zinc-200 bg-white rounded-[8px] text-gray-900"
                 />
               </div>
               <div className="flex flex-col gap-1">
@@ -87,8 +116,7 @@ export default function COOForm({ certificateData }: COOFormProps) {
                 <input
                   type="text"
                   value={safeValue(message_info.application_code_number)}
-                  disabled
-                  className="w-full px-4 py-2.5 border border-zinc-200 bg-gray-50 rounded-[8px] text-gray-600"
+                  className="w-full px-4 py-2.5 border border-zinc-200 bg-white rounded-[8px] text-gray-900"
                 />
               </div>
               <div className="flex flex-col gap-1">
@@ -98,8 +126,7 @@ export default function COOForm({ certificateData }: COOFormProps) {
                 <input
                   type="text"
                   value={safeValue(message_info.application_degree)}
-                  disabled
-                  className="w-full px-4 py-2.5 border border-zinc-200 bg-gray-50 rounded-[8px] text-gray-600"
+                  className="w-full px-4 py-2.5 border border-zinc-200 bg-white rounded-[8px] text-gray-900"
                 />
               </div>
               <div className="flex flex-col gap-1">
@@ -109,8 +136,7 @@ export default function COOForm({ certificateData }: COOFormProps) {
                 <input
                   type="text"
                   value={safeValue(message_info.application_type_code)}
-                  disabled
-                  className="w-full px-4 py-2.5 border border-zinc-200 bg-gray-50 rounded-[8px] text-gray-600"
+                  className="w-full px-4 py-2.5 border border-zinc-200 bg-white rounded-[8px] text-gray-900"
                 />
               </div>
               {/* Select Manufacturer Dropdown */}
@@ -146,8 +172,7 @@ export default function COOForm({ certificateData }: COOFormProps) {
                   value={safeValue(
                     message_info.application_classification_code
                   )}
-                  disabled
-                  className="w-full px-4 py-2.5 border border-zinc-200 bg-gray-50 rounded-[8px] text-gray-600"
+                  className="w-full px-4 py-2.5 border border-zinc-200 bg-white rounded-[8px] text-gray-900"
                 />
               </div>
               <div className="flex flex-col gap-1">
@@ -155,8 +180,7 @@ export default function COOForm({ certificateData }: COOFormProps) {
                 <input
                   type="text"
                   value={safeValue(message_info.application_state_code)}
-                  disabled
-                  className="w-full px-4 py-2.5 border border-zinc-200 bg-gray-50 rounded-[8px] text-gray-600"
+                  className="w-full px-4 py-2.5 border border-zinc-200 bg-white rounded-[8px] text-gray-900"
                 />
               </div>
               <div className="flex flex-col gap-1">
@@ -164,8 +188,7 @@ export default function COOForm({ certificateData }: COOFormProps) {
                 <input
                   type="text"
                   value={safeValue(message_info.control_number)}
-                  disabled
-                  className="w-full px-4 py-2.5 border border-zinc-200 bg-gray-50 rounded-[8px] text-gray-600"
+                  className="w-full px-4 py-2.5 border border-zinc-200 bg-white rounded-[8px] text-gray-900"
                 />
               </div>
               <div className="flex flex-col gap-1">
@@ -175,8 +198,7 @@ export default function COOForm({ certificateData }: COOFormProps) {
                 <input
                   type="text"
                   value={safeValue(message_info.certificate_cost)}
-                  disabled
-                  className="w-full px-4 py-2.5 border border-zinc-200 bg-gray-50 rounded-[8px] text-gray-600"
+                  className="w-full px-4 py-2.5 border border-zinc-200 bg-white rounded-[8px] text-gray-900"
                 />
               </div>
             </div>
@@ -193,8 +215,7 @@ export default function COOForm({ certificateData }: COOFormProps) {
                 <input
                   type="text"
                   value={safeValue(message_info.interface_id)}
-                  disabled
-                  className="w-full px-4 py-2.5 border border-zinc-200 bg-gray-50 rounded-[8px] text-gray-600"
+                  className="w-full px-4 py-2.5 border border-zinc-200 bg-white rounded-[8px] text-gray-900"
                 />
               </div>
               <div className="flex flex-col gap-1">
@@ -204,8 +225,7 @@ export default function COOForm({ certificateData }: COOFormProps) {
                 <input
                   type="text"
                   value={safeValue(message_info.send_date_and_time)}
-                  disabled
-                  className="w-full px-4 py-2.5 border border-zinc-200 bg-gray-50 rounded-[8px] text-gray-600"
+                  className="w-full px-4 py-2.5 border border-zinc-200 bg-white rounded-[8px] text-gray-900"
                 />
               </div>
               <div className="flex flex-col gap-1">
@@ -213,8 +233,7 @@ export default function COOForm({ certificateData }: COOFormProps) {
                 <input
                   type="text"
                   value={safeValue(message_info.sender_id)}
-                  disabled
-                  className="w-full px-4 py-2.5 border border-zinc-200 bg-gray-50 rounded-[8px] text-gray-600"
+                  className="w-full px-4 py-2.5 border border-zinc-200 bg-white rounded-[8px] text-gray-900"
                 />
               </div>
               <div className="flex flex-col gap-1">
@@ -222,8 +241,7 @@ export default function COOForm({ certificateData }: COOFormProps) {
                 <input
                   type="text"
                   value={safeValue(message_info.receiver_id)}
-                  disabled
-                  className="w-full px-4 py-2.5 border border-zinc-200 bg-gray-50 rounded-[8px] text-gray-600"
+                  className="w-full px-4 py-2.5 border border-zinc-200 bg-white rounded-[8px] text-gray-900"
                 />
               </div>
               <div className="flex flex-col gap-1">
@@ -233,8 +251,7 @@ export default function COOForm({ certificateData }: COOFormProps) {
                 <input
                   type="text"
                   value={safeValue(message_info.reference_number)}
-                  disabled
-                  className="w-full px-4 py-2.5 border border-zinc-200 bg-gray-50 rounded-[8px] text-gray-600"
+                  className="w-full px-4 py-2.5 border border-zinc-200 bg-white rounded-[8px] text-gray-900"
                 />
               </div>
               <div className="flex flex-col gap-1">
@@ -242,8 +259,7 @@ export default function COOForm({ certificateData }: COOFormProps) {
                 <input
                   type="text"
                   value={safeValue(message_info.ucr_number)}
-                  disabled
-                  className="w-full px-4 py-2.5 border border-zinc-200 bg-gray-50 rounded-[8px] text-gray-600"
+                  className="w-full px-4 py-2.5 border border-zinc-200 bg-white rounded-[8px] text-gray-900"
                 />
               </div>
             </div>
@@ -260,8 +276,7 @@ export default function COOForm({ certificateData }: COOFormProps) {
                 <input
                   type="text"
                   value={safeValue(message_info.party_uuid)}
-                  disabled
-                  className="w-full px-4 py-2.5 border border-zinc-200 bg-gray-50 rounded-[8px] text-gray-600"
+                  className="w-full px-4 py-2.5 border border-zinc-200 bg-white rounded-[8px] text-gray-900"
                 />
               </div>
               <div className="flex flex-col gap-1">
@@ -269,8 +284,7 @@ export default function COOForm({ certificateData }: COOFormProps) {
                 <input
                   type="text"
                   value={safeValue(message_info.party_name)}
-                  disabled
-                  className="w-full px-4 py-2.5 border border-zinc-200 bg-gray-50 rounded-[8px] text-gray-600"
+                  className="w-full px-4 py-2.5 border border-zinc-200 bg-white rounded-[8px] text-gray-900"
                 />
               </div>
               <div className="flex flex-col gap-1">
@@ -278,8 +292,7 @@ export default function COOForm({ certificateData }: COOFormProps) {
                 <input
                   type="text"
                   value={safeValue(message_info.party_type_code)}
-                  disabled
-                  className="w-full px-4 py-2.5 border border-zinc-200 bg-gray-50 rounded-[8px] text-gray-600"
+                  className="w-full px-4 py-2.5 border border-zinc-200 bg-white rounded-[8px] text-gray-900"
                 />
               </div>
               <div className="flex flex-col gap-1">
@@ -287,8 +300,7 @@ export default function COOForm({ certificateData }: COOFormProps) {
                 <input
                   type="text"
                   value={safeValue(message_info.party_tin)}
-                  disabled
-                  className="w-full px-4 py-2.5 border border-zinc-200 bg-gray-50 rounded-[8px] text-gray-600"
+                  className="w-full px-4 py-2.5 border border-zinc-200 bg-white rounded-[8px] text-gray-900"
                 />
               </div>
               <div className="flex flex-col gap-1">
@@ -296,8 +308,7 @@ export default function COOForm({ certificateData }: COOFormProps) {
                 <input
                   type="text"
                   value={safeValue(message_info.party_country_code)}
-                  disabled
-                  className="w-full px-4 py-2.5 border border-zinc-200 bg-gray-50 rounded-[8px] text-gray-600"
+                  className="w-full px-4 py-2.5 border border-zinc-200 bg-white rounded-[8px] text-gray-900"
                 />
               </div>
               <div className="flex flex-col gap-1">
@@ -307,8 +318,7 @@ export default function COOForm({ certificateData }: COOFormProps) {
                 <input
                   type="text"
                   value={safeValue(message_info.party_physical_address)}
-                  disabled
-                  className="w-full px-4 py-2.5 border border-zinc-200 bg-gray-50 rounded-[8px] text-gray-600"
+                  className="w-full px-4 py-2.5 border border-zinc-200 bg-white rounded-[8px] text-gray-900"
                 />
               </div>
               <div className="flex flex-col gap-1">
@@ -318,8 +328,7 @@ export default function COOForm({ certificateData }: COOFormProps) {
                 <input
                   type="text"
                   value={safeValue(message_info.party_contact_officer_name)}
-                  disabled
-                  className="w-full px-4 py-2.5 border border-zinc-200 bg-gray-50 rounded-[8px] text-gray-600"
+                  className="w-full px-4 py-2.5 border border-zinc-200 bg-white rounded-[8px] text-gray-900"
                 />
               </div>
               <div className="flex flex-col gap-1">
@@ -331,8 +340,7 @@ export default function COOForm({ certificateData }: COOFormProps) {
                   value={safeValue(
                     message_info.party_contact_officer_telephone_number
                   )}
-                  disabled
-                  className="w-full px-4 py-2.5 border border-zinc-200 bg-gray-50 rounded-[8px] text-gray-600"
+                  className="w-full px-4 py-2.5 border border-zinc-200 bg-white rounded-[8px] text-gray-900"
                 />
               </div>
               <div className="flex flex-col gap-1">
@@ -342,8 +350,7 @@ export default function COOForm({ certificateData }: COOFormProps) {
                 <input
                   type="text"
                   value={safeValue(message_info.party_contact_officer_email)}
-                  disabled
-                  className="w-full px-4 py-2.5 border border-zinc-200 bg-gray-50 rounded-[8px] text-gray-600"
+                  className="w-full px-4 py-2.5 border border-zinc-200 bg-white rounded-[8px] text-gray-900"
                 />
               </div>
             </div>
@@ -366,78 +373,67 @@ export default function COOForm({ certificateData }: COOFormProps) {
                     <input
                       type="text"
                       value={safeValue(t.transport_mode_code)}
-                      disabled
-                      className="w-full px-4 py-2.5 border border-zinc-200 bg-gray-50 rounded-[8px] text-gray-600"
+                    className="w-full px-4 py-2.5 border border-zinc-200 bg-white rounded-[8px] text-gray-900"
                       placeholder="Transport Mode Code"
                     />
                     <input
                       type="text"
                       value={safeValue(t.transport_means_name)}
-                      disabled
-                      className="w-full px-4 py-2.5 border border-zinc-200 bg-gray-50 rounded-[8px] text-gray-600"
+                    className="w-full px-4 py-2.5 border border-zinc-200 bg-white rounded-[8px] text-gray-900"
                       placeholder="Transport Means Name"
                     />
                     <input
                       type="text"
                       value={safeValue(t.transport_means_number)}
-                      disabled
-                      className="w-full px-4 py-2.5 border border-zinc-200 bg-gray-50 rounded-[8px] text-gray-600"
+                    className="w-full px-4 py-2.5 border border-zinc-200 bg-white rounded-[8px] text-gray-900"
                       placeholder="Transport Means Number"
                     />
                     <input
                       type="text"
                       value={safeValue(t.transport_company_name)}
-                      disabled
-                      className="w-full px-4 py-2.5 border border-zinc-200 bg-gray-50 rounded-[8px] text-gray-600"
+                    className="w-full px-4 py-2.5 border border-zinc-200 bg-white rounded-[8px] text-gray-900"
                       placeholder="Transport Company Name"
                     />
                     <input
                       type="text"
                       value={safeValue(t.departure_expected_date)}
-                      disabled
-                      className="w-full px-4 py-2.5 border border-zinc-200 bg-gray-50 rounded-[8px] text-gray-600"
+                    className="w-full px-4 py-2.5 border border-zinc-200 bg-white rounded-[8px] text-gray-900"
                       placeholder="Departure Expected Date"
                     />
                     <input
                       type="text"
                       value={safeValue(t.arrival_expected_date)}
-                      disabled
-                      className="w-full px-4 py-2.5 border border-zinc-200 bg-gray-50 rounded-[8px] text-gray-600"
+                    className="w-full px-4 py-2.5 border border-zinc-200 bg-white rounded-[8px] text-gray-900"
                       placeholder="Arrival Expected Date"
                     />
                     <input
                       type="text"
                       value={safeValue(t.departure_port_code)}
-                      disabled
-                      className="w-full px-4 py-2.5 border border-zinc-200 bg-gray-50 rounded-[8px] text-gray-600"
+                    className="w-full px-4 py-2.5 border border-zinc-200 bg-white rounded-[8px] text-gray-900"
                       placeholder="Departure Port Code"
                     />
                     <input
                       type="text"
                       value={safeValue(t.arrival_port_code)}
-                      disabled
-                      className="w-full px-4 py-2.5 border border-zinc-200 bg-gray-50 rounded-[8px] text-gray-600"
+                    className="w-full px-4 py-2.5 border border-zinc-200 bg-white rounded-[8px] text-gray-900"
                       placeholder="Arrival Port Code"
                     />
                     <input
                       type="text"
                       value={safeValue(t.container_number)}
-                      disabled
-                      className="w-full px-4 py-2.5 border border-zinc-200 bg-gray-50 rounded-[8px] text-gray-600"
+                    className="w-full px-4 py-2.5 border border-zinc-200 bg-white rounded-[8px] text-gray-900"
                       placeholder="Container Number"
                     />
                     <input
                       type="text"
                       value={safeValue(t.container_size_code)}
-                      disabled
-                      className="w-full px-4 py-2.5 border border-zinc-200 bg-gray-50 rounded-[8px] text-gray-600"
+                    className="w-full px-4 py-2.5 border border-zinc-200 bg-white rounded-[8px] text-gray-900"
                       placeholder="Container Size Code"
                     />
                     <input
                       type="text"
                       value={safeValue(t.container_count)}
-                      disabled
-                      className="w-full px-4 py-2.5 border border-zinc-200 bg-gray-50 rounded-[8px] text-gray-600"
+                    className="w-full px-4 py-2.5 border border-zinc-200 bg-white rounded-[8px] text-gray-900"
                       placeholder="Container Count"
                     />
                   </div>
@@ -457,43 +453,37 @@ export default function COOForm({ certificateData }: COOFormProps) {
                     <input
                       type="text"
                       value={safeValue(inv.invoice_uuid)}
-                      disabled
-                      className="w-full px-4 py-2.5 border border-zinc-200 bg-gray-50 rounded-[8px] text-gray-600"
+                    className="w-full px-4 py-2.5 border border-zinc-200 bg-white rounded-[8px] text-gray-900"
                       placeholder="Invoice UUID"
                     />
                     <input
                       type="text"
                       value={safeValue(inv.delivery_terms_code)}
-                      disabled
-                      className="w-full px-4 py-2.5 border border-zinc-200 bg-gray-50 rounded-[8px] text-gray-600"
+                    className="w-full px-4 py-2.5 border border-zinc-200 bg-white rounded-[8px] text-gray-900"
                       placeholder="Delivery Terms Code"
                     />
                     <input
                       type="text"
                       value={safeValue(inv.invoice_currency_code)}
-                      disabled
-                      className="w-full px-4 py-2.5 border border-zinc-200 bg-gray-50 rounded-[8px] text-gray-600"
+                    className="w-full px-4 py-2.5 border border-zinc-200 bg-white rounded-[8px] text-gray-900"
                       placeholder="Invoice Currency Code"
                     />
                     <input
                       type="text"
                       value={safeValue(inv.invoice_exchange_rate)}
-                      disabled
-                      className="w-full px-4 py-2.5 border border-zinc-200 bg-gray-50 rounded-[8px] text-gray-600"
+                    className="w-full px-4 py-2.5 border border-zinc-200 bg-white rounded-[8px] text-gray-900"
                       placeholder="Invoice Exchange Rate"
                     />
                     <input
                       type="text"
                       value={safeValue(inv.customs_value)}
-                      disabled
-                      className="w-full px-4 py-2.5 border border-zinc-200 bg-gray-50 rounded-[8px] text-gray-600"
+                    className="w-full px-4 py-2.5 border border-zinc-200 bg-white rounded-[8px] text-gray-900"
                       placeholder="Customs Value"
                     />
                     <input
                       type="text"
                       value={safeValue(inv.customs_usd_value)}
-                      disabled
-                      className="w-full px-4 py-2.5 border border-zinc-200 bg-gray-50 rounded-[8px] text-gray-600"
+                    className="w-full px-4 py-2.5 border border-zinc-200 bg-white rounded-[8px] text-gray-900"
                       placeholder="Customs USD Value"
                     />
                   </div>
@@ -513,64 +503,55 @@ export default function COOForm({ certificateData }: COOFormProps) {
                     <input
                       type="text"
                       value={safeValue(itm.item_uuid)}
-                      disabled
-                      className="w-full px-4 py-2.5 border border-zinc-200 bg-gray-50 rounded-[8px] text-gray-600"
+                    className="w-full px-4 py-2.5 border border-zinc-200 bg-white rounded-[8px] text-gray-900"
                       placeholder="Item UUID"
                     />
                     <input
                       type="text"
                       value={safeValue(itm.item_number)}
-                      disabled
-                      className="w-full px-4 py-2.5 border border-zinc-200 bg-gray-50 rounded-[8px] text-gray-600"
+                    className="w-full px-4 py-2.5 border border-zinc-200 bg-white rounded-[8px] text-gray-900"
                       placeholder="Item Number"
                     />
                     <input
                       type="text"
                       value={safeValue(itm.hs_code)}
-                      disabled
-                      className="w-full px-4 py-2.5 border border-zinc-200 bg-gray-50 rounded-[8px] text-gray-600"
+                    className="w-full px-4 py-2.5 border border-zinc-200 bg-white rounded-[8px] text-gray-900"
                       placeholder="HS Code"
                     />
                     <input
                       type="text"
                       value={safeValue(itm.item_description)}
-                      disabled
-                      className="w-full px-4 py-2.5 border border-zinc-200 bg-gray-50 rounded-[8px] text-gray-600"
+                    className="w-full px-4 py-2.5 border border-zinc-200 bg-white rounded-[8px] text-gray-900"
                       placeholder="Item Description"
                     />
                     <input
                       type="text"
                       value={safeValue(itm.item_quantity)}
-                      disabled
-                      className="w-full px-4 py-2.5 border border-zinc-200 bg-gray-50 rounded-[8px] text-gray-600"
+                    className="w-full px-4 py-2.5 border border-zinc-200 bg-white rounded-[8px] text-gray-900"
                       placeholder="Item Quantity"
                     />
                     <input
                       type="text"
                       value={safeValue(itm.item_quantity_unit_code)}
-                      disabled
-                      className="w-full px-4 py-2.5 border border-zinc-200 bg-gray-50 rounded-[8px] text-gray-600"
+                    className="w-full px-4 py-2.5 border border-zinc-200 bg-white rounded-[8px] text-gray-900"
                       placeholder="Item Quantity Unit Code"
                     />
                     <input
                       type="text"
                       value={safeValue(itm.origin_country_code)}
-                      disabled
-                      className="w-full px-4 py-2.5 border border-zinc-200 bg-gray-50 rounded-[8px] text-gray-600"
+                    className="w-full px-4 py-2.5 border border-zinc-200 bg-white rounded-[8px] text-gray-900"
                       placeholder="Origin Country Code"
                     />
                     <input
                       type="text"
                       value={safeValue(itm.item_value)}
-                      disabled
-                      className="w-full px-4 py-2.5 border border-zinc-200 bg-gray-50 rounded-[8px] text-gray-600"
+                    className="w-full px-4 py-2.5 border border-zinc-200 bg-white rounded-[8px] text-gray-900"
                       placeholder="Item Value"
                     />
                     <input
                       type="text"
                       value={safeValue(itm.currency_code)}
-                      disabled
-                      className="w-full px-4 py-2.5 border border-zinc-200 bg-gray-50 rounded-[8px] text-gray-600"
+                    className="w-full px-4 py-2.5 border border-zinc-200 bg-white rounded-[8px] text-gray-900"
                       placeholder="Currency Code"
                     />
                   </div>
@@ -589,7 +570,7 @@ export default function COOForm({ certificateData }: COOFormProps) {
                   {attachment.map((att: any, index: number) => (
                     <div
                       key={index}
-                      className="flex flex-row items-center justify-between p-4 border border-zinc-200 bg-gray-50 rounded-[8px] hover:bg-gray-100 transition-colors"
+                      className="flex flex-row items-center justify-between p-4 border border-zinc-200 bg-white rounded-[8px] hover:bg-gray-100 transition-colors"
                     >
                       <div className="flex flex-row items-center gap-3">
                         <div className="bg-blue-100 p-2 rounded-md">
@@ -618,6 +599,95 @@ export default function COOForm({ certificateData }: COOFormProps) {
                 </div>
               </div>
             )}
+
+            {/* Add New Attachments */}
+            <div className="flex flex-col gap-4">
+              <h4 className="text-[14px] font-medium text-gray-600 flex items-center gap-2">
+                <DocumentText size={16} color="#4B5563" />
+                Add Attachments
+              </h4>
+
+              <div className="flex flex-col gap-3">
+                {newAttachments.map((att, index) => (
+                  <div
+                    key={att.id}
+                    className="flex flex-col gap-3 p-4 border border-zinc-200 rounded-[8px] bg-white"
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-medium text-gray-500">
+                        Attachment #{index + 1}
+                      </span>
+                      {newAttachments.length > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => removeAttachmentRow(att.id)}
+                          className="text-red-500 hover:text-red-700 transition-colors"
+                        >
+                          <CloseCircle size={18} />
+                        </button>
+                      )}
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="flex flex-col gap-1">
+                        <label className="text-xs text-gray-600">
+                          Attachment Type Code
+                        </label>
+                        <input
+                          type="text"
+                          value={att.typeCode}
+                          onChange={(e) =>
+                            updateAttachmentField(
+                              att.id,
+                              "typeCode",
+                              e.target.value
+                            )
+                          }
+                          className="w-full px-4 py-2.5 border border-zinc-200 bg-white rounded-[8px] text-gray-900"
+                          placeholder="Enter attachment type code"
+                        />
+                      </div>
+                      <div className="flex flex-col gap-1">
+                        <label className="text-xs text-gray-600">
+                          Upload Document
+                        </label>
+                        <div className="border-2 border-dashed border-gray-300 rounded-[8px] p-3 text-center hover:border-blue-400 transition-colors">
+                          <input
+                            type="file"
+                            onChange={(e) =>
+                              updateAttachmentField(
+                                att.id,
+                                "file",
+                                e.target.files?.[0] || null
+                              )
+                            }
+                            className="hidden"
+                            id={`file-upload-${att.id}`}
+                          />
+                          <label
+                            htmlFor={`file-upload-${att.id}`}
+                            className="cursor-pointer text-blue-600 hover:text-blue-700 text-sm font-medium"
+                          >
+                            {att.file
+                              ? att.file.name
+                              : "Click to upload file"}
+                          </label>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <button
+                type="button"
+                onClick={addAttachmentRow}
+                className="flex items-center justify-center gap-2 w-full py-2.5 border border-dashed border-blue-300 rounded-[8px] text-blue-600 hover:bg-blue-50 transition-colors text-sm font-medium"
+              >
+                <Add size={16} />
+                Add Another Attachment
+              </button>
+            </div>
           </div>
         </div>
       </form>
