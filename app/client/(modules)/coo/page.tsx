@@ -2,13 +2,14 @@
 import { useState, useEffect, useRef, useMemo } from "react";
 import NavBar from "../../components/NavBar";
 import ProgressTracker from "./components/StatsBar";
-// import NewCertificateModal from "./components/NewCertificateModal";
+import NewCertificateModal from "./components/NewCertificateModal";
 import {
   Add,
   CloseCircle,
   Copy,
   DocumentText,
   Eye,
+  InfoCircle,
   MoneyRecive,
   Printer,
   Refresh,
@@ -23,6 +24,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import COOForm from "./components/COOForm";
 
 import { useRouter } from "next/navigation";
@@ -38,6 +44,7 @@ export default function COO() {
   const { canAdd } = useUserPermissions();
   const [verificationForm, toggleForm] = useState(false);
   const [isNewCertificateMode, setIsNewCertificateMode] = useState(false);
+  const [isNewCertificateModalOpen, setIsNewCertificateModalOpen] = useState(false);
   
   const canAddCOO = canAdd("certificate_origin");
 
@@ -284,15 +291,16 @@ export default function COO() {
   };
 
   const handleCreateNewCertificate = () => {
-    setIsNewCertificateMode(true);
-    setSelectedCertificate({
-      message_info: {},
-      transport: [],
-      invoice: [],
-      item: [],
-      attachment: [],
-    });
-    toggleForm(true);
+    setIsNewCertificateModalOpen(true);
+    // setIsNewCertificateMode(true);
+    // setSelectedCertificate({
+    //   message_info: {},
+    //   transport: [],
+    //   invoice: [],
+    //   item: [],
+    //   attachment: [],
+    // });
+    // toggleForm(true);
   };
 
   const handlePrintCertificate = (
@@ -300,7 +308,7 @@ export default function COO() {
     application_code_number?: string
   ) => {
     const certType = getCertificateType(application_code_number || "");
-    const certificateUrl = `https://tccia.kalen.co.tz/certificate_of_origin/static/certificate/${certType}/index.html?id=${aid}`;
+    const certificateUrl = `https://staff.tncc.or.tz/certificate_of_origin/static/certificate/${certType}/index.html?id=${aid}`;
     window.open(certificateUrl, "_blank");
   };
 
@@ -564,10 +572,7 @@ export default function COO() {
               )}
             </div>
 
-            {/* Main */}
-            {verificationForm ? (
-              <COOForm certificateData={selectedCertificate} />
-            ) : (
+            {!verificationForm && (
               <div className="w-full grid grid-cols-1 gap-3 sm:gap-4 mt-4 sm:mt-5 rounded-md overflow-hidden overflow-y-auto">
                 {isLoading ? (
                   <div className="flex flex-col gap-3 sm:gap-4 pr-2 sm:pr-3">
@@ -706,6 +711,64 @@ export default function COO() {
                               >
                                 <Copy size={14} color="#6B7280" />
                               </button>
+                              <Popover>
+                                <PopoverTrigger asChild>
+                                  <button className="p-1 hover:bg-gray-100 rounded cursor-pointer transition-colors duration-200">
+                                    <InfoCircle size={14} color="#3B82F6" />
+                                  </button>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-80 p-4 max-h-96 overflow-y-auto">
+                                  <div className="space-y-4 text-xs sm:text-sm">
+                                    <div>
+                                      <h4 className="font-bold text-blue-600 mb-1">CRDB INTERNET BANKING</h4>
+                                      <ol className="list-decimal pl-4 space-y-0.5 text-gray-700">
+                                        <li>Select Payment</li>
+                                        <li>Bill Payment</li>
+                                        <li>Company Category Select Others</li>
+                                        <li>Company Name Select <span className="font-semibold italic">TNCC</span></li>
+                                        <li>Enter Reference Number</li>
+                                      </ol>
+                                    </div>
+                                    <div>
+                                      <h4 className="font-bold text-blue-600 mb-1">CRDB WAKALA /AGENTS - APP</h4>
+                                      <ol className="list-decimal pl-4 space-y-0.5 text-gray-700">
+                                        <li>Bill Payments</li>
+                                        <li>More Payments</li>
+                                        <li><span className="font-semibold italic">TNCC</span></li>
+                                        <li>Insert Reference Number</li>
+                                      </ol>
+                                    </div>
+                                    <div>
+                                      <h4 className="font-bold text-blue-600 mb-1">CRDB WAKALA /AGENTS - POS</h4>
+                                      <ol className="list-decimal pl-4 space-y-0.5 text-gray-700">
+                                        <li>Online transactions</li>
+                                        <li><span className="font-semibold italic">TNCC</span></li>
+                                        <li>Insert Reference Number</li>
+                                      </ol>
+                                    </div>
+                                    <div>
+                                      <h4 className="font-bold text-blue-600 mb-1">SIMBANKING</h4>
+                                      <ol className="list-decimal pl-4 space-y-0.5 text-gray-700">
+                                        <li>Login</li>
+                                        <li>Swipe for more services at the middle bottom</li>
+                                        <li>Select More Payments</li>
+                                        <li>Choose <span className="font-semibold italic">TNCC</span></li>
+                                        <li>Enter Reference Number for payment</li>
+                                        <li>Verify Name and Amount</li>
+                                        <li>Enter Amount</li>
+                                        <li>Submit</li>
+                                      </ol>
+                                    </div>
+                                    <div>
+                                      <h4 className="font-bold text-blue-600 mb-1">BRANCH - TELLER</h4>
+                                      <ol className="list-decimal pl-4 space-y-0.5 text-gray-700">
+                                        <li>Submit Institution Name TNCC and Control Number/Reference Number not account number.</li>
+                                        <li>Teller will login Teller portal and pay through Online Billers – <span className="font-semibold italic">TNCC</span> – Control Number/Reference</li>
+                                      </ol>
+                                    </div>
+                                  </div>
+                                </PopoverContent>
+                              </Popover>
                             </div>
 
                             {/* Amount to be Paid */}
@@ -725,14 +788,14 @@ export default function COO() {
                         </div>
 
                         <div className="flex flex-col sm:flex-row justify-between items-center gap-2 sm:gap-3 md:gap-4">
-                          <button
+                          {/* <button
                             onClick={() => handleViewCertificate(certificate)}
                             className="px-3 sm:px-4 md:px-5 py-1 sm:py-1.5 text-[10px] sm:text-[12px] rounded-[5px] sm:rounded-[6px] flex flex-row justify-center items-center gap-1 sm:gap-2 bg-blue-500 text-white hover:bg-blue-600 cursor-pointer transition-colors duration-200 w-full sm:w-auto"
                           >
                             <Eye size="14" className="sm:w-4 sm:h-4" color="white" />
                             <span className="hidden sm:inline">Application</span>
                             <span className="sm:hidden">View</span>
-                          </button>
+                          </button> */}
                           <button
                             disabled={
                               certificate.message_info.status !== "Approved" &&
@@ -847,10 +910,10 @@ export default function COO() {
           />
         )}
       </section>
-      {/* <NewCertificateModal
+      <NewCertificateModal
         isOpen={isNewCertificateModalOpen}
         onClose={() => setIsNewCertificateModalOpen(false)}
-      /> */}
+      />
       {/* PaymentPopup component removed - now redirecting to external payment gateway */}
     </main>
   );
