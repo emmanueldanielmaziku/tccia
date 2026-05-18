@@ -65,7 +65,7 @@ export default function TcciaWalletPage() {
   });
 
   const [acceptingTerms, setAcceptingTerms] = useState(false);
-  const [depositAmount, setDepositAmount] = useState("100");
+  const [depositAmount, setDepositAmount] = useState("");
   const [depositLoading, setDepositLoading] = useState(false);
   const [depositError, setDepositError] = useState<string | null>(null);
   const [paymentReference, setPaymentReference] = useState<string | null>(null);
@@ -154,8 +154,8 @@ export default function TcciaWalletPage() {
     setDepositError(null);
     setPaymentReference(null);
     const parsedAmount = Number(depositAmount);
-    if (!Number.isFinite(parsedAmount) || parsedAmount < 100) {
-      setDepositError("Enter a valid amount of at least 100.");
+    if (!Number.isFinite(parsedAmount) || parsedAmount < 9500 || parsedAmount > 10000000) {
+      setDepositError("Enter a valid amount between 9500 and 10,000,000.");
       return;
     }
 
@@ -293,11 +293,12 @@ export default function TcciaWalletPage() {
                       <div className="flex flex-col sm:flex-row gap-3">
                         <input
                           type="number"
-                          min="100"
+                          min="9500"
+                          max="10000000"
                           value={depositAmount}
                           onChange={(e) => setDepositAmount(e.target.value)}
-                          className="border border-gray-300 rounded-md px-3 py-2 w-full sm:w-60"
-                          placeholder="Enter amount (min 100)"
+                          className="border border-gray-300 rounded-md px-3 py-2 w-full sm:w-80"
+                          placeholder="Enter amount"
                         />
                         <button
                           onClick={handleDeposit}
@@ -307,6 +308,9 @@ export default function TcciaWalletPage() {
                           {depositLoading ? "Processing..." : "Deposit"}
                         </button>
                       </div>
+                      <p className="text-xs text-gray-500 mt-2">
+                        Minimum amount is 9,500 and maximum is 10,000,000.
+                      </p>
                       {depositError && (
                         <p className="text-sm text-red-600 mt-2">
                           {depositError}
