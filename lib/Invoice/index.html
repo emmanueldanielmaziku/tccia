@@ -387,7 +387,7 @@ function formatDate(dateStr) {
 function populateInvoice(data) {
   if (!data) return;
 
-  document.getElementById('invoice-number').textContent = 'Invoice no ' + (data.invoice_number || '');
+  document.getElementById('invoice-number').textContent = 'Invoice no ' + (data.payment_reference || '');
   document.getElementById('customer-name').textContent = data.company?.name || '';
   document.getElementById('customer-address').textContent = data.company?.address || '';
   document.getElementById('customer-city').textContent = data.company?.city || '';
