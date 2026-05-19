@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Invoice</title>
+<style>
+/* CSS styles go here */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 20px;
+    /* background-color: #f0f0f0; */
+}
+
+.invoice-container {
+    width: 800px;
+    margin: 0 auto;
+    padding: 30px;
+    background-color: #fff;
+    /* border: 1px solid #ccc; */
+    /* box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); */
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    border-bottom: 2px solid #000;
+    padding-bottom: 15px;
+    margin-bottom: 20px;
+}
+
+.logo {
+    width: 100px;
+    margin-right: 20px;
+}
+
+.tccia-logo {
+    width: 120%;
+    height: 120%;
+    position:relative;
+    left:20em;
+
+}
+
+.header-info {
+    text-align: center;
+    flex-grow: 1;
+}
+
+.chamber-name {
+    font-size: 18px;
+    margin: 0 0 5px 0;
+}
+
+.header-info p {
+    margin: 0;
+    font-size: 12px;
+}
+
+.invoice-details {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 10px;
+}
+
+.invoice-number {
+    border: 1px solid #000;
+    padding: 5px 10px;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.customer-info-section {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.customer-info-box, .invoice-info-box {
+    border: 1px solid #000;
+    padding: 10px;
+    width: 48%;
+}
+
+.customer-info-box .box-title {
+    margin: -10px -10px 10px -10px;
+    padding: 5px 10px;
+    background-color: #f0f0f0;
+    font-size: 14px;
+    border-bottom: 1px solid #000;
+}
+
+.info-row {
+    display: flex;
+    margin-bottom: 5px;
+    font-size: 12px;
+}
+
+.info-row .label {
+    font-weight: bold;
+    width: 100px;
+    min-width: 100px;
+}
+
+.info-row .value {
+    border-bottom: 1px solid #000;
+    flex-grow: 1;
+}
+
+.item-table {
+    margin-bottom: 20px;
+}
+
+.item-table table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.item-table th, .item-table td {
+    border: 1px solid #000;
+    padding: 8px;
+    text-align: left;
+    font-size: 12px;
+}
+
+.item-table th {
+    background-color: #f0f0f0;
+    font-weight: bold;
+}
+
+.item-table .qty {
+    width: 50px;
+}
+
+.item-table .description {
+    width: 50%;
+}
+
+.item-table .unit-price, .item-table .total-ts {
+    width: 15%;
+    text-align: right;
+}
+
+.summary {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.summary {
+    display: block;
+    width: 40%;
+    margin-left: auto;
+    
+}
+
+.summary-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: px;
+    border: 0.1px solid #000;
+    padding: 5px;
+}
+
+.summary-row .label {
+    font-weight: bold;
+}
+
+.summary-row .value {
+    min-width: 100px;
+    text-align: right;
+    border-bottom: none;
+}
+.total-row {
+    display: flex;
+    justify-content: space-between;
+    border: 1px solid #000;
+    padding: 5px;
+    margin-top: 5px;
+    font-weight: bold;
+}
+
+.payment-section {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+
+.payment-details {
+    width: 48%;
+}
+
+.payment-details .box-title {
+    margin: -10px -10px 10px -10px;
+    padding: 5px 10px;
+    background-color: #f0f0f0;
+    font-size: 14px;
+    border-bottom: 1px solid #000;
+}
+
+.signature-details .label {
+    width: 80px;
+}
+
+.signature-line {
+    border-bottom: 1px solid #000;
+    flex-grow: 1;
+}
+
+.office-use-box {
+    width: 48%;
+    border: 1px solid #000;
+}
+
+.office-use-box .box-title {
+    margin: -10px -10px 10px -10px;
+    padding: 5px 10px;
+    background-color: #f0f0f0;
+    font-size: 14px;
+    border-bottom: 1px solid #000;
+}
+
+.bank-details-section {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 12px;
+    padding: 10px;
+    border: 1px solid #000;
+}
+
+.bank-details-section p {
+    margin: 3px 0;
+}
+</style>
+</head>
+<body>
+
+<div class="invoice-container">
+    <div class="logo">
+        <img src="/icons/LOGO.png" alt="TCCIA Logo" class="tccia-logo">
+    </div>
+    <div class="header">
+        
+        <div class="header-info">
+            <h1 class="chamber-name">TANZANIA CHAMBER OF COMMERCE, INDUSTRY AND AGRICULTURE</h1>
+            <p>P.O.BOX 9713 Dar Es Salaam, Tanzania Tel: +255-22-2 119437 Fax: +255-22-2119436</p>
+            <p>E-mail: hq@tccia.com Website: http://www.tccia.or.tz</p>
+        </div>
+    </div>
+    
+    <div class="invoice-details">
+        <div class="invoice-number">
+            <span id="invoice-number">Invoice no 4719111</span>
+        </div>
+    </div>
+
+    <div class="customer-info-section">
+        <div class="customer-info-box">
+            <h3 class="box-title">Customer</h3>
+            <div class="info-row">
+                <span class="label">Name</span>
+                <span class="value" id="customer-name">AIWAFIEA COMPANY LIMITED</span>
+            </div>
+            <div class="info-row">
+                <span class="label">Address</span>
+                <span class="value" id="customer-address">+-255760331331</span>
+            </div>
+            <div class="info-row">
+                <span class="label">City</span>
+                <span class="value" id="customer-city">DAR ES SALAAM</span>
+            </div>
+            <div class="info-row">
+                <span class="label">Phone</span>
+                <span class="value" id="customer-phone"></span>
+                <span class="label">Fax</span>
+                <span class="value" id="customer-fax"></span>
+            </div>
+        </div>
+        
+        <div class="invoice-info-box">
+            <div class="info-row">
+                <span class="label">Date</span>
+                <span class="value" id="invoice-date">06-Aug-25</span>
+            </div>
+            <div class="info-row">
+                <span class="label">TIN No.</span>
+                <span class="value" id="customer-tin">176779853</span>
+            </div>
+            <div class="info-row">
+                <span class="label">VAT.</span>
+                <span class="value" id="customer-vat"></span>
+            </div>
+            <div class="info-row">
+                <span class="label">Payment Method</span>
+                <span class="value" id="payment-method">Cheque/ Cash</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="item-table">
+        <table>
+            <thead>
+                <tr>
+                    <th class="qty">Qty</th>
+                    <th class="description">Description</th>
+                    <th class="unit-price">Unit Price</th>
+                    <th class="total-ts">TOTAL (Tshs)</th>
+                </tr>
+            </thead>
+            <tbody id="invoice-lines">
+                <tr>
+                    <td>1</td>
+                    <td>SADC CERTIFICATE</td>
+                    <td>27,500.00</td>
+                    <td>27,500.00</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="summary">
+        <div class="summary-row">
+          <span class="label">SubTotal</span>
+          <span class="value" id="subtotal">27,500.00</span>
+        </div>
+        <div class="summary-row">
+          <span class="label">Tax Rate(s)</span>
+          <span class="value" id="tax-rates"></span>
+        </div>
+        <div class="summary-row">
+          <span class="label">TOTAL (Tsh)</span>
+          <span class="value" id="total-amount">27,500.00</span>
+        </div>
+      </div>
+
+    <div class="payment-section">
+        <div class="payment-details">
+            <h3 class="box-title">Payment</h3>
+            <div class="info-row">
+                <span class="label">Other</span>
+                <span class="value"></span>
+            </div>
+            <div class="signature-details">
+                <div class="info-row">
+                    <span class="label">Signature</span>
+                    <span class="value signature-line"></span>
+                </div>
+                <div class="info-row">
+                    <span class="label">Name</span>
+                    <span class="value">Happiness Philemon</span>
+                </div>
+                <div class="info-row">
+                    <span class="label">CC #</span>
+                    <span class="value"></span>
+                </div>
+                <div class="info-row">
+                    <span class="label">Designation</span>
+                    <span class="value">Accounts</span>
+                </div>
+            </div>
+        </div>
+        <div class="office-use-box">
+            <h3 class="box-title">Office Use Only</h3>
+        </div>
+    </div>
+
+    <div class="bank-details-section">
+        <p class="bank-title">Name of Bank: CRDB Bank PLC,</p>
+        <p><strong>Account name:</strong>Tanzania Chamber of Commerce Industry and Agriculture</p>
+        <p><strong>Bank address:</strong>P.O. Box 268 Tower Branch, Dar es Salaam, Tanzania</p>
+        <p><strong>Swift code:</strong>CORUTZTZ</p>
+        <p><strong>Account number:</strong>01J 1043816400</p>
+    </div>
+
+</div>
+
+<script>
+function formatDate(dateStr) {
+  if (!dateStr) return '';
+  const date = new Date(dateStr);
+  if (isNaN(date.getTime())) return dateStr;
+  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  const day = String(date.getDate()).padStart(2, '0');
+  const month = months[date.getMonth()];
+  const year = String(date.getFullYear()).slice(-2);
+  return `${day}-${month}-${year}`;
+}
+
+function populateInvoice(data) {
+  if (!data) return;
+
+  document.getElementById('invoice-number').textContent = 'Invoice no ' + (data.invoice_number || '');
+  document.getElementById('customer-name').textContent = data.company?.name || '';
+  document.getElementById('customer-address').textContent = data.company?.address || '';
+  document.getElementById('customer-city').textContent = data.company?.city || '';
+  document.getElementById('customer-phone').textContent = data.company?.phone || '';
+  document.getElementById('customer-tin').textContent = data.company?.tin || '';
+  
+  // Format dates
+  document.getElementById('invoice-date').textContent = formatDate(data.invoice_date);
+  
+  // Payment Method
+  const paymentMethod = data.payment_method || 'Unpaid';
+  document.getElementById('payment-method').textContent = paymentMethod.charAt(0).toUpperCase() + paymentMethod.slice(1);
+  
+  // Lines
+  const linesContainer = document.getElementById('invoice-lines');
+  linesContainer.innerHTML = '';
+  
+  if (data.lines && data.lines.length > 0) {
+    data.lines.forEach(line => {
+      const tr = document.createElement('tr');
+      
+      const tdQty = document.createElement('td');
+      tdQty.textContent = line.quantity || '0';
+      tr.appendChild(tdQty);
+      
+      const tdDesc = document.createElement('td');
+      tdDesc.textContent = line.name || '';
+      tr.appendChild(tdDesc);
+      
+      const tdPrice = document.createElement('td');
+      tdPrice.textContent = Number(line.unit_price || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      tr.appendChild(tdPrice);
+      
+      const tdSubtotal = document.createElement('td');
+      tdSubtotal.textContent = Number(line.subtotal || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      tr.appendChild(tdSubtotal);
+      
+      linesContainer.appendChild(tr);
+    });
+  } else {
+    // Fallback line
+    const tr = document.createElement('tr');
+    tr.innerHTML = '<td colspan="4" style="text-align: center;">No items</td>';
+    linesContainer.appendChild(tr);
+  }
+  
+  // Totals
+  const amountUntaxed = data.amount_untaxed !== undefined ? data.amount_untaxed : data.amount;
+  document.getElementById('subtotal').textContent = Number(amountUntaxed || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  document.getElementById('total-amount').textContent = Number(data.amount || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+  // Auto trigger browser print dialog after content is rendered
+  setTimeout(() => {
+    window.print();
+  }, 800);
+}
+
+window.onload = function() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const ref = urlParams.get('reference');
+  if (ref) {
+    let data = null;
+    try {
+      const dataStr = localStorage.getItem(`invoice_${ref}`);
+      if (dataStr) {
+        data = JSON.parse(dataStr);
+      }
+    } catch (e) {
+      console.error('Error reading localStorage:', e);
+    }
+    
+    if (data) {
+      populateInvoice(data);
+    } else {
+      // Fallback: fetch from proxy endpoint
+      fetch('/api/invoice/details', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer gm4W92IYQlsjPxbqxA_hMjBr0G47bO_K_YoqF1u6RrQ'
+        },
+        body: JSON.stringify({ payment_reference: ref })
+      })
+      .then(response => response.json())
+      .then(res => {
+        if (res.result && res.result.success) {
+          populateInvoice(res.result.data);
+        } else {
+          console.error('Failed to load invoice via proxy:', res);
+        }
+      })
+      .catch(err => {
+        console.error('Error fetching invoice details:', err);
+      });
+    }
+  }
+};
+</script>
+
+</body>
+</html>

@@ -5,7 +5,7 @@ import NavBar from "../../components/NavBar";
 import { useUserProfile } from "../../../hooks/useUserProfile";
 import { useRightSidebar } from "../../../contexts/RightSidebarContext";
 import WalletSidebar from "./components/WalletSidebar";
-import { Wallet, ReceiptText, HandCoins, FileText, Copy, Check } from "lucide-react";
+import { Wallet, ReceiptText, HandCoins, FileText, Copy, Check, Printer } from "lucide-react";
 
 type WalletStatusState = {
   acceptedTerms: boolean;
@@ -71,6 +71,34 @@ export default function TcciaWalletPage() {
   const [paymentReference, setPaymentReference] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [firstLoadDone, setFirstLoadDone] = useState(false);
+  const [printingLoading, setPrintingLoading] = useState<{[key: string]: boolean}>({});
+
+  const handlePrintInvoice = async (reference: string) => {
+    if (!reference) return;
+    setPrintingLoading(prev => ({ ...prev, [reference]: true }));
+    try {
+      const response = await fetch("/api/invoice/details", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer gm4W92IYQlsjPxbqxA_hMjBr0G47bO_K_YoqF1u6RrQ"
+        },
+        body: JSON.stringify({ payment_reference: reference })
+      });
+      const data = await response.json();
+      if (data.result && data.result.success) {
+        localStorage.setItem(`invoice_${reference}`, JSON.stringify(data.result.data));
+        window.open(`/invoice/print?reference=${reference}`, "_blank");
+      } else {
+        alert("Failed to fetch invoice details: " + (data.message || "Unknown error"));
+      }
+    } catch (error) {
+      console.error("Error printing invoice:", error);
+      alert("An error occurred while fetching invoice details.");
+    } finally {
+      setPrintingLoading(prev => ({ ...prev, [reference]: false }));
+    }
+  };
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text).then(() => {
@@ -357,6 +385,7 @@ export default function TcciaWalletPage() {
                                 <th className="pb-3 font-medium">Reference</th>
                                 <th className="pb-3 font-medium">Status</th>
                                 <th className="pb-3 font-medium text-right">Amount</th>
+                                <th className="pb-3 font-medium text-right">Actions</th>
                               </tr>
                             </thead>
                             <tbody>
@@ -387,6 +416,24 @@ export default function TcciaWalletPage() {
                                     <td className={`py-3 text-right font-semibold ${amountClass}`}>
                                       {transaction.type === "deposit" ? "+" : "-"}
                                       {transaction.amount}
+                                    </td>
+                                    <td className="py-3 text-right">
+                                      {transaction.reference ? (
+                                        <button
+                                          onClick={() => handlePrintInvoice(transaction.reference)}
+                                          disabled={printingLoading[transaction.reference]}
+                                          className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-semibold text-blue-600 bg-blue-50 border border-blue-200 hover:bg-blue-100 rounded cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                        >
+                                          {printingLoading[transaction.reference] ? (
+                                            <div className="w-3.5 h-3.5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                                          ) : (
+                                            <Printer size={13} />
+                                          )}
+                                          <span>Print Invoice</span>
+                                        </button>
+                                      ) : (
+                                        <span className="text-gray-400 text-xs font-normal">-</span>
+                                      )}
                                     </td>
                                   </tr>
                                 );

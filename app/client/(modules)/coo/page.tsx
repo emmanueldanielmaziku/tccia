@@ -59,6 +59,7 @@ export default function COO() {
   const [error, setError] = useState<string | null>(null);
   const [paymentLoading, setPaymentLoading] = useState<{[key: string]: boolean}>({});
   const [paymentResult, setPaymentResult] = useState<{[key: string]: {type: "success" | "info" | "error"; message: string} | null}>({});
+  const [printingLoading, setPrintingLoading] = useState<{[key: string]: boolean}>({});
   const { togglePicker, hidePicker } = usePickerState();
   const itemsPerPage = 20;
   const router = useRouter();
@@ -324,6 +325,33 @@ export default function COO() {
       console.log("Invoice number copied to clipboard");
     } catch (err) {
       console.error("Failed to copy text: ", err);
+    }
+  };
+
+  const handlePrintInvoice = async (reference: string) => {
+    if (!reference) return;
+    setPrintingLoading(prev => ({ ...prev, [reference]: true }));
+    try {
+      const response = await fetch("/api/invoice/details", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer gm4W92IYQlsjPxbqxA_hMjBr0G47bO_K_YoqF1u6RrQ"
+        },
+        body: JSON.stringify({ payment_reference: reference })
+      });
+      const data = await response.json();
+      if (data.result && data.result.success) {
+        localStorage.setItem(`invoice_${reference}`, JSON.stringify(data.result.data));
+        window.open(`/invoice/print?reference=${reference}`, "_blank");
+      } else {
+        alert("Failed to fetch invoice details: " + (data.message || "Unknown error"));
+      }
+    } catch (error) {
+      console.error("Error printing invoice:", error);
+      alert("An error occurred while fetching invoice details.");
+    } finally {
+      setPrintingLoading(prev => ({ ...prev, [reference]: false }));
     }
   };
 
@@ -812,6 +840,20 @@ export default function COO() {
                             <Printer size="14" className="sm:w-4 sm:h-4" color="white" />
                             Print
                           </button>
+                          {certificate.invoice?.[0]?.invoice_number && (
+                            <button
+                              onClick={() => handlePrintInvoice(certificate.invoice[0].invoice_number)}
+                              disabled={printingLoading[certificate.invoice[0].invoice_number]}
+                              className="px-3 sm:px-4 md:px-5 py-1 sm:py-1.5 text-[10px] sm:text-[12px] rounded-[5px] sm:rounded-[6px] flex flex-row justify-center items-center gap-1 sm:gap-2 bg-blue-50 border border-blue-200 text-blue-600 hover:bg-blue-100 cursor-pointer transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed w-full sm:w-auto font-semibold"
+                            >
+                              {printingLoading[certificate.invoice[0].invoice_number] ? (
+                                <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                              ) : (
+                                <Printer size="14" className="sm:w-4 sm:h-4" color="#2563eb" />
+                              )}
+                              Print Invoice
+                            </button>
+                          )}
                           {certificate.invoice?.[0]?.invoice_number ? (
                             <button
                               onClick={() => handlePayment(certificate)}

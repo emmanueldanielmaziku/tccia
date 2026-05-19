@@ -1,0 +1,57 @@
+{
+  "jsonrpc": "2.0",
+  "id": null,
+  "result": {
+    "success": true,
+    "data": {
+      "invoice_type": "coo",
+      "invoice_id": 140,
+      "invoice_number": "COO-INV-000036",
+      "payment_reference": "TC137703755",
+      "checksum": "2944efb5ab4972673431cb6515e9fae069e8b8af",
+      "description": "EAC Certificate of Origin",
+      "amount": 9500.0,
+      "amount_untaxed": 9500.0,
+      "currency": "TZS",
+      "currency_symbol": "Tsh",
+      "invoice_date": "2026-05-19",
+      "due_date": "2026-05-19",
+      "invoice_state": "draft",
+      "payment_state": "not_paid",
+      "external_payment_status": "unpaid",
+      "payment_method": "unpaid",
+      "bank_transaction_id": "",
+      "company": {
+        "name": "SINOFOC LOGISTICS COMPANY LIMITED",
+        "tin": "135000914",
+        "phone": "255787447874",
+        "email": "sinofocl@gmail.com",
+        "address": "P.O.BOX 25291 DAR ES SALAAM",
+        "city": "TZ",
+        "country": "TZ"
+      },
+      "lines": [
+        {
+          "name": "EAC Certificate Fee",
+          "quantity": 1.0,
+          "unit_price": 9500.0,
+          "subtotal": 9500.0
+        }
+      ],
+      "source": {
+        "model": "lpco.application.header",
+        "id": 49,
+        "reference": "OGAM0003CA26C0000000078",
+        "application_uuid": "44342b17-534e-11f1-bf10-01834f0a4c38",
+        "application_state": "waiting_for_payment",
+        "certificate_type": "EAC",
+        "community_code": "OGAM0003CAC0004",
+        "reference_number": "OGAM0003CA26C0000000078"
+      },
+      "fees": {
+        "certificate_cost": 9500.0,
+        "total": 9500.0
+      }
+    }
+  }
+}

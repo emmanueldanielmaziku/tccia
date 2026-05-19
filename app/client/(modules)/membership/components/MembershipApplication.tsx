@@ -20,6 +20,7 @@ import {
   Copy,
   TickCircle,
   MoneyRecive,
+  Printer,
 } from "iconsax-reactjs";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -107,6 +108,7 @@ export default function MembershipApplication({
   const [downloading, setDownloading] = useState(false);
   const [copied, setCopied] = useState(false);
   const [paymentLoading, setPaymentLoading] = useState(false);
+  const [printingLoading, setPrintingLoading] = useState(false);
 
   
   async function fetchApplicationData() {
@@ -173,6 +175,33 @@ export default function MembershipApplication({
       minute: "2-digit",
     });
   }
+
+  const handlePrintInvoice = async (reference: string | false) => {
+    if (!reference) return;
+    setPrintingLoading(true);
+    try {
+      const response = await fetch("/api/invoice/details", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer gm4W92IYQlsjPxbqxA_hMjBr0G47bO_K_YoqF1u6RrQ"
+        },
+        body: JSON.stringify({ payment_reference: reference })
+      });
+      const data = await response.json();
+      if (data.result && data.result.success) {
+        localStorage.setItem(`invoice_${reference}`, JSON.stringify(data.result.data));
+        window.open(`/invoice/print?reference=${reference}`, "_blank");
+      } else {
+        alert("Failed to fetch invoice details: " + (data.message || "Unknown error"));
+      }
+    } catch (error) {
+      console.error("Error printing invoice:", error);
+      alert("An error occurred while fetching invoice details.");
+    } finally {
+      setPrintingLoading(false);
+    }
+  };
 
   const handlePayment = async () => {
     const invoiceNumber = data?.invoice_number;
@@ -583,6 +612,19 @@ export default function MembershipApplication({
                   disabled={copied}
                 >
                   {copied ? <TickCircle size={18} color="#22c55e" /> : <Copy size={18} color="#2563eb" />}
+                </button>
+                <button
+                  className="ml-2 p-1.5 rounded bg-blue-50 hover:bg-blue-100 text-blue-600 border border-blue-200 transition focus:outline-none focus:ring-2 focus:ring-blue-300 inline-flex items-center gap-1.5 text-xs font-semibold cursor-pointer disabled:opacity-50"
+                  title="Print Invoice"
+                  onClick={() => handlePrintInvoice(data.invoice_number)}
+                  disabled={printingLoading}
+                >
+                  {printingLoading ? (
+                    <div className="w-3.5 h-3.5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                  ) : (
+                    <Printer size={16} color="#2563eb" />
+                  )}
+                  <span>Print Invoice</span>
                 </button>
               </>
             ) : (
