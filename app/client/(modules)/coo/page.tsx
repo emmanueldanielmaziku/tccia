@@ -838,7 +838,7 @@ export default function COO() {
                             className="px-3 sm:px-4 md:px-5 py-1 sm:py-1.5 text-[10px] sm:text-[12px] rounded-[5px] sm:rounded-[6px] flex flex-row justify-center items-center gap-1 sm:gap-2 bg-blue-500 text-white disabled:bg-gray-400 disabled:cursor-not-allowed cursor-pointer transition-colors duration-200 w-full sm:w-auto"
                           >
                             <Printer size="14" className="sm:w-4 sm:h-4" color="white" />
-                            Print
+                            Print Certificate
                           </button>
                           {certificate.invoice?.[0]?.invoice_number && (
                             <button
