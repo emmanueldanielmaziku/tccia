@@ -854,7 +854,12 @@ export default function COO() {
                               Print Invoice
                             </button>
                           )}
-                          {certificate.invoice?.[0]?.invoice_number ? (
+                          {certificate.message_info.status?.toLowerCase() === "certified" || certificate.message_info.status?.toLowerCase() === "paid" ? (
+                            <div className="px-3 sm:px-4 md:px-5 py-1 sm:py-1.5 text-[10px] sm:text-[12px] rounded-[5px] sm:rounded-[6px] flex flex-row justify-center items-center gap-1 sm:gap-2 bg-green-50 border border-green-200 text-green-700 font-semibold w-full sm:w-auto">
+                              <MoneyRecive size="16" color="#15803d" />
+                              Paid
+                            </div>
+                          ) : certificate.invoice?.[0]?.invoice_number ? (
                             <button
                               onClick={() => handlePayment(certificate)}
                               disabled={paymentLoading[certificate.invoice[0].invoice_number]}
