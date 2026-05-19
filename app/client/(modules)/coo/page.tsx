@@ -9,12 +9,12 @@ import {
   Copy,
   DocumentText,
   Eye,
-  InfoCircle,
   MoneyRecive,
   Printer,
   Refresh,
   SearchNormal1,
 } from "iconsax-reactjs";
+import { CircleHelp } from "lucide-react";
 
 import {
   Select,
@@ -60,6 +60,22 @@ export default function COO() {
   const [paymentLoading, setPaymentLoading] = useState<{[key: string]: boolean}>({});
   const [paymentResult, setPaymentResult] = useState<{[key: string]: {type: "success" | "info" | "error"; message: string} | null}>({});
   const [printingLoading, setPrintingLoading] = useState<{[key: string]: boolean}>({});
+  const [popoverOpen, setPopoverOpen] = useState<{[key: string]: boolean}>({});
+  const popoverTimers = useRef<{[key: string]: any}>({});
+
+  const handleMouseEnterPopover = (uuid: string) => {
+    if (popoverTimers.current[uuid]) {
+      clearTimeout(popoverTimers.current[uuid]);
+    }
+    setPopoverOpen(prev => ({ ...prev, [uuid]: true }));
+  };
+
+  const handleMouseLeavePopover = (uuid: string) => {
+    popoverTimers.current[uuid] = setTimeout(() => {
+      setPopoverOpen(prev => ({ ...prev, [uuid]: false }));
+    }, 200);
+  };
+
   const { togglePicker, hidePicker } = usePickerState();
   const itemsPerPage = 20;
   const router = useRouter();
@@ -309,7 +325,7 @@ export default function COO() {
     application_code_number?: string
   ) => {
     const certType = getCertificateType(application_code_number || "");
-    const certificateUrl = `https://tccia.kalen.co.tz/certificate_of_origin/static/certificate/${certType}/index.html?id=${aid}`;
+    const certificateUrl = `https://staff.tncc.or.tz/certificate_of_origin/static/certificate/${certType}/index.html?id=${aid}`;
     window.open(certificateUrl, "_blank");
   };
 
@@ -739,13 +755,24 @@ export default function COO() {
                               >
                                 <Copy size={14} color="#6B7280" />
                               </button>
-                              <Popover>
+                              <Popover
+                                open={popoverOpen[certificate.message_info.application_uuid] || false}
+                                onOpenChange={(open) => setPopoverOpen(prev => ({ ...prev, [certificate.message_info.application_uuid]: open }))}
+                              >
                                 <PopoverTrigger asChild>
-                                  <button className="p-1 hover:bg-gray-100 rounded cursor-pointer transition-colors duration-200">
-                                    <InfoCircle size={14} color="#3B82F6" />
+                                  <button 
+                                    className="p-1 hover:bg-gray-100 rounded cursor-pointer transition-colors duration-200"
+                                    onMouseEnter={() => handleMouseEnterPopover(certificate.message_info.application_uuid)}
+                                    onMouseLeave={() => handleMouseLeavePopover(certificate.message_info.application_uuid)}
+                                  >
+                                    <CircleHelp size={14} color="#3B82F6" />
                                   </button>
                                 </PopoverTrigger>
-                                <PopoverContent className="w-80 p-4 max-h-96 overflow-y-auto">
+                                <PopoverContent 
+                                  className="w-80 p-4 max-h-96 overflow-y-auto"
+                                  onMouseEnter={() => handleMouseEnterPopover(certificate.message_info.application_uuid)}
+                                  onMouseLeave={() => handleMouseLeavePopover(certificate.message_info.application_uuid)}
+                                >
                                   <div className="space-y-4 text-xs sm:text-sm">
                                     <div>
                                       <h4 className="font-bold text-blue-600 mb-1">CRDB INTERNET BANKING</h4>
@@ -792,6 +819,32 @@ export default function COO() {
                                       <ol className="list-decimal pl-4 space-y-0.5 text-gray-700">
                                         <li>Submit Institution Name TNCC and Control Number/Reference Number not account number.</li>
                                         <li>Teller will login Teller portal and pay through Online Billers – <span className="font-semibold italic">TNCC</span> – Control Number/Reference</li>
+                                      </ol>
+                                    </div>
+                                    <div>
+                                      <h4 className="font-bold text-blue-600 mb-1">FOR VODACOM (M-PESA)</h4>
+                                      <ol className="list-decimal pl-4 space-y-0.5 text-gray-700">
+                                        <li>Dial (Piga) *150*00#</li>
+                                        <li>Enter 1 [Send money (Tuma pesa)]</li>
+                                        <li>Enter 3 [To bank (kwenda benki)]</li>
+                                        <li>Enter 1 [CRDB]</li>
+                                        <li>Enter 2 [Enter Control Number (Weka namba ya kumbukumbu)]</li>
+                                        <li>Enter your reference number / weka namba yako ya malipo</li>
+                                        <li>Enter amount / Weka kiasi cha kulipa</li>
+                                        <li>Enter PIN / weka namba yako ya siri</li>
+                                        <li>Enter 1 [to Confirm / kukubali] or 2 [to cancel / kusitisha]</li>
+                                      </ol>
+                                    </div>
+                                    <div>
+                                      <h4 className="font-bold text-blue-600 mb-1">FOR TIGO PESA</h4>
+                                      <ol className="list-decimal pl-4 space-y-0.5 text-gray-700">
+                                        <li>Dial (Piga) *150*01#</li>
+                                        <li>Enter 4 [Lipa Bill / Pay Bill]</li>
+                                        <li>Enter 3 [Ingiza Namba Ya Kampuni]</li>
+                                        <li>Enter 900600</li>
+                                        <li>Enter reference number / Weka kumbukumbu Namba</li>
+                                        <li>Enter amount to pay / Weka kiasi cha unachotuma</li>
+                                        <li>Enter PIN to Confirm / Ingiza namba ya siri kuhakiki</li>
                                       </ol>
                                     </div>
                                   </div>

@@ -28,6 +28,7 @@ import HSCodeWidget from "../(modules)/factory-verification/components/HSCodeWid
 import { createPortal } from "react-dom";
 import { usePathname, useRouter } from "next/navigation";
 import CertificateValidityModal from "./CertificateValidityModal";
+import PaymentGuidelineModal from "./PaymentGuidelineModal";
 
 type NavBarProps = {
   title: string;
@@ -44,6 +45,7 @@ export default function NavBar({ title }: NavBarProps) {
   const [profileOpen, setProfileOpen] = useState(false);
   const [sheetOpen, setSheetOpen] = useState(false);
   const [isCertificateValidityOpen, setIsCertificateValidityOpen] = useState(false);
+  const [isPaymentGuidelineOpen, setIsPaymentGuidelineOpen] = useState(false);
   const t = useTranslations();
   const tn = useTranslations("nav");
   const [showHSCodeWidget, setShowHSCodeWidget] = useState(false);
@@ -129,6 +131,15 @@ export default function NavBar({ title }: NavBarProps) {
         >
           {tn("reportNTB")}
         </Link>
+
+        {/* Payment Guideline Link */}
+        <button
+          type="button"
+          onClick={() => setIsPaymentGuidelineOpen(true)}
+          className="hidden md:flex items-center px-4 py-2 text-sm font-medium text-blue-600 border-[0.5px] border-blue-200 cursor-pointer hover:text-blue-700 bg-transparent hover:bg-blue-50 rounded-lg transition-colors duration-200 mr-4"
+        >
+          {tn("paymentGuideline")}
+        </button>
 
         {/* Certificate Validity Check link (only on COO module) */}
         {pathname?.startsWith("/client/coo") && (
@@ -248,6 +259,10 @@ export default function NavBar({ title }: NavBarProps) {
       <CertificateValidityModal
         open={isCertificateValidityOpen}
         onOpenChange={setIsCertificateValidityOpen}
+      />
+      <PaymentGuidelineModal
+        open={isPaymentGuidelineOpen}
+        onClose={() => setIsPaymentGuidelineOpen(false)}
       />
     </>
   );
