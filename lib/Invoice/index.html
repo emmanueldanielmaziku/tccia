@@ -58,8 +58,28 @@ body {
 
 .invoice-details {
     display: flex;
-    justify-content: flex-end;
+    justify-content: space-between;
+    align-items: center;
     margin-bottom: 10px;
+}
+
+.payment-status-container {
+    border: 1px solid #000;
+    padding: 5px 10px;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.payment-status-container.not-paid {
+    background-color: #fee2e2;
+    color: #991b1b;
+    border-color: #f87171;
+}
+
+.payment-status-container.paid {
+    background-color: #dcfce7;
+    color: #166534;
+    border-color: #4ade80;
 }
 
 .invoice-number {
@@ -296,6 +316,16 @@ body {
     .copy-btn {
         display: none !important;
     }
+    .payment-status-container.not-paid {
+        background-color: transparent !important;
+        color: #991b1b !important;
+        border-color: #991b1b !important;
+    }
+    .payment-status-container.paid {
+        background-color: transparent !important;
+        color: #166534 !important;
+        border-color: #166534 !important;
+    }
 }
 </style>
 </head>
@@ -315,6 +345,9 @@ body {
     </div>
     
     <div class="invoice-details">
+        <div id="payment-status-box" class="payment-status-container">
+            Payment Status: <span id="payment-state-badge">NOT PAID</span>
+        </div>
         <div class="invoice-number">
             <span id="invoice-number">Invoice / Reference Number no 4719111</span>
         </div>
@@ -502,6 +535,24 @@ function populateInvoice(data) {
   
   // Format dates
   document.getElementById('invoice-date').textContent = formatDate(data.invoice_date);
+  
+  // Payment Status Badge
+  const paymentState = data.payment_state || 'not_paid';
+  const statusBadge = document.getElementById('payment-state-badge');
+  const statusBox = document.getElementById('payment-status-box');
+  if (statusBadge) {
+    if (paymentState === 'paid') {
+      statusBadge.textContent = 'PAID';
+      if (statusBox) {
+        statusBox.className = 'payment-status-container paid';
+      }
+    } else {
+      statusBadge.textContent = 'NOT PAID';
+      if (statusBox) {
+        statusBox.className = 'payment-status-container not-paid';
+      }
+    }
+  }
   
   // Payment Method
   const paymentMethod = data.payment_method || 'Unpaid';
