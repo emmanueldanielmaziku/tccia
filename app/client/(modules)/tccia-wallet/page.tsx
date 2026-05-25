@@ -6,6 +6,14 @@ import { useUserProfile } from "../../../hooks/useUserProfile";
 import { useRightSidebar } from "../../../contexts/RightSidebarContext";
 import WalletSidebar from "./components/WalletSidebar";
 import { Wallet, ReceiptText, HandCoins, FileText, Copy, Check, Printer } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 type WalletStatusState = {
   acceptedTerms: boolean;
@@ -72,6 +80,7 @@ export default function TcciaWalletPage() {
   const [copied, setCopied] = useState(false);
   const [firstLoadDone, setFirstLoadDone] = useState(false);
   const [printingLoading, setPrintingLoading] = useState<{[key: string]: boolean}>({});
+  const [typeFilter, setTypeFilter] = useState("all");
 
   const handlePrintInvoice = async (reference: string) => {
     if (!reference) return;
@@ -233,6 +242,10 @@ export default function TcciaWalletPage() {
     }
   };
 
+  const filteredTransactions = status.transactions.filter(
+    (transaction) => typeFilter === "all" || transaction.type === typeFilter
+  );
+
   return (
     <main className="w-full h-[97vh] rounded-[12px] sm:rounded-[14px] overflow-hidden bg-white border-[1px] border-gray-200 shadow-sm relative">
       <NavBar title="TNCC Wallet" />
@@ -372,9 +385,26 @@ export default function TcciaWalletPage() {
 
                     {status.transactions.length > 0 && (
                       <div className="border border-gray-200 rounded-xl p-5 bg-white">
-                        <div className="flex items-center gap-2 font-medium text-gray-800 mb-4">
-                          <ReceiptText size={18} />
-                          Transaction History
+                        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center font-medium text-gray-800 mb-4 gap-3">
+                          <div className="flex items-center gap-2">
+                            <ReceiptText size={18} />
+                            Transaction History
+                          </div>
+                          <div className="w-full sm:w-[160px]">
+                            <Select value={typeFilter} onValueChange={setTypeFilter}>
+                              <SelectTrigger className="w-full text-xs py-1 h-8">
+                                <SelectValue placeholder="All Types" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectGroup>
+                                  <SelectItem value="all">All Types</SelectItem>
+                                  <SelectItem value="deposit">Deposits</SelectItem>
+                                  <SelectItem value="payment">Payments</SelectItem>
+                                  <SelectItem value="adjustment">Adjustments</SelectItem>
+                                </SelectGroup>
+                              </SelectContent>
+                            </Select>
+                          </div>
                         </div>
                         <div className="overflow-x-auto max-h-120 overflow-y-auto pr-2">
                           <table className="w-full text-sm">
@@ -389,55 +419,63 @@ export default function TcciaWalletPage() {
                               </tr>
                             </thead>
                             <tbody>
-                              {status.transactions.map((transaction, index) => {
-                                const badgeClass =
-                                  transaction.state === "completed"
-                                    ? "bg-green-100 text-green-700"
-                                    : "bg-yellow-100 text-yellow-700";
-                                const amountClass =
-                                  transaction.type === "deposit"
-                                    ? "text-green-600"
-                                    : "text-red-600";
+                              {filteredTransactions.length === 0 ? (
+                                <tr>
+                                  <td colSpan={6} className="py-8 text-center text-gray-500 italic">
+                                    No transactions found matching this type.
+                                  </td>
+                                </tr>
+                              ) : (
+                                filteredTransactions.map((transaction, index) => {
+                                  const badgeClass =
+                                    transaction.state === "completed"
+                                      ? "bg-green-100 text-green-700"
+                                      : "bg-yellow-100 text-yellow-700";
+                                  const amountClass =
+                                    transaction.type === "deposit"
+                                      ? "text-green-600"
+                                      : "text-red-600";
 
-                                return (
-                                  <tr key={index} className="border-b border-gray-100">
-                                    <td className="py-3 capitalize font-medium text-gray-800">
-                                      {transaction.type}
-                                    </td>
-                                    <td className="py-3 text-gray-600">{transaction.date}</td>
-                                    <td className="py-3 text-gray-600">{transaction.reference}</td>
-                                    <td className="py-3">
-                                      <span
-                                        className={`text-xs px-2 py-1 rounded-full ${badgeClass}`}
-                                      >
-                                        {transaction.state}
-                                      </span>
-                                    </td>
-                                    <td className={`py-3 text-right font-semibold ${amountClass}`}>
-                                      {transaction.type === "deposit" ? "+" : "-"}
-                                      {transaction.amount}
-                                    </td>
-                                    <td className="py-3 text-right">
-                                      {transaction.reference ? (
-                                        <button
-                                          onClick={() => handlePrintInvoice(transaction.reference)}
-                                          disabled={printingLoading[transaction.reference]}
-                                          className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-semibold text-blue-600 bg-blue-50 border border-blue-200 hover:bg-blue-100 rounded cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                  return (
+                                    <tr key={index} className="border-b border-gray-100">
+                                      <td className="py-3 capitalize font-medium text-gray-800">
+                                        {transaction.type}
+                                      </td>
+                                      <td className="py-3 text-gray-600">{transaction.date}</td>
+                                      <td className="py-3 text-gray-600">{transaction.reference}</td>
+                                      <td className="py-3">
+                                        <span
+                                          className={`text-xs px-2 py-1 rounded-full ${badgeClass}`}
                                         >
-                                          {printingLoading[transaction.reference] ? (
-                                            <div className="w-3.5 h-3.5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-                                          ) : (
-                                            <Printer size={13} />
-                                          )}
-                                          <span>Print Invoice</span>
-                                        </button>
-                                      ) : (
-                                        <span className="text-gray-400 text-xs font-normal">-</span>
-                                      )}
-                                    </td>
-                                  </tr>
-                                );
-                              })}
+                                          {transaction.state}
+                                        </span>
+                                      </td>
+                                      <td className={`py-3 text-right font-semibold ${amountClass}`}>
+                                        {transaction.amount === 0 ? "" : (transaction.type === "deposit" ? "+" : "-")}
+                                        {Math.abs(transaction.amount)}
+                                      </td>
+                                      <td className="py-3 text-right">
+                                        {transaction.reference ? (
+                                          <button
+                                            onClick={() => handlePrintInvoice(transaction.reference)}
+                                            disabled={printingLoading[transaction.reference]}
+                                            className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-semibold text-blue-600 bg-blue-50 border border-blue-200 hover:bg-blue-100 rounded cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                          >
+                                            {printingLoading[transaction.reference] ? (
+                                              <div className="w-3.5 h-3.5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                                            ) : (
+                                              <Printer size={13} />
+                                            )}
+                                            <span>Print Invoice</span>
+                                          </button>
+                                        ) : (
+                                          <span className="text-gray-400 text-xs font-normal">-</span>
+                                        )}
+                                      </td>
+                                    </tr>
+                                  );
+                                })
+                              )}
                             </tbody>
                           </table>
                         </div>
