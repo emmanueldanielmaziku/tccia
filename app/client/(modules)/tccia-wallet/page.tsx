@@ -81,6 +81,7 @@ export default function TcciaWalletPage() {
   const [firstLoadDone, setFirstLoadDone] = useState(false);
   const [printingLoading, setPrintingLoading] = useState<{[key: string]: boolean}>({});
   const [typeFilter, setTypeFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState("all");
 
   const handlePrintInvoice = async (reference: string) => {
     if (!reference) return;
@@ -243,7 +244,11 @@ export default function TcciaWalletPage() {
   };
 
   const filteredTransactions = status.transactions.filter(
-    (transaction) => typeFilter === "all" || transaction.type === typeFilter
+    (transaction) => {
+      const matchType = typeFilter === "all" || transaction.type === typeFilter;
+      const matchStatus = statusFilter === "all" || transaction.state === statusFilter;
+      return matchType && matchStatus;
+    }
   );
 
   return (
@@ -390,20 +395,37 @@ export default function TcciaWalletPage() {
                             <ReceiptText size={18} />
                             Transaction History
                           </div>
-                          <div className="w-full sm:w-[160px]">
-                            <Select value={typeFilter} onValueChange={setTypeFilter}>
-                              <SelectTrigger className="w-full text-xs py-1 h-8">
-                                <SelectValue placeholder="All Types" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectGroup>
-                                  <SelectItem value="all">All Types</SelectItem>
-                                  <SelectItem value="deposit">Deposits</SelectItem>
-                                  <SelectItem value="payment">Payments</SelectItem>
-                                  <SelectItem value="adjustment">Adjustments</SelectItem>
-                                </SelectGroup>
-                              </SelectContent>
-                            </Select>
+                          <div className="flex w-full sm:w-auto gap-2">
+                            <div className="w-full sm:w-[160px]">
+                              <Select value={typeFilter} onValueChange={setTypeFilter}>
+                                <SelectTrigger className="w-full text-xs py-1 h-8">
+                                  <SelectValue placeholder="All Types" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectGroup>
+                                    <SelectItem value="all">All Types</SelectItem>
+                                    <SelectItem value="deposit">Deposits</SelectItem>
+                                    <SelectItem value="payment">Payments</SelectItem>
+                                    <SelectItem value="adjustment">Adjustments</SelectItem>
+                                  </SelectGroup>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                            <div className="w-full sm:w-[160px]">
+                              <Select value={statusFilter} onValueChange={setStatusFilter}>
+                                <SelectTrigger className="w-full text-xs py-1 h-8">
+                                  <SelectValue placeholder="All Statuses" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectGroup>
+                                    <SelectItem value="all">All Statuses</SelectItem>
+                                    <SelectItem value="completed">Completed</SelectItem>
+                                    <SelectItem value="not_paid">Not Paid</SelectItem>
+                                    <SelectItem value="failed">Failed</SelectItem>
+                                  </SelectGroup>
+                                </SelectContent>
+                              </Select>
+                            </div>
                           </div>
                         </div>
                         <div className="overflow-x-auto max-h-120 overflow-y-auto pr-2">
@@ -422,7 +444,7 @@ export default function TcciaWalletPage() {
                               {filteredTransactions.length === 0 ? (
                                 <tr>
                                   <td colSpan={6} className="py-8 text-center text-gray-500 italic">
-                                    No transactions found matching this type.
+                                    No transactions found matching the selected filters.
                                   </td>
                                 </tr>
                               ) : (
