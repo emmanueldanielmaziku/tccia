@@ -527,11 +527,20 @@ function populateInvoice(data) {
   if (refValEl) refValEl.textContent = currentRefNumber;
 
   document.getElementById('invoice-number').textContent = 'Invoice / Reference Number: ' + (data.payment_reference || '');
-  document.getElementById('customer-name').textContent = data.company?.name || '';
-  document.getElementById('customer-address').textContent = data.company?.address || '';
-  document.getElementById('customer-city').textContent = data.company?.city || '';
-  document.getElementById('customer-phone').textContent = data.company?.phone || '';
-  document.getElementById('customer-tin').textContent = data.company?.tin || '';
+  
+  if (data.invoice_type === 'coo' && data.exporter) {
+    document.getElementById('customer-name').textContent = data.exporter.exporter_name || data.exporter.name || '';
+    document.getElementById('customer-address').textContent = data.exporter.exporter_address || data.exporter.address || '';
+    document.getElementById('customer-city').textContent = data.exporter.exporter_city || data.exporter.city || '';
+    document.getElementById('customer-phone').textContent = data.exporter.exporter_phone || data.exporter.phone || '';
+    document.getElementById('customer-tin').textContent = data.exporter.exporter_tin || data.exporter.tin || '';
+  } else {
+    document.getElementById('customer-name').textContent = data.company?.name || '';
+    document.getElementById('customer-address').textContent = data.company?.address || '';
+    document.getElementById('customer-city').textContent = data.company?.city || '';
+    document.getElementById('customer-phone').textContent = data.company?.phone || '';
+    document.getElementById('customer-tin').textContent = data.company?.tin || '';
+  }
   
   // Format dates
   document.getElementById('invoice-date').textContent = formatDate(data.invoice_date);

@@ -16,10 +16,10 @@
       "currency_symbol": "Tsh",
       "invoice_date": "2026-05-19",
       "due_date": "2026-05-19",
-      "invoice_state": "draft",
-      "payment_state": "not_paid",
-      "external_payment_status": "unpaid",
-      "payment_method": "unpaid",
+      "invoice_state": "posted",
+      "payment_state": "paid",
+      "external_payment_status": "paid",
+      "payment_method": "bank",
       "bank_transaction_id": "",
       "company": {
         "name": "SINOFOC LOGISTICS COMPANY LIMITED",
@@ -42,8 +42,9 @@
         "model": "lpco.application.header",
         "id": 49,
         "reference": "OGAM0003CA26C0000000078",
+        "application_number": "OGAM0003CA26C0000000078",
         "application_uuid": "44342b17-534e-11f1-bf10-01834f0a4c38",
-        "application_state": "waiting_for_payment",
+        "application_state": "certified",
         "certificate_type": "EAC",
         "community_code": "OGAM0003CAC0004",
         "reference_number": "OGAM0003CA26C0000000078"
@@ -51,6 +52,13 @@
       "fees": {
         "certificate_cost": 9500.0,
         "total": 9500.0
+      },
+      "exporter": {
+        "exporter_name": "KEDA  (TANZANIA) CERAMICS COMPANY LIMITED",
+        "exporter_address": "P.O.BOX 61701",
+        "exporter_tin": "129099453",
+        "exporter_phone": "255629487151",
+        "exporter_email": "tzied-exp@twyfordtile.com"
       }
     }
   }
