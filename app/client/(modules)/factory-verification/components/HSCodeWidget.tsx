@@ -136,6 +136,43 @@ export default function HSCodeWidget({
     }
   };
 
+  const getPageNumbers = () => {
+    const pages: (number | string)[] = [];
+    const maxVisiblePages = 5;
+    
+    if (totalPages <= maxVisiblePages) {
+      for (let i = 1; i <= totalPages; i++) {
+        pages.push(i);
+      }
+    } else {
+      pages.push(1);
+      
+      let start = Math.max(2, page - 1);
+      let end = Math.min(totalPages - 1, page + 1);
+      
+      if (page <= 3) {
+        end = 4;
+      } else if (page >= totalPages - 2) {
+        start = totalPages - 3;
+      }
+      
+      if (start > 2) {
+        pages.push("...");
+      }
+      
+      for (let i = start; i <= end; i++) {
+        pages.push(i);
+      }
+      
+      if (end < totalPages - 1) {
+        pages.push("...");
+      }
+      
+      pages.push(totalPages);
+    }
+    return pages;
+  };
+
   if (!open) return null;
 
   return (
@@ -297,29 +334,32 @@ export default function HSCodeWidget({
                 <PaginationContent>
                   <PaginationItem>
                     <PaginationLink
-                      isActive={page === 1}
-                      onClick={() => setPage(1)}
+                      onClick={() => page > 1 && setPage(page - 1)}
                       aria-disabled={page === 1}
-                      className="cursor-pointer"
+                      className={`cursor-pointer ${page === 1 ? 'opacity-50 cursor-not-allowed' : ''}`}
                     >
                       {"<"}
                     </PaginationLink>
                   </PaginationItem>
-                  {[...Array(totalPages)].map((_, i) => (
+                  {getPageNumbers().map((p, i) => (
                     <PaginationItem key={i}>
-                      <PaginationLink
-                        isActive={page === i + 1}
-                        onClick={() => setPage(i + 1)}
-                      >
-                        {i + 1}
-                      </PaginationLink>
+                      {p === "..." ? (
+                        <span className="px-3 py-1.5 text-sm text-gray-500 select-none">...</span>
+                      ) : (
+                        <PaginationLink
+                          isActive={page === p}
+                          onClick={() => setPage(Number(p))}
+                          className="cursor-pointer"
+                        >
+                          {p}
+                        </PaginationLink>
+                      )}
                     </PaginationItem>
                   ))}
                   <PaginationItem>
                     <PaginationLink
-                      className="cursor-pointer"
-                      isActive={page === totalPages}
-                      onClick={() => setPage(totalPages)}
+                      className={`cursor-pointer ${page === totalPages ? 'opacity-50 cursor-not-allowed' : ''}`}
+                      onClick={() => page < totalPages && setPage(page + 1)}
                       aria-disabled={page === totalPages}
                     >
                       {">"}
