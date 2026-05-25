@@ -90,7 +90,7 @@ export default function COO() {
     OGAM0003CAC0009: "SADC",
     OGAM0003CAC0006: "GSP",
     OGAM0003CAC0004: "EAC",
-    OGAM0003CAC0002: "CHINA",
+    OGAM0003CAC0002: "China",
     OGAM0003SW0012: "AfCFTA",
     OGAM0003CAC0001: "AGOA",
   };
@@ -325,7 +325,7 @@ export default function COO() {
     application_code_number?: string
   ) => {
     const certType = getCertificateType(application_code_number || "");
-    const certificateUrl = `https://tccia.kalen.co.tz/certificate_of_origin/static/certificate/${certType}/index.html?id=${aid}`;
+    const certificateUrl = `https://staff.tncc.or.tz/certificate_of_origin/static/certificate/${certType}/index.html?id=${aid}`;
     window.open(certificateUrl, "_blank");
   };
 
