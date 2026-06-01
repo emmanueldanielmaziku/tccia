@@ -296,7 +296,7 @@ export default function CompanyPicker() {
   };
 
   const handleHelpdeskRedirect = () => {
-    router.push("/client/report");
+    router.push("/client/business-complaints");
     hidePicker();
   };
 
@@ -451,7 +451,7 @@ export default function CompanyPicker() {
               disabled={isLoading}
               className="border-[1px] text-[14px] border-green-600 bg-green-500 text-white flex-1 rounded-[7px] py-3 cursor-pointer hover:bg-green-600 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              IT Support
+              Business Complaints
             </button>
           </div>
         </div>
