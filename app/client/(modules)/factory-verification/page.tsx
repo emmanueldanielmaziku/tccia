@@ -158,7 +158,8 @@ export default function FactoryVerification() {
   }, [agentSearchInput]);
 
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 20;
+  const [serverTotalPages, setServerTotalPages] = useState(1);
+  const itemsPerPage = 10;
 
   const communityNameOptions = useMemo(
     () => [...new Set(products.map((p) => p.community_name).filter(Boolean))],
@@ -181,7 +182,7 @@ export default function FactoryVerification() {
       window.removeEventListener("COMPANY_CHANGE_EVENT", handleCompanyChange);
   }, []);
 
-  const fetchProducts = async () => {
+  const fetchProducts = async (pageToFetch = currentPage) => {
     try {
       setLoading(true);
       const selectedCompany = localStorage.getItem("selectedCompany");
@@ -198,7 +199,7 @@ export default function FactoryVerification() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ company_tin }),
+        body: JSON.stringify({ company_tin, page: pageToFetch }),
       });
 
       if (response.status === 404) {
@@ -211,7 +212,13 @@ export default function FactoryVerification() {
       const result = await response.json();
 
       if (result.success && Array.isArray(result.verifications)) {
-        let sn = 1;
+        if (result.pagination && result.pagination.totalPages) {
+          setServerTotalPages(result.pagination.totalPages);
+        } else {
+          setServerTotalPages(1);
+        }
+        
+        let sn = (pageToFetch - 1) * itemsPerPage + 1;
         const mappedProducts: Product[] = result.verifications.flatMap(
           (verification: any) =>
             (verification.products || []).map((product: any) => ({
@@ -319,18 +326,23 @@ export default function FactoryVerification() {
       }
     });
 
-  const totalPages = Math.ceil(sortedProducts.length / itemsPerPage);
-  const paginatedData = sortedProducts.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  );
+  const totalPages = serverTotalPages;
+  const paginatedData = sortedProducts;
 
   const handleNextPage = () => {
-    if (currentPage < totalPages) setCurrentPage(currentPage + 1);
+    if (currentPage < totalPages) {
+      const newPage = currentPage + 1;
+      setCurrentPage(newPage);
+      fetchProducts(newPage);
+    }
   };
 
   const handlePreviousPage = () => {
-    if (currentPage > 1) setCurrentPage(currentPage - 1);
+    if (currentPage > 1) {
+      const newPage = currentPage - 1;
+      setCurrentPage(newPage);
+      fetchProducts(newPage);
+    }
   };
 
   const handleViewDetails = (product: Product) => {
@@ -502,7 +514,7 @@ export default function FactoryVerification() {
                 <div className="flex flex-col lg:flex-row items-center gap-2 w-full lg:w-auto">
                   <button
                     className="flex flex-row gap-1 sm:gap-2 lg:gap-3 justify-center items-center bg-gray-100 hover:bg-gray-200 text-gray-600 text-xs sm:text-sm rounded-[5px] sm:rounded-[6px] cursor-pointer px-2 sm:px-3 h-[38px] transition-colors w-full lg:w-auto"
-                    onClick={fetchProducts}
+                    onClick={() => fetchProducts()}
                     disabled={loading}
                   >
                     <Refresh
@@ -540,7 +552,7 @@ export default function FactoryVerification() {
             {verificationForm ? (
               <FactoryVerificationForm 
                 onFormClose={() => toggleForm(false)}
-                onRefreshList={fetchProducts}
+                onRefreshList={() => fetchProducts()}
               />
             ) : (
               <div className="w-full mt-4 sm:mt-5 rounded-md border-[0.5px] overflow-hidden overflow-y-auto h-[100%]">
@@ -906,7 +918,7 @@ export default function FactoryVerification() {
                 return approvedStates.includes(p.verification_state.toLowerCase());
               }).length,
             }}
-            onCompanyChange={fetchProducts}
+            onCompanyChange={() => fetchProducts()}
           />
         )}
       </section>

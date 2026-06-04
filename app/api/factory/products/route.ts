@@ -20,7 +20,7 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-    const { company_tin } = body;
+    const { company_tin, page = 1 } = body;
 
     if (!company_tin) {
       return NextResponse.json(
@@ -32,7 +32,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const apiUrl = `${API_BASE_URL}/api/factory_verification/products?company_tin=${company_tin}`;
+    const apiUrl = `${API_BASE_URL}/api/factory_verification/products?company_tin=${company_tin}&page=${page}`;
     console.log("Fetching factory products from:", apiUrl);
 
     const response = await fetch(apiUrl, {
