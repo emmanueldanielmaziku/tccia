@@ -212,8 +212,8 @@ export default function FactoryVerification() {
       const result = await response.json();
 
       if (result.success && Array.isArray(result.verifications)) {
-        if (result.pagination && result.pagination.totalPages) {
-          setServerTotalPages(result.pagination.totalPages);
+        if (result.pagination && result.pagination.total_pages) {
+          setServerTotalPages(result.pagination.total_pages);
         } else {
           setServerTotalPages(1);
         }
@@ -243,8 +243,8 @@ export default function FactoryVerification() {
                   : typeof product.manufacturer === "string"
                   ? product.manufacturer
                   : "",
-              verification_id: verification.id,
-              verification_reference: verification.reference,
+              verification_id: verification.id || product.id,
+              verification_reference: verification.reference || product.application_reference || "",
               // What we actually display in the status badge:
               // prefer verification.state when present, otherwise use product.application_state
               verification_state: verification.state || product.application_state || "",
