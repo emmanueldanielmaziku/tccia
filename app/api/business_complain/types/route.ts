@@ -16,7 +16,7 @@ export async function GET() {
       console.error(
         "Business complaint types API response not ok:",
         response.status,
-        response.statusText
+        response.statusText,
       );
       console.error("Error response body:", errorText);
 
@@ -26,7 +26,7 @@ export async function GET() {
           error: `API request failed: ${response.status} ${response.statusText}`,
           details: errorText,
         },
-        { status: response.status }
+        { status: response.status },
       );
     }
 
@@ -39,7 +39,7 @@ export async function GET() {
           status: "error",
           error: "Invalid response format from API",
         },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
@@ -51,15 +51,18 @@ export async function GET() {
         return NextResponse.json({
           success: true,
           data: data.result.data || [],
-          count: data.result.count ?? (Array.isArray(data.result.data) ? data.result.data.length : 0),
+          count:
+            data.result.count ??
+            (Array.isArray(data.result.data) ? data.result.data.length : 0),
         });
       } else {
         return NextResponse.json(
           {
             success: false,
-            error: data.result.message || "Failed to fetch business complaint types",
+            error:
+              data.result.message || "Failed to fetch business complaint types",
           },
-          { status: 400 }
+          { status: 400 },
         );
       }
     }
@@ -84,7 +87,7 @@ export async function GET() {
         success: false,
         error: "Internal server error",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

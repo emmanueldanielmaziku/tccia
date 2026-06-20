@@ -229,7 +229,7 @@ const RegForm = () => {
         </div>
       )}
 
-      <div className="md:flex md:flex-row md:gap-5 flex-col space-y-5 md:space-y-1 hidden">
+      <div className="flex flex-col space-y-5 md:flex-row md:gap-5 md:space-y-1">
         <div className="relative flex flex-col gap-1 w-full">
           <label
             htmlFor="firstName"

@@ -58,7 +58,8 @@ export default function HelpDeskPortal({ onBack }: { onBack: () => void }) {
   const [trackResult, setTrackResult] = useState<any>(null);
   const [trackError, setTrackError] = useState<string | null>(null);
 
-  const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "https://staff.tncc.or.tz";
+  const BASE_URL =
+    process.env.NEXT_PUBLIC_API_BASE_URL || "https://staff.tncc.or.tz";
 
   useEffect(() => {
     fetch(`${BASE_URL}/api/helpdesk/services`)
@@ -184,7 +185,8 @@ export default function HelpDeskPortal({ onBack }: { onBack: () => void }) {
                 Welcome to TNCC Help Desk
               </h2>
               <p className="text-lg text-gray-600 mt-3 max-w-2xl mx-auto">
-                We're here to help! Submit a support request or track an existing ticket.
+                We're here to help! Submit a support request or track an
+                existing ticket.
               </p>
             </div>
           </div>
@@ -198,7 +200,8 @@ export default function HelpDeskPortal({ onBack }: { onBack: () => void }) {
                   Submit Request
                 </h3>
                 <p className="text-gray-600 mb-6">
-                  Need help with TNCC services? Submit a detailed support request and our team will assist you.
+                  Need help with TNCC services? Submit a detailed support
+                  request and our team will assist you.
                 </p>
                 <Button
                   className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-6 cursor-pointer rounded-[9px] transition-all duration-200 group-hover:scale-105"
@@ -219,7 +222,8 @@ export default function HelpDeskPortal({ onBack }: { onBack: () => void }) {
                   Track Request
                 </h3>
                 <p className="text-gray-600 mb-6">
-                  Already submitted a request? Check the status and updates of your existing support ticket.
+                  Already submitted a request? Check the status and updates of
+                  your existing support ticket.
                 </p>
                 <Button
                   className="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-6 cursor-pointer rounded-[9px] transition-all duration-200 group-hover:scale-105"
@@ -249,7 +253,8 @@ export default function HelpDeskPortal({ onBack }: { onBack: () => void }) {
                     Submit Support Request
                   </CardTitle>
                   <CardDescription className="text-[14px]">
-                    Please provide detailed information about your issue so we can assist you better.
+                    Please provide detailed information about your issue so we
+                    can assist you better.
                   </CardDescription>
                 </div>
               </div>
@@ -265,7 +270,8 @@ export default function HelpDeskPortal({ onBack }: { onBack: () => void }) {
                       Request Submitted Successfully!
                     </h3>
                     <p className="text-gray-600 mb-6">
-                      Your support request has been received. Our team will review it and get back to you soon.
+                      Your support request has been received. Our team will
+                      review it and get back to you soon.
                     </p>
                     <div className="bg-gray-50 rounded-2xl p-6 border border-gray-200">
                       <p className="text-sm text-gray-600 mb-2">
@@ -284,7 +290,9 @@ export default function HelpDeskPortal({ onBack }: { onBack: () => void }) {
                       variant="outline"
                       className="flex-1 py-3 rounded-[9px]"
                       onClick={() => {
-                        navigator.clipboard.writeText(submitResult.ticket_number);
+                        navigator.clipboard.writeText(
+                          submitResult.ticket_number,
+                        );
                       }}
                     >
                       <ClipboardCheck className="w-4 h-4 mr-2" />
@@ -309,7 +317,9 @@ export default function HelpDeskPortal({ onBack }: { onBack: () => void }) {
                       </Label>
                       <Input
                         value={form.customer_name}
-                        onChange={(e) => handleFormChange("customer_name", e.target.value)}
+                        onChange={(e) =>
+                          handleFormChange("customer_name", e.target.value)
+                        }
                         placeholder="Enter your full name"
                         required
                         className="py-3 px-4 rounded-lg border-gray-300"
@@ -346,7 +356,9 @@ export default function HelpDeskPortal({ onBack }: { onBack: () => void }) {
                     </Label>
                     <Input
                       value={form.subject}
-                      onChange={(e) => handleFormChange("subject", e.target.value)}
+                      onChange={(e) =>
+                        handleFormChange("subject", e.target.value)
+                      }
                       placeholder="Brief description of your issue"
                       required
                       className="py-3 px-4 rounded-lg border-gray-300"
@@ -362,7 +374,9 @@ export default function HelpDeskPortal({ onBack }: { onBack: () => void }) {
                     <textarea
                       className="w-full border rounded-lg px-4 py-3 min-h-[100px] border-gray-300"
                       value={form.description}
-                      onChange={(e) => handleFormChange("description", e.target.value)}
+                      onChange={(e) =>
+                        handleFormChange("description", e.target.value)
+                      }
                       placeholder="Please provide detailed information about your issue"
                       required
                     />
@@ -371,7 +385,9 @@ export default function HelpDeskPortal({ onBack }: { onBack: () => void }) {
                   {/* Service & Issue Categories */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-2">
-                      <Label className="font-medium text-gray-700">Service Category</Label>
+                      <Label className="font-medium text-gray-700">
+                        Service Category
+                      </Label>
                       <Select
                         value={serviceCategory}
                         onValueChange={(v) => setServiceCategory(v)}
@@ -390,7 +406,9 @@ export default function HelpDeskPortal({ onBack }: { onBack: () => void }) {
                       </Select>
                     </div>
                     <div className="space-y-2">
-                      <Label className="font-medium text-gray-700">Issue Category</Label>
+                      <Label className="font-medium text-gray-700">
+                        Issue Category
+                      </Label>
                       <Select
                         value={issueCategory}
                         onValueChange={(v) => setIssueCategory(v)}
@@ -414,7 +432,9 @@ export default function HelpDeskPortal({ onBack }: { onBack: () => void }) {
                   {/* Priority & Location */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-2">
-                      <Label className="font-medium text-gray-700">Priority</Label>
+                      <Label className="font-medium text-gray-700">
+                        Priority
+                      </Label>
                       <Select
                         value={form.priority}
                         onValueChange={(v) => handleFormChange("priority", v)}
@@ -438,7 +458,9 @@ export default function HelpDeskPortal({ onBack }: { onBack: () => void }) {
                       </Label>
                       <Input
                         value={form.location}
-                        onChange={(e) => handleFormChange("location", e.target.value)}
+                        onChange={(e) =>
+                          handleFormChange("location", e.target.value)
+                        }
                         placeholder="Your location (optional)"
                         className="py-3 px-4 rounded-lg border-gray-300"
                       />
@@ -483,7 +505,8 @@ export default function HelpDeskPortal({ onBack }: { onBack: () => void }) {
                     Track Support Request
                   </CardTitle>
                   <CardDescription className="text-base">
-                    Enter your ticket number to check the status of your support request.
+                    Enter your ticket number to check the status of your support
+                    request.
                   </CardDescription>
                 </div>
               </div>
@@ -536,20 +559,24 @@ export default function HelpDeskPortal({ onBack }: { onBack: () => void }) {
                   </div>
                   <div className="space-y-3">
                     <div>
-                      <span className="font-semibold">Subject:</span> {trackResult.subject}
+                      <span className="font-semibold">Subject:</span>{" "}
+                      {trackResult.subject}
                     </div>
                     <div>
                       <span className="font-semibold">Status:</span>{" "}
                       {trackResult.status_description || trackResult.status}
                     </div>
                     <div>
-                      <span className="font-semibold">Priority:</span> {trackResult.priority}
+                      <span className="font-semibold">Priority:</span>{" "}
+                      {trackResult.priority}
                     </div>
                     <div>
-                      <span className="font-semibold">Customer:</span> {trackResult.customer_name}
+                      <span className="font-semibold">Customer:</span>{" "}
+                      {trackResult.customer_name}
                     </div>
                     <div>
-                      <span className="font-semibold">Location:</span> {trackResult.location}
+                      <span className="font-semibold">Location:</span>{" "}
+                      {trackResult.location}
                     </div>
                     <div>
                       <span className="font-semibold">Submitted:</span>{" "}
@@ -567,7 +594,9 @@ export default function HelpDeskPortal({ onBack }: { onBack: () => void }) {
                     </div>
                     {trackResult.latest_communication && (
                       <div>
-                        <span className="font-semibold text-blue-700">Latest Communication:</span>
+                        <span className="font-semibold text-blue-700">
+                          Latest Communication:
+                        </span>
                         <div className="mt-1 p-3 bg-white border rounded">
                           {trackResult.latest_communication}
                         </div>
@@ -582,4 +611,4 @@ export default function HelpDeskPortal({ onBack }: { onBack: () => void }) {
       )}
     </div>
   );
-} 
+}

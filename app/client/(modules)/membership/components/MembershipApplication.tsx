@@ -471,6 +471,40 @@ export default function MembershipApplication({
               )}
             </button>
           )}
+          {data.invoice_number && (
+            <button
+              className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg transition text-sm font-semibold cursor-pointer whitespace-nowrap ${
+                printingLoading
+                  ? "bg-blue-300 text-white cursor-not-allowed"
+                  : "bg-blue-600 text-white hover:bg-blue-700"
+              }`}
+              title="Print Invoice"
+              onClick={() => handlePrintInvoice(data.invoice_number)}
+              disabled={printingLoading}
+            >
+              {printingLoading ? (
+                <svg className="animate-spin h-5 w-5 text-white" viewBox="0 0 24 24">
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                    fill="none"
+                  />
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                  />
+                </svg>
+              ) : (
+                <Printer size={20} />
+              )}
+              Print Invoice
+            </button>
+          )}
           
           {/* Payment Button temporarily disabled per request */}
           {/* {(data.state === "expired" || data.state === "waiting_payment") && (
@@ -613,19 +647,7 @@ export default function MembershipApplication({
                 >
                   {copied ? <TickCircle size={18} color="#22c55e" /> : <Copy size={18} color="#2563eb" />}
                 </button>
-                <button
-                  className="ml-2 p-1.5 rounded bg-blue-50 hover:bg-blue-100 text-blue-600 border border-blue-200 transition focus:outline-none focus:ring-2 focus:ring-blue-300 inline-flex items-center gap-1.5 text-xs font-semibold cursor-pointer disabled:opacity-50"
-                  title="Print Invoice"
-                  onClick={() => handlePrintInvoice(data.invoice_number)}
-                  disabled={printingLoading}
-                >
-                  {printingLoading ? (
-                    <div className="w-3.5 h-3.5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-                  ) : (
-                    <Printer size={16} color="#2563eb" />
-                  )}
-                  <span>Print Invoice</span>
-                </button>
+
               </>
             ) : (
               <span className="text-red-600">Not generated yet</span>

@@ -19,7 +19,7 @@ export async function POST() {
             error: "Unauthorized - Missing authentication",
           },
         },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
@@ -49,7 +49,7 @@ export async function POST() {
           },
           message: "Invalid response from server",
         },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
@@ -59,7 +59,7 @@ export async function POST() {
     if (!response.ok) {
       // Handle authentication errors
       await handleAuthenticationError(response, data);
-      
+
       return NextResponse.json(
         {
           status: "error",
@@ -69,7 +69,7 @@ export async function POST() {
           },
           message: data.message || "Failed to fetch companies",
         },
-        { status: response.status }
+        { status: response.status },
       );
     }
 
@@ -88,7 +88,7 @@ export async function POST() {
           error: "Internal server error",
         },
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

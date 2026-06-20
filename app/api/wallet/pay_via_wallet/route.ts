@@ -26,17 +26,14 @@ export async function POST(request: Request) {
       );
     }
 
-    const response = await fetch(
-      `${API_BASE_URL}/api/wallet/pay_via_wallet`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token.trim()}`,
-        },
-        body: JSON.stringify({ payment_reference, company_id }),
+    const response = await fetch(`${API_BASE_URL}/api/wallet/pay_via_wallet`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token.trim()}`,
       },
-    );
+      body: JSON.stringify({ payment_reference, company_id }),
+    });
 
     const data = await response.json();
     return NextResponse.json(data, { status: response.status });

@@ -6,7 +6,7 @@ export async function GET() {
   try {
     const res = await fetch(`${API_BASE_URL}/api/membership/sectors`);
     const data = await res.json();
-        console.log(data);
+    console.log(data);
     return NextResponse.json(data);
   } catch (error) {
     return NextResponse.json(
@@ -15,7 +15,7 @@ export async function GET() {
         message: "Error fetching sectors.",
         data: null,
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

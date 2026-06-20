@@ -18,7 +18,7 @@ export async function POST(request: Request) {
             error: "Unauthorized - No token provided",
           },
         },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
@@ -34,7 +34,7 @@ export async function POST(request: Request) {
           company_tin: body.company_tin,
           code_input: body.code_input,
         }),
-      }
+      },
     );
 
     const data = await response.json();
@@ -48,7 +48,7 @@ export async function POST(request: Request) {
             error: data.result.error,
           },
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -63,7 +63,7 @@ export async function POST(request: Request) {
           error: "Internal server error",
         },
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

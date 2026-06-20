@@ -5,7 +5,7 @@ const API_BASE_URL = "https://staff.tncc.or.tz";
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    
+
     // Validate required fields
     if (!body.token || !body.new_password || !body.confirm_password) {
       return NextResponse.json(
@@ -16,7 +16,7 @@ export async function POST(request: Request) {
             error: "Token, new_password, and confirm_password are required",
           },
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -30,7 +30,7 @@ export async function POST(request: Request) {
             error: "Passwords do not match",
           },
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -58,7 +58,7 @@ export async function POST(request: Request) {
             error: data.result.error,
           },
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -80,7 +80,7 @@ export async function POST(request: Request) {
           error: "Internal server error",
         },
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

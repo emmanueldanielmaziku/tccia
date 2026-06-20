@@ -5,7 +5,7 @@ const API_BASE_URL = "https://staff.tncc.or.tz";
 
 export async function GET(
   request: Request,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const { id } = await params;
@@ -18,7 +18,7 @@ export async function GET(
           success: false,
           message: "Unauthorized - Missing authentication",
         },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
@@ -37,7 +37,7 @@ export async function GET(
       console.error(
         "NTB specific locations API response not ok:",
         response.status,
-        response.statusText
+        response.statusText,
       );
       console.error("Error response body:", errorText);
 
@@ -47,7 +47,7 @@ export async function GET(
           message: "Failed to fetch specific locations",
           details: errorText,
         },
-        { status: response.status }
+        { status: response.status },
       );
     }
 
@@ -74,7 +74,7 @@ export async function GET(
         success: false,
         message: "Internal server error",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

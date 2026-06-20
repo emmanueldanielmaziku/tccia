@@ -5,7 +5,7 @@ const REMOTE_BASE_URL = "https://staff.tncc.or.tz/api";
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const { id } = await params;
@@ -13,19 +13,25 @@ export async function GET(
 
     if (!id) {
       console.error("No certificate ID provided");
-      return NextResponse.json({ error: "Missing certificate ID" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Missing certificate ID" },
+        { status: 400 },
+      );
     }
 
     const cookieStore = await cookies();
     const token = cookieStore.get("token")?.value || "";
     const uid = cookieStore.get("uid")?.value || "";
-    
+
     console.log("Token available:", !!token);
     console.log("UID:", uid);
 
     if (!token) {
       console.error("No authentication token found");
-      return NextResponse.json({ error: "Authentication required" }, { status: 401 });
+      return NextResponse.json(
+        { error: "Authentication required" },
+        { status: 401 },
+      );
     }
 
     const remoteUrl = `${REMOTE_BASE_URL}/membership/certificate/${id}/download`;
@@ -39,14 +45,17 @@ export async function GET(
     });
 
     console.log("Remote response status:", remoteRes.status);
-    console.log("Remote response headers:", Object.fromEntries(remoteRes.headers.entries()));
+    console.log(
+      "Remote response headers:",
+      Object.fromEntries(remoteRes.headers.entries()),
+    );
 
     if (!remoteRes.ok) {
       const errorText = await remoteRes.text();
       console.error("Remote API error:", errorText);
       return NextResponse.json(
         { error: `Certificate fetch failed: ${errorText}` },
-        { status: remoteRes.status }
+        { status: remoteRes.status },
       );
     }
 
@@ -57,12 +66,14 @@ export async function GET(
       console.error("Empty certificate response");
       return NextResponse.json(
         { error: "Certificate file is empty" },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
-    const contentType = remoteRes.headers.get("Content-Type") || "application/pdf";
-    const contentDisposition = remoteRes.headers.get("Content-Disposition") || 
+    const contentType =
+      remoteRes.headers.get("Content-Type") || "application/pdf";
+    const contentDisposition =
+      remoteRes.headers.get("Content-Disposition") ||
       `attachment; filename=membership_certificate_${id}.pdf`;
 
     console.log("Sending certificate with Content-Type:", contentType);
@@ -78,8 +89,10 @@ export async function GET(
   } catch (error) {
     console.error("Proxy certificate fetch error:", error);
     return NextResponse.json(
-      { error: `Internal Server Error: ${error instanceof Error ? error.message : 'Unknown error'}` },
-      { status: 500 }
+      {
+        error: `Internal Server Error: ${error instanceof Error ? error.message : "Unknown error"}`,
+      },
+      { status: 500 },
     );
   }
 }

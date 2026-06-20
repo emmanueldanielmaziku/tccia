@@ -11,7 +11,7 @@ export async function POST(request: NextRequest) {
     if (!token) {
       return NextResponse.json(
         { error: "Unauthorized - Missing authentication" },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
@@ -35,7 +35,7 @@ export async function POST(request: NextRequest) {
       if (!value || (typeof value === "string" && value.trim() === "")) {
         return NextResponse.json(
           { error: `Missing required field: ${field}` },
-          { status: 400 }
+          { status: 400 },
         );
       }
     }
@@ -52,23 +52,20 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    const response = await fetch(
-      `${API_BASE_URL}/api/ntb/create-with-files`,
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token.value.trim()}`,
-        },
-        body: externalFormData,
-      }
-    );
+    const response = await fetch(`${API_BASE_URL}/api/ntb/create-with-files`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token.value.trim()}`,
+      },
+      body: externalFormData,
+    });
 
     if (!response.ok) {
       const errorData = await response.text();
       console.error("External API error:", errorData);
       return NextResponse.json(
         { error: "Failed to submit report to external service" },
-        { status: response.status }
+        { status: response.status },
       );
     }
 
@@ -79,7 +76,7 @@ export async function POST(request: NextRequest) {
       if (result.result.success) {
         console.log(
           "NTB Success - Report Reference:",
-          result.result.data?.report_reference
+          result.result.data?.report_reference,
         );
         return NextResponse.json({
           success: true,
@@ -90,7 +87,7 @@ export async function POST(request: NextRequest) {
         console.log("NTB Error:", result.result.message);
         return NextResponse.json(
           { error: result.result.message || "Failed to submit report" },
-          { status: 400 }
+          { status: 400 },
         );
       }
     }
@@ -114,7 +111,7 @@ export async function POST(request: NextRequest) {
     console.error("Error submitting NTB report:", error);
     return NextResponse.json(
       { error: "Internal server error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

@@ -11,7 +11,7 @@ export async function POST(request: NextRequest) {
     if (!token) {
       return NextResponse.json(
         { success: false, error: "Invalid token", status: 401 },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
@@ -39,9 +39,7 @@ export async function POST(request: NextRequest) {
         error: error instanceof Error ? error.message : "Internal server error",
         status: 500,
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
-
-

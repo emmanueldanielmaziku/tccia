@@ -11,7 +11,7 @@ export async function GET(request: NextRequest) {
     if (!token) {
       return NextResponse.json(
         { success: false, error: "Invalid token", status: 401 },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
@@ -23,12 +23,12 @@ export async function GET(request: NextRequest) {
     if (!company_id) {
       return NextResponse.json(
         { success: false, error: "company_id is required", status: 400 },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     const upstreamUrl = `${API_BASE_URL}/api/manager/employees?company_id=${encodeURIComponent(
-      company_id
+      company_id,
     )}&page=${encodeURIComponent(page)}&limit=${encodeURIComponent(limit)}`;
 
     const upstream = await fetch(upstreamUrl, {
@@ -51,9 +51,7 @@ export async function GET(request: NextRequest) {
         error: error instanceof Error ? error.message : "Internal server error",
         status: 500,
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
-
-

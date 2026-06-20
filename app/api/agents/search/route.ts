@@ -33,7 +33,7 @@ export async function GET(request: Request) {
           success: false,
           error: "Failed to parse JSON from external API",
         },
-        { status: 502 }
+        { status: 502 },
       );
     }
 
@@ -45,7 +45,7 @@ export async function GET(request: Request) {
           error: data.error || "Failed to search manufacturers",
           message: data.message || "Failed to search manufacturers",
         },
-        { status: response.status }
+        { status: response.status },
       );
     }
 
@@ -68,8 +68,7 @@ export async function GET(request: Request) {
         success: false,
         error: "Internal server error",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
-

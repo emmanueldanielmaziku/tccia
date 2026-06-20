@@ -12,10 +12,11 @@ export async function POST(request: Request) {
     // For employees during login (password_change_required), we might not have a token
     // In this case, we need login credentials to authenticate the password change
     const isEmployeeLoginPasswordChange = body.login && !token;
-    
-    
-    const isEmployeePasswordChange = body.is_employee_password_change === true || isEmployeeLoginPasswordChange;
-    
+
+    const isEmployeePasswordChange =
+      body.is_employee_password_change === true ||
+      isEmployeeLoginPasswordChange;
+
     // Validate required fields
     if (!isEmployeePasswordChange && !body.old_password) {
       return NextResponse.json(
@@ -26,10 +27,10 @@ export async function POST(request: Request) {
             error: "old_password is required",
           },
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
-    
+
     if (!body.new_password || !body.confirm_password) {
       return NextResponse.json(
         {
@@ -39,7 +40,7 @@ export async function POST(request: Request) {
             error: "new_password and confirm_password are required",
           },
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -53,7 +54,7 @@ export async function POST(request: Request) {
             error: "New passwords do not match",
           },
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -101,7 +102,7 @@ export async function POST(request: Request) {
             error: data.result.error,
           },
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -123,7 +124,7 @@ export async function POST(request: Request) {
           error: "Internal server error",
         },
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

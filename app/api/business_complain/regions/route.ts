@@ -14,7 +14,7 @@ export async function GET() {
         message: "Error fetching regions.",
         data: null,
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

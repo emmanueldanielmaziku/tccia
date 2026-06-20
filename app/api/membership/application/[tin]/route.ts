@@ -5,7 +5,7 @@ const API_BASE_URL = "https://staff.tncc.or.tz";
 
 export async function GET(
   req: Request,
-  { params }: { params: Promise<{ tin: string }> }
+  { params }: { params: Promise<{ tin: string }> },
 ) {
   const { tin } = await params;
   try {
@@ -18,7 +18,7 @@ export async function GET(
           message: "Unauthorized - Missing authentication token.",
           data: null,
         },
-        { status: 401 }
+        { status: 401 },
       );
     }
     const res = await fetch(
@@ -27,7 +27,7 @@ export async function GET(
         headers: {
           Authorization: `Bearer ${token.value.trim()}`,
         },
-      }
+      },
     );
     if (!res.ok) {
       return NextResponse.json(
@@ -36,7 +36,7 @@ export async function GET(
           message: "No membership application found for this TIN.",
           data: null,
         },
-        { status: 404 }
+        { status: 404 },
       );
     }
     const data = await res.json();
@@ -47,7 +47,7 @@ export async function GET(
           message: "No membership application found for this TIN.",
           data: null,
         },
-        { status: 404 }
+        { status: 404 },
       );
     }
     // console.log(data);
@@ -59,7 +59,7 @@ export async function GET(
         message: "Error fetching membership application.",
         data: null,
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

@@ -39,32 +39,35 @@ export default function NavBar() {
           className="w-[50px] h-[50px] md:w-[70px] md:h-[70px]"
         />
 
-        {/* Desktop Menu */}
-        <ul className="hidden md:flex space-x-12">
-          <li>
-            <a href="/auth" className="hover:text-blue-500">
-              {tn("home")}
-            </a>
-          </li>
-          <li>
-            <button
-              type="button"
-              onClick={() => setShowCertificateValidity(true)}
-              className="hover:text-blue-500"
-            >
-              {tn("certificateValidity")}
-            </button>
-          </li>
-          <li>
-            <button onClick={handleHelpClick} className="hover:text-blue-500">
-              {tn("help")}
-            </button>
-          </li>
-        </ul>
       </div>
 
       {/* Desktop Buttons */}
       <div className="hidden md:flex md:flex-row items-center space-x-4">
+        <button
+          type="button"
+          onClick={() => setShowCertificateValidity(true)}
+          className="flex items-center h-11.5 text-blue-600 border-[0.5px] border-blue-200 hover:text-blue-700 bg-transparent hover:bg-blue-50 rounded-[12px] transition-colors duration-200 text-sm font-medium px-4 cursor-pointer whitespace-nowrap"
+        >
+          {tn("certificateValidity")}
+        </button>
+        <button
+          onClick={handleHelpClick}
+          className="flex items-center h-11.5 text-blue-600 border-[0.5px] border-blue-200 hover:text-blue-700 bg-transparent hover:bg-blue-50 rounded-[12px] transition-colors duration-200 text-sm font-medium px-4 cursor-pointer whitespace-nowrap"
+        >
+          {tn("help")}
+        </button>
+        <a
+          href="/client/ntb"
+          className="flex items-center h-11.5 text-blue-600 border-[0.5px] border-blue-200 hover:text-blue-700 bg-transparent hover:bg-blue-50 rounded-[12px] transition-colors duration-200 text-sm font-medium px-4 cursor-pointer whitespace-nowrap"
+        >
+          {tn("reportNonTariffBarrier")}
+        </a>
+        <a
+          href="/client/business-complaints"
+          className="flex items-center h-11.5 text-blue-600 border-[0.5px] border-blue-200 hover:text-blue-700 bg-transparent hover:bg-blue-50 rounded-[12px] transition-colors duration-200 text-sm font-medium px-4 cursor-pointer whitespace-nowrap"
+        >
+          {tn("businessComplaints")}
+        </a>
         <button
           className="flex flex-row items-center justify-between h-11.5 w-[100px] px-2 gap-1.5 rounded-[12px] bg-gray-100 hover:bg-gray-200 mr-5 cursor-pointer border-1 border-zinc-300 relative"
           onMouseOver={() => toggleDropBox(true)}
@@ -165,14 +168,6 @@ export default function NavBar() {
         <div className="absolute top-16 left-0 w-full bg-gray-100 shadow-md z-50 px-8 py-1">
           <ul className="flex flex-col items-left space-y-4 py-4 text-sm">
             <li className="border-b border-gray-300 pb-2">
-              <a
-                href="/auth"
-                className="hover:text-blue-500 display-block"
-              >
-                {tn("home")}
-              </a>
-            </li>
-            <li className="border-b border-gray-300 pb-2">
               <button
                 type="button"
                 onClick={() => {
@@ -192,6 +187,24 @@ export default function NavBar() {
               >
                 {tn("help")}
               </button>
+            </li>
+            <li className="border-b border-gray-300 pb-2">
+              <a
+                href="/client/ntb"
+                className="hover:text-blue-500 display-block"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                {tn("reportNonTariffBarrier")}
+              </a>
+            </li>
+            <li className="border-b border-transparent pb-2">
+              <a
+                href="/client/business-complaints"
+                className="hover:text-blue-500 display-block"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                {tn("businessComplaints")}
+              </a>
             </li>
           </ul>
         </div>

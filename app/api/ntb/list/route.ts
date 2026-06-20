@@ -14,7 +14,7 @@ export async function GET(request: Request) {
           status: "error",
           error: "Unauthorized - Missing authentication",
         },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
@@ -33,7 +33,7 @@ export async function GET(request: Request) {
       console.error(
         "API response not ok:",
         response.status,
-        response.statusText
+        response.statusText,
       );
       console.error("Error response body:", errorText);
 
@@ -43,7 +43,7 @@ export async function GET(request: Request) {
           error: `API request failed: ${response.status} ${response.statusText}`,
           details: errorText,
         },
-        { status: response.status }
+        { status: response.status },
       );
     }
 
@@ -56,7 +56,7 @@ export async function GET(request: Request) {
           status: "error",
           error: "Invalid response format from API",
         },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
@@ -78,7 +78,7 @@ export async function GET(request: Request) {
             status: "error",
             error: data.result.message || "Failed to fetch NTB list",
           },
-          { status: 400 }
+          { status: 400 },
         );
       }
     }
@@ -102,7 +102,6 @@ export async function GET(request: Request) {
       count: Array.isArray(data) ? data.length : 0,
       message: "NTB list fetched successfully",
     });
-
   } catch (error) {
     console.error("NTB list fetch error:", error);
     return NextResponse.json(
@@ -111,7 +110,7 @@ export async function GET(request: Request) {
         status: "error",
         error: "Internal server error",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
-} 
+}

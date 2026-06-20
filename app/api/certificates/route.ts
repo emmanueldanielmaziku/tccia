@@ -19,7 +19,7 @@ export async function POST(request: Request) {
           ...(token && { Authorization: `Bearer ${token.value}` }),
         },
         body: JSON.stringify(body),
-      }
+      },
     );
 
     const data = await response.json();
@@ -38,7 +38,7 @@ export async function POST(request: Request) {
               "Failed to fetch certificates",
           },
         },
-        { status: response.status }
+        { status: response.status },
       );
     }
 
@@ -65,7 +65,7 @@ export async function POST(request: Request) {
               "Unexpected response structure",
           },
         },
-        { status: 500 }
+        { status: 500 },
       );
     }
   } catch (error) {
@@ -78,7 +78,7 @@ export async function POST(request: Request) {
           error: "Internal server error",
         },
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

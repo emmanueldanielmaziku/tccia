@@ -5,7 +5,7 @@ const API_BASE_URL = "https://staff.tncc.or.tz";
 
 export async function POST(
   request: Request,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const { id } = await params;
@@ -16,7 +16,7 @@ export async function POST(
           success: false,
           message: "Missing report identifier",
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -29,7 +29,7 @@ export async function POST(
           success: false,
           message: "Unauthorized - Missing authentication",
         },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
@@ -41,7 +41,7 @@ export async function POST(
           success: false,
           message: "Rating is required",
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -64,7 +64,7 @@ export async function POST(
           Authorization: `Bearer ${token.value.trim()}`,
         },
         body: JSON.stringify(payload),
-      }
+      },
     );
 
     const rawText = await response.text();
@@ -74,7 +74,9 @@ export async function POST(
     try {
       data = JSON.parse(rawText);
     } catch (parseError) {
-      console.warn("[NTB Feedback] Failed to parse JSON response, returning raw text");
+      console.warn(
+        "[NTB Feedback] Failed to parse JSON response, returning raw text",
+      );
     }
 
     if (!response.ok) {
@@ -84,7 +86,7 @@ export async function POST(
           message: data?.message || "Failed to submit feedback",
           details: data ?? rawText,
         },
-        { status: response.status }
+        { status: response.status },
       );
     }
 
@@ -104,7 +106,7 @@ export async function POST(
         success: false,
         message: "Internal server error",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

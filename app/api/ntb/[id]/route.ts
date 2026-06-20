@@ -5,7 +5,7 @@ const API_BASE_URL = "https://staff.tncc.or.tz";
 
 export async function GET(
   request: Request,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const cookieStore = await cookies();
@@ -17,7 +17,7 @@ export async function GET(
           status: "error",
           error: "Unauthorized - Missing authentication",
         },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
@@ -29,7 +29,7 @@ export async function GET(
           status: "error",
           error: "NTB ID is required",
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -49,7 +49,7 @@ export async function GET(
       console.error(
         "API response not ok:",
         response.status,
-        response.statusText
+        response.statusText,
       );
       console.error("Error response body:", errorText);
 
@@ -59,7 +59,7 @@ export async function GET(
           error: `API request failed: ${response.status} ${response.statusText}`,
           details: errorText,
         },
-        { status: response.status }
+        { status: response.status },
       );
     }
 
@@ -72,7 +72,7 @@ export async function GET(
           status: "error",
           error: "Invalid response format from API",
         },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
@@ -95,7 +95,7 @@ export async function GET(
             status: "error",
             error: data.result.message || "Failed to fetch NTB details",
           },
-          { status: 400 }
+          { status: 400 },
         );
       }
     }
@@ -117,7 +117,6 @@ export async function GET(
       data: data || {},
       message: "NTB details fetched successfully",
     });
-
   } catch (error) {
     console.error("NTB details fetch error:", error);
     return NextResponse.json(
@@ -126,7 +125,7 @@ export async function GET(
         status: "error",
         error: "Internal server error",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
-} 
+}

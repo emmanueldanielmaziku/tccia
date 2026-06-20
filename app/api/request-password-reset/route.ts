@@ -5,7 +5,7 @@ const API_BASE_URL = "https://staff.tncc.or.tz";
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    
+
     // Validate required email field
     if (!body.email) {
       return NextResponse.json(
@@ -16,7 +16,7 @@ export async function POST(request: Request) {
             error: "Email is required",
           },
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -43,7 +43,7 @@ export async function POST(request: Request) {
             error: data.result.error,
           },
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -52,7 +52,8 @@ export async function POST(request: Request) {
       id: null,
       result: {
         success: true,
-        message: data.result?.message || "Password reset email sent successfully",
+        message:
+          data.result?.message || "Password reset email sent successfully",
       },
     });
   } catch (error) {
@@ -65,7 +66,7 @@ export async function POST(request: Request) {
           error: "Internal server error",
         },
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

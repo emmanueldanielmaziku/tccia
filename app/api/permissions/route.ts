@@ -15,7 +15,7 @@ export async function GET(_request: NextRequest) {
   if (!token) {
     return NextResponse.json(
       { success: false, error: "Invalid token", status: 401 },
-      { status: 401 }
+      { status: 401 },
     );
   }
 
@@ -37,8 +37,6 @@ export async function GET(_request: NextRequest) {
 
   return NextResponse.json(
     { success: true, permissions: STATIC_PERMISSIONS, status: 200 },
-    { status: 200 }
+    { status: 200 },
   );
 }
-
-

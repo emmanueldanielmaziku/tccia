@@ -11,7 +11,7 @@ export async function GET(request: Request) {
     if (hse) {
       // If searching by hse, use GET with query param
       const apiUrl = `${API_BASE_URL}/api/products/master?hse=${encodeURIComponent(
-        hse
+        hse,
       )}`;
       console.log("[ProductMaster] Outgoing GET:", apiUrl);
       const response = await fetch(apiUrl, {
@@ -29,7 +29,7 @@ export async function GET(request: Request) {
             error: data.error || "API request failed",
             details: data,
           },
-          { status: response.status }
+          { status: response.status },
         );
       }
       // Assume data.result.products or data.products
@@ -58,7 +58,7 @@ export async function GET(request: Request) {
           status: "error",
           error: "Unauthorized - Missing authentication",
         },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
@@ -81,7 +81,7 @@ export async function GET(request: Request) {
     console.log("Response status:", response.status);
     console.log(
       "Response headers:",
-      Object.fromEntries(response.headers.entries())
+      Object.fromEntries(response.headers.entries()),
     );
 
     if (!response.ok) {
@@ -94,7 +94,7 @@ export async function GET(request: Request) {
       console.error(
         "API response not ok:",
         response.status,
-        response.statusText
+        response.statusText,
       );
       console.error("Error response body:", errorData);
 
@@ -107,7 +107,7 @@ export async function GET(request: Request) {
           error: `API request failed: ${response.status} ${response.statusText}`,
           details: errorData,
         },
-        { status: response.status }
+        { status: response.status },
       );
     }
 
@@ -120,7 +120,7 @@ export async function GET(request: Request) {
           status: "error",
           error: "Invalid response format from API",
         },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
@@ -134,7 +134,7 @@ export async function GET(request: Request) {
           status: "error",
           error: "Invalid response structure from API",
         },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
@@ -160,7 +160,7 @@ export async function GET(request: Request) {
         status: "error",
         error: "Internal server error",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

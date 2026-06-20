@@ -9,7 +9,6 @@ export async function GET() {
 
     const response = await fetch(apiUrl, {
       method: "GET",
-
     });
 
     if (!response.ok) {
@@ -17,7 +16,7 @@ export async function GET() {
       console.error(
         "API response not ok:",
         response.status,
-        response.statusText
+        response.statusText,
       );
       console.error("Error response body:", errorText);
 
@@ -27,7 +26,7 @@ export async function GET() {
           error: `API request failed: ${response.status} ${response.statusText}`,
           details: errorText,
         },
-        { status: response.status }
+        { status: response.status },
       );
     }
 
@@ -40,7 +39,7 @@ export async function GET() {
           status: "error",
           error: "Invalid response format from API",
         },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
@@ -63,7 +62,7 @@ export async function GET() {
             status: "error",
             error: data.result.message || "Failed to fetch NTB types",
           },
-          { status: 400 }
+          { status: 400 },
         );
       }
     }
@@ -85,7 +84,6 @@ export async function GET() {
       data: Array.isArray(data) ? data : [],
       message: "NTB types fetched successfully",
     });
-
   } catch (error) {
     console.error("NTB types fetch error:", error);
     return NextResponse.json(
@@ -94,7 +92,7 @@ export async function GET() {
         status: "error",
         error: "Internal server error",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
-} 
+}

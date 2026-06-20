@@ -15,7 +15,7 @@ export async function POST(request: Request) {
           id: null,
           result: { error: "reference_number is required" },
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -32,7 +32,7 @@ export async function POST(request: Request) {
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
         body: JSON.stringify({ reference_number }),
-      }
+      },
     );
 
     const contentType = remoteRes.headers.get("content-type") || "";
@@ -54,8 +54,7 @@ export async function POST(request: Request) {
         id: null,
         result: { error: "Internal server error" },
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
-

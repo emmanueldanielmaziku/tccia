@@ -29,7 +29,7 @@ export async function GET() {
           error: "Failed to fetch origin criterions",
           details: raw,
         },
-        { status: response.status }
+        { status: response.status },
       );
     }
 
@@ -38,8 +38,7 @@ export async function GET() {
     console.error("Origin criterions fetch error:", error);
     return NextResponse.json(
       { success: false, error: "Internal server error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
-

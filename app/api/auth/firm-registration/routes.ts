@@ -18,7 +18,7 @@ export async function POST(request: Request) {
             error: "Unauthorized - No token provided",
           },
         },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
@@ -31,7 +31,7 @@ export async function POST(request: Request) {
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(body),
-      }
+      },
     );
 
     const data = await response.json();
@@ -44,7 +44,7 @@ export async function POST(request: Request) {
             error: data.result.error,
           },
         },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
@@ -59,7 +59,7 @@ export async function POST(request: Request) {
             id: data.result.id,
           },
         },
-        { status: 200 }
+        { status: 200 },
       );
     }
 
@@ -71,7 +71,7 @@ export async function POST(request: Request) {
           error: "Unexpected response format",
         },
       },
-      { status: 400 }
+      { status: 400 },
     );
   } catch (error) {
     console.error("Fetching error:", error);
@@ -83,7 +83,7 @@ export async function POST(request: Request) {
           error: "Internal server error",
         },
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

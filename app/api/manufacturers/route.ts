@@ -5,8 +5,7 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const query = searchParams.toString();
     const apiUrl =
-      "https://staff.tncc.or.tz/api/manufacturers" +
-      (query ? `?${query}` : "");
+      "https://staff.tncc.or.tz/api/manufacturers" + (query ? `?${query}` : "");
 
     console.log("[API] /api/manufacturers GET");
     console.log("Incoming search params:", query);
@@ -29,7 +28,7 @@ export async function GET(request: Request) {
           success: false,
           error: "Failed to parse JSON from external API",
         },
-        { status: 502 }
+        { status: 502 },
       );
     }
 
@@ -42,14 +41,14 @@ export async function GET(request: Request) {
           error: data.error || "Failed to fetch manufacturers",
           message: data.message || "Failed to fetch manufacturers",
         },
-        { status: response.status }
+        { status: response.status },
       );
     }
 
     // Debug: Log success
     console.log(
       "Manufacturers fetched successfully. Count:",
-      Array.isArray(data.data) ? data.data.length : 0
+      Array.isArray(data.data) ? data.data.length : 0,
     );
 
     return NextResponse.json({
@@ -66,7 +65,7 @@ export async function GET(request: Request) {
         success: false,
         error: "Internal server error",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

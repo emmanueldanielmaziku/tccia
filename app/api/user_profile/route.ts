@@ -13,20 +13,16 @@ export async function GET(request: NextRequest) {
           status: "error",
           error: "Unauthorized - Missing authentication",
         },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
-    const response = await fetch(
-      `https://staff.tncc.or.tz/api/user/me`,
-      {
-        method: "GET",
-        headers: {
-      
-          Authorization: `Bearer ${token.value.trim()}`,
-        },
-      }
-    );
+    const response = await fetch(`https://staff.tncc.or.tz/api/user/me`, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token.value.trim()}`,
+      },
+    });
 
     if (!response.ok) {
       let errorData;
@@ -36,31 +32,36 @@ export async function GET(request: NextRequest) {
         errorData = await response.text();
       }
       console.error("External API error:", errorData);
-      
+
       // If the external API returns 401 or invalid token error, propagate it properly
-      if (response.status === 401 || 
-          (typeof errorData === 'object' && errorData.error && 
-           (errorData.error.toLowerCase().includes('token') || 
-            errorData.error.toLowerCase().includes('unauthorized')))) {
-        console.log("🔴 /api/user_profile: Invalid token detected, clearing cookies and returning 401");
-        
+      if (
+        response.status === 401 ||
+        (typeof errorData === "object" &&
+          errorData.error &&
+          (errorData.error.toLowerCase().includes("token") ||
+            errorData.error.toLowerCase().includes("unauthorized")))
+      ) {
+        console.log(
+          "🔴 /api/user_profile: Invalid token detected, clearing cookies and returning 401",
+        );
+
         // Clear the invalid token
         const cookieStore = await cookies();
         cookieStore.delete("token");
         cookieStore.delete("uid");
-        
+
         return NextResponse.json(
-          { 
+          {
             error: "Invalid or expired authentication token",
-            code: "AUTHENTICATION_FAILED"
+            code: "AUTHENTICATION_FAILED",
           },
-          { status: 401 }
+          { status: 401 },
         );
       }
-      
+
       return NextResponse.json(
         { error: "Failed to fetch user profile from external service" },
-        { status: response.status }
+        { status: response.status },
       );
     }
 
@@ -77,7 +78,7 @@ export async function GET(request: NextRequest) {
     console.error("Error fetching user profile:", error);
     return NextResponse.json(
       { error: "Internal server error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

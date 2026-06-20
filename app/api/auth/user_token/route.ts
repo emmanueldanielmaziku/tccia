@@ -20,7 +20,10 @@ export async function POST(request: Request) {
 
     // If backend indicates password change required, pass it through as 403
     // Check regardless of HTTP status code - backend might return 200 with need_password_change flag
-    if (data?.need_password_change === true || data?.result?.need_password_change === true) {
+    if (
+      data?.need_password_change === true ||
+      data?.result?.need_password_change === true
+    ) {
       const err =
         data?.error ||
         data?.result?.error ||
@@ -36,7 +39,7 @@ export async function POST(request: Request) {
             user_role: data?.result?.user_role || data?.user_role,
           },
         },
-        { status: 403 }
+        { status: 403 },
       );
     }
 
@@ -60,7 +63,7 @@ export async function POST(request: Request) {
             need_otp_verification: true,
           },
         },
-        { status: 403 }
+        { status: 403 },
       );
     }
 
@@ -73,7 +76,7 @@ export async function POST(request: Request) {
             error: data.result.error,
           },
         },
-        { status: response.status || 401 }
+        { status: response.status || 401 },
       );
     }
 
@@ -122,7 +125,7 @@ export async function POST(request: Request) {
           error: "Invalid response from server",
         },
       },
-      { status: 500 }
+      { status: 500 },
     );
   } catch (error) {
     console.error("Login error:", error);
@@ -134,7 +137,7 @@ export async function POST(request: Request) {
           error: "Internal server error",
         },
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

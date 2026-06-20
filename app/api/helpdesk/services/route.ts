@@ -13,7 +13,7 @@ export async function GET() {
     if (!res.ok) {
       return NextResponse.json(
         { error: "Failed to fetch services" },
-        { status: res.status }
+        { status: res.status },
       );
     }
     const data = await res.json();

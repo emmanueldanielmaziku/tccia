@@ -62,10 +62,11 @@ export default function HelpdeskReport() {
   const [trackResult, setTrackResult] = useState<any>(null);
   const [trackError, setTrackError] = useState<string | null>(null);
 
-  const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "https://staff.tncc.or.tz";
+  const BASE_URL =
+    process.env.NEXT_PUBLIC_API_BASE_URL || "https://staff.tncc.or.tz";
 
   useEffect(() => {
-    fetch(`${BASE_URL}/api/helpdesk/services`,)
+    fetch(`${BASE_URL}/api/helpdesk/services`)
       .then((res) => res.json())
       .then((data) => {
         if (data.success && Array.isArray(data.services)) {
@@ -105,9 +106,7 @@ export default function HelpdeskReport() {
     setSubmitError(null);
 
     if (!isValidPhone(form.customer_phone)) {
-      setSubmitError(
-        "Use Tanzanian format: +255XXXXXXXXX"
-      );
+      setSubmitError("Use Tanzanian format: +255XXXXXXXXX");
       return;
     }
 
@@ -281,7 +280,7 @@ export default function HelpdeskReport() {
                             className="flex-1 py-3 rounded-[9px]"
                             onClick={() => {
                               navigator.clipboard.writeText(
-                                submitResult.ticket_number
+                                submitResult.ticket_number,
                               );
                             }}
                           >
@@ -315,7 +314,7 @@ export default function HelpdeskReport() {
                                 onChange={(e) =>
                                   handleFormChange(
                                     "customer_name",
-                                    e.target.value
+                                    e.target.value,
                                   )
                                 }
                                 placeholder={t("customerName")}
@@ -333,7 +332,7 @@ export default function HelpdeskReport() {
                                 onChange={(e) => {
                                   const val = e.target.value.replace(
                                     /[^\d+]/g,
-                                    ""
+                                    "",
                                   );
                                   handleFormChange("customer_phone", val);
                                 }}
@@ -417,7 +416,6 @@ export default function HelpdeskReport() {
                                 value={issueCategory}
                                 onValueChange={(v) => setIssueCategory(v)}
                                 required
-                                
                                 disabled={!serviceCategory}
                               >
                                 <SelectTrigger className="py-3 px-4 rounded-lg border-gray-300">
@@ -615,7 +613,7 @@ export default function HelpdeskReport() {
                             {t("submitted")}:
                           </span>{" "}
                           {new Date(
-                            trackResult.submission_date
+                            trackResult.submission_date,
                           ).toLocaleString()}
                         </div>
                         <div className="mb-2">

@@ -15,7 +15,7 @@ export async function POST(request: Request) {
           status: "error",
           error: "Unauthorized - Missing authentication",
         },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
@@ -28,7 +28,7 @@ export async function POST(request: Request) {
           status: "error",
           error: "Company TIN is required",
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -42,7 +42,6 @@ export async function POST(request: Request) {
       },
     });
 
-
     // console.log("Response body (Products):", response.body);
 
     if (!response.ok) {
@@ -50,7 +49,7 @@ export async function POST(request: Request) {
       console.error(
         "API response not ok:",
         response.status,
-        response.statusText
+        response.statusText,
       );
       console.error("Error response body:", errorText);
 
@@ -60,7 +59,7 @@ export async function POST(request: Request) {
           error: `API request failed: ${response.status} ${response.statusText}`,
           details: errorText,
         },
-        { status: response.status }
+        { status: response.status },
       );
     }
 
@@ -73,7 +72,7 @@ export async function POST(request: Request) {
           status: "error",
           error: "Invalid response format from API",
         },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
@@ -87,7 +86,7 @@ export async function POST(request: Request) {
           success: false,
           error: data.message || "API request failed",
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -128,7 +127,7 @@ export async function POST(request: Request) {
         success: false,
         error: "Invalid response structure from API",
       },
-      { status: 500 }
+      { status: 500 },
     );
   } catch (error) {
     console.error("Factory products fetch error:", error);
@@ -137,7 +136,7 @@ export async function POST(request: Request) {
         status: "error",
         error: "Internal server error",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

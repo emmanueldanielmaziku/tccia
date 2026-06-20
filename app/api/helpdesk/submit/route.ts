@@ -17,7 +17,7 @@ export async function POST(req: NextRequest) {
     if (!res.ok) {
       return NextResponse.json(
         { error: "Failed to submit ticket" },
-        { status: res.status }
+        { status: res.status },
       );
     }
     const data = await res.json();

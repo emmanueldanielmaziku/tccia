@@ -119,55 +119,55 @@ export default function HSCodeWidget({
   const copyToClipboard = async (hsCode: string) => {
     try {
       await navigator.clipboard.writeText(hsCode);
-      setCopiedItems(prev => new Set(prev).add(hsCode));
+      setCopiedItems((prev) => new Set(prev).add(hsCode));
       toast.success(`HS Code ${hsCode} copied to clipboard!`);
-      
+
       // Reset the copied state after 2 seconds
       setTimeout(() => {
-        setCopiedItems(prev => {
+        setCopiedItems((prev) => {
           const newSet = new Set(prev);
           newSet.delete(hsCode);
           return newSet;
         });
       }, 2000);
     } catch (err) {
-      console.error('Failed to copy HS code:', err);
-      toast.error('Failed to copy HS code');
+      console.error("Failed to copy HS code:", err);
+      toast.error("Failed to copy HS code");
     }
   };
 
   const getPageNumbers = () => {
     const pages: (number | string)[] = [];
     const maxVisiblePages = 5;
-    
+
     if (totalPages <= maxVisiblePages) {
       for (let i = 1; i <= totalPages; i++) {
         pages.push(i);
       }
     } else {
       pages.push(1);
-      
+
       let start = Math.max(2, page - 1);
       let end = Math.min(totalPages - 1, page + 1);
-      
+
       if (page <= 3) {
         end = 4;
       } else if (page >= totalPages - 2) {
         start = totalPages - 3;
       }
-      
+
       if (start > 2) {
         pages.push("...");
       }
-      
+
       for (let i = start; i <= end; i++) {
         pages.push(i);
       }
-      
+
       if (end < totalPages - 1) {
         pages.push("...");
       }
-      
+
       pages.push(totalPages);
     }
     return pages;
@@ -336,7 +336,7 @@ export default function HSCodeWidget({
                     <PaginationLink
                       onClick={() => page > 1 && setPage(page - 1)}
                       aria-disabled={page === 1}
-                      className={`cursor-pointer ${page === 1 ? 'opacity-50 cursor-not-allowed' : ''}`}
+                      className={`cursor-pointer ${page === 1 ? "opacity-50 cursor-not-allowed" : ""}`}
                     >
                       {"<"}
                     </PaginationLink>
@@ -344,7 +344,9 @@ export default function HSCodeWidget({
                   {getPageNumbers().map((p, i) => (
                     <PaginationItem key={i}>
                       {p === "..." ? (
-                        <span className="px-3 py-1.5 text-sm text-gray-500 select-none">...</span>
+                        <span className="px-3 py-1.5 text-sm text-gray-500 select-none">
+                          ...
+                        </span>
                       ) : (
                         <PaginationLink
                           isActive={page === p}
@@ -358,7 +360,7 @@ export default function HSCodeWidget({
                   ))}
                   <PaginationItem>
                     <PaginationLink
-                      className={`cursor-pointer ${page === totalPages ? 'opacity-50 cursor-not-allowed' : ''}`}
+                      className={`cursor-pointer ${page === totalPages ? "opacity-50 cursor-not-allowed" : ""}`}
                       onClick={() => page < totalPages && setPage(page + 1)}
                       aria-disabled={page === totalPages}
                     >

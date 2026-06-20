@@ -14,7 +14,7 @@ export async function POST(request: Request) {
           status: "error",
           error: "Unauthorized - Missing authentication",
         },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
@@ -27,7 +27,7 @@ export async function POST(request: Request) {
           status: "error",
           error: "factory_verification_id and company_tin are required",
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -39,12 +39,15 @@ export async function POST(request: Request) {
     console.log("Accepting factory verification report:", payload);
 
     const apiUrl = `${API_BASE_URL}/api/factory_verification/accept_report`;
-    
+
     // Create form data instead of JSON
     const formData = new FormData();
-    formData.append('factory_verification_id', factory_verification_id.toString());
-    formData.append('company_tin', company_tin);
-    
+    formData.append(
+      "factory_verification_id",
+      factory_verification_id.toString(),
+    );
+    formData.append("company_tin", company_tin);
+
     const response = await fetch(apiUrl, {
       method: "POST",
       headers: {
@@ -63,7 +66,7 @@ export async function POST(request: Request) {
           status: "error",
           error: "Failed to accept report",
         },
-        { status: response.status }
+        { status: response.status },
       );
     }
 
@@ -82,7 +85,7 @@ export async function POST(request: Request) {
         status: "error",
         error: "Internal server error",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

@@ -31,7 +31,7 @@ export async function POST(request: Request) {
       console.error(
         "Business complaint API response not ok:",
         response.status,
-        response.statusText
+        response.statusText,
       );
       console.error("Error response body:", errorText);
 
@@ -48,7 +48,7 @@ export async function POST(request: Request) {
           message: errorData.message || "Failed to submit business complaint",
           details: errorText,
         },
-        { status: response.status }
+        { status: response.status },
       );
     }
 
@@ -76,8 +76,7 @@ export async function POST(request: Request) {
         success: false,
         message: "Internal server error",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
-

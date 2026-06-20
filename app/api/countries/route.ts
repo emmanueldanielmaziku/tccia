@@ -14,7 +14,7 @@ export async function GET() {
           success: false,
           message: "Unauthorized - Missing authentication",
         },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
@@ -33,7 +33,7 @@ export async function GET() {
       console.error(
         "Countries API response not ok:",
         response.status,
-        response.statusText
+        response.statusText,
       );
       console.error("Error response body:", errorText);
 
@@ -43,7 +43,7 @@ export async function GET() {
           message: "Failed to fetch countries",
           details: errorText,
         },
-        { status: response.status }
+        { status: response.status },
       );
     }
 
@@ -69,8 +69,7 @@ export async function GET() {
         success: false,
         message: "Internal server error",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
-

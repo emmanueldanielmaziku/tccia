@@ -5,7 +5,7 @@ const API_BASE_URL = "https://staff.tncc.or.tz";
 
 export async function GET(
   request: Request,
-  { params }: { params: Promise<{ user_id: string; record_id: string }> }
+  { params }: { params: Promise<{ user_id: string; record_id: string }> },
 ) {
   try {
     const cookieStore = await cookies();
@@ -17,7 +17,7 @@ export async function GET(
           success: false,
           error: "Unauthorized - Missing authentication",
         },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
@@ -29,7 +29,7 @@ export async function GET(
           success: false,
           error: "User ID and Record ID are required",
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -52,15 +52,21 @@ export async function GET(
         errorData = { error: errorText };
       }
 
-      console.error("API response not ok:", response.status, response.statusText);
+      console.error(
+        "API response not ok:",
+        response.status,
+        response.statusText,
+      );
       console.error("Error response body:", errorData);
 
       return NextResponse.json(
         {
           success: false,
-          error: errorData.error || `API request failed: ${response.status} ${response.statusText}`,
+          error:
+            errorData.error ||
+            `API request failed: ${response.status} ${response.statusText}`,
         },
-        { status: response.status }
+        { status: response.status },
       );
     }
 
@@ -73,7 +79,7 @@ export async function GET(
           success: false,
           error: "Invalid response format from API",
         },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
@@ -94,7 +100,7 @@ export async function GET(
             success: false,
             error: data.result.message || "Failed to fetch NTB resolution",
           },
-          { status: 400 }
+          { status: 400 },
         );
       }
     }
@@ -114,7 +120,6 @@ export async function GET(
       data: data || {},
       message: "NTB resolution fetched successfully",
     });
-
   } catch (error) {
     console.error("NTB resolution fetch error:", error);
     return NextResponse.json(
@@ -122,14 +127,14 @@ export async function GET(
         success: false,
         error: "Internal server error",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
 
 export async function POST(
   request: Request,
-  { params }: { params: Promise<{ user_id: string; record_id: string }> }
+  { params }: { params: Promise<{ user_id: string; record_id: string }> },
 ) {
   try {
     const cookieStore = await cookies();
@@ -141,7 +146,7 @@ export async function POST(
           success: false,
           error: "Unauthorized - Missing authentication",
         },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
@@ -153,7 +158,7 @@ export async function POST(
           success: false,
           error: "User ID and Record ID are required",
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -167,7 +172,7 @@ export async function POST(
           success: false,
           error: "resolution_remarks is required",
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -178,16 +183,22 @@ export async function POST(
     // Collect all file fields and their corresponding names
     // Frontend sends: file1, file1_name, file2, file2_name, etc.
     const fileMap = new Map<string, { file: File; name?: string }>();
-    
+
     // First pass: collect all files
     for (const [key, value] of formData.entries()) {
       // Check if it's a file field (not a name field)
-      if (key.startsWith("file") && !key.endsWith("_name") && value instanceof File) {
-        console.log(`Found file field: ${key}, filename: ${value.name}, size: ${value.size}, type: ${value.type}`);
+      if (
+        key.startsWith("file") &&
+        !key.endsWith("_name") &&
+        value instanceof File
+      ) {
+        console.log(
+          `Found file field: ${key}, filename: ${value.name}, size: ${value.size}, type: ${value.type}`,
+        );
         fileMap.set(key, { file: value });
       }
     }
-    
+
     // Second pass: collect file names
     for (const [key, value] of formData.entries()) {
       if (key.endsWith("_name") && typeof value === "string") {
@@ -215,12 +226,18 @@ export async function POST(
       if (entry) {
         if (entry.name) {
           // Create a new File with the custom filename
-          const fileWithName = new File([entry.file], entry.name, { type: entry.file.type });
-          console.log(`Appending file${index + 1} with custom name: ${entry.name} (original: ${entry.file.name})`);
+          const fileWithName = new File([entry.file], entry.name, {
+            type: entry.file.type,
+          });
+          console.log(
+            `Appending file${index + 1} with custom name: ${entry.name} (original: ${entry.file.name})`,
+          );
           apiFormData.append(`file${index + 1}`, fileWithName);
         } else {
           // Use original filename
-          console.log(`Appending file${index + 1} with original name: ${entry.file.name}`);
+          console.log(
+            `Appending file${index + 1} with original name: ${entry.file.name}`,
+          );
           apiFormData.append(`file${index + 1}`, entry.file);
         }
       }
@@ -228,7 +245,9 @@ export async function POST(
 
     const apiUrl = `${API_BASE_URL}/api/ntb/resolution/${encodeURIComponent(user_id)}/${encodeURIComponent(record_id)}`;
     console.log("Submitting NTB resolution to:", apiUrl);
-    console.log(`FormData entries: resolution_remarks and ${sortedKeys.length} file(s)`);
+    console.log(
+      `FormData entries: resolution_remarks and ${sortedKeys.length} file(s)`,
+    );
 
     const response = await fetch(apiUrl, {
       method: "POST",
@@ -240,8 +259,15 @@ export async function POST(
       body: apiFormData,
     });
 
-    console.log("NTB Resolution API response status:", response.status, response.statusText);
-    console.log("NTB Resolution API response headers:", Object.fromEntries(response.headers.entries()));
+    console.log(
+      "NTB Resolution API response status:",
+      response.status,
+      response.statusText,
+    );
+    console.log(
+      "NTB Resolution API response headers:",
+      Object.fromEntries(response.headers.entries()),
+    );
 
     // Handle 201 CREATED (success)
     if (response.status === 201) {
@@ -249,18 +275,21 @@ export async function POST(
       try {
         const responseText = await response.text();
         console.log("NTB Resolution API response body (text):", responseText);
-        
+
         // Try to parse as JSON
         try {
           responseData = JSON.parse(responseText);
-          console.log("NTB Resolution API response body (parsed):", responseData);
+          console.log(
+            "NTB Resolution API response body (parsed):",
+            responseData,
+          );
         } catch {
           // If not JSON, might be the string response representation
           responseData = { raw: responseText };
         }
 
         // Handle JSON-RPC format with string result
-        if (responseData.jsonrpc && typeof responseData.result === 'string') {
+        if (responseData.jsonrpc && typeof responseData.result === "string") {
           // Result is a string like "<Response 85 bytes [201 CREATED]>"
           // This indicates success based on status code
           return NextResponse.json({
@@ -271,12 +300,23 @@ export async function POST(
 
         // Handle normal JSON-RPC success
         if (responseData.jsonrpc && responseData.result) {
-          if (typeof responseData.result === 'object' && (responseData.result.success || responseData.result.status === "success")) {
+          if (
+            typeof responseData.result === "object" &&
+            (responseData.result.success ||
+              responseData.result.status === "success")
+          ) {
             return NextResponse.json({
               success: true,
-              message: responseData.result.message || "Resolution submitted successfully",
-              resolution_id: responseData.result.resolution_id || responseData.result.data?.resolution_id,
-              attachments: responseData.result.attachments || responseData.result.data?.attachments || [],
+              message:
+                responseData.result.message ||
+                "Resolution submitted successfully",
+              resolution_id:
+                responseData.result.resolution_id ||
+                responseData.result.data?.resolution_id,
+              attachments:
+                responseData.result.attachments ||
+                responseData.result.data?.attachments ||
+                [],
             });
           }
         }
@@ -285,8 +325,10 @@ export async function POST(
         return NextResponse.json({
           success: true,
           message: responseData.message || "Resolution submitted successfully",
-          resolution_id: responseData.resolution_id || responseData.data?.resolution_id,
-          attachments: responseData.attachments || responseData.data?.attachments || [],
+          resolution_id:
+            responseData.resolution_id || responseData.data?.resolution_id,
+          attachments:
+            responseData.attachments || responseData.data?.attachments || [],
         });
       } catch (error) {
         console.error("Error parsing success response:", error);
@@ -304,7 +346,7 @@ export async function POST(
       try {
         const errorText = await response.text();
         console.log("NTB Resolution API error body (text):", errorText);
-        
+
         try {
           errorData = JSON.parse(errorText);
           console.log("NTB Resolution API error body (parsed):", errorData);
@@ -313,13 +355,14 @@ export async function POST(
         }
 
         // Handle JSON-RPC format with string result
-        if (errorData.jsonrpc && typeof errorData.result === 'string') {
+        if (errorData.jsonrpc && typeof errorData.result === "string") {
           // Result is a string like "<Response 65 bytes [400 BAD REQUEST]>"
           // Check for error field at top level
-          let errorMessage = "Failed to submit resolution. Please check your input and try again.";
-          
+          let errorMessage =
+            "Failed to submit resolution. Please check your input and try again.";
+
           if (errorData.error) {
-            if (typeof errorData.error === 'string') {
+            if (typeof errorData.error === "string") {
               errorMessage = errorData.error;
             } else if (errorData.error.message) {
               errorMessage = errorData.error.message;
@@ -329,41 +372,41 @@ export async function POST(
           } else if (errorData.message) {
             errorMessage = errorData.message;
           }
-          
+
           return NextResponse.json(
             {
               success: false,
               error: errorMessage,
             },
-            { status: 400 }
+            { status: 400 },
           );
         }
 
         // Handle normal JSON-RPC error
         if (errorData.jsonrpc && errorData.result) {
-          const errorMessage = 
-            errorData.result?.message || 
-            errorData.result?.error || 
+          const errorMessage =
+            errorData.result?.message ||
+            errorData.result?.error ||
             errorData.error?.message ||
             errorData.message ||
             "Failed to submit resolution. Please check your input and try again.";
-          
+
           return NextResponse.json(
             {
               success: false,
               error: errorMessage,
             },
-            { status: 400 }
+            { status: 400 },
           );
         }
 
         // Extract error message from various possible structures
-        const errorMessage = 
-          errorData.error || 
-          errorData.message || 
-          errorData.result?.error || 
+        const errorMessage =
+          errorData.error ||
+          errorData.message ||
+          errorData.result?.error ||
           errorData.result?.message ||
-          (typeof errorData === 'string' ? errorData : null) ||
+          (typeof errorData === "string" ? errorData : null) ||
           "Failed to submit resolution. Please check your input and try again.";
 
         return NextResponse.json(
@@ -371,16 +414,17 @@ export async function POST(
             success: false,
             error: errorMessage,
           },
-          { status: 400 }
+          { status: 400 },
         );
       } catch (error) {
         console.error("Error parsing error response:", error);
         return NextResponse.json(
           {
             success: false,
-            error: "Failed to submit resolution. Please check your input and try again.",
+            error:
+              "Failed to submit resolution. Please check your input and try again.",
           },
-          { status: 400 }
+          { status: 400 },
         );
       }
     }
@@ -395,16 +439,20 @@ export async function POST(
         errorData = { error: errorText };
       }
 
-      console.error("API response not ok:", response.status, response.statusText);
+      console.error(
+        "API response not ok:",
+        response.status,
+        response.statusText,
+      );
       console.error("Error response body:", errorData);
 
       // Extract error message from various possible structures
-      const errorMessage = 
-        errorData.error || 
-        errorData.message || 
-        errorData.result?.error || 
+      const errorMessage =
+        errorData.error ||
+        errorData.message ||
+        errorData.result?.error ||
         errorData.result?.message ||
-        (typeof errorData === 'string' ? errorData : null) ||
+        (typeof errorData === "string" ? errorData : null) ||
         `API request failed: ${response.status} ${response.statusText}`;
 
       return NextResponse.json(
@@ -412,7 +460,7 @@ export async function POST(
           success: false,
           error: errorMessage,
         },
-        { status: response.status }
+        { status: response.status },
       );
     }
 
@@ -433,7 +481,7 @@ export async function POST(
     // Handle JSON-RPC response structure
     if (data.jsonrpc && data.result) {
       // Check if result is a string (Response object representation)
-      if (typeof data.result === 'string') {
+      if (typeof data.result === "string") {
         // String result like "<Response X bytes [STATUS]>" - treat as success if status is 200-299
         return NextResponse.json({
           success: true,
@@ -446,8 +494,10 @@ export async function POST(
         return NextResponse.json({
           success: true,
           message: data.result.message || "Resolution submitted successfully",
-          resolution_id: data.result.resolution_id || data.result.data?.resolution_id,
-          attachments: data.result.attachments || data.result.data?.attachments || [],
+          resolution_id:
+            data.result.resolution_id || data.result.data?.resolution_id,
+          attachments:
+            data.result.attachments || data.result.data?.attachments || [],
         });
       } else {
         return NextResponse.json(
@@ -455,7 +505,7 @@ export async function POST(
             success: false,
             error: data.result.message || "Failed to submit resolution",
           },
-          { status: 400 }
+          { status: 400 },
         );
       }
     }
@@ -477,7 +527,6 @@ export async function POST(
       resolution_id: data.resolution_id,
       attachments: data.attachments || [],
     });
-
   } catch (error) {
     console.error("NTB resolution submission error:", error);
     return NextResponse.json(
@@ -485,8 +534,7 @@ export async function POST(
         success: false,
         error: "Internal server error",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
-
