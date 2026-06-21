@@ -3,6 +3,8 @@ import { useEffect, useMemo, useState } from "react";
 import { z } from "zod";
 import { Sms, Call, User, Building, Layer, Verify, Chart, Lock } from "iconsax-reactjs";
 import { Checkbox } from "@/components/ui/checkbox";
+import { useApiWithSessionHandling } from "../../../../hooks/useApiWithSessionHandling";
+import { handleSessionError } from "../../../../utils/sessionErrorHandler";
 
 const userSchema = z.object({
   name: z.string().min(2, "Full name is required"),
@@ -148,6 +150,7 @@ export default function AddOfficerForm({
 }: {
   onSuccess?: () => void;
 }) {
+  const { fetchWithSessionHandling } = useApiWithSessionHandling();
   const [company, setCompany] = useState<CompanyData | null>(null);
   const [modules, setModules] = useState<Module[]>([]);
   const [permissions, setPermissions] = useState<Permission[]>([]);
@@ -185,8 +188,8 @@ export default function AddOfficerForm({
         if (stored) setCompany(JSON.parse(stored));
 
         const [modsRes, permsRes] = await Promise.all([
-          fetch("/api/modules"),
-          fetch("/api/permissions"),
+          fetchWithSessionHandling("/api/modules"),
+          fetchWithSessionHandling("/api/permissions"),
         ]);
         const modsJson = await modsRes.json();
         const permsJson = await permsRes.json();
@@ -201,6 +204,7 @@ export default function AddOfficerForm({
           Array.isArray(permsJson?.permissions) ? permsJson.permissions : []
         );
       } catch (e) {
+        if (handleSessionError(e)) return;
         setSubmitError("Failed to load modules/permissions.");
       } finally {
         setLoadingMeta(false);
@@ -305,23 +309,34 @@ export default function AddOfficerForm({
         modules: selectedModulesPayload.length ? selectedModulesPayload : undefined,
       };
 
-      const res = await fetch("/api/manager/add-employee", {
+      const res = await fetchWithSessionHandling("/api/manager/add-employee", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
       const data = await res.json();
       
-      // Check for errors in response body even if status is 200
       if (!res.ok || data?.result?.error || (data?.result?.success === false)) {
         const errorMessage = data?.result?.error || data?.error || "Failed to add employee.";
-        setSubmitError(errorMessage);
+        togglePreview(false);
+        const lower = errorMessage.toLowerCase();
+        if (lower.includes("email")) {
+          setErrors((prev) => ({ ...prev, email: errorMessage }));
+        } else if (lower.includes("phone")) {
+          setErrors((prev) => ({ ...prev, phone: errorMessage }));
+        } else if (lower.includes("name")) {
+          setErrors((prev) => ({ ...prev, name: errorMessage }));
+        } else {
+          setSubmitError(errorMessage);
+        }
         return;
       }
       
       togglePreview(false);
       if (onSuccess) onSuccess();
     } catch (e) {
+      if (handleSessionError(e)) return;
+      togglePreview(false);
       setSubmitError("Network error while adding employee.");
     } finally {
       setSubmitting(false);

@@ -296,6 +296,7 @@ export default function EmployeesManagement() {
       toast.success("Employee updated successfully!");
       await fetchEmployees(currentPage);
     } catch (err) {
+      if (handleSessionError(err)) return;
       setEditError(formatError(err) || "Network error while updating employee.");
     } finally {
       setEditSubmitting(false);
@@ -359,6 +360,7 @@ export default function EmployeesManagement() {
       // Refresh the employee list to show updated status
       await fetchEmployees(currentPage);
     } catch (err) {
+      if (handleSessionError(err)) return;
       toast.error(formatError(err) || "Network error while updating employee status.");
     } finally {
       setTogglingStatus(null);
