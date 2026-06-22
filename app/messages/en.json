@@ -26,9 +26,14 @@
     "businessComplaints": "Business Complaints",
     "paymentGuideline": "Payment Guideline",
     "certificateValidity": "Certificate Validity",
+    "joinMembership": "Join Membership",
     "viewProfile": "View Profile",
     "refreshProfile": "Refresh Profile",
-    "signOut": "Sign Out"
+    "signOut": "Sign Out",
+    "guestMessageJoin": "Please login or create a new account to Join Membership",
+    "guestMessageNTB": "Please login or create a new account to Report Non-Tariff Barrier",
+    "guestMessageComplaints": "Please login or create a new account to Submit Business Complaints",
+    "guestLoginHint": "Use your account details: Email / Phone and Password, or Create new account"
   },
   "sidebar": {
     "modules": "Modules",

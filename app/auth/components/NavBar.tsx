@@ -7,13 +7,25 @@ import { useFormState } from "../services/FormStates";
 import useLangState from "@/app/services/LanguageState";
 import { useTranslations } from "next-intl";
 import { useAuthLayoutState } from "../services/AuthLayoutState";
+import { useGuestNotificationState } from "../services/GuestNotificationState";
 
 export default function NavBar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { formType, toggleFormType } = useFormState();
   const { language, toggleLanguage } = useLangState();
   const [langDrop, toggleDropBox] = useState(false);
-  const { setShowHelpDesk, setShowCertificateValidity } = useAuthLayoutState();
+  const { showHelpDesk, showCertificateValidity, setShowHelpDesk, setShowCertificateValidity } =
+    useAuthLayoutState();
+  const { showNotification } = useGuestNotificationState();
+
+  const handleServiceButtonClick = (key: "joinMembership" | "reportNonTariffBarrier" | "businessComplaints") => {
+    if (showHelpDesk || showCertificateValidity) {
+      setShowHelpDesk(false);
+      setShowCertificateValidity(false);
+    } else {
+      showNotification(key);
+    }
+  };
 
   const handleFormToggle = () => {
     setShowHelpDesk(false);
@@ -62,18 +74,27 @@ export default function NavBar() {
         >
           {tn("help")}
         </button>
-        <a
-          href="/client/ntb"
+        <button
+          type="button"
+          onClick={() => handleServiceButtonClick("joinMembership")}
+          className="flex items-center h-11.5 text-blue-600 border-[0.5px] border-blue-200 hover:text-blue-700 bg-transparent hover:bg-blue-50 rounded-[12px] transition-colors duration-200 text-sm font-medium px-4 cursor-pointer whitespace-nowrap"
+        >
+          {tn("joinMembership")}
+        </button>
+        <button
+          type="button"
+          onClick={() => handleServiceButtonClick("reportNonTariffBarrier")}
           className="flex items-center h-11.5 text-blue-600 border-[0.5px] border-blue-200 hover:text-blue-700 bg-transparent hover:bg-blue-50 rounded-[12px] transition-colors duration-200 text-sm font-medium px-4 cursor-pointer whitespace-nowrap"
         >
           {tn("reportNonTariffBarrier")}
-        </a>
-        <a
-          href="/client/business-complaints"
+        </button>
+        <button
+          type="button"
+          onClick={() => handleServiceButtonClick("businessComplaints")}
           className="flex items-center h-11.5 text-blue-600 border-[0.5px] border-blue-200 hover:text-blue-700 bg-transparent hover:bg-blue-50 rounded-[12px] transition-colors duration-200 text-sm font-medium px-4 cursor-pointer whitespace-nowrap"
         >
           {tn("businessComplaints")}
-        </a>
+        </button>
         <button
           className="flex flex-row items-center justify-between h-11.5 w-[100px] px-2 gap-1.5 rounded-[12px] bg-gray-100 hover:bg-gray-200 mr-5 cursor-pointer border-1 border-zinc-300 relative"
           onMouseOver={() => toggleDropBox(true)}
@@ -195,22 +216,40 @@ export default function NavBar() {
               </button>
             </li>
             <li className="border-b border-gray-300 pb-2">
-              <a
-                href="/client/ntb"
-                className="hover:text-blue-500 display-block"
-                onClick={() => setIsMenuOpen(false)}
+              <button
+                type="button"
+                onClick={() => {
+                  handleServiceButtonClick("joinMembership");
+                  setIsMenuOpen(false);
+                }}
+                className="hover:text-blue-500 display-block text-left w-full"
+              >
+                {tn("joinMembership")}
+              </button>
+            </li>
+            <li className="border-b border-gray-300 pb-2">
+              <button
+                type="button"
+                onClick={() => {
+                  handleServiceButtonClick("reportNonTariffBarrier");
+                  setIsMenuOpen(false);
+                }}
+                className="hover:text-blue-500 display-block text-left w-full"
               >
                 {tn("reportNonTariffBarrier")}
-              </a>
+              </button>
             </li>
             <li className="border-b border-transparent pb-2">
-              <a
-                href="/client/business-complaints"
-                className="hover:text-blue-500 display-block"
-                onClick={() => setIsMenuOpen(false)}
+              <button
+                type="button"
+                onClick={() => {
+                  handleServiceButtonClick("businessComplaints");
+                  setIsMenuOpen(false);
+                }}
+                className="hover:text-blue-500 display-block text-left w-full"
               >
                 {tn("businessComplaints")}
-              </a>
+              </button>
             </li>
           </ul>
         </div>

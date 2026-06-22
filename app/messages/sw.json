@@ -26,9 +26,14 @@
     "businessComplaints": "Malalamiko ya Biashara",
     "paymentGuideline": "Mwongozo wa Malipo",
     "certificateValidity": "Uhalali wa Cheti",
+    "joinMembership": "Jiunge na Uanachama",
     "viewProfile": "Tazama Wasifu",
     "refreshProfile": "Onyesha upya Wasifu",
-    "signOut": "Toka"
+    "signOut": "Toka",
+    "guestMessageJoin": "Tafadhali ingia au unda akaunti mpya ili Kujiunga na Uanachama",
+    "guestMessageNTB": "Tafadhali ingia au unda akaunti mpya ili Kuripoti Kizuizi cha Biashara",
+    "guestMessageComplaints": "Tafadhali ingia au unda akaunti mpya ili Kuwasilisha Malalamiko ya Biashara",
+    "guestLoginHint": "Tumia maelezo yako ya akaunti: Barua pepe / Namba ya simu na Nywila, au Unda akaunti mpya"
   },
   "sidebar": {
     "modules": "Moduli",
