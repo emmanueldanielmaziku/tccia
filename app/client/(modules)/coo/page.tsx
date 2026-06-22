@@ -13,6 +13,7 @@ import {
   Printer,
   Refresh,
   SearchNormal1,
+  TickCircle,
 } from "iconsax-reactjs";
 import { CircleHelp } from "lucide-react";
 
@@ -73,6 +74,7 @@ export default function COO() {
   const [popoverOpen, setPopoverOpen] = useState<{ [key: string]: boolean }>(
     {},
   );
+  const [copiedItems, setCopiedItems] = useState<Record<string, boolean>>({});
   const popoverTimers = useRef<{ [key: string]: any }>({});
 
   const handleMouseEnterPopover = (uuid: string) => {
@@ -342,11 +344,13 @@ export default function COO() {
     fetchCertificates();
   };
 
-  const copyToClipboard = async (text: string) => {
+  const copyToClipboard = async (text: string, key: string) => {
     try {
       await navigator.clipboard.writeText(text);
-
-      console.log("Invoice number copied to clipboard");
+      setCopiedItems((prev) => ({ ...prev, [key]: true }));
+      setTimeout(() => {
+        setCopiedItems((prev) => ({ ...prev, [key]: false }));
+      }, 1500);
     } catch (err) {
       console.error("Failed to copy text: ", err);
     }
@@ -746,8 +750,35 @@ export default function COO() {
                           </div>
 
                           <div className="w-full flex flex-col gap-1 justify-start">
-                            <div className="font-semibold text-sm sm:text-[15px]">
-                              {certificate.message_info.party_name}
+                            <div className="flex flex-row items-center gap-1 sm:gap-2">
+                              <span className="text-[11px] sm:text-[13px] text-gray-600">
+                                UCR No:
+                              </span>
+                              <span className="text-[11px] sm:text-[13px] font-medium text-gray-800">
+                                {certificate.message_info.ucr_number || "-"}
+                              </span>
+                              <button
+                                onClick={() =>
+                                  copyToClipboard(
+                                    certificate.message_info.ucr_number || "",
+                                    `ucr-${certificate.message_info.application_uuid}`,
+                                  )
+                                }
+                                className="p-1 hover:bg-gray-100 rounded cursor-pointer transition-colors duration-200"
+                                title="Copy UCR Number"
+                              >
+                                {copiedItems[
+                                  `ucr-${certificate.message_info.application_uuid}`
+                                ] ? (
+                                  <TickCircle
+                                    size={14}
+                                    color="#22C55E"
+                                    variant="Bold"
+                                  />
+                                ) : (
+                                  <Copy size={14} color="#6B7280" />
+                                )}
+                              </button>
                             </div>
                             <div className="text-xs sm:text-sm text-gray-600">
                               {certificate.message_info.party_physical_address}
@@ -775,12 +806,23 @@ export default function COO() {
                                   copyToClipboard(
                                     certificate.invoice?.[0]?.invoice_number ||
                                       "",
+                                    `inv-${certificate.message_info.application_uuid}`,
                                   )
                                 }
                                 className="p-1 hover:bg-gray-100 rounded cursor-pointer transition-colors duration-200"
                                 title="Copy Invoice number"
                               >
-                                <Copy size={14} color="#6B7280" />
+                                {copiedItems[
+                                  `inv-${certificate.message_info.application_uuid}`
+                                ] ? (
+                                  <TickCircle
+                                    size={14}
+                                    color="#22C55E"
+                                    variant="Bold"
+                                  />
+                                ) : (
+                                  <Copy size={14} color="#6B7280" />
+                                )}
                               </button>
                               <Popover
                                 open={
