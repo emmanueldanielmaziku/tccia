@@ -14,7 +14,6 @@ import {
   CheckCircle2,
   Copy,
   ShieldCheck,
-  ArrowLeft,
   XCircle,
 } from "lucide-react";
 
@@ -113,23 +112,11 @@ export default function CertificateValidityForm({
 
   return (
     <div className="w-full max-w-6xl mx-auto">
-      {/* Header (same style as Help Desk) */}
+      {/* Header */}
       <div className="flex flex-col items-center mb-8">
-        <div className="w-full flex justify-start">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={onBack}
-            className="flex items-center gap-2"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            Back to Login
-          </Button>
-        </div>
-
-        <div className="mt-4 flex flex-col items-center text-center">
-          <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-green-500 rounded-xl flex items-center justify-center shadow-sm">
-            <ShieldCheck className="w-6 h-6 text-white" />
+        <div className="flex flex-col items-center text-center">
+          <div className="w-20 h-20 bg-blue-600 rounded-2xl flex items-center justify-center shadow-lg">
+            <ShieldCheck className="w-10 h-10 text-white" />
           </div>
           <h1 className="mt-3 text-3xl sm:text-4xl font-bold text-gray-900">
             Certificate Validity Check
@@ -148,17 +135,17 @@ export default function CertificateValidityForm({
               <label className="text-sm text-gray-600">
                 Certificate Reference Number
               </label>
-              <div className="flex flex-col sm:flex-row gap-3">
+              <div className="flex flex-col gap-3">
                 <Input
                   value={referenceNumber}
                   onChange={(e) => setReferenceNumber(e.target.value)}
-                  placeholder="e.g. OGAM0003CA26C0000000022"
-                  className="flex-1 w-auto font-mono tracking-wide"
+                  placeholder="Eg: TZ00000"
+                  className="w-full h-12 font-mono tracking-wide"
                 />
                 <Button
                   type="submit"
                   disabled={loading || !referenceNumber.trim()}
-                  className="w-full sm:w-[170px] bg-blue-600 hover:bg-blue-700 text-white cursor-pointer disabled:cursor-not-allowed disabled:opacity-50 transition-colors"
+                  className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white cursor-pointer disabled:cursor-not-allowed disabled:opacity-50 transition-colors"
                 >
                   {loading ? "Checking..." : "Check Validity"}
                 </Button>

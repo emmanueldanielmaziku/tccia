@@ -14,6 +14,12 @@ export default function NavBar() {
   const { language, toggleLanguage } = useLangState();
   const [langDrop, toggleDropBox] = useState(false);
   const { setShowHelpDesk, setShowCertificateValidity } = useAuthLayoutState();
+
+  const handleFormToggle = () => {
+    setShowHelpDesk(false);
+    setShowCertificateValidity(false);
+    toggleFormType();
+  };
   const t = useTranslations();
   const tn = useTranslations("nav");
 
@@ -132,14 +138,14 @@ export default function NavBar() {
 
         {formType === "register" ? (
           <button
-            onClick={toggleFormType}
+            onClick={handleFormToggle}
             className="text-blue-600 border-1 border-blue-600 px-6 py-2 rounded-[10px] hover:bg-blue-600 hover:text-white cursor-pointer"
           >
             {t("common.login")}
           </button>
         ) : (
           <button
-            onClick={toggleFormType}
+            onClick={handleFormToggle}
             className="text-blue-600 border-1 border-blue-600 px-6 py-2 rounded-[10px] hover:bg-blue-600 hover:text-white cursor-pointer font-semibold"
           >
             {t("common.createAccount")}
@@ -150,7 +156,7 @@ export default function NavBar() {
       {/* Burger Menu Icon */}
       <div className="md:hidden flex items-center flex-row space-x-4">
         <button
-          onClick={toggleFormType}
+          onClick={handleFormToggle}
           className="text-sm text-blue-600 border-2 border-blue-600 px-6 py-1.5 rounded-[6px] hover:tex-white hover:bg-blue-600 cursor-pointer"
         >
           {formType === "register"

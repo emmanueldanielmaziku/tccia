@@ -11,8 +11,9 @@ interface AuthLayoutState {
 
 export const useAuthLayoutState = create<AuthLayoutState>((set) => ({
   showHelpDesk: false,
-  setShowHelpDesk: (show) => set({ showHelpDesk: show }),
+  setShowHelpDesk: (show) =>
+    set({ showHelpDesk: show, showCertificateValidity: false }),
   showCertificateValidity: false,
   setShowCertificateValidity: (show) =>
-    set({ showCertificateValidity: show }),
+    set({ showCertificateValidity: show, showHelpDesk: false }),
 })); 

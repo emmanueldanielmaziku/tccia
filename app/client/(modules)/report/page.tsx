@@ -171,11 +171,11 @@ export default function HelpdeskReport() {
             {mode === "none" && (
               <div className="flex flex-col gap-8 items-center text-center">
                 <div className="text-center space-y-10">
-                  <div className="mx-auto w-20 h-20 bg-gradient-to-br from-blue-500 to-green-500 rounded-2xl flex items-center justify-center shadow-lg">
+                  <div className="mx-auto w-20 h-20 bg-blue-600 rounded-2xl flex items-center justify-center shadow-lg">
                     <Headphones className="w-10 h-10 text-white" />
                   </div>
                   <div>
-                    <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">
+                    <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900">
                       {t("welcome")}
                     </h1>
                     <p className="text-sm sm:text-base md:text-lg text-gray-600 mt-3 max-w-2xl mx-auto">

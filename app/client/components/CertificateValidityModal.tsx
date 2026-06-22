@@ -7,6 +7,10 @@ import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Separator } from "@/components/ui/separator";
 import {
+  Card,
+  CardContent,
+} from "@/components/ui/card";
+import {
   CheckCircle2,
   Copy,
   ShieldCheck,
@@ -139,40 +143,43 @@ export default function CertificateValidityModal({
       >
         <div className="px-6 pt-6 pb-4">
           <div className="flex flex-col items-center text-center">
-            <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-green-500 rounded-xl flex items-center justify-center shadow-sm">
-              <ShieldCheck className="w-6 h-6 text-white" />
+            <div className="w-20 h-20 bg-blue-600 rounded-2xl flex items-center justify-center shadow-lg">
+              <ShieldCheck className="w-10 h-10 text-white" />
             </div>
-            <DialogTitle className="mt-3 text-2xl sm:text-3xl font-bold text-gray-900">
+            <DialogTitle className="mt-3 text-3xl sm:text-4xl font-bold text-gray-900">
               Certificate Validity Check
             </DialogTitle>
             <p className="text-sm sm:text-base text-gray-600 mt-2 max-w-[520px]">
-              Enter a certificate reference number to verify its availability.
+              Type a certificate reference number and we will show if it is
+              available.
             </p>
           </div>
         </div>
 
         <div className="px-6 pb-6">
-          <form onSubmit={handleCheck} className="flex flex-col gap-4">
-            <div className="flex flex-col gap-1">
-              <label className="text-sm text-gray-600">
-                Certificate Reference Number
-              </label>
-              <div className="flex flex-col sm:flex-row gap-3">
-                <Input
-                  value={referenceNumber}
-                  onChange={(e) => setReferenceNumber(e.target.value)}
-                  placeholder="e.g. OGAM0003CA26C0000000022"
-                  className="font-mono tracking-wide"
-                />
-                <Button
-                  type="submit"
-                  disabled={!canSubmit}
-                  className="w-full sm:w-[220px] cursor-pointer disabled:cursor-not-allowed bg-blue-600 hover:bg-blue-700 text-white transition-colors"
-                >
-                  {loading ? "Checking..." : "Check Validity"}
-                </Button>
-              </div>
-            </div>
+          <Card className="border-[0.5px] shadow-sm bg-white/80 backdrop-blur-sm max-w-[520px] mx-auto">
+            <CardContent className="px-6 sm:px-8 pb-8 pt-2">
+              <form onSubmit={handleCheck} className="flex flex-col gap-4">
+                <div className="flex flex-col gap-1">
+                  <label className="text-sm text-gray-600">
+                    Certificate Reference Number
+                  </label>
+                  <div className="flex flex-col gap-3">
+                    <Input
+                      value={referenceNumber}
+                      onChange={(e) => setReferenceNumber(e.target.value)}
+                      placeholder="Eg: TZ00000"
+                      className="w-full h-12 font-mono tracking-wide"
+                    />
+                    <Button
+                      type="submit"
+                      disabled={!canSubmit}
+                      className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white cursor-pointer disabled:cursor-not-allowed disabled:opacity-50 transition-colors"
+                    >
+                      {loading ? "Checking..." : "Check Validity"}
+                    </Button>
+                  </div>
+                </div>
 
             {loading && (
               <div className="rounded-lg border border-gray-200 bg-white p-4 space-y-3">
@@ -245,7 +252,7 @@ export default function CertificateValidityModal({
                     </div>
                   </div>
                   <div className="space-y-1">
-                    <div className="text-gray-500">Approval date</div>
+                    <div className="text-gray-500">Approval Date</div>
                     <div className="font-medium">
                       {messageInfo.approval_date_and_time || "-"}
                     </div>
@@ -281,6 +288,8 @@ export default function CertificateValidityModal({
               </div>
             )}
           </form>
+            </CardContent>
+          </Card>
         </div>
       </DialogContent>
     </Dialog>

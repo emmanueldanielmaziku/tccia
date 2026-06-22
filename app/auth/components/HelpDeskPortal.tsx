@@ -31,7 +31,6 @@ import {
   Headphones,
   Info,
   Clock,
-  ArrowLeft,
 } from "lucide-react";
 
 export default function HelpDeskPortal({ onBack }: { onBack: () => void }) {
@@ -156,28 +155,11 @@ export default function HelpDeskPortal({ onBack }: { onBack: () => void }) {
 
   return (
     <div className="w-full max-w-6xl mx-auto">
-      {/* Header with Back Button */}
-      <div className="flex items-center gap-4 mb-8">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={onBack}
-          className="flex items-center gap-2"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          Back to Login
-        </Button>
-        <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-green-500 rounded-lg flex items-center justify-center">
-          <Headphones className="w-5 h-5 text-white" />
-        </div>
-        <h1 className="text-2xl font-bold text-gray-900">Help Desk</h1>
-      </div>
-
       {/* Welcome Section */}
       {mode === "none" && (
         <div className="flex flex-col gap-8 items-center text-center">
           <div className="text-center space-y-6">
-            <div className="mx-auto w-20 h-20 bg-gradient-to-br from-blue-500 to-green-500 rounded-2xl flex items-center justify-center shadow-lg">
+            <div className="mx-auto w-20 h-20 bg-blue-600 rounded-2xl flex items-center justify-center shadow-lg">
               <Headphones className="w-10 h-10 text-white" />
             </div>
             <div>
