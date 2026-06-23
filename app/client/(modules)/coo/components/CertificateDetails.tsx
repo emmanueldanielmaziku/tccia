@@ -1,6 +1,7 @@
 "use client";
 
-import { Printer } from "lucide-react";
+import { Download } from "lucide-react";
+import { toast } from "sonner";
 
 function safeValue(val: any) {
   return val === false || val === undefined || val === null ? "-" : val;
@@ -177,13 +178,15 @@ export default function CertificateDetails({ certificateData }: CertificateDetai
                   <span className="text-xs font-medium text-gray-500 min-w-[180px] sm:min-w-[220px] shrink-0">
                     Action
                   </span>
-                  <button
-                    onClick={() => window.open(`/attachment/print?url=${encodeURIComponent(att.attachment_link)}`, "_blank")}
-                    className="inline-flex items-center gap-2 px-3 py-1.5 text-xs bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors cursor-pointer"
+                  <a
+                    href={`/attachment/download?url=${encodeURIComponent(att.attachment_link)}`}
+                    download
+                    onClick={() => toast.success("File downloaded. Check your downloads folder.")}
+                    className="inline-flex items-center gap-2 px-3 py-1.5 text-xs bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors cursor-pointer no-underline"
                   >
-                    <Printer size={14} />
+                    <Download size={14} />
                     Download Attachment
-                  </button>
+                  </a>
                 </div>
               )}
             </div>
