@@ -178,15 +178,48 @@ export default function CertificateDetails({ certificateData }: CertificateDetai
                   <span className="text-xs font-medium text-gray-500 min-w-[180px] sm:min-w-[220px] shrink-0">
                     Action
                   </span>
-                  <a
-                    href={`/attachment/download?url=${encodeURIComponent(att.attachment_link)}`}
-                    download
-                    onClick={() => toast.success("File downloaded. Check your downloads folder.")}
-                    className="inline-flex items-center gap-2 px-3 py-1.5 text-xs bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors cursor-pointer no-underline"
+                  <button
+                    onClick={() => {
+                      const url = att.attachment_link as string;
+                      const toastId = toast.loading("Downloading...");
+                      fetch(url)
+                        .then((res) => {
+                          if (!res.ok) throw new Error();
+                          const contentType = res.headers.get("Content-Type") || "";
+                          const ext = contentType.includes("pdf")
+                            ? "pdf"
+                            : contentType.includes("image/")
+                            ? contentType.split("/")[1] || "png"
+                            : "";
+                          return res.blob().then((blob) => ({ blob, ext }));
+                        })
+                        .then(({ blob, ext }) => {
+                          let filename = new URL(url).pathname.split("/").pop() || "attachment";
+                          if (!/\.[a-z0-9]+$/i.test(filename)) {
+                            filename += ext ? `.${ext}` : ".pdf";
+                          }
+                          const objUrl = URL.createObjectURL(blob);
+                          const a = document.createElement("a");
+                          a.href = objUrl;
+                          a.download = filename;
+                          document.body.appendChild(a);
+                          a.click();
+                          document.body.removeChild(a);
+                          URL.revokeObjectURL(objUrl);
+                          toast.dismiss(toastId);
+                          toast.success("Download complete");
+                        })
+                        .catch(() => {
+                          toast.dismiss(toastId);
+                          window.open(url, "_blank");
+                          toast.success("Opening attachment...");
+                        });
+                    }}
+                    className="inline-flex items-center gap-2 px-3 py-1.5 text-xs bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors cursor-pointer"
                   >
                     <Download size={14} />
                     Download Attachment
-                  </a>
+                  </button>
                 </div>
               )}
             </div>
