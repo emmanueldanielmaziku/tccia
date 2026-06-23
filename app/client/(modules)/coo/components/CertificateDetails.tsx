@@ -1,5 +1,7 @@
 "use client";
 
+import { Printer } from "lucide-react";
+
 function safeValue(val: any) {
   return val === false || val === undefined || val === null ? "-" : val;
 }
@@ -170,7 +172,20 @@ export default function CertificateDetails({ certificateData }: CertificateDetai
               )}
               <Field label="Serial Number" value={att.attachment_serial_number} />
               <Field label="Type Code" value={att.attachment_type_code} />
-              <Field label="Link" value={att.attachment_link} />
+              {att.attachment_link && (
+                <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3 py-1.5 border-b border-gray-100 last:border-b-0">
+                  <span className="text-xs font-medium text-gray-500 min-w-[180px] sm:min-w-[220px] shrink-0">
+                    Action
+                  </span>
+                  <button
+                    onClick={() => window.open(`/attachment/print?url=${encodeURIComponent(att.attachment_link)}`, "_blank")}
+                    className="inline-flex items-center gap-2 px-3 py-1.5 text-xs bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors cursor-pointer"
+                  >
+                    <Printer size={14} />
+                    Download Attachment
+                  </button>
+                </div>
+              )}
             </div>
           ))}
         </Section>
