@@ -10,12 +10,7 @@ import {
   Card,
   CardContent,
 } from "@/components/ui/card";
-import {
-  CheckCircle2,
-  Copy,
-  ShieldCheck,
-  XCircle,
-} from "lucide-react";
+import { CheckCircle2, ShieldCheck, XCircle } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -39,6 +34,7 @@ type UpstreamJsonRpc = {
       consignee_tin?: string | boolean;
       reference_number?: string;
       application_uuid?: string;
+      application_number?: string;
       approval_date_and_time?: string;
       certificate_type_id?: string;
       approver_name?: string;
@@ -89,14 +85,6 @@ export default function CertificateValidityModal({
 
   const messageInfo = result?.message_info;
   const isValid = !!messageInfo && !error;
-
-  const handleCopyReference = async () => {
-    try {
-      await navigator.clipboard.writeText(referenceNumber.trim());
-    } catch (err) {
-      console.error("Copy reference failed:", err);
-    }
-  };
 
   const handleCheck = async (e?: React.FormEvent) => {
     e?.preventDefault();
@@ -228,54 +216,40 @@ export default function CertificateValidityModal({
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm text-gray-700">
                   <div className="space-y-1">
-                    <div className="text-gray-500">Reference</div>
-                    <div className="font-medium font-mono">
-                      {messageInfo.reference_number || referenceNumber}
+                    <div className="text-gray-500">Application Number</div>
+                    <div className="font-medium font-mono break-all">
+                      {messageInfo.application_number || "-"}
                     </div>
                   </div>
                   <div className="space-y-1">
                     <div className="text-gray-500">Certificate Type</div>
-                    <div className="font-medium">
+                    <div className="font-medium break-all">
                       {messageInfo.certificate_type_id || "-"}
                     </div>
                   </div>
                   <div className="space-y-1">
                     <div className="text-gray-500">Exporter</div>
-                    <div className="font-medium">
+                    <div className="font-medium break-all">
                       {messageInfo.exporter_name || "-"}
                     </div>
                   </div>
                   <div className="space-y-1">
                     <div className="text-gray-500">Consignee</div>
-                    <div className="font-medium">
+                    <div className="font-medium break-all">
                       {messageInfo.consignee_name || "-"}
                     </div>
                   </div>
                   <div className="space-y-1">
                     <div className="text-gray-500">Approval Date</div>
-                    <div className="font-medium">
+                    <div className="font-medium break-all">
                       {messageInfo.approval_date_and_time || "-"}
                     </div>
                   </div>
                   <div className="space-y-1">
                     <div className="text-gray-500">Approver</div>
-                    <div className="font-medium">
+                    <div className="font-medium break-all">
                       {messageInfo.approver_name || "-"}
                     </div>
-                  </div>
-                </div>
-
-                <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
-                  <div className="sm:ml-auto">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      className="h-9"
-                      onClick={handleCopyReference}
-                    >
-                      <Copy size={16} className="mr-2" />
-                      Copy ref
-                    </Button>
                   </div>
                 </div>
 

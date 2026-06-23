@@ -116,6 +116,10 @@ export default function COO() {
   }, []);
 
   useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, statusFilter, cooTypeFilter]);
+
+  useEffect(() => {
     const handleCompanyChange = () => {
       handleRefresh();
     };
@@ -252,16 +256,8 @@ export default function COO() {
 
   // Unique COO types for filter
   const cooTypeOptions = useMemo(
-    () => [
-      ...new Set(
-        certificateData
-          .map((cert) =>
-            getCertificateType(cert.message_info.application_code_number),
-          )
-          .filter((v) => !!v && v !== ""),
-      ),
-    ],
-    [certificateData],
+    () => Object.values(certificateTypeMap).sort(),
+    [],
   );
 
   // Filter and sort the data
@@ -291,8 +287,8 @@ export default function COO() {
       return matchesSearch && matchesStatus && matchesCooType;
     })
     .sort((a, b) => {
-      const dateA = a.submitted_date ? new Date(a.submitted_date) : new Date(0);
-      const dateB = b.submitted_date ? new Date(b.submitted_date) : new Date(0);
+      const dateA = a.message_info.submitted_date ? new Date(a.message_info.submitted_date) : new Date(0);
+      const dateB = b.message_info.submitted_date ? new Date(b.message_info.submitted_date) : new Date(0);
       // Default to newest first
       return dateB.getTime() - dateA.getTime();
     });
@@ -548,9 +544,9 @@ export default function COO() {
                         <SelectContent>
                           <SelectGroup>
                             <SelectItem value="all">All Status</SelectItem>
-                            <SelectItem value="approved">Approved</SelectItem>
+                            <SelectItem value="submitted">Submitted</SelectItem>
+                            <SelectItem value="waiting_for_payment">Waiting for Payment</SelectItem>
                             <SelectItem value="certified">Certified</SelectItem>
-                            <SelectItem value="pending">Pending</SelectItem>
                           </SelectGroup>
                         </SelectContent>
                       </Select>

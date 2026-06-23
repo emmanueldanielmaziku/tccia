@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Separator } from "@/components/ui/separator";
-import { CheckCircle2, Copy, Info, XCircle } from "lucide-react";
+import { CheckCircle2, Info, XCircle } from "lucide-react";
 
 type UpstreamJsonRpc = {
   jsonrpc?: string;
@@ -26,6 +26,7 @@ type UpstreamJsonRpc = {
       consignee_tin?: string | boolean;
       reference_number?: string;
       application_uuid?: string;
+      application_number?: string;
       approval_date_and_time?: string;
       certificate_type_id?: string;
       approver_name?: string;
@@ -94,14 +95,6 @@ export default function CertificateValidityPage() {
 
   const items = messageInfo?.item_info || [];
   const firstItem = items[0];
-
-  const handleCopyReference = async () => {
-    try {
-      await navigator.clipboard.writeText(referenceNumber.trim());
-    } catch (err) {
-      console.error("Copy reference failed:", err);
-    }
-  };
 
   return (
     <main className="w-full h-[97vh] rounded-[12px] sm:rounded-[14px] overflow-hidden bg-white border-[1px] border-gray-200 shadow-sm relative">
@@ -193,38 +186,38 @@ export default function CertificateValidityPage() {
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm text-gray-700">
                     <div className="space-y-1">
-                      <div className="text-gray-500">Reference</div>
-                      <div className="font-medium font-mono">
-                        {messageInfo.reference_number || referenceNumber}
+                      <div className="text-gray-500">Application Number</div>
+                      <div className="font-medium font-mono break-all">
+                        {messageInfo.application_number || "-"}
                       </div>
                     </div>
                     <div className="space-y-1">
                       <div className="text-gray-500">Certificate Type</div>
-                      <div className="font-medium">
+                      <div className="font-medium break-all">
                         {messageInfo.certificate_type_id || "-"}
                       </div>
                     </div>
                     <div className="space-y-1">
                       <div className="text-gray-500">Exporter</div>
-                      <div className="font-medium">
+                      <div className="font-medium break-all">
                         {messageInfo.exporter_name || "-"}
                       </div>
                     </div>
                     <div className="space-y-1">
                       <div className="text-gray-500">Consignee</div>
-                      <div className="font-medium">
+                      <div className="font-medium break-all">
                         {messageInfo.consignee_name || "-"}
                       </div>
                     </div>
                     <div className="space-y-1">
                       <div className="text-gray-500">Approval date</div>
-                      <div className="font-medium">
+                      <div className="font-medium break-all">
                         {messageInfo.approval_date_and_time || "-"}
                       </div>
                     </div>
                     <div className="space-y-1">
                       <div className="text-gray-500">Approver</div>
-                      <div className="font-medium">
+                      <div className="font-medium break-all">
                         {messageInfo.approver_name || "-"}
                       </div>
                     </div>
@@ -236,17 +229,6 @@ export default function CertificateValidityPage() {
                         {items.length}
                       </span>{" "}
                       item(s) found
-                    </div>
-                    <div className="sm:ml-auto">
-                      <Button
-                        type="button"
-                        variant="outline"
-                        className="h-9"
-                        onClick={handleCopyReference}
-                      >
-                        <Copy size={16} className="mr-2" />
-                        Copy ref
-                      </Button>
                     </div>
                   </div>
 
@@ -267,7 +249,7 @@ export default function CertificateValidityPage() {
                             </div>
                             <div>
                               <div className="text-gray-500">Description</div>
-                              <div className="font-medium">
+                              <div className="font-medium break-all">
                                 {firstItem.product_description || "-"}
                               </div>
                             </div>
@@ -298,7 +280,7 @@ export default function CertificateValidityPage() {
                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                             <div className="space-y-1">
                               <div className="text-gray-500">Exporter address</div>
-                              <div className="font-medium">
+                              <div className="font-medium break-all">
                                 {messageInfo.exporter_address || "-"}
                               </div>
                             </div>
@@ -306,7 +288,7 @@ export default function CertificateValidityPage() {
                               <div className="text-gray-500">
                                 Exporter email/phone
                               </div>
-                              <div className="font-medium">
+                              <div className="font-medium break-all">
                                 {messageInfo.exporter_email_address || "-"}
                                 {messageInfo.exporter_telephone_number
                                   ? ` (${messageInfo.exporter_telephone_number})`
@@ -315,13 +297,13 @@ export default function CertificateValidityPage() {
                             </div>
                             <div className="space-y-1">
                               <div className="text-gray-500">Applicant</div>
-                              <div className="font-medium">
+                              <div className="font-medium break-all">
                                 {messageInfo.applicant_name || "-"}
                               </div>
                             </div>
                             <div className="space-y-1">
                               <div className="text-gray-500">Applicant address</div>
-                              <div className="font-medium">
+                              <div className="font-medium break-all">
                                 {messageInfo.applicant_address || "-"}
                               </div>
                             </div>
@@ -350,7 +332,7 @@ export default function CertificateValidityPage() {
                                       <div className="col-span-4 font-mono">
                                         {it.hs8_code || "-"}
                                       </div>
-                                      <div className="col-span-6">
+                                      <div className="col-span-6 break-all">
                                         {it.product_description || "-"}
                                       </div>
                                     </div>
