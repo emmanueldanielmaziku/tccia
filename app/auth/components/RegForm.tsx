@@ -176,6 +176,7 @@ const RegForm = () => {
         const otpLogin = (data.email && data.email.trim()) ? data.email.trim() : data.phone;
         startOtp({
           login: otpLogin,
+          password: data.password,
           message:
             result.result?.message ||
             "Registration successful. OTP sent to your phone/email. Please verify your account.",

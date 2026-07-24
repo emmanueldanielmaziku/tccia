@@ -43,25 +43,29 @@ export const useActivateAccountState = create<ActivateAccountState>((set) => ({
 interface OtpVerificationState {
   otpActive: boolean;
   otpLogin: string | null;
+  otpPassword?: string;
   otpMessage: string | null;
-  startOtp: (args: { login: string; message?: string | null }) => void;
+  startOtp: (args: { login: string; password?: string; message?: string | null }) => void;
   stopOtp: () => void;
 }
 
 export const useOtpVerificationState = create<OtpVerificationState>((set) => ({
   otpActive: false,
   otpLogin: null,
+  otpPassword: "",
   otpMessage: null,
-  startOtp: ({ login, message }) =>
+  startOtp: ({ login, password, message }) =>
     set({
       otpActive: true,
       otpLogin: login,
+      otpPassword: password || "",
       otpMessage: message ?? null,
     }),
   stopOtp: () =>
     set({
       otpActive: false,
       otpLogin: null,
+      otpPassword: "",
       otpMessage: null,
     }),
 }));

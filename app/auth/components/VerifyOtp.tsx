@@ -7,7 +7,7 @@ import { useOtpVerificationState, useFormState } from "../services/FormStates";
 export default function VerifyOtp() {
   const tf = useTranslations("forms");
   const t = useTranslations();
-  const { stopOtp, otpLogin, otpMessage, startOtp } = useOtpVerificationState();
+  const { stopOtp, otpLogin, otpPassword, otpMessage, startOtp } = useOtpVerificationState();
   const { toggleFormType, formType } = useFormState();
 
   const [login, setLogin] = useState(otpLogin ?? "");
@@ -16,6 +16,19 @@ export default function VerifyOtp() {
   const [resending, setResending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [resendCooldown, setResendCooldown] = useState(300);
+
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    if (resendCooldown > 0) {
+      timer = setInterval(() => {
+        setResendCooldown((prev) => prev - 1);
+      }, 1000);
+    }
+    return () => {
+      if (timer) clearInterval(timer);
+    };
+  }, [resendCooldown]);
 
   useEffect(() => {
     if (otpLogin) setLogin(otpLogin);
@@ -86,14 +99,14 @@ export default function VerifyOtp() {
       const response = await fetch("/api/auth/user_token", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ login: login.trim(), resend_otp: true }),
+        body: JSON.stringify({ login: login.trim(), password: otpPassword || "", resend_otp: true }),
       });
       const result = await response.json();
 
       // Backend returns 403 with need_otp_verification=true and message when resent
       if (response.status === 403 && result.result?.need_otp_verification) {
         setSuccess(result.result?.error || "New OTP sent. Please check your phone/email.");
-        startOtp({ login: login.trim(), message: result.result?.error });
+        startOtp({ login: login.trim(), password: otpPassword, message: result.result?.error });
         return;
       }
 
@@ -102,6 +115,7 @@ export default function VerifyOtp() {
       }
 
       setSuccess("New OTP sent. Please check your phone/email.");
+      setResendCooldown(300);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to resend OTP");
     } finally {
@@ -146,8 +160,9 @@ export default function VerifyOtp() {
           id="otp-login"
           type="text"
           value={login}
-          onChange={(e) => setLogin(e.target.value)}
-          className="w-full px-4 sm:px-6 py-2 sm:py-2.5 border border-zinc-300 bg-zinc-100 outline-blue-400 rounded-[6px] sm:rounded-[8px] placeholder:text-zinc-400 placeholder:text-xs sm:placeholder:text-[15px]"
+          disabled
+          readOnly
+          className="w-full px-4 sm:px-6 py-2 sm:py-2.5 border border-zinc-300 bg-zinc-200 text-zinc-500 cursor-not-allowed rounded-[6px] sm:rounded-[8px] placeholder:text-zinc-400 placeholder:text-xs sm:placeholder:text-[15px]"
           placeholder={tf("placeholders.enterEmailOrPhone") ?? "Enter email or phone"}
         />
       </div>
@@ -170,18 +185,22 @@ export default function VerifyOtp() {
       <button
         type="submit"
         disabled={submitting}
-        className="bg-blue-500 text-white text-sm md:text-[16px] px-4 py-2 rounded-[8px] hover:bg-blue-600 disabled:bg-gray-300"
+        className="bg-blue-500 text-white text-sm md:text-[16px] px-4 py-2 rounded-[8px] hover:bg-blue-600 disabled:bg-gray-300 cursor-pointer disabled:cursor-not-allowed"
       >
         {submitting ? "Verifying..." : "Verify OTP"}
       </button>
 
       <button
         type="button"
-        disabled={resending}
+        disabled={resending || resendCooldown > 0}
         onClick={handleResend}
-        className="border-blue-500 border-2 text-blue-500 text-sm md:text-[16px] px-4 py-2 rounded-[8px] hover:text-blue disabled:bg-gray-200"
+        className="border-blue-500 border-2 text-blue-500 text-sm md:text-[16px] px-4 py-2 rounded-[8px] hover:text-blue disabled:bg-gray-200 disabled:border-gray-200 disabled:text-gray-500 cursor-pointer disabled:cursor-not-allowed"
       >
-        {resending ? "Resending..." : "Resend OTP"}
+        {resending 
+          ? "Resending..." 
+          : resendCooldown > 0 
+            ? `Resend OTP (${Math.floor(resendCooldown / 60)}m ${(resendCooldown % 60).toString().padStart(2, "0")}s)` 
+            : "Resend OTP"}
       </button>
 
       <button
