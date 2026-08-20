@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 
-const REMOTE_BASE_URL = "https://staff.tncc.or.tz/api";
+const REMOTE_BASE_URL = "https://tccia.kalen.co.tz/api";
 
 export async function GET(
   request: Request,
