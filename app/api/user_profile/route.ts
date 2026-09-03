@@ -17,7 +17,7 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const response = await fetch(`https://staff.tncc.or.tz/api/user/me`, {
+    const response = await fetch(`https://tccia.kalen.co.tz/api/user/me`, {
       method: "GET",
       headers: {
         Authorization: `Bearer ${token.value.trim()}`,
