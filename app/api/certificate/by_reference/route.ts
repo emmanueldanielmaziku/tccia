@@ -1,19 +1,20 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 
-const API_BASE_URL = "https://tccia.kalen.co.tz";
+const API_BASE_URL = "https://staff.tncc.or.tz";
 
 export async function POST(request: Request) {
   try {
     const body = await request.json().catch(() => ({}));
-    const reference_number = body?.reference_number;
+    const reference_number = body?.reference_number?.trim();
+    const ucr_number = body?.ucr_number?.trim();
 
-    if (!reference_number) {
+    if (!reference_number && !ucr_number) {
       return NextResponse.json(
         {
           jsonrpc: "2.0",
           id: null,
-          result: { error: "reference_number is required" },
+          result: { error: "reference_number or ucr_number is required" },
         },
         { status: 400 },
       );
@@ -31,7 +32,10 @@ export async function POST(request: Request) {
           Accept: "application/json",
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
-        body: JSON.stringify({ reference_number }),
+        body: JSON.stringify({
+          ...(reference_number ? { reference_number } : {}),
+          ...(ucr_number ? { ucr_number } : {}),
+        }),
       },
     );
 

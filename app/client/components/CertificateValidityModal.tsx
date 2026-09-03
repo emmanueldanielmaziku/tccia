@@ -16,6 +16,7 @@ import {
   DialogContent,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type React from "react";
 
 type UpstreamJsonRpc = {
@@ -64,7 +65,10 @@ export default function CertificateValidityModal({
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }) {
-  const [referenceNumber, setReferenceNumber] = useState("");
+  const [searchMode, setSearchMode] = useState<"reference" | "ucr">(
+    "reference"
+  );
+  const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<UpstreamJsonRpc["result"] | null>(
@@ -75,7 +79,8 @@ export default function CertificateValidityModal({
   useEffect(() => {
     if (!open) {
       // Reset when closing so the next open is fresh.
-      setReferenceNumber("");
+      setSearchMode("reference");
+      setQuery("");
       setLoading(false);
       setError(null);
       setResult(null);
@@ -94,10 +99,15 @@ export default function CertificateValidityModal({
     setHasSearched(true);
 
     try {
+      const payload =
+        searchMode === "reference"
+          ? { reference_number: query.trim() }
+          : { ucr_number: query.trim() };
+
       const response = await fetch("/api/certificate/by_reference", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ reference_number: referenceNumber.trim() }),
+        body: JSON.stringify(payload),
       });
 
       const data: UpstreamJsonRpc = await response.json().catch(() => ({}));
@@ -120,8 +130,8 @@ export default function CertificateValidityModal({
   };
 
   const canSubmit = useMemo(
-    () => !loading && !!referenceNumber.trim(),
-    [loading, referenceNumber]
+    () => !loading && !!query.trim(),
+    [loading, query]
   );
 
   return (
@@ -138,8 +148,8 @@ export default function CertificateValidityModal({
               Certificate Validity Check
             </DialogTitle>
             <p className="text-sm sm:text-base text-gray-600 mt-2 max-w-[520px]">
-              Type a certificate reference number and we will show if it is
-              available.
+              Search by certificate reference number or UCR number and we
+              will show if it is available.
             </p>
           </div>
         </div>
@@ -149,14 +159,37 @@ export default function CertificateValidityModal({
             <CardContent className="px-6 sm:px-8 pb-8 pt-2">
               <form onSubmit={handleCheck} className="flex flex-col gap-4">
                 <div className="flex flex-col gap-1">
-                  <label className="text-sm text-gray-600">
-                    Certificate Reference Number
+                  <Tabs
+                    value={searchMode}
+                    onValueChange={(v) => {
+                      setSearchMode(v as "reference" | "ucr");
+                      setError(null);
+                      setResult(null);
+                      setHasSearched(false);
+                    }}
+                    className="w-full"
+                  >
+                    <TabsList className="w-full">
+                      <TabsTrigger value="reference" className="flex-1">
+                        Reference Number
+                      </TabsTrigger>
+                      <TabsTrigger value="ucr" className="flex-1">
+                        UCR Number
+                      </TabsTrigger>
+                    </TabsList>
+                  </Tabs>
+                  <label className="text-sm text-gray-600 mt-3">
+                    {searchMode === "reference"
+                      ? "Certificate Reference Number"
+                      : "UCR Number"}
                   </label>
                   <div className="flex flex-col gap-3">
                     <Input
-                      value={referenceNumber}
-                      onChange={(e) => setReferenceNumber(e.target.value)}
-                      placeholder="Eg: TZ00000"
+                      value={query}
+                      onChange={(e) => setQuery(e.target.value)}
+                      placeholder={
+                        searchMode === "reference" ? "Eg: TZ*****" : "Eg: 26TZ*****"
+                      }
                       className="w-full h-12 font-mono tracking-wide"
                     />
                     <Button
@@ -258,7 +291,8 @@ export default function CertificateValidityModal({
 
             {hasSearched && !loading && !error && !isValid && (
               <div className="rounded-lg border border-gray-200 bg-gray-50 p-4 text-sm text-gray-700">
-                Certificate is not available for this reference number.
+                Certificate is not available for this{" "}
+                {searchMode === "reference" ? "reference number" : "UCR number"}.
               </div>
             )}
           </form>
