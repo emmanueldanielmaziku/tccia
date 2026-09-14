@@ -215,12 +215,6 @@ export default function CertificateValidityPage() {
                         {messageInfo.approval_date_and_time || "-"}
                       </div>
                     </div>
-                    <div className="space-y-1">
-                      <div className="text-gray-500">Approver</div>
-                      <div className="font-medium break-all">
-                        {messageInfo.approver_name || "-"}
-                      </div>
-                    </div>
                   </div>
 
                   <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
