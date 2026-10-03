@@ -56,7 +56,8 @@
       "selectCompany": "Chagua kampuni ili kufikia moduli hii",
       "accessRestrictedEmployee": "Ufikiaji umewekewa mipaka kwa wafanyakazi",
       "noModuleAccess": "Huna ruhusa ya kufikia moduli hii",
-      "accessRestricted": "Ufikiaji umewekewa mipaka"
+      "accessRestricted": "Ufikiaji umewekewa mipaka",
+      "noTinRestricted": "Sajili kampuni yenye TIN ili kufungua moduli hii"
     }
   },
   "forms": {

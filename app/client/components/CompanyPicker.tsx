@@ -21,6 +21,7 @@ import {
 import { ChevronDownIcon, CheckIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import usetinFormState from "../services/companytinformState";
+import { companyHasNoTin } from "../../hooks/useNoTinRestriction";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
@@ -31,6 +32,7 @@ interface LoginCompany {
   company_tin: string;
   name: string;
   state: string;
+  has_tin?: boolean;
 }
 
 // Company from API response (full details)
@@ -49,6 +51,7 @@ interface Company {
   company_telephone_number: string;
   company_description: string;
   state: string;
+  has_tin?: boolean;
 }
 
 interface ApiResponse {
@@ -88,6 +91,8 @@ export default function CompanyPicker() {
       company_registration_type_code: company.company_registration_type_code,
       company_email: company.company_email,
       company_telephone_number: company.company_telephone_number,
+      // Preserve the TIN status so No-TIN module restrictions can be applied.
+      has_tin: company.has_tin ?? !companyHasNoTin(company),
     };
     localStorage.setItem("selectedCompany", JSON.stringify(companySession));
     window.dispatchEvent(new Event("COMPANY_CHANGE_EVENT"));
@@ -120,6 +125,9 @@ export default function CompanyPicker() {
             company_telephone_number: "",
             company_description: "",
             state: lc.state,
+            has_tin: lc.has_tin ?? !companyHasNoTin({
+              company_tin: lc.company_tin,
+            }),
           }));
 
           if (convertedCompanies.length > 0) {
@@ -137,6 +145,12 @@ export default function CompanyPicker() {
               ) {
                 setSelectedCompany(parsedCompany.company_tin);
                 restoredSelection = true;
+                // Re-persist so the stored company always carries an accurate
+                // has_tin flag (covers companies auto-selected at login).
+                const match = convertedCompanies.find(
+                  (c) => c.company_tin === parsedCompany.company_tin
+                );
+                if (match) persistSelectedCompany(match);
               }
             }
 
@@ -192,6 +206,12 @@ export default function CompanyPicker() {
           ) {
             setSelectedCompany(parsedCompany.company_tin);
             restoredSelection = true;
+            // Re-persist so the stored company always carries an accurate
+            // has_tin flag (covers companies auto-selected at login).
+            const match = data.data.companies.find(
+              (c) => c.company_tin === parsedCompany.company_tin
+            );
+            if (match) persistSelectedCompany(match);
           }
         }
 

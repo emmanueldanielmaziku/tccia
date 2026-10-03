@@ -56,7 +56,8 @@
       "selectCompany": "Select a company to access this module",
       "accessRestrictedEmployee": "Access restricted for employees",
       "noModuleAccess": "You don't have access to this module",
-      "accessRestricted": "Access restricted"
+      "accessRestricted": "Access restricted",
+      "noTinRestricted": "Register a company with a TIN to unlock this module"
     }
   },
   "forms": {

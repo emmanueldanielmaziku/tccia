@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 
 const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL || "https://tccia.kalen.co.tz";
+  process.env.NEXT_PUBLIC_API_BASE_URL || "https://staff.tncc.or.tz";
 
 export async function POST(request: Request) {
   try {

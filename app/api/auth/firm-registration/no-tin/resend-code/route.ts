@@ -3,6 +3,13 @@ import { cookies } from "next/headers";
 
 const API_BASE_URL = "https://staff.tncc.or.tz";
 
+/**
+ * Proxy: resend the OTP for a no-TIN company registration.
+ * The backend enforces the maximum of 3 resends and re-dispatches the OTP
+ * via email and/or SMS depending on the contact details provided.
+ *
+ * Upstream: POST /api/company_registration/no_tin/resend_code
+ */
 export async function POST(request: Request) {
   try {
     const body = await request.json();
@@ -23,7 +30,7 @@ export async function POST(request: Request) {
     }
 
     const response = await fetch(
-      `${API_BASE_URL}/api/company_registration/verify_code`,
+      `${API_BASE_URL}/api/company_registration/no_tin/resend_code`,
       {
         method: "POST",
         headers: {
@@ -31,8 +38,7 @@ export async function POST(request: Request) {
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
-          company_tin: body.company_tin,
-          code_input: body.code_input,
+          registration_reference: body.registration_reference,
         }),
       },
     );
@@ -54,7 +60,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json(data);
   } catch (error) {
-    console.error("Error verifying code:", error);
+    console.error("Error resending no-TIN registration code:", error);
     return NextResponse.json(
       {
         jsonrpc: "2.0",

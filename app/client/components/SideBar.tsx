@@ -21,6 +21,7 @@ import useLogState from "../services/LogoutState";
 import { useTranslations } from "next-intl";
 import useMobileState from "../services/MobileState";
 import { useUserPermissions } from "../../hooks/useUserPermissions";
+import { useNoTinRestriction } from "../../hooks/useNoTinRestriction";
 
 export default function SideBar() {
   // Fetch certificates on company change
@@ -34,6 +35,7 @@ export default function SideBar() {
   const t = useTranslations("sidebar");
   const ta = useTranslations("alerts");
   const { canView, getUserModules } = useUserPermissions();
+  const { isNoTinSelected, isLockedForNoTin } = useNoTinRestriction();
   const [companySelected, setCompanySelected] = useState(() => {
     if (typeof window !== "undefined") {
       return !!localStorage.getItem("selectedCompany");
@@ -188,6 +190,13 @@ export default function SideBar() {
 
   // Check if a menu item should be locked
   const isModuleLocked = (item: (typeof menuItems)[0]): boolean => {
+    // When only a No-TIN company is selected, lock everything except the
+    // allowlisted modules (Company Registration, Membership, and the
+    // always-accessible ones).
+    if (isLockedForNoTin(item.moduleCode, item.id)) {
+      return true;
+    }
+
     // Profile, IT Support, Business Complaints, and NTB are always accessible
     if (item.alwaysAccessible) {
       return false;
@@ -278,7 +287,9 @@ export default function SideBar() {
 
               // Determine lock message
               let lockMessage = t("lockMessages.selectCompany");
-              if (isModuleAccessLocked) {
+              if (isNoTinSelected && isModuleAccessLocked) {
+                lockMessage = t("lockMessages.noTinRestricted");
+              } else if (isModuleAccessLocked) {
                 if (
                   userRole === "employee" &&
                   (item.id === "Company Registration" ||

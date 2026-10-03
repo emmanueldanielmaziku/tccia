@@ -104,7 +104,6 @@ export default function FirmManagement() {
   useEffect(() => {
     fetchCompanies();
   }, []);
-
   useEffect(() => {
     if (companies.length === 0) return;
 
