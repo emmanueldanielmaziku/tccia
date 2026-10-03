@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 
-const REMOTE_BASE_URL = "https://staff.tncc.or.tz/api";
+const REMOTE_BASE_URL = "https://tccia.kalen.co.tz/api";
 
 export async function POST(req: NextRequest) {
   try {
