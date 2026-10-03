@@ -320,8 +320,8 @@ export default function FirmManagement() {
       {/* Content */}
       <section className="flex flex-col lg:flex-row flex-1">
         <div className="flex flex-col items-start flex-1 min-w-0 h-[97vh] pt-16 sm:pt-18 bg-transparent border-transparent border-[1px] rounded-xl">
-          <div className="flex flex-col justify-start items-start mt-2 w-full h-[86vh] rounded-sm relative px-3 sm:px-4 md:px-6 lg:px-8 xl:px-12 2xl:px-16">
-            <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center w-full gap-4 lg:gap-6 my-1">
+          <div className="flex flex-col justify-start items-start mt-2 w-full flex-1 min-h-0 rounded-sm relative px-3 sm:px-4 md:px-6 lg:px-8 xl:px-12 2xl:px-16">
+            <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center w-full gap-4 lg:gap-6 my-1 shrink-0">
               {tinformState ? (
                 <div className="font-semibold antialiased text-sm sm:text-base lg:text-[18px] text-zinc-600">
                   Add New Company
@@ -409,7 +409,7 @@ export default function FirmManagement() {
 
             {/* Main */}
             {loading || refreshing ? (
-              <div className="w-full grid grid-cols-1 pr-2 sm:pr-3 gap-3 sm:gap-5 mt-4 sm:mt-5 rounded-md overflow-hidden overflow-y-auto">
+              <div className="w-full flex-1 min-h-0 grid grid-cols-1 pr-2 sm:pr-3 gap-3 sm:gap-5 mt-4 sm:mt-5 rounded-md overflow-hidden overflow-y-auto">
                 {Array.from({ length: 5 }).map((_, idx) => (
                   <div
                     key={idx}
@@ -469,7 +469,7 @@ export default function FirmManagement() {
             ) : error ? (
               <div className="text-red-500">{error}</div>
             ) : (
-              <div className="w-full grid grid-cols-1 pr-2 sm:pr-3 gap-3 sm:gap-5 mt-4 sm:mt-5 rounded-md overflow-hidden overflow-y-auto">
+              <div className="w-full flex-1 min-h-0 grid grid-cols-1 pr-2 sm:pr-3 gap-3 sm:gap-5 mt-4 sm:mt-5 rounded-md overflow-hidden overflow-y-auto">
                 {paginatedData.map((firm, index) => (
                   <div
                     key={index}
@@ -551,7 +551,7 @@ export default function FirmManagement() {
 
             {/* Pagination */}
             {tinformState ? null : (
-              <div className="flex flex-col sm:flex-row justify-between items-center gap-3 sm:gap-4 mt-4 bg-white/35 backdrop-blur-md w-full p-3 sm:p-4">
+              <div className="flex flex-col sm:flex-row justify-between items-center gap-3 sm:gap-4 mt-4 bg-white/35 backdrop-blur-md w-full p-3 sm:p-4 shrink-0">
                 <span className="text-sm sm:text-base text-gray-600 order-2 sm:order-1">
                   {tp("pageOf", { currentPage, totalPages })}
                 </span>

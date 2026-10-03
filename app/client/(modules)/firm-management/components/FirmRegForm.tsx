@@ -1277,10 +1277,10 @@ export default function FirmRegForm({
       ) : (
         /* Step 1b: No-TIN registration form */
         <form
-          className="flex flex-col w-full pb-10 mt-5"
+          className="flex flex-col flex-1 min-h-0 w-full pb-10 mt-5"
           onSubmit={handleNonTinPreview}
         >
-          <div className="border-t-[0.5px] border-dashed border-gray-400 pt-6 flex flex-row items-center justify-between">
+          <div className="border-t-[0.5px] border-dashed border-gray-400 pt-6 flex flex-row items-center justify-between shrink-0">
             <div>
               <h3 className="text-base font-semibold text-zinc-700">
                 Company Details (No TIN)
@@ -1303,7 +1303,7 @@ export default function FirmRegForm({
             </button>
           </div>
 
-          <div className="flex flex-col gap-4 mt-6 overflow-hidden overflow-y-auto pr-1">
+          <div className="flex flex-col gap-4 mt-6 flex-1 min-h-0 overflow-y-auto overflow-x-hidden pr-1">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-1">
               {renderField("Company Name", "company_name", {
                 placeholder: "Example Company",
@@ -1365,7 +1365,7 @@ export default function FirmRegForm({
             </div>
           </div>
 
-          <div className="flex flex-row justify-end mt-10">
+          <div className="flex flex-row justify-end mt-6 shrink-0">
             <button
               type="submit"
               className="px-12 py-3 bg-blue-500 text-white rounded-sm hover:bg-blue-600 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
